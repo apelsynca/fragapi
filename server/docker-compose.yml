@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      - POSTGRES_DB=fragment
+      - POSTGRES_USER=${FRAG_PG_USER}
+      - POSTGRES_PASSWORD=${FRAG_PG_PASS}
+      - PGPORT=${FRAG_PG_PORT}
+    ports:
+      - ${FRAG_PG_PORT}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - dokploy-network
+
+  app:
+    build: .
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - ${FRAG_PORT}
+    volumes:
+      - ${FRAG_SECRETS_PATH}:/app/.secrets.toml
+      - ${FRAG_SESSION_PATH}:/app/.fragment-session.json
+    networks:
+      - dokploy-network
+
+volumes:
+  db_data:
+
+networks:
+  dokploy-network:
+    external: true

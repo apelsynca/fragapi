@@ -1,0 +1,62 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Fragment API",
+  "colors": {
+    "primary": "#cc5000",
+    "light": "#cc5000",
+    "dark": "#cc5000"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Гайды",
+        "groups": [
+          {
+            "group": "Главная",
+            "pages": [
+              "index",
+              "commission",
+              "why"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Документация",
+        "groups": [
+          {
+            "group": "Главная",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          }
+        ],
+        "openapi": "https://fragapi.ru/openapi.json"
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Помощь",
+        "href": "https://t.me/apelsynca"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Панель",
+      "href": "https://panel.fragapi.ru"
+    }
+  },
+  "footer": {
+    "socials": {
+      "telegram": "https://t.me/apelsynca"
+    }
+  }
+}

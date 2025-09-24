@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "dev": "bunx mint dev --port 5000"
+  }
+}

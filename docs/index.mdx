@@ -1,0 +1,48 @@
+---
+title: "Добро пожаловать"
+description: "Добро пожаловать в документацию Fragment API"
+---
+
+<img
+  style={{ borderRadius: '0.5rem', boxShadow: "0 2px 3px 1px rgba(0,0,0,0.25)" }}
+  src="/images/light-hero.png"
+  alt="Hero"
+  className="block dark:hidden"
+/>
+
+<img
+  style={{ borderRadius: '0.5rem' }}
+  src="/images/dark-hero.png"
+  alt="Hero"
+  className="hidden dark:block"
+/>
+
+<Card title="Документация API" icon="code" href="/api-reference">
+  Полная документация API Fragment 
+</Card>
+
+#### Основной функционал
+
+<Columns cols={2}>
+  <Card title="Звезды" icon="star">
+    - [x] Покупка звезд
+    - [x] Получение информации о получателе звезд (по username)
+    - [ ] Создание розыгрыша звезд в канале
+  </Card>
+
+  <Card title="Премиум" icon="gift">
+    - [x] Покупка премиума
+    - [x] Получение информации о получателе премиума (по username)
+    - [ ] Создание розыгрыша премиума в канале
+  </Card>
+
+  <Card title="Юзернеймы" icon="at">
+    - [ ] Участие в торгах на юзернейм
+  </Card>
+
+  <Card title="Подарки" icon="badge">
+    - [ ] Покупка подарков
+    - [ ] Продажа подарков
+    - [ ] Создание аукционов на подарок
+  </Card>
+</Columns>

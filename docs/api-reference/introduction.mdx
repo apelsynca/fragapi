@@ -1,0 +1,62 @@
+---
+title: Основа
+description: Тут описаны все основные способы взаимодействия с нашим API
+---
+
+<Accordion title="Как получить API токен?">
+  Получить API токен можно в [панеле](https://panel.fragapi.ru)
+
+  <img src="/images/api-keys.png" alt="Скрин панели" className="rounded-xl" /> 
+</Accordion>
+<Accordion title="Как делать запросы?">
+  Запросы делаются на `https://fragapi.ru/v1/название-метода`
+
+  Обязятельно передав заголовок авторизации, с API ключом:
+
+    `Authorization`: `Bearer XXXВашАпиКлючXXX`
+</Accordion>
+
+
+## Примеры работы с API
+
+<CodeGroup>
+
+```python fragapi.py
+import requests
+
+BASE_URL = "https://fragapi.ru/v1"
+token = "<Ваш API ключ>"
+
+# Делаем запрос к API передавая свой API ключ
+r = requests.get(
+  url=f"{BASE_URL}/users/me",
+  headers={
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+  }
+)
+me = r.json()
+
+# Должно вывести данные о балансе и тд..
+print(me)
+```
+
+```javascript fragapi.js
+const baseUrl = "https://fragapi.ru/v1"
+const token = "<Ваш API ключ>"
+
+// Делаем запрос к API передавая свой API ключ
+const response = await fetch(`${baseUrl}/users/me`, {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json"
+  }
+})
+
+const me = await response.json()
+
+// Должно вывести данные о балансе и тд..
+console.log(me)
+```
+</CodeGroup>

@@ -1,0 +1,10 @@
+services:
+  app:
+    ports:
+      - "${FRAG_PORT}:${FRAG_PORT}"
+
+networks:
+  dokploy-network:
+    external: false
+    driver: bridge
+  

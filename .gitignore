@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+.secrets.toml
+.env
+.env.local
+
+# Virtual environments
+.venv
+
+.fragment-session.json
+fragment-session.json
+
+.nitro/
+.output/
