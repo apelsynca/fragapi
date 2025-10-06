@@ -23,8 +23,8 @@ class BaseFragment:
         - method named `request` to simplify requests to fragment
     """
 
-    def __init__(self, fragment_url: str = "https://fragment.com") -> None:
-        self.fragment_url = fragment_url
+    def __init__(self, base_url: str = "https://fragment.com") -> None:
+        self.base_url = base_url
 
         self._client: AsyncClient | None = None
         self._authorized = False
@@ -68,8 +68,8 @@ class BaseFragment:
         }
         headers = {
             "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://fragment.com",
-            "Referer": "https://fragment.com/",
+            "Origin": self.base_url,
+            "Referer": f"{self.base_url}/",
         }
 
         try:
@@ -84,7 +84,7 @@ class BaseFragment:
         return False
 
     async def get_session_tokens(self) -> None:
-        response = await self.client.get(url=self.fragment_url)
+        response = await self.client.get(url=self.base_url)
 
         session_hash_match = re.search(r'"apiUrl":"\\/api\?hash=(\w+)"', response.text)
         if session_hash_match is None:
@@ -115,7 +115,7 @@ class BaseFragment:
             raise FragmentError("No session hash")
 
         response = await self.client.post(
-            url=f"{self.fragment_url}/api?hash={self.session.hash}",
+            url=f"{self.base_url}/api?hash={self.session.hash}",
             data={"method": method, **data},
             headers=headers,
             cookies=cookies,
@@ -166,7 +166,7 @@ class BaseFragment:
 
     async def get_stars_buy_page(self):
         response = await self.client.get(
-            "https://fragment.com/stars/buy",
+            f"{self.base_url}/stars/buy",
             headers={"X-Requested-With": "XMLHttpRequest"},
         )
 

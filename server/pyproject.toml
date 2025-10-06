@@ -5,22 +5,22 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic>=1.16.4",
-    "asyncpg>=0.30.0",
-    "brotli>=1.1.0",
-    "cryptography>=45.0.6",
-    "fastapi>=0.116.1",
-    "greenlet>=3.2.4",
-    "httpx>=0.28.1",
-    "pydantic>=2.11.7",
-    "pydantic-settings>=2.10.1",
-    "pyjwt>=2.10.1",
-    "python-telegram-bot>=22.3",
-    "sqlalchemy>=2.0.43",
-    "structlog>=25.4.0",
-    "tonutils>=0.5.2",
-    "uvicorn>=0.35.0",
-    "zstandard>=0.23.0",
+  "alembic>=1.16.4",
+  "asyncpg>=0.30.0",
+  "brotli>=1.1.0",
+  "cryptography>=45.0.6",
+  "fastapi>=0.116.1",
+  "greenlet>=3.2.4",
+  "httpx>=0.28.1",
+  "pydantic>=2.11.7",
+  "pydantic-settings>=2.10.1",
+  "pyjwt>=2.10.1",
+  "python-telegram-bot>=22.3",
+  "sqlalchemy>=2.0.43",
+  "structlog>=25.4.0",
+  "tonutils>=0.5.2",
+  "uvicorn>=0.35.0",
+  "zstandard>=0.23.0",
 ]
 
 [tool.pyright]

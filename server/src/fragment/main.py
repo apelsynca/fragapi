@@ -12,8 +12,8 @@ class Fragment(BaseFragment):
     Interaction with fragment methods, supporting type-hinting
     """
 
-    def __init__(self, fragment_url: str = "https://fragment.com") -> None:
-        super().__init__(fragment_url)
+    def __init__(self, base_url: str = "https://fragment.com") -> None:
+        super().__init__(base_url=base_url)
 
         self._last_ton_rate_update = utc_now()
 
