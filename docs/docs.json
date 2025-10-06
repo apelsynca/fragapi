@@ -46,6 +46,10 @@
       {
         "label": "Помощь",
         "href": "https://t.me/apelsynca"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/braveltd/fragment-api"
       }
     ],
     "primary": {
@@ -56,7 +60,8 @@
   },
   "footer": {
     "socials": {
-      "telegram": "https://t.me/apelsynca"
+      "telegram": "https://t.me/apelsynca",
+      "github": "https://github.com/braveltd/fragment-api"
     }
   }
 }
