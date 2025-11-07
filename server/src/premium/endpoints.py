@@ -29,7 +29,6 @@ async def buy_premium(
         user=user,
         username=data.username,
         months=data.months,
-        show_sender=data.show_sender,
     )
 
     return BuyPremiumResponse(success=True, transaction_hash=tx_hash)

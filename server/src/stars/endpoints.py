@@ -28,7 +28,6 @@ async def buy_stars(
         user=user,
         quantity=data.quantity,
         username=data.username,
-        show_sender=data.show_sender,
     )
 
     return BuyStarsResponse(success=True, transaction_hash=tx_hash)

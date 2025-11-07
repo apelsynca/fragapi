@@ -5,7 +5,6 @@ from src.kit.schemas import Schema
 class BuyPremium(Schema):
     username: str
     months: PremiumMonths
-    show_sender: bool = False
 
 
 class BuyPremiumResponse(Schema):

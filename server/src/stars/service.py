@@ -26,14 +26,12 @@ class StarsService:
         user: User,
         quantity: int,
         username: str,
-        show_sender: bool = False,
     ) -> str:
         log.info(
             "Buy stars request",
             user=user,
             username=username,
             quantity=quantity,
-            show_sender=show_sender,
         )
 
         if quantity < 50:
@@ -59,9 +57,7 @@ class StarsService:
         if balance < stars_ton_price:
             raise BadRequest("We have insufficcient funds")
 
-        link = await fragment.get_buy_stars_link(
-            req_id=buy_stars_request.req_id, show_sender=show_sender
-        )
+        link = await fragment.get_buy_stars_link(req_id=buy_stars_request.req_id)
 
         await user_service.update_balance(
             user=user, new_balance=user.balance - user_stars_ton_price

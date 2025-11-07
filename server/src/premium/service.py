@@ -25,7 +25,6 @@ class PremiumService:
         user: User,
         username: str,
         months: PremiumMonths,
-        show_sender: bool = False,
     ) -> str:
         try:
             recipient_data = await fragment.search_premium_recipient(
@@ -47,9 +46,7 @@ class PremiumService:
         if balance < premium_ton_price:
             raise BadRequest("We have insufficcient funds")
 
-        link = await fragment.get_premium_link(
-            req_id=buy_premium_request.req_id, show_sender=show_sender
-        )
+        link = await fragment.get_premium_link(req_id=buy_premium_request.req_id)
 
         await user_service.update_balance(
             user=user, new_balance=user.balance - user_premium_ton_price
