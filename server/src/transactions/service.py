@@ -1,7 +1,10 @@
+from sqlalchemy import func
+
 from src.kit.pagination import PaginationParams
 from src.models import Transaction, TransactionReason, User
 
 from .repository import TransactionRepository
+from .schemas import TransactionStats
 
 
 class TransactionService:
@@ -19,7 +22,12 @@ class TransactionService:
         self, pagination: PaginationParams, user: User
     ) -> tuple[list[Transaction], int]:
         return await self.repository.paginate(
-            stmt=self.repository.get_base_stmt().where(Transaction.user == user),
+            stmt=self.repository.get_base_stmt()
+            .where(Transaction.user == user)
+            .order_by(Transaction.created_at.desc()),
             limit=pagination.limit,
             page=pagination.page,
         )
+
+    async def get_stats(self, user: User) -> TransactionStats:
+        return await self.repository.get_stats(user)

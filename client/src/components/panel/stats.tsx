@@ -1,3 +1,5 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { transactionStatsQueryOptions } from "~/lib/options/transactions";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 const StatItem: React.FC<{ title: string; value: string }> = ({
@@ -17,12 +19,16 @@ const StatItem: React.FC<{ title: string; value: string }> = ({
 };
 
 export const Stats = () => {
+  const { data: stats } = useSuspenseQuery(transactionStatsQueryOptions());
+
   return (
     <div className="flex gap-2 mt-2 flex-wrap md:flex-nowrap">
-      <StatItem title="Купленно звезд" value="0" />
-      <StatItem title="Купленно premium" value="0 раз." />
-      <StatItem title="Потрачено" value="0 TON" />
-      <StatItem title="Поисковых запросов" value="0" />
+      <StatItem title="Куплено звезд" value={stats.stars_count.toLocaleString()} />
+      <StatItem
+        title="Куплено premium"
+        value={`${stats.premium_count.toLocaleString()} раз.`}
+      />
+      <StatItem title="Потрачено" value={`${stats.total_spent.toLocaleString()} TON`} />
     </div>
   );
 };
