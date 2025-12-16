@@ -8,3 +8,9 @@ export interface Transaction {
   reason: TransactionReason;
   created_at: Date;
 }
+
+export interface TransactionStats {
+  stars_count: number;
+  premium_count: number;
+  total_spent: number;
+}

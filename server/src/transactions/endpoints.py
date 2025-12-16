@@ -4,7 +4,7 @@ from src.openapi import APITag
 from src.routing import APIRouter
 
 from .dependencies import TransactionServiceDependency
-from .schemas import Transaction
+from .schemas import Transaction, TransactionStats
 
 router = APIRouter(
     prefix="/panel/transactions", tags=["Transactions", "Panel", APITag.private]
@@ -26,3 +26,11 @@ async def get_transactions_list(
         total_count=count,
         pagination_params=pagination,
     )
+
+
+@router.get("/stats", description="Get transaction statistics")
+async def get_transaction_stats(
+    user: WebUser,
+    transaction_service: TransactionServiceDependency,
+) -> TransactionStats:
+    return await transaction_service.get_stats(user)

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import { Transaction } from "./models/transactions";
+import { Transaction, TransactionStats } from "./models/transactions";
 import { ListResource } from "./models/list";
 
 export const fetchTransactions = createServerFn().handler(async () => {
@@ -18,4 +18,20 @@ export const fetchTransactions = createServerFn().handler(async () => {
   }
 
   return json as ListResource<Transaction>;
+});
+
+export const fetchTransactionStats = createServerFn().handler(async () => {
+  const token = await verifySession();
+  const response = await request("/panel/transactions/stats", {
+    token,
+  });
+
+  const json = await response.json();
+
+  if (response.status !== 200) {
+    console.log("Error fetching transaction stats", json);
+    throw new Error("Error fetching transaction stats");
+  }
+
+  return json as TransactionStats;
 });

@@ -8,3 +8,9 @@ class Transaction(Schema):
     amount: float
     reason: TransactionReason
     created_at: datetime
+
+
+class TransactionStats(Schema):
+    stars_count: int
+    premium_count: int
+    total_spent: float
