@@ -1,11 +1,15 @@
 import { queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { fetchTransactions, fetchTransactionStats } from "../transactions";
+import {
+  fetchTransactions,
+  fetchTransactionStats,
+  verifyTransaction,
+} from "../transactions";
 
-export const transactionsQueryOptions = () =>
+export const transactionsQueryOptions = (page: number = 1, limit: number = 10) =>
   queryOptions({
-    queryKey: ["transactions"],
-    queryFn: useServerFn(fetchTransactions),
+    queryKey: ["transactions", page, limit],
+    queryFn: useServerFn(fetchTransactions, { data: { page, limit } }),
   });
 
 export const transactionStatsQueryOptions = () =>
@@ -13,3 +17,5 @@ export const transactionStatsQueryOptions = () =>
     queryKey: ["transactionStats"],
     queryFn: useServerFn(fetchTransactionStats),
   });
+
+export const verifyTransactionFn = () => useServerFn(verifyTransaction);

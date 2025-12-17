@@ -1,7 +1,7 @@
 from enum import StrEnum, auto
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.models import RecordModel
@@ -15,11 +15,30 @@ class TransactionReason(StrEnum):
     STARS = auto()
 
 
+class TransactionStatus(StrEnum):
+    PENDING = auto()
+    COMPLETED = auto()
+    FAILED = auto()
+
+
 class Transaction(RecordModel):
     amount: Mapped[float]
     reason: Mapped[TransactionReason] = mapped_column(
         Enum(TransactionReason, native_enum=False)
     )
+
+    # Blockchain transaction hash
+    tx_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+
+    # Transaction status for verification
+    status: Mapped[TransactionStatus] = mapped_column(
+        Enum(TransactionStatus, native_enum=False),
+        default=TransactionStatus.PENDING,
+    )
+
+    # Stars-specific fields
+    stars_quantity: Mapped[int | None] = mapped_column(nullable=True)
+    recipient: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User")
