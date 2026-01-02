@@ -6,10 +6,13 @@ import {
   verifyTransaction,
 } from "../transactions";
 
-export const transactionsQueryOptions = (page: number = 1, limit: number = 10) =>
+export const transactionsQueryOptions = (
+  page: number = 1,
+  limit: number = 10,
+) =>
   queryOptions({
     queryKey: ["transactions", page, limit],
-    queryFn: useServerFn(fetchTransactions, { data: { page, limit } }),
+    queryFn: () => useServerFn(fetchTransactions)({ data: { page, limit } }),
   });
 
 export const transactionStatsQueryOptions = () =>

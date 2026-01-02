@@ -31,7 +31,10 @@ export const Stats = () => {
         title="Покупок premium"
         value={`${stats.premium_count.toLocaleString()} раз`}
       />
-      <StatItem title="Потрачено" value={`${stats.total_spent.toLocaleString()} TON`} />
+      <StatItem
+        title="Потрачено"
+        value={`${stats.total_spent.toLocaleString()} TON`}
+      />
     </div>
   );
 };
