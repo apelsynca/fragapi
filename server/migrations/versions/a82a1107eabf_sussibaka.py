@@ -35,6 +35,7 @@ def upgrade() -> None:
                 native_enum=False,
             ),
             nullable=False,
+            server_default="COMPLETED",
         ),
     )
     op.add_column(
