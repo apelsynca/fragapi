@@ -1,16 +1,30 @@
 from datetime import datetime
 
 from src.kit.schemas import Schema
-from src.models.transactions import TransactionReason
+from src.models.transactions import TransactionReason, TransactionStatus
 
 
 class Transaction(Schema):
+    id: int
     amount: float
     reason: TransactionReason
+    status: TransactionStatus
+    tx_hash: str | None
+    stars_quantity: int | None
+    recipient: str | None
     created_at: datetime
 
 
 class TransactionStats(Schema):
-    stars_count: int
+    stars_purchases_count: int  # Количество покупок звезд
     premium_count: int
     total_spent: float
+
+
+class TransactionVerifyResponse(Schema):
+    """Response for transaction verification"""
+    id: int
+    status: TransactionStatus
+    tx_hash: str | None
+    verified: bool
+    message: str

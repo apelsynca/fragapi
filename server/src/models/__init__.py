@@ -1,7 +1,14 @@
 from src.kit.models import Model
 
-from .transactions import Transaction, TransactionReason
+from .transactions import Transaction, TransactionReason, TransactionStatus
 from .user_sessions import UserSession
 from .users import User
 
-__all__ = ["Model", "Transaction", "TransactionReason", "UserSession", "User"]
+__all__ = [
+    "Model",
+    "Transaction",
+    "TransactionReason",
+    "TransactionStatus",
+    "UserSession",
+    "User",
+]

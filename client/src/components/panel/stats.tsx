@@ -23,10 +23,13 @@ export const Stats = () => {
 
   return (
     <div className="flex gap-2 mt-2 flex-wrap md:flex-nowrap">
-      <StatItem title="Куплено звезд" value={stats.stars_count.toLocaleString()} />
       <StatItem
-        title="Куплено premium"
-        value={`${stats.premium_count.toLocaleString()} раз.`}
+        title="Покупок звезд"
+        value={`${stats.stars_purchases_count.toLocaleString()} раз`}
+      />
+      <StatItem
+        title="Покупок premium"
+        value={`${stats.premium_count.toLocaleString()} раз`}
       />
       <StatItem title="Потрачено" value={`${stats.total_spent.toLocaleString()} TON`} />
     </div>

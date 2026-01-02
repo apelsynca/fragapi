@@ -1,24 +1,35 @@
 import { createServerFn } from "@tanstack/react-start";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import { Transaction, TransactionStats } from "./models/transactions";
+import {
+  Transaction,
+  TransactionStats,
+  TransactionVerifyResponse,
+} from "./models/transactions";
 import { ListResource } from "./models/list";
 
-export const fetchTransactions = createServerFn().handler(async () => {
-  const token = await verifySession();
-  const response = await request("/panel/transactions", {
-    token,
+export const fetchTransactions = createServerFn()
+  .validator((data: { page?: number; limit?: number }) => data)
+  .handler(async ({ data }) => {
+    const token = await verifySession();
+    const params = new URLSearchParams();
+    if (data.page) params.set("page", data.page.toString());
+    if (data.limit) params.set("limit", data.limit.toString());
+
+    const url = `/panel/transactions${params.toString() ? `?${params.toString()}` : ""}`;
+    const response = await request(url, {
+      token,
+    });
+
+    const json = await response.json();
+
+    if (response.status !== 200) {
+      console.log("Error fetching transactions", json);
+      throw new Error("Error fetching transactions");
+    }
+
+    return json as ListResource<Transaction>;
   });
-
-  const json = await response.json();
-
-  if (response.status !== 200) {
-    console.log("Error fetching transactions", json);
-    throw new Error("Error fetching transactions");
-  }
-
-  return json as ListResource<Transaction>;
-});
 
 export const fetchTransactionStats = createServerFn().handler(async () => {
   const token = await verifySession();
@@ -35,3 +46,25 @@ export const fetchTransactionStats = createServerFn().handler(async () => {
 
   return json as TransactionStats;
 });
+
+export const verifyTransaction = createServerFn()
+  .validator((data: { transactionId: number }) => data)
+  .handler(async ({ data }) => {
+    const token = await verifySession();
+    const response = await request(
+      `/panel/transactions/${data.transactionId}/verify`,
+      {
+        token,
+        method: "POST",
+      },
+    );
+
+    const json = await response.json();
+
+    if (response.status !== 200) {
+      console.log("Error verifying transaction", json);
+      throw new Error("Error verifying transaction");
+    }
+
+    return json as TransactionVerifyResponse;
+  });

@@ -7,7 +7,7 @@ from src.fragment.enums import PremiumMonths
 from src.fragment.exceptions import FragmentBadRequest
 from src.kit.utils import after_fee
 from src.logging import get_logger
-from src.models.transactions import TransactionReason
+from src.models.transactions import TransactionReason, TransactionStatus
 from src.models.users import User
 from src.premium.schemas import PremiumRecipient
 from src.ton_wallet import wallet
@@ -51,22 +51,53 @@ class PremiumService:
         await user_service.update_balance(
             user=user, new_balance=user.balance - user_premium_ton_price
         )
-        await transaction_service.create(
-            amount=user_premium_ton_price, reason=TransactionReason.PREMIUM, user=user
+
+        # Create transaction with PENDING status first
+        transaction = await transaction_service.create(
+            amount=user_premium_ton_price,
+            reason=TransactionReason.PREMIUM,
+            user=user,
+            recipient=username,
+            status=TransactionStatus.PENDING,
         )
 
-        tx_hash = await wallet.transfer_from_tc(
-            message=link.transaction.messages[0],
-            valid_until=link.transaction.valid_until,
-        )
-        log.info(
-            "New buy premium transaction!",
-            hash=tx_hash,
-            username=username,
-            months=months,
-        )
+        try:
+            tx_hash = await wallet.transfer_from_tc(
+                message=link.transaction.messages[0],
+                valid_until=link.transaction.valid_until,
+            )
 
-        return tx_hash
+            # Update transaction with tx_hash and COMPLETED status
+            await transaction_service.update_status(
+                transaction=transaction,
+                status=TransactionStatus.COMPLETED,
+                tx_hash=tx_hash,
+            )
+
+            log.info(
+                "New buy premium transaction!",
+                hash=tx_hash,
+                username=username,
+                months=months,
+                transaction_id=transaction.id,
+            )
+
+            return tx_hash
+
+        except Exception as exc:
+            # If transfer fails, mark transaction as FAILED
+            await transaction_service.update_status(
+                transaction=transaction,
+                status=TransactionStatus.FAILED,
+            )
+            log.error(
+                "Failed to transfer premium",
+                error=str(exc),
+                username=username,
+                months=months,
+                transaction_id=transaction.id,
+            )
+            raise
 
     async def get_recipient(self, username: str) -> PremiumRecipient:
         try:
