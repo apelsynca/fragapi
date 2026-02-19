@@ -25,6 +25,6 @@ class NotPermitted(AppError):
         super().__init__(message)
 
 
-class InsuficcientFunds(AppError):
+class InsuficcientFunds(BadRequest):
     def __init__(self, message: str = "Insufficient Funds"):
         super().__init__(message)
