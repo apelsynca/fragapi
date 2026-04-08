@@ -74,7 +74,9 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const status: TransactionStatus = row.getValue("status");
       return (
-        <div className={cn("flex items-center gap-1.5", getStatusClass(status))}>
+        <div
+          className={cn("flex items-center gap-1.5", getStatusClass(status))}
+        >
           {getStatusIcon(status)}
           <span className="text-sm">{getStatusText(status)}</span>
         </div>

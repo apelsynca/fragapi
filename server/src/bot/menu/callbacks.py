@@ -28,7 +28,7 @@ async def menu(
     user_service = UserService(repository=UserRepository(session=session))
 
     try:
-        user = await user_service.get(id=e_user.id)
+        user = await user_service.get_by_id(id=e_user.id)
     except ResourceNotFound:
         user = await user_service.create(
             user=UserCreate(

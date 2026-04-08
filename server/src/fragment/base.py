@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from src.config import settings
 from src.logging import get_logger
 from src.ton_connect import TonConnect
+from src.ton_wallet import wallet
 
 from .exceptions import FragmentBadRequest, FragmentError
 from .types import FragmentSession
@@ -31,7 +32,7 @@ class BaseFragment:
         self._ton_rate: float | None = None
 
         self.session = self.load_session()
-        self.tc = TonConnect(tc_domain="fragment.com")
+        self.tc = TonConnect(wallet=wallet, tc_domain="fragment.com")
 
     async def authorize(self) -> None:
         if self._authorized:

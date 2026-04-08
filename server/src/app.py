@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import TypedDict
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
@@ -8,25 +9,41 @@ from src.api import router
 from src.bot.app import bot_application
 from src.bot.endpoints import router as bot_router
 from src.bot.setup import setup_bot
-from src.database import session_manager
+from src.config import settings
 from src.exception_handlers import add_exception_handlers
 from src.health.endpoints import router as health_router
+from src.kit.database.postgres import (
+    AsyncEngine,
+    AsyncSessionMaker,
+    create_async_sessionmaker,
+)
 from src.logging import configure as configure_logging
 from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.panel_redirect.endpoints import router as panel_redirect_router
+from src.postgres import AsyncSessionMiddleware, create_async_engine
+from src.ton_wallet import client as toncenter_client
+from src.ton_wallet import wallet
 from src.ton_wallet.endpoints import router as tonapi_router
 
 log = get_logger()
+
+
+class State(TypedDict):
+    async_engine: AsyncEngine
+    async_sessionmaker: AsyncSessionMaker
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator:
     log.info("Starting Fragment API")
 
-    async with session_manager.connect() as conn:
-        await session_manager.create_all(conn)
+    async with toncenter_client:
+        await wallet.refresh()  # for TonConnect to have latest info
+
+    async_engine = create_async_engine("app")
+    async_sessionmaker = create_async_sessionmaker(async_engine)
 
     await setup_bot(bot_application)
 
@@ -35,13 +52,12 @@ async def lifespan(_: FastAPI) -> AsyncIterator:
 
     log.info("Fragment API started")
 
-    yield
+    yield State(async_engine=async_engine, async_sessionmaker=async_sessionmaker)
 
     await bot_application.stop()
     await bot_application.shutdown()
 
-    if session_manager._engine is not None:
-        await session_manager.close()
+    await toncenter_client.close()
 
     log.info("Fragment API stopped")
 
@@ -53,7 +69,9 @@ def create_app() -> FastAPI:
         **OPENAPI_PARAMETERS,
     )
 
-    app.add_middleware(LogCorrelationIdMiddleware)
+    if not settings.is_testing():
+        app.add_middleware(LogCorrelationIdMiddleware)
+        app.add_middleware(AsyncSessionMiddleware)
 
     add_exception_handlers(app)
 

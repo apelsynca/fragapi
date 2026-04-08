@@ -31,21 +31,12 @@ class IDModel(Model):
 class TimestampedModel(Model):
     __abstract__ = True
 
-    @declared_attr
-    def created_at(cls) -> Mapped[datetime]:
-        return mapped_column(
-            DateTime(timezone=True), default=utc_now, nullable=False, index=True
-        )
-
-    @declared_attr
-    def updated_at(cls) -> Mapped[datetime | None]:
-        return mapped_column(
-            DateTime(timezone=True),
-            onupdate=utc_now,
-            nullable=True,
-            default=None,
-            index=True,
-        )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False, index=True
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=utc_now, nullable=True, default=None
+    )
 
 
 class RecordModel(IDModel, TimestampedModel):

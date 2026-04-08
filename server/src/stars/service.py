@@ -1,7 +1,7 @@
 import re
 
 from src.config import settings
-from src.exceptions import BadRequest, InsuficcientFunds, ResourceNotFound
+from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
 from src.fragment import fragment
 from src.fragment.exceptions import FragmentBadRequest
 from src.kit.utils import after_fee
@@ -37,12 +37,9 @@ class StarsService:
         if quantity < 50:
             raise ValueError("Stars amount should be bigger than 50")
 
-        try:
-            recipient_data = await fragment.search_stars_recipient(
-                query=username, quantity=quantity
-            )
-        except FragmentBadRequest as exc:
-            raise BadRequest(str(exc))
+        recipient_data = await fragment.search_stars_recipient(
+            query=username, quantity=quantity
+        )
 
         buy_stars_request = await fragment.init_buy_stars_request(
             recipient=recipient_data.found.recipient, quantity=quantity
@@ -53,9 +50,9 @@ class StarsService:
         if user.balance < user_stars_ton_price:
             raise InsuficcientFunds
 
-        balance = await wallet.balance()
+        balance = await wallet.get_real_ton_balance()
         if balance < stars_ton_price:
-            raise BadRequest("We have insufficcient funds")
+            raise AppError(f"We have insufficcient funds: {balance}")
 
         link = await fragment.get_buy_stars_link(req_id=buy_stars_request.req_id)
 
@@ -115,7 +112,7 @@ class StarsService:
         try:
             recipient_data = await fragment.search_stars_recipient(query=username)
         except FragmentBadRequest:
-            raise ResourceNotFound("No recipient found")
+            raise ResourceNotFound(f"No recipient found by username {username}")
 
         photo_match = re.search(r'src="(.*)"', recipient_data.found.photo)
 

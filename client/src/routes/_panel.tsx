@@ -11,17 +11,15 @@ export const Route = createFileRoute("/_panel")({
 
 function RouteComponent() {
   return (
-    <div>
-      <TonConnectUIProvider manifestUrl="https://panel.fragapi.ru/tonconnect-manifest.json">
-        <SidebarProvider>
-          <AppSidebar />
-          <main className="p-4 w-full max-w-screen">
-            <SidebarTrigger className="mb-2" />
-            <Outlet />
-          </main>
-          <Toaster position="top-center" />
-        </SidebarProvider>
-      </TonConnectUIProvider>
-    </div>
+    <TonConnectUIProvider manifestUrl="https://panel.fragapi.ru/tonconnect-manifest.json">
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="p-4 w-full max-w-screen">
+          <SidebarTrigger className="mb-2" />
+          <Outlet />
+        </main>
+        <Toaster position="top-center" />
+      </SidebarProvider>
+    </TonConnectUIProvider>
   );
 }

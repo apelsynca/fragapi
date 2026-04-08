@@ -1,5 +1,4 @@
-from sqlalchemy import func
-
+from src.exceptions import ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import Transaction, TransactionReason, TransactionStatus, User
 
@@ -33,16 +32,23 @@ class TransactionService:
             )
         )
 
-    async def get_by_id(self, transaction_id: int, user: User) -> Transaction | None:
-        """Get transaction by ID for a specific user"""
-        return await self.repository.get_one_or_none(
+    async def get_by_id(self, transaction_id: int, user: User) -> Transaction:
+        transaction = await self.repository.get_one_or_none(
             self.repository.get_base_stmt()
             .where(Transaction.id == transaction_id)
             .where(Transaction.user == user)
         )
 
+        if transaction is None:
+            raise ResourceNotFound("Transaction not found")
+
+        return transaction
+
     async def update_status(
-        self, transaction: Transaction, status: TransactionStatus, tx_hash: str | None = None
+        self,
+        transaction: Transaction,
+        status: TransactionStatus,
+        tx_hash: str | None = None,
     ) -> Transaction:
         """Update transaction status and optionally tx_hash"""
         update_data: dict = {"status": status}

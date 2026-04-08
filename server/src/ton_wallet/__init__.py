@@ -1,3 +1,3 @@
-from .main import tonapi_client, wallet
+from .main import client, wallet
 
-__all__ = ["tonapi_client", "wallet"]
+__all__ = ["client", "wallet"]

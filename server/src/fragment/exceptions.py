@@ -1,4 +1,7 @@
-class FragmentError(Exception):
+from src.exceptions import BadRequest
+
+
+class FragmentError(BadRequest):
     """On any unexpected fragment response/request"""
 
     def __init__(self, message: str = "Fragment error") -> None:

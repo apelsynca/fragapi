@@ -1,8 +1,11 @@
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.auth.dependencies import APIUser, WebUser
-from src.database.dependencies import DBSession
 from src.kit.utils import generate_api_key
 from src.models import User
 from src.openapi import APITag
+from src.postgres import get_db_session
 from src.routing import APIRouter
 
 from .schemas import PanelUserRead, RevokeTokenResponse, UserRead
@@ -24,7 +27,9 @@ async def get_user_me(user: WebUser) -> User:
 
 
 @panel_router.post("/revoke_api_token")
-async def revoke_api_token(user: WebUser, session: DBSession) -> RevokeTokenResponse:
+async def revoke_api_token(
+    user: WebUser, session: AsyncSession = Depends(get_db_session)
+) -> RevokeTokenResponse:
     user.api_key = generate_api_key()
     await session.commit()
 

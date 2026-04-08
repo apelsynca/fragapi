@@ -13,7 +13,7 @@ class UserService:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    async def get(self, id: int) -> User:
+    async def get_by_id(self, id: int) -> User:
         user = await self.repository.get_by_id(id=id)
 
         if user is None:

@@ -1,7 +1,7 @@
 import re
 
 from src.config import settings
-from src.exceptions import BadRequest, InsuficcientFunds, ResourceNotFound
+from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
 from src.fragment import fragment
 from src.fragment.enums import PremiumMonths
 from src.fragment.exceptions import FragmentBadRequest
@@ -26,12 +26,9 @@ class PremiumService:
         username: str,
         months: PremiumMonths,
     ) -> str:
-        try:
-            recipient_data = await fragment.search_premium_recipient(
-                query=username, months=months
-            )
-        except FragmentBadRequest as exc:
-            raise BadRequest(str(exc))
+        recipient_data = await fragment.search_premium_recipient(
+            query=username, months=months
+        )
 
         buy_premium_request = await fragment.init_premium_request(
             recipient=recipient_data.found.recipient, months=months
@@ -42,9 +39,9 @@ class PremiumService:
         if user.balance < user_premium_ton_price:
             raise InsuficcientFunds
 
-        balance = await wallet.balance()
+        balance = await wallet.get_real_ton_balance()
         if balance < premium_ton_price:
-            raise BadRequest("We have insufficcient funds")
+            raise AppError(f"We have insufficcient funds: {balance}")
 
         link = await fragment.get_premium_link(req_id=buy_premium_request.req_id)
 
@@ -103,7 +100,7 @@ class PremiumService:
         try:
             recipient_data = await fragment.search_premium_recipient(query=username)
         except FragmentBadRequest:
-            raise ResourceNotFound("No recipient found")
+            raise ResourceNotFound(f"No recipient found by username {username}")
 
         photo_match = re.search(r'src="(.*)"', recipient_data.found.photo)
 

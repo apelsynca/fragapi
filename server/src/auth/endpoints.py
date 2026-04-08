@@ -20,7 +20,7 @@ async def telegram_auth(
     auth_service: AuthServiceDependency,
 ) -> LoginResponse:
     try:
-        user = await user_service.get(id=data.id)
+        user = await user_service.get_by_id(id=data.id)
     except ResourceNotFound:
         user = await user_service.create(UserCreate.model_validate(data))
 

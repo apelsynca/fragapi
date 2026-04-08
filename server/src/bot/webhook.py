@@ -16,6 +16,7 @@ async def setup_bot_webhook(bot: Bot) -> None:
         webhook_info = cast(WebhookInfo, await bot.get_webhook_info())
     except NetworkError as exc:
         log.error("Error while getting webhook info", error=exc)
+        log.debug("Webhook was not set.")
         return
 
     webhook_url = settings.bot.webhook_url + settings.bot.webhook_path
@@ -43,8 +44,8 @@ def need_to_update_webhook(
     if need_update_webhook_url:
         log.info(
             "Changing webhook url",
-            prev=webhook_info.url,
-            curr=url,
+            current=url,
+            previous=webhook_info.url,
         )
 
     need_update_webhook_allowed_updates = set(webhook_info.allowed_updates) != set(

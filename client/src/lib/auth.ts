@@ -21,7 +21,7 @@ const authTelegramBot = async (hash: string) => {
 };
 
 export const loginFn = createServerFn({ method: "POST" })
-  .validator((hash: string) => hash)
+  .inputValidator((hash: string) => hash)
   .handler(async ({ data }) => {
     const token = await authTelegramBot(data);
 

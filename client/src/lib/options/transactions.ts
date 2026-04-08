@@ -1,10 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  fetchTransactions,
-  fetchTransactionStats,
-  verifyTransaction,
-} from "../transactions";
+import { fetchTransactions, fetchTransactionStats } from "../transactions";
 
 export const transactionsQueryOptions = (
   page: number = 1,
@@ -20,5 +16,3 @@ export const transactionStatsQueryOptions = () =>
     queryKey: ["transactionStats"],
     queryFn: useServerFn(fetchTransactionStats),
   });
-
-export const verifyTransactionFn = () => useServerFn(verifyTransaction);

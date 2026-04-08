@@ -9,7 +9,7 @@ import {
 import { ListResource } from "./models/list";
 
 export const fetchTransactions = createServerFn()
-  .validator((data: { page?: number; limit?: number }) => data)
+  .inputValidator((data: { page?: number; limit?: number }) => data)
   .handler(async ({ data }) => {
     const token = await verifySession();
     const params = new URLSearchParams();
@@ -46,25 +46,3 @@ export const fetchTransactionStats = createServerFn().handler(async () => {
 
   return json as TransactionStats;
 });
-
-export const verifyTransaction = createServerFn()
-  .validator((data: { transactionId: number }) => data)
-  .handler(async ({ data }) => {
-    const token = await verifySession();
-    const response = await request(
-      `/panel/transactions/${data.transactionId}/verify`,
-      {
-        token,
-        method: "POST",
-      },
-    );
-
-    const json = await response.json();
-
-    if (response.status !== 200) {
-      console.log("Error verifying transaction", json);
-      throw new Error("Error verifying transaction");
-    }
-
-    return json as TransactionVerifyResponse;
-  });

@@ -50,7 +50,7 @@ class Logging[RendererType]:
                 "version": 1,
                 "disable_existing_loggers": True,
                 "formatters": {
-                    "brave_app": {
+                    "fragapi": {
                         "()": structlog.stdlib.ProcessorFormatter,
                         "processors": [
                             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
@@ -73,7 +73,7 @@ class Logging[RendererType]:
                     "default": {
                         "level": level,
                         "class": "logging.StreamHandler",
-                        "formatter": "brave_app",
+                        "formatter": "fragapi",
                     },
                 },
                 "loggers": {
@@ -119,23 +119,18 @@ class Logging[RendererType]:
         cls.configure_structlog()
 
 
-class Development(Logging[structlog.dev.ConsoleRenderer]):
+# before there was DevRenderer and ProdRenderer...
+class DefaultRenderer(Logging[structlog.dev.ConsoleRenderer]):
     @classmethod
     def get_renderer(cls) -> structlog.dev.ConsoleRenderer:
         return structlog.dev.ConsoleRenderer(colors=True)
 
 
-class Production(Logging[structlog.processors.JSONRenderer]):
-    @classmethod
-    def get_renderer(cls) -> structlog.processors.JSONRenderer:
-        return structlog.processors.JSONRenderer()
-
-
-def configure(is_dev: bool = True) -> None:
-    if is_dev:
-        Development.configure()
+def configure() -> None:
+    if settings.is_development():
+        DefaultRenderer.configure()
     else:
-        Production.configure()
+        DefaultRenderer.configure()
 
 
 def get_logger() -> Logger:

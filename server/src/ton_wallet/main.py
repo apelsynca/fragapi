@@ -1,14 +1,22 @@
 from datetime import datetime
 
-from pytoniq_core import Address, Cell, Slice, Transaction
-from tonutils.client import TonapiClient
-from tonutils.wallet import WalletV5R1 as _Wallet
+from pytoniq_core import Address, Cell
+from tonutils.clients import ToncenterClient
+from tonutils.contracts import WalletV5Params
+from tonutils.contracts import WalletV5R1 as _Wallet
+from tonutils.utils import to_amount
 
 from src.config import settings
-from src.ton_connect.types import TonConnectMessage
+
+from .types import TonConnectMessage
 
 
-class Wallet(_Wallet):
+class WalletV5R1(_Wallet):
+    async def get_real_ton_balance(self) -> float:
+        await self.client.connect()
+        await self.refresh()
+        return float(to_amount(self.balance))
+
     async def transfer_from_tc(
         self, message: TonConnectMessage, valid_until: datetime
     ) -> str:
@@ -20,35 +28,29 @@ class Wallet(_Wallet):
             )
             body = Cell.one_from_boc(padded_payload)
 
-        return await self.raw_transfer(
-            messages=[
-                self.create_wallet_internal_message(
-                    destination=Address(message.address),
-                    value=message.amount,
-                    body=body,
-                ),
-            ],
-            valid_until=int(valid_until.timestamp()),
+        ext_msg = await self.transfer(
+            destination=Address(message.address),
+            amount=message.amount,
+            body=body,
+            params=WalletV5Params(valid_until=int(valid_until.timestamp())),
         )
 
-
-class MyTonAPIClient(TonapiClient):
-    async def get_transaction(self, hash: str) -> Transaction:
-        method = f"/blockchain/transactions/{hash}"
-        result = await self._get(method=method)
-
-        cell_slice = Slice.one_from_boc(result.get("raw"))
-        return Transaction.deserialize(cell_slice)
+        return ext_msg.normalized_hash
 
 
-tonapi_client = MyTonAPIClient(api_key=settings.ton_api_key.get_secret_value())
+client = ToncenterClient(
+    network=settings.get_env_network_id(),
+    api_key=settings.toncenter_api_key.get_secret_value(),
+)
 
 
-def get_wallet() -> Wallet:
-    wallet, *_ = Wallet.from_mnemonic(
-        client=tonapi_client, mnemonic=settings.get_secret_wallet_mnemonic()
+def get_wallet() -> WalletV5R1:
+    wallet, *_ = WalletV5R1.from_mnemonic(
+        client=client,  # pyright: ignore
+        mnemonic=settings.get_secret_wallet_mnemonic(),
     )
-    return wallet  # pyright: ignore
+
+    return wallet
 
 
 wallet = get_wallet()

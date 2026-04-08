@@ -6,26 +6,34 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-
-from src.ton_wallet import wallet
+from tonutils.contracts import BaseWallet
 
 
 class TonConnect:
-    def __init__(self, tc_domain: str) -> None:
+    def __init__(self, wallet: BaseWallet, tc_domain: str) -> None:
+        assert wallet.state_init is not None
+        assert wallet.public_key is not None
+        assert wallet.private_key is not None
+
+        self.state_init = wallet.state_init
+        self.public_key = wallet.public_key
+        self.private_key = wallet.private_key
+        self.wallet_address = wallet.address
+
         self.tc_domain = tc_domain
 
     def get_account(self):
-        wallet_state_init = wallet.state_init.serialize().to_boc()
+        wallet_state_init = self.state_init.serialize().to_boc()
         wallet_state_init_base64 = b64encode(wallet_state_init).decode()
 
-        workchain = wallet.address.wc
-        address_hash = wallet.address.hash_part
+        workchain = self.wallet_address.wc
+        address_hash = self.wallet_address.hash_part
 
         return {
             "address": f"{workchain}:{address_hash.hex()}",
             "chain": "-239",
             "walletStateInit": wallet_state_init_base64,
-            "publicKey": wallet.public_key.hex(),
+            "publicKey": self.public_key.as_hex,
         }
 
     def get_device(self):
@@ -43,8 +51,8 @@ class TonConnect:
         }
 
     def get_proof(self, payload_hex: str):
-        workchain = wallet.address.wc
-        address_hash = wallet.address.hash_part
+        workchain = self.wallet_address.wc
+        address_hash = self.wallet_address.hash_part
 
         timestamp = int(time())
         domain_bytes = self.tc_domain.encode("utf-8")
@@ -62,10 +70,10 @@ class TonConnect:
         signature_message = b"\xff\xffton-connect" + sha256(message).digest()
         final_hash = sha256(signature_message).digest()
 
-        private_key = Ed25519PrivateKey.from_private_bytes(wallet.private_key[:32])
+        private_key = Ed25519PrivateKey.from_private_bytes(self.private_key.as_bytes)
         signature = private_key.sign(final_hash)
 
-        public_key = Ed25519PublicKey.from_public_bytes(wallet.public_key)
+        public_key = Ed25519PublicKey.from_public_bytes(self.public_key.as_bytes)
         public_key.verify(signature, final_hash)
 
         return {

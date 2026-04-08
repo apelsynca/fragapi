@@ -2,18 +2,20 @@ from datetime import timedelta
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
+from tonutils.types import NetworkGlobalID
 
 from .bot import Bot
 from .environment import Environment
 from .jwt import JWT
-from .server import Server
 
 
 class Settings(BaseSettings):
+    env: Environment = Environment.development
+
     database_url: SecretStr
-    ton_api_key: SecretStr
+    ton_address: str
+    toncenter_api_key: SecretStr
     wallet_mnemonic: list[SecretStr]
-    server: Server = Server()
 
     bot: Bot
     jwt: JWT
@@ -25,13 +27,18 @@ class Settings(BaseSettings):
 
     docs_url: str = "https://docs.fragapi.ru"
     panel_url: str = "https://panel.fragapi.ru"
-    env: Environment = Environment.development
 
     def get_secret_wallet_mnemonic(self) -> list[str]:
         return [word.get_secret_value() for word in self.wallet_mnemonic]
+
+    def is_testing(self) -> bool:
+        return self.is_environment(Environment.testing)
 
     def is_development(self) -> bool:
         return self.is_environment(Environment.development)
 
     def is_environment(self, environment: Environment) -> bool:
         return self.env == environment
+
+    def get_env_network_id(self) -> NetworkGlobalID:
+        return NetworkGlobalID.MAINNET

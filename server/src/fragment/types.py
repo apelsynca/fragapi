@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from src.ton_connect.types import TonConnectTransaction
+from src.ton_wallet.types import TonConnectTransaction
 
 
 class FragmentSession(BaseModel):

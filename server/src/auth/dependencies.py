@@ -3,17 +3,20 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import ExpiredSignatureError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.repository import UserSessionRepository
 from src.auth.service import AuthService
-from src.database.dependencies import DBSession
 from src.enums import Scope, UserRole
 from src.exceptions import NotPermitted, ResourceNotFound, Unauthorized
 from src.models import User, UserSession
+from src.postgres import get_db_session
 from src.users.dependencies import UserServiceDependency
 
 
-async def get_user_session_repository(session: DBSession) -> UserSessionRepository:
+async def get_user_session_repository(
+    session: AsyncSession = Depends(get_db_session),
+) -> UserSessionRepository:
     return UserSessionRepository(session)
 
 

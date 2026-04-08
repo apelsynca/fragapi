@@ -6,17 +6,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  RefreshCw,
   ShieldCheck,
 } from "lucide-react";
 
@@ -30,56 +25,23 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { columns } from "./columns";
-import {
-  transactionsQueryOptions,
-  verifyTransactionFn,
-} from "~/lib/options/transactions";
-import { Transaction, TransactionStatus } from "~/lib/models/transactions";
-import { toast } from "sonner";
+import { transactionsQueryOptions } from "~/lib/options/transactions";
+import { TransactionStatus } from "~/lib/models/transactions";
 
 const ITEMS_PER_PAGE = 10;
 
 export const Transactions = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [verifyingId, setVerifyingId] = useState<number | null>(null);
-  const queryClient = useQueryClient();
 
   const {
     data: { items: transactions, pagination },
   } = useSuspenseQuery(transactionsQueryOptions(currentPage, ITEMS_PER_PAGE));
-
-  const verifyTx = verifyTransactionFn();
 
   const table = useReactTable({
     data: transactions,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  const handleVerify = async (transaction: Transaction) => {
-    if (!transaction.tx_hash) {
-      toast.error("У этой транзакции нет хеша для проверки");
-      return;
-    }
-
-    setVerifyingId(transaction.id);
-    try {
-      const result = await verifyTx({ data: { transactionId: transaction.id } });
-
-      if (result.verified) {
-        toast.success(result.message);
-      } else {
-        toast.warning(result.message);
-      }
-
-      // Refresh transactions list
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-    } catch (error) {
-      toast.error("Ошибка при проверке транзакции");
-    } finally {
-      setVerifyingId(null);
-    }
-  };
 
   const totalPages = pagination.max_page;
   const canGoPrevious = currentPage > 1;
@@ -109,7 +71,6 @@ export const Transactions = () => {
                         )}
                   </TableHead>
                 ))}
-                <TableHead className="w-[80px]">Проверка</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -126,33 +87,16 @@ export const Transactions = () => {
                     </TableCell>
                   ))}
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleVerify(row.original)}
-                      disabled={
-                        verifyingId === row.original.id ||
-                        !row.original.tx_hash
-                      }
-                      title={
-                        row.original.tx_hash
-                          ? "Проверить транзакцию в блокчейне"
-                          : "Нет хеша для проверки"
-                      }
-                    >
-                      {verifyingId === row.original.id ? (
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ShieldCheck
-                          className={`h-4 w-4 ${
-                            row.original.status === TransactionStatus.COMPLETED
-                              ? "text-green-500"
-                              : row.original.tx_hash
-                                ? "text-muted-foreground"
-                                : "text-muted-foreground/40"
-                          }`}
-                        />
-                      )}
+                    <Button variant="ghost" size="sm">
+                      <ShieldCheck
+                        className={`h-4 w-4 ${
+                          row.original.status === TransactionStatus.COMPLETED
+                            ? "text-green-500"
+                            : row.original.tx_hash
+                              ? "text-muted-foreground"
+                              : "text-muted-foreground/40"
+                        }`}
+                      />
                     </Button>
                   </TableCell>
                 </TableRow>
