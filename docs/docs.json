@@ -18,8 +18,7 @@
             "pages": [
               "index",
               "commission",
-              "why",
-              "api-reference/introduction"
+              "api-reference"
             ]
           }
         ]
