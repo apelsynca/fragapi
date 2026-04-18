@@ -18,7 +18,8 @@
             "pages": [
               "index",
               "commission",
-              "why"
+              "why",
+              "api-reference/introduction"
             ]
           }
         ]
@@ -45,11 +46,11 @@
     "links": [
       {
         "label": "Помощь",
-        "href": "https://t.me/apelsynca"
+        "href": "https://t.me/fragapi"
       },
       {
-        "label": "GitHub",
-        "href": "https://github.com/braveltd/fragment-api"
+        "label": "GitLab",
+        "href": "https://gitlab.com/apelsynca/fragment-api/"
       }
     ],
     "primary": {
@@ -61,7 +62,7 @@
   "footer": {
     "socials": {
       "telegram": "https://t.me/apelsynca",
-      "github": "https://github.com/braveltd/fragment-api"
+      "github": "https://gitlab.com/apelsynca/"
     }
   }
 }
