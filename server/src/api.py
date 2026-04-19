@@ -3,12 +3,8 @@ from src.premium.endpoints import router as premium_router
 from src.routing import APIRouter
 from src.stars.endpoints import router as stars_router
 from src.transactions.endpoints import router as transactions_router
-from src.users.endpoints import (
-    panel_router as users_panel_router,
-)
-from src.users.endpoints import (
-    router as users_router,
-)
+from src.users.endpoints import panel_router as users_panel_router
+from src.users.endpoints import router as users_router
 
 router = APIRouter(prefix="/v1")
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pytoniq_core import Address, Cell
 from tonutils.clients import ToncenterClient
@@ -20,6 +20,8 @@ class WalletV5R1(_Wallet):
     async def transfer_from_tc(
         self, message: TonConnectMessage, valid_until: datetime
     ) -> str:
+        valid_until += timedelta(seconds=15)  # WARN: for now
+
         body = None
 
         if message.payload:
