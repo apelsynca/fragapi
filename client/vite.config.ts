@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 import viteReact from "@vitejs/plugin-react";
-import { nitroV2Plugin } from "@tanstack/nitro-v2-vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
@@ -12,10 +12,5 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  plugins: [
-    tanstackStart(),
-    nitroV2Plugin({ preset: "bun", compatibilityDate: "latest" }),
-    viteReact(),
-    tailwindcss(),
-  ],
+  plugins: [tanstackStart(), viteReact(), tailwindcss(), nitro()],
 });
