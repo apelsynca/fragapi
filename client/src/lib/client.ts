@@ -27,7 +27,7 @@ export const request = async (url: string, options: RequestOptions = {}) => {
     new Promise((_, reject): undefined => {
       setTimeout(
         () => reject(new Error("Request timeout")),
-        options.timeout || 1000,
+        options.timeout || 3000,
       );
     }),
   ]);
