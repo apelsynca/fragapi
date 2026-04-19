@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Skeleton } from "~/components/ui/skeleton";
 import { meQueryOptions } from "~/lib/options/me";
 
 export const Route = createFileRoute("/_panel/tonapi/api-keys")({

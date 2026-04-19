@@ -1,4 +1,4 @@
-import { Plus, PlusIcon, Wallet } from "lucide-react";
+import { Plus, Wallet } from "lucide-react";
 import {
   toUserFriendlyAddress,
   useTonConnectUI,

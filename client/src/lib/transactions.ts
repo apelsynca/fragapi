@@ -1,11 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import {
-  Transaction,
-  TransactionStats,
-  TransactionVerifyResponse,
-} from "./models/transactions";
+import { Transaction, TransactionStats } from "./models/transactions";
 import { ListResource } from "./models/list";
 
 export const fetchTransactions = createServerFn()
