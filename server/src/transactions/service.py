@@ -59,10 +59,14 @@ class TransactionService:
     async def get_list(
         self, pagination: PaginationParams, user: User
     ) -> tuple[list[Transaction], int]:
+        stmt = (
+            self.repository.get_base_stmt()
+            .where(Transaction.user_id == user.id)
+            .order_by(Transaction.created_at.desc())
+        )
+
         return await self.repository.paginate(
-            stmt=self.repository.get_base_stmt()
-            .where(Transaction.user == user)
-            .order_by(Transaction.created_at.desc()),
+            stmt=stmt,
             limit=pagination.limit,
             page=pagination.page,
         )
