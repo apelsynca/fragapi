@@ -16,3 +16,9 @@ class PremiumRecipient(Schema):
     recipient: str
     photo: str | None
     name: str
+
+
+class PremiumPriceResponse(Schema):
+    three_months: float
+    six_months: float
+    year: float

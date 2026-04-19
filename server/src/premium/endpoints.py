@@ -5,7 +5,12 @@ from src.routing import APIRouter
 from src.transactions.dependencies import TransactionServiceDependency
 from src.users.dependencies import UserServiceDependency
 
-from .schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
+from .schemas import (
+    BuyPremium,
+    BuyPremiumResponse,
+    PremiumPriceResponse,
+    PremiumRecipient,
+)
 from .service import premium_service
 
 router = APIRouter(prefix="/premium", tags=["Premium", APITag.documented])
@@ -39,3 +44,8 @@ async def get_recipient(username: str, user: APIUser) -> PremiumRecipient:
     log.info("Search premium recipient request", user_id=user.id)
 
     return await premium_service.get_recipient(username=username)
+
+
+@router.get("/price", description="Get premium prices")
+async def get_price() -> PremiumPriceResponse:
+    return PremiumPriceResponse(year=22.76, six_months=12.55, three_months=9.41)

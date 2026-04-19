@@ -15,3 +15,7 @@ class StarsRecipient(Schema):
     recipient: str
     photo: str | None
     name: str
+
+
+class StarsPriceResponse(Schema):
+    ton: float

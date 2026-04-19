@@ -5,7 +5,7 @@ from src.routing import APIRouter
 from src.transactions.dependencies import TransactionServiceDependency
 from src.users.dependencies import UserServiceDependency
 
-from .schemas import BuyStars, BuyStarsResponse, StarsRecipient
+from .schemas import BuyStars, BuyStarsResponse, StarsPriceResponse, StarsRecipient
 from .service import stars_service
 
 router = APIRouter(prefix="/stars", tags=["Stars", APITag.documented])
@@ -38,3 +38,10 @@ async def get_recipient(username: str, user: APIUser) -> StarsRecipient:
     log.info("Search stars recipient request", user_id=user.id)
 
     return await stars_service.get_recipient(username=username)
+
+
+@router.get("/price", description="Get price for a single star")
+async def get_price() -> StarsPriceResponse:
+    ton = await stars_service.get_price()
+
+    return StarsPriceResponse(ton=ton)

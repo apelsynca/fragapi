@@ -1,4 +1,5 @@
 import re
+from time import time
 
 from src.config import settings
 from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
@@ -17,7 +18,11 @@ log = get_logger()
 
 
 class StarsService:
-    USD_STAR_PRICE = 0.015
+    CACHE_TIME = 60
+
+    def __init__(self) -> None:
+        self.last_price = None
+        self.price_ut = 0
 
     async def buy(
         self,
@@ -121,6 +126,27 @@ class StarsService:
             name=recipient_data.found.name,
             photo=photo_match.group(1) if photo_match else None,
         )
+
+    async def get_price(self) -> float:
+        """
+        Returns price in TON's for 1 star.
+        """
+
+        now = time()
+        if self.last_price is not None and now - self.price_ut < self.CACHE_TIME:
+            return self.last_price
+
+        recipient_data = await fragment.search_stars_recipient(
+            query="apelsynca", quantity=100
+        )
+        buy_stars_request = await fragment.init_buy_stars_request(
+            recipient=recipient_data.found.recipient, quantity=100
+        )
+
+        self.last_price = buy_stars_request.amount / 100
+        self.price_ut = now
+
+        return self.last_price
 
 
 stars_service = StarsService()
