@@ -8,4 +8,4 @@ WORKDIR /app
 
 RUN uv sync --locked
 
-CMD ["uv", "run", "main.py"]
+CMD ["uv", "run", "uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
