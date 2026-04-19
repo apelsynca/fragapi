@@ -5,7 +5,10 @@ import "~/polyfils";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { SendTransactionRequest, useTonConnectUI } from "@tonconnect/ui-react";
+import {
+  type SendTransactionRequest,
+  useTonConnectUI,
+} from "@tonconnect/ui-react";
 import { comment as getCommentPayload, toNano } from "@ton/core";
 
 import { Button } from "../ui/button";

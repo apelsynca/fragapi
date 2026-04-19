@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import { Transaction, TransactionStats } from "./models/transactions";
-import { ListResource } from "./models/list";
+import { type Transaction, type TransactionStats } from "./models/transactions";
+import { type ListResource } from "./models/list";
 
 export const fetchTransactions = createServerFn()
   .inputValidator((data: { page?: number; limit?: number }) => data)

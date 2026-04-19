@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle,
   Clock,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import {
-  Transaction,
+  type Transaction,
   TransactionReason,
   TransactionStatus,
 } from "~/lib/models/transactions";

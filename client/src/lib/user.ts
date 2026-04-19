@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import { TokenRevoked, User } from "./models/user";
+import { type TokenRevoked, type User } from "./models/user";
 
 export const fetchMe = createServerFn().handler(async () => {
   const token = await verifySession();
