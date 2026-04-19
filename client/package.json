@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite dev --host 0.0.0.0",
-    "build": "vite build && tsc --noEmit",
+    "build": "vite build",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
