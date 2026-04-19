@@ -1,27 +1,8 @@
 {
+  "extends": "nitro/tsconfig",
   "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleDetection": "force",
+    "baseUrl": ".",
     "jsx": "react-jsx",
-    "allowJs": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": false,
-    "noEmit": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "preserveWatchOutput": true,
-    "skipLibCheck": true,
-
-    "noPropertyAccessFromIndexSignature": false,
     "paths": {
       "~/*": ["./src/*"]
     }
