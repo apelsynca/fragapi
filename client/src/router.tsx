@@ -8,9 +8,11 @@ export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
     context: { queryClient },
-    scrollRestoration: true,
     scrollRestorationBehavior: "smooth",
     defaultPreload: "intent",
+    scrollRestoration: true,
+    defaultErrorComponent: () => <div>Internal Server Error</div>,
+    defaultNotFoundComponent: () => <div>Not Found</div>,
   });
 
   setupRouterSsrQueryIntegration({
