@@ -33,7 +33,9 @@ async def webhook(
 async def do_shit(
     message: TonAPIWebhookMessage, user_service: UserService, session: AsyncSession
 ) -> None:
-    transaction = await get_transaction(tx_hash=message.tx_hash, lt=message.lt)
+    transaction = await get_transaction(
+        tx_hash=message.tx_hash, lt=message.lt, limit=10
+    )
 
     if transaction.in_msg is None:
         log.warning("Transaction without internal message!")

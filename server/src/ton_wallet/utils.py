@@ -11,10 +11,10 @@ class TransactionNotFound(ResourceNotFound):
         super().__init__(message)
 
 
-async def get_transaction(tx_hash: str, lt: int) -> Transaction:
+async def get_transaction(tx_hash: str, lt: int, limit: int = 1) -> Transaction:
     async with toncenter_client:
         transactions = await toncenter_client.get_transactions(
-            address=settings.ton_address, limit=1, from_lt=lt
+            address=settings.ton_address, limit=limit, from_lt=lt
         )
         if len(transactions) == 0:
             raise TransactionNotFound
