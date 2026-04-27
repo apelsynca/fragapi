@@ -1,6 +1,7 @@
 from datetime import timedelta
+from typing import Literal
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings
 from ton_core import NetworkGlobalID
 
@@ -50,3 +51,15 @@ class Settings(BaseSettings):
 
     def get_env_network_id(self) -> NetworkGlobalID:
         return NetworkGlobalID.MAINNET
+
+    def get_postgres_dsn(self, driver: Literal["asyncpg", "psycopg2"]) -> str:
+        return str(
+            PostgresDsn.build(
+                scheme=f"postgresql+{driver}",
+                username=self.database.user,
+                password=self.database.pwd.get_secret_value(),
+                host=self.database.host,
+                port=self.database.port,
+                path=self.database.name,
+            )
+        )

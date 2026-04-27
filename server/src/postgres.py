@@ -13,7 +13,7 @@ type ProcessName = Literal["app", "bot"]
 
 def create_async_engine(process_name: ProcessName) -> AsyncEngine:
     return _create_async_engine(
-        dsn=settings.database_url.get_secret_value(),
+        dsn=str(settings.get_postgres_dsn("asyncpg")),
         application_name=f"{settings.env.value}.{process_name}",
         pool_size=5,
         pool_recycle=600,
