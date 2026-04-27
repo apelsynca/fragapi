@@ -4,7 +4,7 @@ from sqlalchemy import BigInteger, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.config import settings
-from src.kit.models import RecordModel
+from src.kit.database.models import RecordModel
 from src.kit.utils import utc_now
 
 from .users import User

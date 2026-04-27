@@ -1,4 +1,4 @@
-from src.kit.models import Model
+from src.kit.database.models import Model
 
 from .transactions import Transaction, TransactionReason, TransactionStatus
 from .user_sessions import UserSession

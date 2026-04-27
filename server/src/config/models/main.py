@@ -1,18 +1,26 @@
 from datetime import timedelta
 
-from pydantic import SecretStr
+from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings
-from tonutils.types import NetworkGlobalID
+from ton_core import NetworkGlobalID
 
 from .bot import Bot
 from .environment import Environment
 from .jwt import JWT
 
 
+class Database(BaseModel):
+    user: str
+    pwd: SecretStr
+    host: str = "127.0.0.1"
+    port: int = 5432
+    name: str = "fragapi"
+
+
 class Settings(BaseSettings):
     env: Environment = Environment.development
 
-    database_url: SecretStr
+    database: Database
     ton_address: str
     toncenter_api_key: SecretStr
     wallet_mnemonic: list[SecretStr]

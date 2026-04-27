@@ -1,4 +1,4 @@
-from pytoniq_core import Transaction
+from ton_core import Transaction
 
 from src.config import settings
 from src.exceptions import ResourceNotFound

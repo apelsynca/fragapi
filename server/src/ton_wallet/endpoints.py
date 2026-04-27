@@ -1,7 +1,6 @@
 from fastapi import Depends
-from pytoniq_core import InternalMsgInfo
 from sqlalchemy.ext.asyncio import AsyncSession
-from tonutils.utils import to_amount
+from ton_core import InternalMsgInfo, to_amount
 
 from src.exceptions import ResourceNotFound
 from src.logging import get_logger

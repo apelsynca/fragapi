@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.kit.models import RecordModel
+from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
     from .users import User

@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
 
-from pytoniq_core import Address, Cell
+from ton_core import Address, Cell, WalletV5Params, to_amount
 from tonutils.clients import ToncenterClient
-from tonutils.contracts import WalletV5Params
 from tonutils.contracts import WalletV5R1 as _Wallet
-from tonutils.utils import to_amount
 
 from src.config import settings
 

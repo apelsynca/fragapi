@@ -10,6 +10,9 @@ wheels/
 .env
 .env.local
 
+# for now
+.test-secrets.toml 
+
 # Virtual environments
 .venv
 
