@@ -14,6 +14,6 @@ export default defineConfig({
   },
   plugins: [tanstackStart(), viteReact(), tailwindcss(), nitro()],
   environments: {
-    ssr: { build: { rollupOptions: { input: "./server.ts" } } },
+    ssr: { build: { rollupOptions: { input: "./src/server.ts" } } },
   },
 });
