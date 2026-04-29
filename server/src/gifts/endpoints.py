@@ -2,11 +2,16 @@ from fastapi import Depends
 
 from src.auth.dependencies import ApiUserAuthenticator
 from src.gifts.service import gift as gift_service
+from src.openapi import APITag
 from src.routing import APIRouter
 from src.thermos.schemas import GiftModel
 from src.thermos.service import thermos as thermos_service
 
-router = APIRouter(prefix="/gifts", dependencies=[Depends(ApiUserAuthenticator)])
+router = APIRouter(
+    prefix="/gifts",
+    dependencies=[Depends(ApiUserAuthenticator)],
+    tags=["Gifts", APITag.documented],
+)
 
 
 @router.get(

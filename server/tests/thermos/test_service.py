@@ -25,7 +25,9 @@ async def test_ignores_dashes(thermos_proxy_mock: MagicMock) -> None:
     model = await thermos_service.find_collection_model(
         short_name="doesnotmatter", model="silver"
     )
-    assert model == GiftModel(name="silver", floor=2.2, count=1)
+    assert model == GiftModel(
+        name="silver", floor=2.2, count=1, image_url=model.image_url
+    )
 
 
 @pytest.mark.asyncio
@@ -42,7 +44,9 @@ async def test_ignores_spaces(thermos_proxy_mock: MagicMock) -> None:
     model = await thermos_service.find_collection_model(
         short_name="jackinthebasket", model="laimonfresh"
     )
-    assert model == GiftModel(name="laimonfresh", floor=9.919, count=1)
+    assert model == GiftModel(
+        name="laimonfresh", floor=9.919, count=1, image_url=model.image_url
+    )
 
 
 @pytest.mark.asyncio

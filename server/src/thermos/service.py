@@ -33,6 +33,7 @@ class ThermosService:
             name=model,
             floor=collection_model.stats.floor,
             count=collection_model.stats.count,
+            image_url=f"https://storage.portal-market.com/portals-market/gifts/{short_name}/models/png/{model}.png",
         )
 
     async def get_collection_models(self, short_name: str) -> list[GiftModel]:
@@ -40,15 +41,20 @@ class ThermosService:
         collection_data = await self.api.get_collection(collection_name=collection.name)
 
         return [
-            GiftModel(name=shortify(x.name), floor=x.stats.floor, count=x.stats.count)
-            for x in collection_data.attributes.models
+            GiftModel(
+                name=shortify(c.name),
+                floor=c.stats.floor,
+                count=c.stats.count,
+                image_url=f"https://storage.portal-market.com/portals-market/gifts/{short_name}/models/png/{c.name}.png",
+            )
+            for c in collection_data.attributes.models
         ]
 
     async def find_collection(self, short_name: str) -> GiftCollection:
         collections = await self.api.get_collections()
 
         try:
-            return next(x for x in collections if shortify(x.name) == short_name)
+            return next(c for c in collections if shortify(c.name) == short_name)
         except StopIteration:
             raise ResourceNotFound("Collection not found")
 
