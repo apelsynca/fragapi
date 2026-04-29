@@ -42,12 +42,12 @@ class ThermosService:
 
         return [
             GiftModel(
-                name=shortify(c.name),
-                floor=c.stats.floor,
-                count=c.stats.count,
-                image_url=f"https://storage.portal-market.com/portals-market/gifts/{short_name}/models/png/{c.name}.png",
+                name=shortify(m.name),
+                floor=m.stats.floor,
+                count=m.stats.count,
+                image_url=f"https://storage.portal-market.com/portals-market/gifts/{short_name}/models/png/{shortify(m.name)}.png",
             )
-            for c in collection_data.attributes.models
+            for m in collection_data.attributes.models
         ]
 
     async def find_collection(self, short_name: str) -> GiftCollection:
