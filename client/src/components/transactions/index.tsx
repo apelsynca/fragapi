@@ -52,7 +52,7 @@ export const Transactions = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">История транзакций</h3>
         <div className="text-sm text-muted-foreground">
-          Всего: {pagination.totalCount.toLocaleString()}
+          Всего: {pagination.totalCount.toString()}
         </div>
       </div>
 
