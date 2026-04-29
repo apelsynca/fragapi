@@ -6,9 +6,13 @@ import { Stats } from "~/components/panel/stats";
 import { StatsLoading } from "~/components/panel/stats-loading";
 import { Transactions } from "~/components/transactions";
 import { TransactionsLoading } from "~/components/transactions/loading";
+import { transactionsQueryOptions } from "~/lib/options/transactions";
 
 export const Route = createFileRoute("/_panel/home")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(transactionsQueryOptions(1, 10));
+  },
 });
 
 function RouteComponent() {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardCopy } from "lucide-react";
 import { toast } from "sonner";
+import { ClipboardCopy } from "lucide-react";
 
 import { Regenerate } from "~/components/api-keys/regenerate";
 import { Button } from "~/components/ui/button";
