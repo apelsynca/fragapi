@@ -43,7 +43,7 @@ export const Transactions = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const totalPages = pagination.max_page;
+  const totalPages = pagination.maxPage;
   const canGoPrevious = currentPage > 1;
   const canGoNext = currentPage < totalPages;
 
@@ -52,7 +52,7 @@ export const Transactions = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">История транзакций</h3>
         <div className="text-sm text-muted-foreground">
-          Всего: {pagination.total_count.toLocaleString()}
+          Всего: {pagination.totalCount.toLocaleString()}
         </div>
       </div>
 

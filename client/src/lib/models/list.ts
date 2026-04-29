@@ -1,6 +1,6 @@
 export interface Pagination {
-  total_count: number;
-  max_page: number;
+  totalCount: number;
+  maxPage: number;
 }
 
 export interface ListResource<T> {
