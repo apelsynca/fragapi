@@ -36,13 +36,13 @@ function APIKeysPage() {
         <CardContent>
           <div className="bg-muted relative rounded-md font-mono text-sm flex justify-between items-center max-w-full">
             {me ? (
-              <code className="px-4 py-2 truncate">{me.api_key}</code>
+              <code className="px-4 py-2 truncate">{me.apiKey}</code>
             ) : (
               "..."
             )}
             <Button
               onClick={() => {
-                navigator.clipboard.writeText(me ? me.api_key : "");
+                navigator.clipboard.writeText(me ? me.apiKey : "");
                 toast.success("API Ключ Скопирован!", {
                   richColors: true,
                 });

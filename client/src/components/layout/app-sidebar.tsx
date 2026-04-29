@@ -70,7 +70,7 @@ export const AppSidebar: React.FC = () => {
           <SidebarGroupContent>
             {me ? (
               <span className="text-md font-semibold">
-                {me.first_name} {me.last_name}
+                {me.firstName} {me.lastName}
               </span>
             ) : (
               <Skeleton className="h-3 w-[12ch]" />

@@ -119,7 +119,7 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: "stars_quantity",
     header: "Кол-во",
     cell: ({ row }) => {
-      const quantity = row.original.stars_quantity;
+      const quantity = row.original.starsQuantity;
       const reason = row.original.reason;
 
       if (reason === TransactionReason.PREMIUM) {
