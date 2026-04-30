@@ -6,7 +6,7 @@ import { Stats } from "~/components/panel/stats";
 import { StatsLoading } from "~/components/panel/stats-loading";
 import { Transactions } from "~/components/transactions";
 import { TransactionsLoading } from "~/components/transactions/loading";
-import { transactionsQueryOptions } from "~/lib/options/transactions";
+import { transactionsQueryOptions } from "~/lib/transactions";
 
 export const Route = createFileRoute("/_panel/home")({
   component: RouteComponent,

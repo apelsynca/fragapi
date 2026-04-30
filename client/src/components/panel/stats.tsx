@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { transactionStatsQueryOptions } from "~/lib/options/transactions";
+import { transactionStatsQueryOptions } from "~/lib/transactions";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 const StatItem: React.FC<{ title: string; value: string }> = ({

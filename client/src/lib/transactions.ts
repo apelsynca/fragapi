@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { queryOptions } from "@tanstack/react-query";
 import { verifySession } from "./auth";
 import { request } from "./client";
-import { type Transaction, type TransactionStats } from "./models/transactions";
+import type { Transaction, TransactionStats } from "./models/transactions";
 import { type ListResource } from "./models/list";
 
 export const fetchTransactions = createServerFn()
@@ -27,6 +28,15 @@ export const fetchTransactions = createServerFn()
     return json as ListResource<Transaction>;
   });
 
+export const transactionsQueryOptions = (
+  page: number = 1,
+  limit: number = 10,
+) =>
+  queryOptions({
+    queryKey: ["transactions", page, limit],
+    queryFn: () => fetchTransactions({ data: { page, limit } }),
+  });
+
 export const fetchTransactionStats = createServerFn().handler(async () => {
   const token = await verifySession();
   const response = await request("/panel/transactions/stats", {
@@ -42,3 +52,9 @@ export const fetchTransactionStats = createServerFn().handler(async () => {
 
   return json as TransactionStats;
 });
+
+export const transactionStatsQueryOptions = () =>
+  queryOptions({
+    queryKey: ["transactionStats"],
+    queryFn: () => fetchTransactionStats(),
+  });

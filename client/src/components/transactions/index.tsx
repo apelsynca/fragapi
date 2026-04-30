@@ -25,7 +25,7 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { columns } from "./columns";
-import { transactionsQueryOptions } from "~/lib/options/transactions";
+import { transactionsQueryOptions } from "~/lib/transactions";
 import { TransactionStatus } from "~/lib/models/transactions";
 
 const ITEMS_PER_PAGE = 10;
