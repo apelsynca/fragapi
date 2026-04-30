@@ -116,7 +116,7 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
   {
-    accessorKey: "stars_quantity",
+    accessorKey: "starsQuantity",
     header: "Кол-во",
     cell: ({ row }) => {
       const quantity = row.original.starsQuantity;
@@ -154,10 +154,10 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
   {
-    accessorKey: "tx_hash",
+    accessorKey: "txHash",
     header: "Транзакция",
     cell: ({ row }) => {
-      const txHash = row.original.tx_hash;
+      const txHash = row.original.txHash;
 
       if (!txHash) {
         return <span className="text-muted-foreground text-sm">—</span>;
@@ -180,10 +180,10 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
   {
-    accessorKey: "created_at",
+    accessorKey: "createdAt",
     header: () => <div className="text-right">Дата</div>,
     cell: ({ row }) => {
-      const createdAt = Date.parse(row.getValue("created_at"));
+      const createdAt = Date.parse(row.getValue("createdAt"));
 
       const formattedCreatedAt = new Intl.DateTimeFormat("ru-RU", {
         dateStyle: "short",

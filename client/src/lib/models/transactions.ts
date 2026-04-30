@@ -14,10 +14,10 @@ export interface Transaction {
   amount: number;
   reason: TransactionReason;
   status: TransactionStatus;
-  tx_hash: string | null;
+  txHash: string | null;
   starsQuantity: number | null;
   recipient: string | null;
-  created_at: Date;
+  createdAt: Date;
 }
 
 export interface TransactionStats {

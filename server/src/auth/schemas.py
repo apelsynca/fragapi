@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from src.kit.schemas import Schema
 
 
-class TelegramAuthData(BaseModel):
+class TelegramAuthData(Schema):
     id: int
     first_name: str
     last_name: str | None = None
@@ -13,11 +13,11 @@ class TelegramAuthData(BaseModel):
     hash: str
 
 
-class TelegramBotAuthData(BaseModel):
+class TelegramBotAuthData(Schema):
     hash: str
 
 
-class LoginResponse(BaseModel):
+class LoginResponse(Schema):
     token: str | None
     success: bool
     bot_hash: str | None = None

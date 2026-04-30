@@ -92,7 +92,7 @@ export const Transactions = () => {
                         className={`h-4 w-4 ${
                           row.original.status === TransactionStatus.COMPLETED
                             ? "text-green-500"
-                            : row.original.tx_hash
+                            : row.original.txHash
                               ? "text-muted-foreground"
                               : "text-muted-foreground/40"
                         }`}

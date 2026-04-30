@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         return self.is_environment(Environment.development)
 
+    def is_production(self) -> bool:
+        return self.is_environment(Environment.production)
+
     def is_environment(self, environment: Environment) -> bool:
         return self.env == environment
 

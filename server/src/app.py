@@ -45,10 +45,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator:
     async_engine = create_async_engine("app")
     async_sessionmaker = create_async_sessionmaker(async_engine)
 
-    await setup_bot(bot_application)
-
-    await bot_application.initialize()
-    await bot_application.start()
+    if settings.is_production():
+        await setup_bot(bot_application)
+        await bot_application.initialize()
+        await bot_application.start()
 
     log.info("Fragment API started")
 
