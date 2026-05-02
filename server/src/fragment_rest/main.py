@@ -1,8 +1,7 @@
 import json
 
-from tonutils.contracts import WalletV5R1
-
 from src.fragment_rest.enums import PremiumMonths
+from src.kit.ton_connect import TonConnect
 from src.kit.utils import utc_now
 
 from .base import BaseFragmentRest
@@ -15,9 +14,9 @@ class FragmentRest(BaseFragmentRest):
     """
 
     def __init__(
-        self, wallet: WalletV5R1, base_url: str = "https://fragment.com"
+        self, ton_connect: TonConnect, base_url: str = "https://fragment.com"
     ) -> None:
-        super().__init__(wallet=wallet, base_url=base_url)
+        super().__init__(ton_connect=ton_connect, base_url=base_url)
 
         self._last_ton_rate_update = utc_now()
 

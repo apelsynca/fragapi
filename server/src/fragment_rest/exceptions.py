@@ -13,3 +13,7 @@ class FragmentBadRequest(FragmentError):
     """When error field exists in fragment request"""
 
     pass
+
+
+class FragmentUserNotFound(FragmentError):
+    pass

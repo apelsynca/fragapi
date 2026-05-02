@@ -5,8 +5,8 @@ from pydantic import ValidationError
 
 from src.config import settings
 from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment_rest import fragment_rest
-from src.fragment_rest.exceptions import FragmentBadRequest
+from src.fragment_rest.exceptions import FragmentBadRequest, FragmentUserNotFound
+from src.fragment_rest.main import FragmentRest
 from src.kit.utils import after_fee
 from src.logging import get_logger
 from src.models import TransactionReason, TransactionStatus, User
@@ -26,6 +26,7 @@ class StarsService:
 
     async def buy(
         self,
+        fragment_rest: FragmentRest,
         user: User,
         quantity: int,
         username: str,

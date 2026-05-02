@@ -3,7 +3,6 @@ import re
 from asyncio import sleep
 
 from httpx import AsyncClient
-from tonutils.contracts import WalletV5R1
 
 from src.config import settings
 from src.kit.ton_connect import TonConnect
@@ -16,6 +15,8 @@ log = get_logger()
 
 
 class BaseFragmentRest:
+    TC_DOMAIN = "fragment.com"
+
     """
     Base class for Fragment, containing:
         - Authorization
@@ -25,7 +26,7 @@ class BaseFragmentRest:
     """
 
     def __init__(
-        self, wallet: WalletV5R1, base_url: str = "https://fragment.com"
+        self, ton_connect: TonConnect, base_url: str = "https://fragment.com"
     ) -> None:
         self.base_url = base_url
 
@@ -34,7 +35,7 @@ class BaseFragmentRest:
         self._ton_rate: float | None = None
 
         self._session = self.load_session()
-        self.tc = TonConnect(wallet, "")
+        self.tc = ton_connect
 
     async def authorize(self) -> None:
         if self._authorized:

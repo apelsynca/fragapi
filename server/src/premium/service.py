@@ -2,16 +2,14 @@ import re
 
 from src.config import settings
 from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment_rest import fragment_rest
 from src.fragment_rest.enums import PremiumMonths
 from src.fragment_rest.exceptions import FragmentBadRequest
+from src.fragment_rest.main import FragmentRest
 from src.kit.utils import after_fee
 from src.logging import get_logger
 from src.models.transactions import TransactionReason, TransactionStatus
 from src.models.users import User
 from src.premium.schemas import PremiumRecipient
-from src.transactions.service import TransactionService
-from src.users.service import UserService
 from src.wallet.service import wallet as wallet_service
 
 log = get_logger()
@@ -20,8 +18,7 @@ log = get_logger()
 class PremiumService:
     async def buy(
         self,
-        user_service: UserService,
-        transaction_service: TransactionService,
+        fragment_rest: FragmentRest,
         user: User,
         username: str,
         months: PremiumMonths,

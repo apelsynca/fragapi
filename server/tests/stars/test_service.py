@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.exceptions import InsuficcientFunds, ResourceNotFound
-from src.fragment_rest.exceptions import FragmentBadRequest
+from src.fragment_rest.exceptions import FragmentBadRequest, FragmentUserNotFound
 from src.fragment_rest.main import FragmentRest
 from src.fragment_rest.types import BuyStarsRequest, FragmentRecipient, RecipientFound
 from src.models import User
@@ -21,7 +21,7 @@ def fragment_mock(mocker: MockerFixture) -> MagicMock:
 async def test_get_recipient_not_found_fragment_bad_request(
     fragment_mock: MagicMock,
 ) -> None:
-    fragment_mock.search_stars_recipient.side_effect = FragmentUsersNotFound()
+    fragment_mock.search_stars_recipient.side_effect = FragmentUserNotFound()
 
     with pytest.raises(ResourceNotFound):
         await stars_service.get_recipient(username="apelsynca")
@@ -34,14 +34,16 @@ async def test_buy_gets_buy_stars_link() -> None:
 
 @pytest.mark.asyncio
 async def test_buy_for_nonexistent_username(
-    user: User, fragment_mock: MagicMock
+    fragment_rest: FragmentRest, user: User, fragment_mock: MagicMock
 ) -> None:
     fragment_mock.search_stars_recipient.side_effect = FragmentBadRequest(
         "No Telegram users found."
     )
 
     with pytest.raises(ResourceNotFound):
-        await stars_service.buy(user, quantity=52, username="abrikos")
+        await stars_service.buy(
+            fragment_rest=fragment_rest, user=user, quantity=52, username="abrikos"
+        )
 
 
 @pytest.mark.asyncio

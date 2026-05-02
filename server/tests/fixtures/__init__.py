@@ -3,6 +3,7 @@ import logging
 from tests.fixtures.auth import *  # noqa: F403
 from tests.fixtures.base import *  # noqa: F403
 from tests.fixtures.database import *  # noqa: F403
+from tests.fixtures.fragment_rest import *  # noqa: F403
 from tests.fixtures.random_objects import *  # noqa: F403
 from tests.fixtures.wallet import *  # noqa: F403
 

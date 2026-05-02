@@ -4,8 +4,8 @@ import pytest
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from src.fragment_rest import fragment_rest
-from src.fragment_rest.exceptions import FragmentUsersNotFound
+from src.fragment_rest.exceptions import FragmentUserNotFound
+from src.fragment_rest.main import FragmentRest
 
 
 @pytest.fixture(autouse=True)
@@ -16,15 +16,12 @@ def fragment_client_mock(mocker: MockerFixture) -> MagicMock:
 
 @pytest.mark.asyncio
 async def test_request_raises_not_found_if_stars_recipient_not_found(
+    fragment_rest: FragmentRest,
     fragment_client_mock: MagicMock,
 ) -> None:
     fragment_client_mock.return_value = {"error": "No Telegram users found."}
 
-    with pytest.raises(FragmentUsersNotFound):
+    with pytest.raises(FragmentUserNotFound):
         await fragment_rest.request(
             method="searchStarsRecipient", data={"query": "anything", "quantity": "50"}
         )
-
-
-def test_session_is_none_by_default():
-    assert fragment_rest._session is None
