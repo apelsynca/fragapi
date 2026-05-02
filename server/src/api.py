@@ -1,4 +1,4 @@
-from src.auth.endpoints import router as auth_router
+# from src.auth.endpoints import router as auth_router
 from src.gifts.endpoints import router as gifts_router
 from src.premium.endpoints import router as premium_router
 from src.routing import APIRouter
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/v1")
 
 router.include_router(users_router)
 router.include_router(users_panel_router)
-router.include_router(auth_router)
+# router.include_router(auth_router)
 router.include_router(stars_router)
 router.include_router(premium_router)
 router.include_router(transactions_router)

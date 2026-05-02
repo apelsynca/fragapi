@@ -5,8 +5,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram import User as TGUser
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-from src.auth.repository import UserSessionRepository
-from src.auth.service import AuthService
 from src.bot.utils import with_session
 from src.config import settings
 from src.exceptions import ResourceNotFound
@@ -48,8 +46,8 @@ async def menu(
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton(text="Доки", url=settings.docs_url),
-                    InlineKeyboardButton(text="Панель", url=settings.panel_url),
+                    InlineKeyboardButton(text="Доки", url=settings.DOCS_URL),
+                    InlineKeyboardButton(text="Панель", url=settings.PANEL_URL),
                 ]
             ]
         ),
@@ -59,24 +57,21 @@ async def menu(
 async def login(update: Update, user: User, session: AsyncSession) -> None:
     message = cast(Message, update.message)
 
-    auth_service = AuthService(
-        session_repository=UserSessionRepository(session=session)
-    )
-    login_data = await auth_service.login(user=user, with_bot_hash=True)
+    # login_data = await auth_service.login(user=user, with_bot_hash=True)
 
-    await message.reply_text(
-        text="Авторизация прошла успешно!\n\nНажмите войти 👇",
-        reply_markup=InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        text="Войти",
-                        url=f"{settings.panel_url}/login?hash={login_data.bot_hash}",
-                    )
-                ]
-            ]
-        ),
-    )
+    # await message.reply_text(
+    #     text="Авторизация прошла успешно!\n\nНажмите войти 👇",
+    #     reply_markup=InlineKeyboardMarkup(
+    #         [
+    #             [
+    #                 InlineKeyboardButton(
+    #                     text="Войти",
+    #                     url=f"{settings.panel_url}/login?hash={login_data.bot_hash}",
+    #                 )
+    #             ]
+    #         ]
+    #     ),
+    # )
 
 
 def setup_callbacks(application: Application):

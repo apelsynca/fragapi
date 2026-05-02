@@ -23,9 +23,10 @@ def encode_token(id: int, name: str) -> str:
     payload = JWTTokenPayload(
         sub=str(id),
         name=name,
-        exp=now + settings.user_session_ttl,
+        exp=now + settings.USER_SESSION_TTL,
         iat=now,
     )
+    raise
 
     token = jwt.encode(
         payload=payload.model_dump(),
@@ -37,6 +38,8 @@ def encode_token(id: int, name: str) -> str:
 
 
 def decode_token(token: str) -> JWTTokenPayload:
+    raise
+
     payload_dict = jwt.decode(
         jwt=token,
         key=settings.jwt.secret_key.get_secret_value(),

@@ -20,14 +20,14 @@ def get_pagination_params(
         default=10,
         description=(
             "Limit of items in a page, defaults to 10. "
-            f"Maximum is {settings.pagination_max_limit}."
+            f"Maximum is {settings.API_PAGINATION_MAX_LIMIT}."
         ),
         gt=0,
     ),
 ) -> PaginationParams:
     return PaginationParams(
         page=page,
-        limit=min(settings.pagination_max_limit, limit),
+        limit=min(settings.API_PAGINATION_MAX_LIMIT, limit),
     )
 
 

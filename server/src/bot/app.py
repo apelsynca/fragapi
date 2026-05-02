@@ -4,15 +4,12 @@ from telegram.ext import Application, Defaults
 from src.config import settings
 
 
-def get_bot_application() -> Application:
+def get_application() -> Application:
     defaults = Defaults(parse_mode=ParseMode.HTML)
     return (
         Application.builder()
-        .token(settings.bot.token.get_secret_value())
+        .token(settings.BOT_TOKEN)
         .updater(None)
         .defaults(defaults)
         .build()
     )
-
-
-bot_application = get_bot_application()
