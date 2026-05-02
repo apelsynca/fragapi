@@ -99,6 +99,3 @@ class FragmentRest(BaseFragmentRest):
             },
         )
         return FragmentLink.model_validate(data)
-
-
-fragment = FragmentRest()

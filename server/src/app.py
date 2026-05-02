@@ -21,6 +21,7 @@ from src.kit.database.postgres import (
     AsyncSessionMaker,
     create_async_sessionmaker,
 )
+from src.kit.ton_connect import TonConnect
 from src.logging import configure as configure_logging
 from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
@@ -54,7 +55,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         await bot_application.start()
 
     wallet = create_wallet()
-    fragment_rest = FragmentRest(wallet)
+    fragment_ton_connect = TonConnect(wallet, tc_domain="fragment.com")
+    fragment_rest = FragmentRest(fragment_ton_connect)
 
     log.info("Fragment API started")
 
