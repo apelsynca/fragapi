@@ -7,8 +7,8 @@ from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session
 from src.routing import APIRouter
-from src.ton_wallet.utils import get_transaction
 from src.users.dependencies import UserService, UserServiceDependency
+from src.wallet.utils import get_transaction
 
 from .schemas import TonAPIWebhookMessage
 

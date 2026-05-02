@@ -2,17 +2,17 @@ import re
 
 from src.config import settings
 from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment import fragment
-from src.fragment.enums import PremiumMonths
-from src.fragment.exceptions import FragmentBadRequest
+from src.fragment_rest import fragment_rest
+from src.fragment_rest.enums import PremiumMonths
+from src.fragment_rest.exceptions import FragmentBadRequest
 from src.kit.utils import after_fee
 from src.logging import get_logger
 from src.models.transactions import TransactionReason, TransactionStatus
 from src.models.users import User
 from src.premium.schemas import PremiumRecipient
-from src.ton_wallet import wallet
 from src.transactions.service import TransactionService
 from src.users.service import UserService
+from src.wallet.service import wallet as wallet_service
 
 log = get_logger()
 
@@ -26,24 +26,24 @@ class PremiumService:
         username: str,
         months: PremiumMonths,
     ) -> str:
-        recipient_data = await fragment.search_premium_recipient(
+        recipient_data = await fragment_rest.search_premium_recipient(
             query=username, months=months
         )
 
-        buy_premium_request = await fragment.init_premium_request(
+        buy_premium_request = await fragment_rest.init_premium_request(
             recipient=recipient_data.found.recipient, months=months
         )
 
         premium_ton_price = after_fee(buy_premium_request.amount)
-        user_premium_ton_price = premium_ton_price * (1 + settings.price_markup)
+        user_premium_ton_price = premium_ton_price * (1 + settings.API_PRICE_MARKUP)
         if user.balance < user_premium_ton_price:
             raise InsuficcientFunds
 
-        balance = await wallet.get_real_ton_balance()
+        balance = await wallet_service.get_real_ton_balance()
         if balance < premium_ton_price:
             raise AppError(f"We have insufficcient funds: {balance}")
 
-        link = await fragment.get_premium_link(req_id=buy_premium_request.req_id)
+        link = await fragment_rest.get_premium_link(req_id=buy_premium_request.req_id)
 
         await user_service.update_balance(
             user=user, new_balance=user.balance - user_premium_ton_price
@@ -59,7 +59,7 @@ class PremiumService:
         )
 
         try:
-            tx_hash = await wallet.transfer_from_tc(
+            tx_hash = await wallet_service.transfer_from_tc(
                 message=link.transaction.messages[0],
                 valid_until=link.transaction.valid_until,
             )

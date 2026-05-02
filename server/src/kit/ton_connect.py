@@ -22,6 +22,13 @@ class TonConnect:
 
         self.tc_domain = tc_domain
 
+    def get_connect_request_data(self, ton_proof_payload: str) -> dict:
+        return {
+            "account": self.get_account(),
+            "device": self.get_device(),
+            "proof": self.get_proof(payload_hex=ton_proof_payload),
+        }
+
     def get_account(self):
         wallet_state_init = self.state_init.serialize().to_boc()
         wallet_state_init_base64 = b64encode(wallet_state_init).decode()

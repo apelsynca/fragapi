@@ -1,19 +1,23 @@
 import json
 
-from src.fragment.enums import PremiumMonths
+from tonutils.contracts import WalletV5R1
+
+from src.fragment_rest.enums import PremiumMonths
 from src.kit.utils import utc_now
 
-from .base import BaseFragment
+from .base import BaseFragmentRest
 from .types import BuyPremiumRequest, BuyStarsRequest, FragmentLink, FragmentRecipient
 
 
-class Fragment(BaseFragment):
+class FragmentRest(BaseFragmentRest):
     """
     Interaction with fragment methods, supporting type-hinting
     """
 
-    def __init__(self, base_url: str = "https://fragment.com") -> None:
-        super().__init__(base_url=base_url)
+    def __init__(
+        self, wallet: WalletV5R1, base_url: str = "https://fragment.com"
+    ) -> None:
+        super().__init__(wallet=wallet, base_url=base_url)
 
         self._last_ton_rate_update = utc_now()
 
@@ -80,7 +84,10 @@ class Fragment(BaseFragment):
         )
 
     async def get_buy_link(
-        self, method: str, req_id: str, show_sender: bool = False
+        self,
+        method: str,
+        req_id: str,
+        show_sender: bool = False,
     ) -> FragmentLink:
         data = await self.request(
             method=method,
@@ -95,4 +102,4 @@ class Fragment(BaseFragment):
         return FragmentLink.model_validate(data)
 
 
-fragment = Fragment()
+fragment = FragmentRest()

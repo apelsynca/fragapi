@@ -22,21 +22,29 @@ class Logging[RendererType]:
 
     @classmethod
     def get_level(cls) -> str:
-        return settings.log_level
+        return settings.LOG_LEVEL
+
+    @classmethod
+    def include_timestamper(cls) -> bool:
+        return True
 
     @classmethod
     def get_processors(cls) -> list[Any]:
-        return [
+        processors = [
             structlog.contextvars.merge_contextvars,
             structlog.stdlib.add_log_level,
             structlog.stdlib.add_logger_name,
             structlog.stdlib.PositionalArgumentsFormatter(),
-            cls.timestamper,
             structlog.processors.UnicodeDecoder(),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ]
+
+        if cls.include_timestamper():
+            processors.insert(4, cls.timestamper)
+
+        return processors
 
     @classmethod
     def get_renderer(cls) -> RendererType:
@@ -119,8 +127,17 @@ class Logging[RendererType]:
         cls.configure_structlog()
 
 
-# before there was DevRenderer and ProdRenderer...
-class DefaultRenderer(Logging[structlog.dev.ConsoleRenderer]):
+class DevelopmentRenderer(Logging[structlog.dev.ConsoleRenderer]):
+    @classmethod
+    def get_renderer(cls) -> structlog.dev.ConsoleRenderer:
+        return structlog.dev.ConsoleRenderer(colors=True)
+
+
+class ProductionRenderer(Logging[structlog.dev.ConsoleRenderer]):
+    @classmethod
+    def include_timestamper(cls) -> bool:
+        return False
+
     @classmethod
     def get_renderer(cls) -> structlog.dev.ConsoleRenderer:
         return structlog.dev.ConsoleRenderer(colors=True)
@@ -128,9 +145,9 @@ class DefaultRenderer(Logging[structlog.dev.ConsoleRenderer]):
 
 def configure() -> None:
     if settings.is_development():
-        DefaultRenderer.configure()
+        DevelopmentRenderer.configure()
     else:
-        DefaultRenderer.configure()
+        ProductionRenderer.configure()
 
 
 def get_logger() -> Logger:

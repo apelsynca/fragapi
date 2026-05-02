@@ -1,18 +1,18 @@
 import re
 from time import time
 
+from pydantic import ValidationError
+
 from src.config import settings
 from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment import fragment
-from src.fragment.exceptions import FragmentBadRequest
+from src.fragment_rest import fragment_rest
+from src.fragment_rest.exceptions import FragmentBadRequest
 from src.kit.utils import after_fee
 from src.logging import get_logger
 from src.models import TransactionReason, TransactionStatus, User
-from src.ton_wallet import wallet
-from src.transactions.service import TransactionService
-from src.users.service import UserService
-
-from .schemas import StarsRecipient
+from src.stars.schemas import StarsRecipient
+from src.transactions.service import transaction as transaction_service
+from src.wallet.service import wallet as wallet_service
 
 log = get_logger()
 
@@ -26,8 +26,6 @@ class StarsService:
 
     async def buy(
         self,
-        user_service: UserService,
-        transaction_service: TransactionService,
         user: User,
         quantity: int,
         username: str,
@@ -40,26 +38,29 @@ class StarsService:
         )
 
         if quantity < 50:
-            raise ValueError("Stars amount should be bigger than 50")
+            raise ValidationError("Stars amount should be bigger than 50")
 
-        recipient_data = await fragment.search_stars_recipient(
-            query=username, quantity=quantity
-        )
+        try:
+            recipient_data = await fragment_rest.search_stars_recipient(
+                query=username, quantity=quantity
+            )
+        except FragmentUserNotFound:
+            raise ResourceNotFound("User not found")
 
-        buy_stars_request = await fragment.init_buy_stars_request(
+        buy_stars_request = await fragment_rest.init_buy_stars_request(
             recipient=recipient_data.found.recipient, quantity=quantity
         )
 
         stars_ton_price = after_fee(buy_stars_request.amount)
-        user_stars_ton_price = stars_ton_price * (1 + settings.price_markup)
+        user_stars_ton_price = stars_ton_price * (1 + settings.API_PRICE_MARKUP)
         if user.balance < user_stars_ton_price:
             raise InsuficcientFunds
 
-        balance = await wallet.get_real_ton_balance()
+        balance = await wallet_service.get_real_ton_balance()
         if balance < stars_ton_price:
             raise AppError(f"We have insufficcient funds: {balance}")
 
-        link = await fragment.get_buy_stars_link(req_id=buy_stars_request.req_id)
+        link = await fragment_rest.get_buy_stars_link(req_id=buy_stars_request.req_id)
 
         await user_service.update_balance(
             user=user, new_balance=user.balance - user_stars_ton_price
@@ -76,7 +77,7 @@ class StarsService:
         )
 
         try:
-            tx_hash = await wallet.transfer_from_tc(
+            tx_hash = await wallet_service.transfer_from_tc(
                 message=link.transaction.messages[0],
                 valid_until=link.transaction.valid_until,
             )
@@ -149,4 +150,4 @@ class StarsService:
         return self.last_price
 
 
-stars_service = StarsService()
+stars = StarsService()

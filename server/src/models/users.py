@@ -16,4 +16,5 @@ class User(RecordModel):
 
     balance: Mapped[float] = mapped_column(default=0)
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
+
     api_key: Mapped[str] = mapped_column(unique=True, default=generate_api_key)

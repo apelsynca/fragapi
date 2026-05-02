@@ -9,6 +9,8 @@ from src.kit.utils import utc_now
 
 from .users import User
 
+USER_SESSION_PREFIX = "pses"
+
 
 def get_expires_at() -> datetime:
     return utc_now() + settings.user_session_ttl

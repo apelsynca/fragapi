@@ -1,17 +1,16 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.exceptions import ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import Transaction, TransactionReason, TransactionStatus, User
-
-from .repository import TransactionRepository
-from .schemas import TransactionStats
+from src.transactions.repository import TransactionRepository
+from src.transactions.schemas import TransactionStats
 
 
 class TransactionService:
-    def __init__(self, repository: TransactionRepository) -> None:
-        self.repository = repository
-
     async def create(
         self,
+        session: AsyncSession,
         amount: float,
         reason: TransactionReason,
         user: User,
@@ -20,7 +19,8 @@ class TransactionService:
         recipient: str | None = None,
         status: TransactionStatus = TransactionStatus.PENDING,
     ) -> Transaction:
-        return await self.repository.create(
+        repository = TransactionRepository.from_session(session)
+        return await repository.create(
             Transaction(
                 amount=amount,
                 reason=reason,
@@ -32,9 +32,12 @@ class TransactionService:
             )
         )
 
-    async def get_by_id(self, transaction_id: int, user: User) -> Transaction:
-        transaction = await self.repository.get_one_or_none(
-            self.repository.get_base_stmt()
+    async def get_by_id(
+        self, session: AsyncSession, transaction_id: int, user: User
+    ) -> Transaction:
+        repository = TransactionRepository.from_session(session)
+        transaction = await repository.get_one_or_none(
+            repository.get_base_stmt()
             .where(Transaction.id == transaction_id)
             .where(Transaction.user == user)
         )
@@ -54,22 +57,27 @@ class TransactionService:
         update_data: dict = {"status": status}
         if tx_hash:
             update_data["tx_hash"] = tx_hash
-        return await self.repository.update(transaction, update_data)
+        return await repository.update(transaction, update_data)
 
     async def get_list(
-        self, pagination: PaginationParams, user: User
+        self, session: AsyncSession, pagination: PaginationParams, user: User
     ) -> tuple[list[Transaction], int]:
+        repository = TransactionRepository.from_session(session)
         stmt = (
-            self.repository.get_base_stmt()
+            repository.get_base_stmt()
             .where(Transaction.user_id == user.id)
             .order_by(Transaction.created_at.desc())
         )
 
-        return await self.repository.paginate(
+        return await repository.paginate(
             stmt=stmt,
             limit=pagination.limit,
             page=pagination.page,
         )
 
-    async def get_stats(self, user: User) -> TransactionStats:
-        return await self.repository.get_stats(user)
+    async def get_stats(self, session: AsyncSession, user: User) -> TransactionStats:
+        repository = TransactionRepository.from_session(session)
+        return await repository.get_stats(user)
+
+
+transaction = TransactionService()

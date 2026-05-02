@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Self
 
 from sqlalchemy import Select, func, over, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,3 +59,7 @@ class BaseRepository[M]:
             items.append(item)
 
         return items, count
+
+    @classmethod
+    def from_session(cls, session: AsyncSession) -> Self:
+        return cls(session)

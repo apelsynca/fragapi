@@ -3,11 +3,11 @@ import re
 from asyncio import sleep
 
 from httpx import AsyncClient
+from tonutils.contracts import WalletV5R1
 
 from src.config import settings
+from src.kit.ton_connect import TonConnect
 from src.logging import get_logger
-from src.ton_connect import TonConnect
-from src.ton_wallet import wallet
 
 from .exceptions import FragmentBadRequest, FragmentError
 from .types import FragmentSession
@@ -15,7 +15,7 @@ from .types import FragmentSession
 log = get_logger()
 
 
-class BaseFragment:
+class BaseFragmentRest:
     """
     Base class for Fragment, containing:
         - Authorization
@@ -24,15 +24,17 @@ class BaseFragment:
         - method named `request` to simplify requests to fragment
     """
 
-    def __init__(self, base_url: str = "https://fragment.com") -> None:
+    def __init__(
+        self, wallet: WalletV5R1, base_url: str = "https://fragment.com"
+    ) -> None:
         self.base_url = base_url
 
         self._client: AsyncClient | None = None
         self._authorized = False
         self._ton_rate: float | None = None
 
-        self.session = self.load_session()
-        self.tc = TonConnect(wallet=wallet, tc_domain="fragment.com")
+        self._session = self.load_session()
+        self.tc = TonConnect(wallet, "")
 
     async def authorize(self) -> None:
         if self._authorized:
@@ -45,7 +47,7 @@ class BaseFragment:
             return
 
         await self.get_session_tokens()  # get initial session tokens
-        if self.session.ton_proof is None:
+        if self._session.ton_proof is None:
             raise FragmentError("Ton Proof is None")
         await sleep(0.1)
 
@@ -59,14 +61,12 @@ class BaseFragment:
         self._authorized = True
 
     async def check_auth(self) -> bool:
-        if self.session.ton_proof is None or self.session.hash is None:
+        if self._session.ton_proof is None or self._session.hash is None:
             return False
 
-        data = {
-            "account": json.dumps(self.tc.get_account()),
-            "device": json.dumps(self.tc.get_device()),
-            "proof": json.dumps(self.tc.get_proof(payload_hex=self.session.ton_proof)),
-        }
+        data = self.tc.get_connect_request_data(
+            ton_proof_payload=self._session.ton_proof
+        )
         headers = {
             "X-Requested-With": "XMLHttpRequest",
             "Origin": self.base_url,
@@ -90,12 +90,12 @@ class BaseFragment:
         session_hash_match = re.search(r'"apiUrl":"\\/api\?hash=(\w+)"', response.text)
         if session_hash_match is None:
             raise FragmentError("No session hash")
-        self.session.hash = session_hash_match.group(1)
+        self._session.hash = session_hash_match.group(1)
 
         ton_proof_match = re.search(r'"ton_proof":"(.+?)"', response.text)
         if ton_proof_match is None:
             raise FragmentError("No ton proof")
-        self.session.ton_proof = ton_proof_match.group(1)
+        self._session.ton_proof = ton_proof_match.group(1)
 
         ton_rate_match = re.search(r'"tonRate":([0-9.]+)', response.text)
         if ton_rate_match:
@@ -112,11 +112,11 @@ class BaseFragment:
         if authorize:
             await self.authorize()
 
-        if self.session.hash is None:
+        if self._session.hash is None:
             raise FragmentError("No session hash")
 
         response = await self.client.post(
-            url=f"{self.base_url}/api?hash={self.session.hash}",
+            url=f"{self.base_url}/api?hash={self._session.hash}",
             data={"method": method, **data},
             headers=headers,
             cookies=cookies,
@@ -143,20 +143,22 @@ class BaseFragment:
                     "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0",
                 },
-                cookies=self.session.cookies,
+                cookies=self._session.cookies,
             )
         return self._client
 
     def save_session(self) -> None:
         for cookie in self.client.cookies.jar:
-            self.session.cookies[cookie.name] = cookie.value
+            self._session.cookies[cookie.name] = cookie.value
 
-        with open(settings.fragment_session_path, "w") as fo:
-            json.dump(self.session.model_dump(), fo, indent=2)
+        with open(settings.FRAGMENT_SESSION_PATH, "w") as fo:
+            json.dump(self._session.model_dump(), fo, indent=2)
 
     def load_session(self) -> FragmentSession:
+        return FragmentSession(cookies={"stel_dt": "-180"})
+
         try:
-            with open(settings.fragment_session_path) as fr:
+            with open(settings.FRAGMENT_SESSION_PATH) as fr:
                 session = FragmentSession.model_validate(json.load(fr))
                 session.cookies["stel_dt"] = "-180"
         except Exception as exc:

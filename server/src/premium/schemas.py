@@ -1,4 +1,4 @@
-from src.fragment.enums import PremiumMonths
+from src.fragment_rest.enums import PremiumMonths
 from src.kit.schemas import Schema
 
 

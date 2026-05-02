@@ -1,9 +1,7 @@
-from src.auth.dependencies import APIUser
+from src.auth.dependencies import AuthorizeAPIUser
 from src.logging import get_logger
 from src.openapi import APITag
 from src.routing import APIRouter
-from src.transactions.dependencies import TransactionServiceDependency
-from src.users.dependencies import UserServiceDependency
 
 from .schemas import (
     BuyPremium,
@@ -23,15 +21,11 @@ log = get_logger()
     description="Buy premium subscription for a user. Takes user username and premium months",
 )
 async def buy_premium(
-    user: APIUser,
+    user: AuthorizeAPIUser,
     data: BuyPremium,
-    user_service: UserServiceDependency,
-    transaction_service: TransactionServiceDependency,
 ) -> BuyPremiumResponse:
     tx_hash = await premium_service.buy(
-        user_service=user_service,
-        transaction_service=transaction_service,
-        user=user,
+        user=user.subject,
         username=data.username,
         months=data.months,
     )
@@ -40,8 +34,10 @@ async def buy_premium(
 
 
 @router.get("/recipient/{username}", description="Get premium recipient")
-async def get_recipient(username: str, user: APIUser) -> PremiumRecipient:
-    log.info("Search premium recipient request", user_id=user.id)
+async def get_recipient(
+    username: str, auth_subject: AuthorizeAPIUser
+) -> PremiumRecipient:
+    log.info("Search premium recipient request", user_id=auth_subject.subject.id)
 
     return await premium_service.get_recipient(username=username)
 
