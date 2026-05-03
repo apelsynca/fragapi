@@ -1,11 +1,12 @@
 from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
+from tonutils.contracts import WalletV5R1
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.models import FragmentSession
-from src.kit.ton_connect import TonConnectRequestData
+from src.kit.ton_connect import TonConnect, TonConnectRequestData
 from tests.fixtures.random_objects import lstr, rstr
 
 
@@ -43,6 +44,15 @@ def generate_fake_main_page_text(hash: str, ton_proof: str) -> str:
         f'Wallet.init({{"address":"0:25203b4f773a967f6c6310b9aa555acdaa81a87dfa0a386a9de2db6a8f3c8f19","ton_proof":"{ton_proof}","logged_in":true,"version":2}});\n'
         "</script>"
     )
+
+
+def test_raises_runtime_if_bad_ton_connect_domain():
+    with pytest.raises(RuntimeError):
+        FragmentRestAuth(
+            ton_connect=TonConnect(
+                wallet=MagicMock(spec=WalletV5R1), tc_domain="wrongdomain.com"
+            )
+        )
 
 
 @pytest.mark.asyncio

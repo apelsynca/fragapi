@@ -7,22 +7,14 @@ from src.fragment_rest.exceptions import (
     FragmentAPIError,
     FragmentAPIUsersNotFound,
 )
-from src.kit.ton_connect import TonConnect
 
 
 class FragmentAPIClient:
-    TC_DOMAIN = "fragment.com"
     SESSION_REFRESH_LT = 60 * 60 * 3  # 3 hours
     RELEVANT_COOKIES = ["stel_dt", "stel_ssid", "stel_token", "stel_ton_token"]
 
-    def __init__(self, ton_connect: TonConnect) -> None:
-        if ton_connect.tc_domain != self.TC_DOMAIN:
-            raise RuntimeError(
-                f"ton_connect.tc_domain is different from required {self.TC_DOMAIN}."
-            )
-
+    def __init__(self) -> None:
         self.base_url = "https://fragment.com/"
-        self._ton_connect = ton_connect
 
         self._default_headers = {"Origin": self.base_url, "Referer": self.base_url}
         self._client: AsyncClient = AsyncClient(headers=self._default_headers)

@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 import pytest
 from httpx import AsyncClient, Cookies, Response
-from tonutils.contracts import WalletV5R1
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.exceptions import (
@@ -10,26 +9,16 @@ from src.fragment_rest.exceptions import (
     FragmentAPIError,
     FragmentAPIUsersNotFound,
 )
-from src.kit.ton_connect import TonConnect
 from tests.fixtures.random_objects import rstr
 
 
 @pytest.fixture
-def fragment_api_client(ton_connect: TonConnect) -> FragmentAPIClient:
-    frag_client = FragmentAPIClient(ton_connect=ton_connect)
+def fragment_api_client() -> FragmentAPIClient:
+    frag_client = FragmentAPIClient()
     frag_client._client = MagicMock(spec=AsyncClient)
     frag_client._client.post.return_value = Response(status_code=404)
 
     return frag_client
-
-
-def test_raises_runtime_if_bad_ton_connect_domain():
-    with pytest.raises(RuntimeError):
-        FragmentAPIClient(
-            ton_connect=TonConnect(
-                wallet=MagicMock(spec=WalletV5R1), tc_domain="wrongdomain.com"
-            )
-        )
 
 
 @pytest.mark.asyncio

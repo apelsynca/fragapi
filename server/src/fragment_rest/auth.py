@@ -7,7 +7,14 @@ from src.kit.ton_connect import TonConnect
 
 
 class FragmentRestAuth:
+    TC_DOMAIN = "fragment.com"
+
     def __init__(self, ton_connect: TonConnect) -> None:
+        if ton_connect.tc_domain != self.TC_DOMAIN:
+            raise RuntimeError(
+                f"ton_connect.tc_domain is different from required {self.TC_DOMAIN}."
+            )
+
         self._tc = ton_connect
 
     async def authorize(self, api_client: FragmentAPIClient) -> FragmentSession:
