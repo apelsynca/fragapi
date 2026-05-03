@@ -32,19 +32,25 @@ def fragment_rest_auth(ton_connect) -> FragmentRestAuth:
     return FragmentRestAuth(ton_connect=ton_connect)
 
 
-@pytest.mark.asyncio
-async def test_gets_right_session_tokens(
-    fragment_rest_auth: FragmentRestAuth, fragment_api_client: AsyncMock
-) -> None:
-    fragment_api_client.get_main_page.return_value = (
+def generate_fake_main_page_text(hash: str, ton_proof: str) -> str:
+    return (
         "<html>...somethign<div></div><script>\n"
-        'ajInit({"version":589,"apiUrl":"\\/api?hash=a883d11d2fc9somehash","state":{"quickSearch":false,"tonRate":1.33501149}});\n'
+        f'ajInit({{"version":589,"apiUrl":"\\/api?hash={hash}","state":{{"quickSearch":false,"tonRate":1.33501149}}}});\n'
         "</script>\n"
         "<script>\n"
         "Aj._useScrollHack=true;\n"
         "Main.init();\n"
-        'Wallet.init({"address":"0:25203b4f773a967f6c6310b9aa555acdaa81a87dfa0a386a9de2db6a8f3c8f19","ton_proof":"5550ffd0ff31a55ca4","logged_in":true,"version":2});\n'
+        f'Wallet.init({{"address":"0:25203b4f773a967f6c6310b9aa555acdaa81a87dfa0a386a9de2db6a8f3c8f19","ton_proof":"{ton_proof}","logged_in":true,"version":2}});\n'
         "</script>"
+    )
+
+
+@pytest.mark.asyncio
+async def test_gets_right_session_tokens(
+    fragment_rest_auth: FragmentRestAuth, fragment_api_client: AsyncMock
+) -> None:
+    fragment_api_client.get_main_page.return_value = generate_fake_main_page_text(
+        hash="a883d11d2fc9somehash", ton_proof="5550ffd0ff31a55ca4"
     )
 
     fragment_session = await fragment_rest_auth.get_online_session(fragment_api_client)
@@ -109,5 +115,15 @@ async def test_check_calls_ton_connect_request_data(
 
 
 @pytest.mark.asyncio
-async def test_authorize():
-    pass
+async def test_get_online_session_saves_cookies(
+    fragment_rest_auth: FragmentRestAuth, fragment_api_client: AsyncMock
+) -> None:
+    target_cookies = {"some-cookie": "some-value", "other": "other-value"}
+    fragment_api_client.get_client_relevant_cookies.return_value = target_cookies
+    fragment_api_client.get_main_page.return_value = generate_fake_main_page_text(
+        hash="any", ton_proof="any"
+    )
+
+    fragment_session = await fragment_rest_auth.get_online_session(fragment_api_client)
+
+    assert fragment_session.cookies == target_cookies

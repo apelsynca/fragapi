@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from httpx import AsyncClient, Response
+from httpx import AsyncClient, Cookies, Response
 from tonutils.contracts import WalletV5R1
 
 from src.fragment_rest.api import FragmentAPIClient
@@ -104,6 +104,27 @@ async def test_request_returns_response_json_on_200(
     assert json == mock_data
 
 
-# @pytest.mark.asyncio
-# async def test_get_main_page_raises(fragment_api_client: FragmentAPIClient) -> None:
-#     pass
+@pytest.mark.asyncio
+async def test_ignores_irrelevant_cookies(
+    fragment_api_client: FragmentAPIClient,
+) -> None:
+    random_abc = rstr("session")
+    all_cookies = {
+        "abrikos": "somethng",
+        "other": None,
+        "value": "smth",
+        "stel_dt": "-360",
+        "stel_ssid": random_abc,
+        "stel_ton_token": None,
+    }
+
+    fragment_api_client._client.cookies = Cookies(all_cookies)
+
+    relevant_cookies = fragment_api_client.get_client_relevant_cookies()
+
+    assert "abrikos" not in relevant_cookies
+    assert "other" not in relevant_cookies
+
+    assert relevant_cookies["stel_dt"] == "-360"
+    assert relevant_cookies["stel_ssid"] == random_abc
+    assert relevant_cookies["stel_ton_token"] is None

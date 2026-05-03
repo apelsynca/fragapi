@@ -13,6 +13,7 @@ from src.kit.ton_connect import TonConnect
 class FragmentAPIClient:
     TC_DOMAIN = "fragment.com"
     SESSION_REFRESH_LT = 60 * 60 * 3  # 3 hours
+    RELEVANT_COOKIES = ["stel_dt", "stel_ssid", "stel_token", "stel_ton_token"]
 
     def __init__(self, ton_connect: TonConnect) -> None:
         if ton_connect.tc_domain != self.TC_DOMAIN:
@@ -60,3 +61,12 @@ class FragmentAPIClient:
             raise FragmentAPIError()
 
         return response.text
+
+    def get_client_relevant_cookies(self) -> dict[str, str | None]:
+        all_cookies = {}
+
+        for cookie in self._client.cookies.jar:
+            if cookie.name.lower() in self.RELEVANT_COOKIES:
+                all_cookies[cookie.name] = cookie.value
+
+        return all_cookies

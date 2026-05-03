@@ -11,7 +11,11 @@ class FragmentRestAuth:
         self._tc = ton_connect
 
     async def authorize(self, api_client: FragmentAPIClient) -> FragmentSession:
-        raise
+        not_authed_session = await self.get_online_session(api_client)
+        await self.check_session(api_client, not_authed_session)
+        authed_session = await self.get_online_session(api_client)
+
+        return authed_session
 
     async def get_online_session(
         self, api_client: FragmentAPIClient
@@ -31,7 +35,7 @@ class FragmentRestAuth:
         return FragmentSession(
             hash=session_hash,
             ton_proof_payload=session_ton_proof,
-            cookies={},
+            cookies=api_client.get_client_relevant_cookies(),
         )
 
     async def check_session(
