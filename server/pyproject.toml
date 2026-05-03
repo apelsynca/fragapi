@@ -15,7 +15,6 @@ dependencies = [
   "psycopg2-binary>=2.9.12",
   "pydantic>=2.12.5",
   "pydantic-settings>=2.13.1",
-  "pyjwt>=2.12.1",
   "python-telegram-bot>=22.3",
   "sqlalchemy>=2.0.49",
   "structlog>=25.5.0",

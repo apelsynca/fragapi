@@ -1,3 +1,4 @@
+import secrets
 from typing import cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +9,8 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 from src.bot.utils import with_session
 from src.config import settings
 from src.exceptions import ResourceNotFound
+from src.kit.crypto import generate_token
+from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.models.users import User
 from src.users.repository import UserRepository
 from src.users.schemas import UserCreate
@@ -57,21 +60,30 @@ async def menu(
 async def login(update: Update, user: User, session: AsyncSession) -> None:
     message = cast(Message, update.message)
 
-    # login_data = await auth_service.login(user=user, with_bot_hash=True)
+    user_session = UserSession(
+        user=user,
+        user_agant=None,
+        token=generate_token(prefix=USER_SESSION_PREFIX),
+        bot_hash=secrets.token_urlsafe(24),
+    )
 
-    # await message.reply_text(
-    #     text="Авторизация прошла успешно!\n\nНажмите войти 👇",
-    #     reply_markup=InlineKeyboardMarkup(
-    #         [
-    #             [
-    #                 InlineKeyboardButton(
-    #                     text="Войти",
-    #                     url=f"{settings.panel_url}/login?hash={login_data.bot_hash}",
-    #                 )
-    #             ]
-    #         ]
-    #     ),
-    # )
+    session.add(user_session)
+    await session.commit()
+    await session.refresh(user_session)
+
+    await message.reply_text(
+        text="Авторизация прошла успешно!\n\nНажмите войти 👇",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text="Войти",
+                        url=f"{settings.PANEL_URL}/login?hash={user_session.bot_hash}",
+                    )
+                ]
+            ]
+        ),
+    )
 
 
 def setup_callbacks(application: Application):

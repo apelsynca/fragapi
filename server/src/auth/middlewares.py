@@ -5,6 +5,7 @@ from starlette.types import ASGIApp, Receive, Send
 from starlette.types import Scope as ASGIScope
 
 from src.auth.models import Anonymous, AuthSubject, Subject
+from src.auth.scope import Scope
 from src.auth.service import auth as auth_service
 from src.models.user_sessions import USER_SESSION_PREFIX
 
@@ -22,18 +23,20 @@ def get_bearer_token(request: Request) -> str | None:
 async def get_auth_subject(
     request: Request, session: AsyncSession
 ) -> AuthSubject[Subject]:
+    # NOTE: Scope admin ignored for now
+
     token = get_bearer_token(request)
 
     if token is not None:
         if token.startswith(USER_SESSION_PREFIX):
             user_session = await auth_service.authenticate(session, session_token=token)
             if user_session is not None:
-                return AuthSubject(user_session.user, user_session)
+                return AuthSubject(user_session.user, {Scope.web}, user_session)
         user = await auth_service.authenticate_by_api_token(session, api_key=token)
         if user is not None:
-            return AuthSubject(user, None)
+            return AuthSubject(user, {Scope.api}, None)
 
-    return AuthSubject(Anonymous(), None)
+    return AuthSubject(Anonymous(), set(), None)
 
 
 class AuthSubjectMiddleware:

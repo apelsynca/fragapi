@@ -1,12 +1,13 @@
 from unittest.mock import MagicMock
 
 import pytest
+import pytest_asyncio
 
 from src.fragment_rest.rest import FragmentRest
 
 
-@pytest.fixture
-def fragment_rest(ton_connect) -> FragmentRest:
+@pytest_asyncio.fixture
+async def fragment_rest(ton_connect) -> FragmentRest:
     fragment_rest = FragmentRest(ton_connect)
 
     fragment_rest._api = MagicMock()

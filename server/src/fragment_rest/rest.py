@@ -9,3 +9,9 @@ class FragmentRest:
         self._api = FragmentAPIClient()
         self._auth = FragmentRestAuth(ton_connect=ton_connect)
         self._session: FragmentSession | None = None
+
+    async def start(self):
+        pass
+
+    async def stop(self):
+        pass
