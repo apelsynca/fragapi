@@ -1,19 +1,14 @@
-from src.exceptions import BadRequest
-
-
-class FragmentError(BadRequest):
-    """On any unexpected fragment response/request"""
-
-    def __init__(self, message: str = "Fragment error") -> None:
-        self.message = message
-        super().__init__(message)
-
-
-class FragmentBadRequest(FragmentError):
-    """When error field exists in fragment request"""
-
+class FragmentAPIError(Exception):
     pass
 
 
-class FragmentUserNotFound(FragmentError):
+class FragmentAPIBadRequest(Exception):
+    pass
+
+
+class FragmentAPINotAuthorized(Exception):
+    pass
+
+
+class FragmentAPIUsersNotFound(FragmentAPIBadRequest):
     pass

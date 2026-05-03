@@ -4,8 +4,8 @@ from src.wallet.types import TonConnectTransaction
 
 
 class FragmentSession(BaseModel):
-    hash: str | None = None
-    ton_proof: str | None = None
+    hash: str
+    ton_proof: str
     cookies: dict = {}
 
 

@@ -5,10 +5,10 @@ from asyncio import sleep
 from httpx import AsyncClient
 
 from src.config import settings
+from src.fragment_rest.exceptions import FragmentBadRequest, FragmentRestError
 from src.kit.ton_connect import TonConnect
 from src.logging import get_logger
 
-from .exceptions import FragmentBadRequest, FragmentError
 from .types import FragmentSession
 
 log = get_logger()
@@ -47,22 +47,22 @@ class BaseFragmentRest:
             self._authorized = True
             return
 
-        await self.get_session_tokens()  # get initial session tokens
-        if self._session.ton_proof is None:
-            raise FragmentError("Ton Proof is None")
+        session = await self.get_session_tokens()  # get initial session tokens
+        self._session = session
         await sleep(0.1)
 
         authorized = await self.check_auth()
         log.info("Authorized to fragment!", authorized=authorized)
 
         await sleep(0.2)
-        await self.get_session_tokens()  # get authorized session tokens
+        # get authorized session tokens again, since hash changes after auth
+        await self.get_session_tokens()
 
         self.save_session()
         self._authorized = True
 
     async def check_auth(self) -> bool:
-        if self._session.ton_proof is None or self._session.hash is None:
+        if self._session is None:
             return False
 
         data = self.tc.get_connect_request_data(
@@ -85,22 +85,30 @@ class BaseFragmentRest:
             return True
         return False
 
-    async def get_session_tokens(self) -> None:
+    async def get_session_tokens(self) -> FragmentSession:
         response = await self.client.get(url=self.base_url)
 
         session_hash_match = re.search(r'"apiUrl":"\\/api\?hash=(\w+)"', response.text)
         if session_hash_match is None:
-            raise FragmentError("No session hash")
-        self._session.hash = session_hash_match.group(1)
+            raise FragmentRestError("No session hash match")
+        session_hash = session_hash_match.group(1)
 
         ton_proof_match = re.search(r'"ton_proof":"(.+?)"', response.text)
         if ton_proof_match is None:
-            raise FragmentError("No ton proof")
-        self._session.ton_proof = ton_proof_match.group(1)
+            raise FragmentRestError("No ton proof match")
+        session_ton_proof = ton_proof_match.group(1)
 
+        # additional
         ton_rate_match = re.search(r'"tonRate":([0-9.]+)', response.text)
         if ton_rate_match:
             self._ton_rate = float(ton_rate_match.group(1))
+        # end additional
+
+        return FragmentSession(
+            hash=session_hash,
+            ton_proof=session_ton_proof,
+            cookies=self._session.cookies if self._session else {},
+        )
 
     async def request(
         self,
@@ -113,8 +121,8 @@ class BaseFragmentRest:
         if authorize:
             await self.authorize()
 
-        if self._session.hash is None:
-            raise FragmentError("No session hash")
+        if self._session is None:
+            raise FragmentRestError("No fragment session")
 
         response = await self.client.post(
             url=f"{self.base_url}/api?hash={self._session.hash}",
@@ -144,29 +152,29 @@ class BaseFragmentRest:
                     "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0",
                 },
-                cookies=self._session.cookies,
+                cookies=self._session.cookies if self._session else None,
             )
         return self._client
 
     def save_session(self) -> None:
+        if self._session is None:
+            raise FragmentRestError("no session to save")
+
         for cookie in self.client.cookies.jar:
             self._session.cookies[cookie.name] = cookie.value
 
         with open(settings.FRAGMENT_SESSION_PATH, "w") as fo:
             json.dump(self._session.model_dump(), fo, indent=2)
 
-    def load_session(self) -> FragmentSession:
-        return FragmentSession(cookies={"stel_dt": "-180"})
-
+    def load_session(self) -> FragmentSession | None:
         try:
             with open(settings.FRAGMENT_SESSION_PATH) as fr:
                 session = FragmentSession.model_validate(json.load(fr))
                 session.cookies["stel_dt"] = "-180"
+                return session
         except Exception as exc:
             log.warning("Error loading session", error=str(exc))
-            session = FragmentSession(cookies={"stel_dt": "-180"})
-
-        return session
+            return None
 
     async def get_stars_buy_page(self):
         response = await self.client.get(
