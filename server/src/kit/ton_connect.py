@@ -6,7 +6,14 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
+from pydantic import BaseModel
 from tonutils.contracts import BaseWallet
+
+
+class TonConnectRequestData(BaseModel):
+    account: dict
+    device: dict
+    proof: dict
 
 
 class TonConnect:
@@ -22,14 +29,14 @@ class TonConnect:
 
         self.tc_domain = tc_domain
 
-    def get_connect_request_data(self, ton_proof_payload: str) -> dict:
-        return {
-            "account": self.get_account(),
-            "device": self.get_device(),
-            "proof": self.get_proof(payload_hex=ton_proof_payload),
-        }
+    def get_connect_request_data(self, ton_proof_payload: str) -> TonConnectRequestData:
+        return TonConnectRequestData(
+            account=self.get_account(),
+            device=self.get_device(),
+            proof=self.get_proof(payload_hex=ton_proof_payload),
+        )
 
-    def get_account(self):
+    def get_account(self) -> dict:
         wallet_state_init = self.state_init.serialize().to_boc()
         wallet_state_init_base64 = b64encode(wallet_state_init).decode()
 
@@ -43,7 +50,7 @@ class TonConnect:
             "publicKey": self.public_key.as_hex,
         }
 
-    def get_device(self):
+    def get_device(self) -> dict:
         return {
             "appVersion": "5.2.9",
             "platform": "iphone",
@@ -57,7 +64,7 @@ class TonConnect:
             "appName": "Tonkeeper",
         }
 
-    def get_proof(self, payload_hex: str):
+    def get_proof(self, payload_hex: str) -> dict:
         workchain = self.wallet_address.wc
         address_hash = self.wallet_address.hash_part
 

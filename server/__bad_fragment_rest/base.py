@@ -81,8 +81,8 @@ class BaseFragmentRest:
         except FragmentBadRequest:
             return False
 
-        if auth_data.get("verified", False):
-            return True
+        if verified := auth_data.get("verified", False):
+            return verified
         return False
 
     async def get_session_tokens(self) -> FragmentSession:

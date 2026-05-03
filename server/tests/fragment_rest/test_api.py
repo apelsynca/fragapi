@@ -20,6 +20,10 @@ def fragment_api_client(ton_connect: TonConnect) -> FragmentAPIClient:
     frag_client = FragmentAPIClient(ton_connect=ton_connect)
     frag_client._client = MagicMock(spec=AsyncClient)
 
+    frag_client._session = FragmentSession(
+        hash="somehash", ton_proof_payload="someproof", cookies={}
+    )
+
     return frag_client
 
 
@@ -60,7 +64,7 @@ async def test_get_main_returns_text(fragment_api_client: FragmentAPIClient) -> 
 async def test_request_raises_if_not_authorized(
     fragment_api_client: FragmentAPIClient,
 ) -> None:
-    assert fragment_api_client._session is None
+    fragment_api_client._session = None
 
     with pytest.raises(FragmentAPINotAuthorized):
         await fragment_api_client.request(method="getStarsRecipient", data={})
@@ -75,7 +79,7 @@ async def test_request_raises_if_not_found(
         status_code=200, json={"error": "No Telegram users found."}
     )
     fragment_api_client._session = FragmentSession(
-        hash="somehash", ton_proof="some ton_proof", cookies={}
+        hash="somehash", ton_proof_payload="some ton_proof", cookies={}
     )
 
     with pytest.raises(FragmentAPIUsersNotFound):
@@ -93,8 +97,24 @@ async def test_request_unknown_error_raises(
         status_code=200, json={"error": "Some unknown to anyone error"}
     )
     fragment_api_client._session = FragmentSession(
-        hash="somehash", ton_proof="some ton_proof", cookies={}
+        hash="somehash", ton_proof_payload="some ton_proof", cookies={}
     )
 
     with pytest.raises(FragmentAPIBadRequest):
         await fragment_api_client.request(method="getStarsRecipient", data={})
+
+
+@pytest.mark.asyncio
+async def test_request_returns_response_json_on_200(
+    fragment_api_client: FragmentAPIClient,
+) -> None:
+    mock_data = {"real": "mock", "someOther": "mock"}
+
+    fragment_api_client._client = MagicMock(spec=AsyncClient)
+    fragment_api_client._client.post.return_value = Response(
+        status_code=200, json=mock_data
+    )
+
+    json = await fragment_api_client.request(method="someMethodName", data={})
+
+    assert json == mock_data

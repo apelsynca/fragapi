@@ -12,3 +12,10 @@ class FragmentAPINotAuthorized(Exception):
 
 class FragmentAPIUsersNotFound(FragmentAPIBadRequest):
     pass
+
+
+# --- diff?
+
+
+class FragmentAuthError(Exception):
+    pass

@@ -1,3 +1,5 @@
+from typing import Any
+
 from httpx import AsyncClient
 
 from src.fragment_rest.exceptions import (
@@ -22,17 +24,26 @@ class FragmentAPIClient:
         self.base_url = "https://fragment.com/"
         self._ton_connect = ton_connect
 
-        self._client = AsyncClient()
+        self._default_headers = {"Origin": self.base_url, "Referer": self.base_url}
+        self._client: AsyncClient = AsyncClient(headers=self._default_headers)
+
         self._session: FragmentSession | None = None
 
-    async def request(self, method: str, data: dict) -> None:
+    async def request(
+        self,
+        method: str,
+        data: dict,
+        headers: dict | None = None,
+        *,
+        check_authorized: bool = True,
+    ) -> dict[str, Any]:
         if self._session is None:
             raise FragmentAPINotAuthorized("no session")
 
         response = await self._client.post(
             url=f"{self.base_url}/api?hash={self._session.hash}",
             data={"method": method, **data},
-            # headers=headers,
+            headers=headers,
             # cookies=cookies,
         )
 
@@ -42,6 +53,8 @@ class FragmentAPIClient:
             if json["error"].startswith("No Telegram users found"):
                 raise FragmentAPIUsersNotFound(json["error"])
             raise FragmentAPIBadRequest(json["error"])
+
+        return json
 
     async def get_main_page(self) -> str:
         response = await self._client.get(url=self.base_url)
