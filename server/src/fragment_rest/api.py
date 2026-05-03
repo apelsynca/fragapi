@@ -5,15 +5,14 @@ from httpx import AsyncClient
 from src.fragment_rest.exceptions import (
     FragmentAPIBadRequest,
     FragmentAPIError,
-    FragmentAPINotAuthorized,
     FragmentAPIUsersNotFound,
 )
-from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnect
 
 
 class FragmentAPIClient:
     TC_DOMAIN = "fragment.com"
+    SESSION_REFRESH_LT = 60 * 60 * 3  # 3 hours
 
     def __init__(self, ton_connect: TonConnect) -> None:
         if ton_connect.tc_domain != self.TC_DOMAIN:
@@ -27,25 +26,23 @@ class FragmentAPIClient:
         self._default_headers = {"Origin": self.base_url, "Referer": self.base_url}
         self._client: AsyncClient = AsyncClient(headers=self._default_headers)
 
-        self._session: FragmentSession | None = None
-
     async def request(
         self,
+        hash: str,
         method: str,
-        data: dict,
+        data: dict[str, Any],
         headers: dict | None = None,
-        *,
-        check_authorized: bool = True,
+        cookies: None = None,
     ) -> dict[str, Any]:
-        if self._session is None:
-            raise FragmentAPINotAuthorized("no session")
-
         response = await self._client.post(
-            url=f"{self.base_url}/api?hash={self._session.hash}",
+            url=f"{self.base_url}/api?hash={hash}",
             data={"method": method, **data},
             headers=headers,
-            # cookies=cookies,
+            cookies=cookies,
         )
+
+        if response.status_code != 200:
+            raise FragmentAPIBadRequest()
 
         json = response.json()
 

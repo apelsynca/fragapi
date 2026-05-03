@@ -2,37 +2,30 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.fragment_rest.api import FragmentAPIClient
-from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.rest import FragmentRest
-from src.kit.ton_connect import TonConnect
 
 
 @pytest.fixture
-def fragment_api_client() -> MagicMock:
-    return MagicMock(spec=FragmentAPIClient)
+def fragment_rest(ton_connect) -> FragmentRest:
+    fragment_rest = FragmentRest(ton_connect)
 
-
-@pytest.fixture
-def fragment_rest_auth() -> MagicMock:
-    return MagicMock(spec=FragmentRestAuth)
-
-
-@pytest.fixture(autouse=True)
-def fragment_rest(
-    ton_connect: TonConnect,
-    fragment_api_client: MagicMock,
-    fragment_rest_auth: MagicMock,
-) -> FragmentRest:
-    fragment_rest = FragmentRest(ton_connect=ton_connect)
-
-    fragment_rest._api = fragment_api_client
-    fragment_rest._auth = fragment_rest_auth
+    fragment_rest._api = MagicMock()
+    fragment_rest._auth = MagicMock()
 
     return fragment_rest
 
 
-# probably in api client
-# @pytest.mark.asyncio
-# async def test_request_refreshes_session() -> None:
-#     pass
+@pytest.mark.asyncio
+async def test_search_stars_recipient_below_50() -> None:
+    pass
+
+
+@pytest.mark.asyncio
+async def test_search_stars_recipient_bigger_10_000_000() -> None:
+    pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("amount", [50, 51, 100, 9_999_999])
+async def test_different_amounts(amount: int) -> None:
+    pass

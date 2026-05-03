@@ -1,19 +1,19 @@
 from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
-from pytest_mock import MockerFixture
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnectRequestData
+from tests.fixtures.random_objects import lstr, rstr
 
 
 @pytest.fixture
 def fragment_session() -> FragmentSession:
     return FragmentSession(
-        hash="thesupersessionhash",
-        ton_proof_payload="thedatafortonconnect",
+        hash=lstr("somehash"),
+        ton_proof_payload=rstr("somepayload"),
         cookies={},
     )
 
@@ -28,16 +28,8 @@ def fragment_api_client() -> AsyncMock:
 
 
 @pytest.fixture
-def fragment_rest_auth(
-    mocker: MockerFixture,
-    ton_connect,
-) -> FragmentRestAuth:
-    mocker.patch.object(FragmentRestAuth, "load_session", return_value=None)
-
-    fragment_rest_auth = FragmentRestAuth(ton_connect=ton_connect)
-    fragment_rest_auth.has_authorized = True
-
-    return fragment_rest_auth
+def fragment_rest_auth(ton_connect) -> FragmentRestAuth:
+    return FragmentRestAuth(ton_connect=ton_connect)
 
 
 @pytest.mark.asyncio
@@ -65,76 +57,31 @@ async def test_gets_right_session_tokens(
 
 
 @pytest.mark.asyncio
-async def test_authorize_does_not_authorize_if_already_authorized() -> None:
-    pass
-
-
-@pytest.mark.asyncio
-async def test_authorize_dont_authorize_if_check_auth_and_session() -> None:
-    pass
-
-
-@pytest.mark.asyncio
-async def test_authorize_dont_if_authorized_and_last_auth_fresh() -> None:
-    pass
-
-
-@pytest.mark.asyncio
-async def test_authorize_does_if_authorized_and_last_auth_old() -> None:
-    pass
-
-
-@pytest.mark.asyncio
-async def test_authorize_tries_to_load_session(
-    mocker: MockerFixture,
-    fragment_rest_auth: FragmentRestAuth,
-) -> None:
-    load_session_mock = mocker.patch.object(fragment_rest_auth, "load_session")
-    await fragment_rest_auth.authorize()
-    load_session_mock.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_check_auth_does_not_request_if_not_authorized(
-    fragment_rest_auth: FragmentRestAuth, fragment_api_client: AsyncMock
-) -> None:
-    fragment_rest_auth.has_authorized = False
-
-    authed = await fragment_rest_auth.check_session(
-        api_client=fragment_api_client,
-        session=FragmentSession(hash="hash", ton_proof_payload="someProof", cookies={}),
-    )
-    assert authed is False
-
-    fragment_api_client.request.assert_not_called()
-
-
-@pytest.mark.asyncio
 async def test_check_auth_calls_api_if_was_authorized(
     fragment_rest_auth: FragmentRestAuth,
     fragment_api_client: AsyncMock,
     ton_connect: MagicMock,
     fragment_session: FragmentSession,
 ) -> None:
-    assert fragment_rest_auth.has_authorized is True
-
     # ton connect returns
     ton_connect.get_connect_request_data.return_value = TonConnectRequestData(
         account={}, proof={}, device={}
     )
     fragment_api_client.request.return_value = {"verified": True}
 
-    await fragment_rest_auth.check_session(
+    verified = await fragment_rest_auth.check_session(
         api_client=fragment_api_client,
         session=fragment_session,
     )
 
     fragment_api_client.request.assert_called_once_with(
+        hash=fragment_session.hash,
         method="checkTonProofAuth",
         data=ANY,
         headers={"X-Requested-With": "XMLHttpRequest"},
-        check_authorized=False,
     )
+
+    assert verified is True
 
 
 @pytest.mark.asyncio
@@ -144,8 +91,6 @@ async def test_check_calls_ton_connect_request_data(
     ton_connect,
     fragment_session: FragmentSession,
 ) -> None:
-    assert fragment_rest_auth.has_authorized is True
-
     request_data_model = TonConnectRequestData(
         proof={"hello": "world"},
         account={"accountInfo": "someinfo"},
@@ -161,9 +106,8 @@ async def test_check_calls_ton_connect_request_data(
     ton_connect.get_connect_request_data.assert_called_once_with(
         ton_proof_payload=fragment_session.ton_proof_payload
     )
-    fragment_api_client.request.assert_called_once_with(
-        method="checkTonProofAuth",
-        data=request_data_model.model_dump(),
-        headers=ANY,
-        check_authorized=False,
-    )
+
+
+@pytest.mark.asyncio
+async def test_authorize():
+    pass

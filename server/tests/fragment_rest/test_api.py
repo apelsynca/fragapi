@@ -8,21 +8,17 @@ from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.exceptions import (
     FragmentAPIBadRequest,
     FragmentAPIError,
-    FragmentAPINotAuthorized,
     FragmentAPIUsersNotFound,
 )
-from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnect
+from tests.fixtures.random_objects import rstr
 
 
 @pytest.fixture
 def fragment_api_client(ton_connect: TonConnect) -> FragmentAPIClient:
     frag_client = FragmentAPIClient(ton_connect=ton_connect)
     frag_client._client = MagicMock(spec=AsyncClient)
-
-    frag_client._session = FragmentSession(
-        hash="somehash", ton_proof_payload="someproof", cookies={}
-    )
+    frag_client._client.post.return_value = Response(status_code=404)
 
     return frag_client
 
@@ -61,16 +57,6 @@ async def test_get_main_returns_text(fragment_api_client: FragmentAPIClient) -> 
 
 
 @pytest.mark.asyncio
-async def test_request_raises_if_not_authorized(
-    fragment_api_client: FragmentAPIClient,
-) -> None:
-    fragment_api_client._session = None
-
-    with pytest.raises(FragmentAPINotAuthorized):
-        await fragment_api_client.request(method="getStarsRecipient", data={})
-
-
-@pytest.mark.asyncio
 async def test_request_raises_if_not_found(
     fragment_api_client: FragmentAPIClient,
 ) -> None:
@@ -78,13 +64,10 @@ async def test_request_raises_if_not_found(
     fragment_api_client._client.post.return_value = Response(
         status_code=200, json={"error": "No Telegram users found."}
     )
-    fragment_api_client._session = FragmentSession(
-        hash="somehash", ton_proof_payload="some ton_proof", cookies={}
-    )
 
     with pytest.raises(FragmentAPIUsersNotFound):
         await fragment_api_client.request(
-            method="getStarsRecipient", data={"somedata": "yes"}
+            hash="somehash", method="getStarsRecipient", data={"somedata": "yes"}
         )
 
 
@@ -96,12 +79,11 @@ async def test_request_unknown_error_raises(
     fragment_api_client._client.post.return_value = Response(
         status_code=200, json={"error": "Some unknown to anyone error"}
     )
-    fragment_api_client._session = FragmentSession(
-        hash="somehash", ton_proof_payload="some ton_proof", cookies={}
-    )
 
     with pytest.raises(FragmentAPIBadRequest):
-        await fragment_api_client.request(method="getStarsRecipient", data={})
+        await fragment_api_client.request(
+            hash=rstr("hashik"), method="getStarsRecipient", data={}
+        )
 
 
 @pytest.mark.asyncio
@@ -115,6 +97,13 @@ async def test_request_returns_response_json_on_200(
         status_code=200, json=mock_data
     )
 
-    json = await fragment_api_client.request(method="someMethodName", data={})
+    json = await fragment_api_client.request(
+        hash=rstr("hashik"), method="someMethodName", data={}
+    )
 
     assert json == mock_data
+
+
+# @pytest.mark.asyncio
+# async def test_get_main_page_raises(fragment_api_client: FragmentAPIClient) -> None:
+#     pass

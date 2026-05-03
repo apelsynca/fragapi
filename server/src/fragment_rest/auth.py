@@ -10,10 +10,8 @@ class FragmentRestAuth:
     def __init__(self, ton_connect: TonConnect) -> None:
         self._tc = ton_connect
 
-        self.has_authorized: bool = False
-
-    async def authorize(self) -> None:
-        self.load_session()
+    async def authorize(self, api_client: FragmentAPIClient) -> FragmentSession:
+        raise
 
     async def get_online_session(
         self, api_client: FragmentAPIClient
@@ -36,15 +34,9 @@ class FragmentRestAuth:
             cookies={},
         )
 
-    def load_session(self) -> FragmentSession | None:
-        return None
-
     async def check_session(
         self, api_client: FragmentAPIClient, session: FragmentSession
     ) -> bool:
-        if self.has_authorized is False:
-            return False
-
         data = self._tc.get_connect_request_data(
             ton_proof_payload=session.ton_proof_payload
         )
@@ -53,10 +45,11 @@ class FragmentRestAuth:
 
         try:
             auth_data = await api_client.request(
+                hash=session.hash,
                 method="checkTonProofAuth",
                 data=data.model_dump(),
                 headers=headers,
-                check_authorized=False,
+                # cookies
             )
         except FragmentAPIBadRequest:
             return False
