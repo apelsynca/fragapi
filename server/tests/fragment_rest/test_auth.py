@@ -7,16 +7,6 @@ from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnect, TonConnectRequestData
-from tests.fixtures.random_objects import lstr, rstr
-
-
-@pytest.fixture
-def fragment_session() -> FragmentSession:
-    return FragmentSession(
-        hash=lstr("somehash"),
-        ton_proof_payload=rstr("somepayload"),
-        cookies={},
-    )
 
 
 @pytest.fixture

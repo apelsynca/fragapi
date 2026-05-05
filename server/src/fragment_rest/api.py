@@ -26,8 +26,8 @@ class FragmentAPIClient:
         hash: str,
         method: str,
         data: dict[str, Any],
-        headers: dict | None = None,
-        cookies: None = None,
+        headers: dict[str, str] | None = None,
+        cookies: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         response = await self._client.post(
             url=f"{self.base_url}/api?hash={hash}",
@@ -56,7 +56,7 @@ class FragmentAPIClient:
 
         return response.text
 
-    def get_client_relevant_cookies(self) -> dict[str, str | None]:
+    def get_client_relevant_cookies(self) -> dict[str, str]:
         all_cookies = {}
 
         for cookie in self._client.cookies.jar:

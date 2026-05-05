@@ -17,6 +17,7 @@ def create_async_engine(
     *,
     dsn: str,
     application_name: str | None = None,
+    pool_logging_name: str | None = None,
     pool_size: int | None = None,
     pool_recycle: int | None = None,
     command_timeout: float | None = None,
@@ -31,6 +32,7 @@ def create_async_engine(
     return _create_async_engine(
         dsn,
         echo=debug,
+        pool_logging_name=pool_logging_name,
         connect_args=connect_args,
         pool_size=pool_size,
         pool_recycle=pool_recycle,
@@ -75,14 +77,14 @@ def create_sync_sessionmaker(engine: Engine) -> sessionmaker[Session]:
 
 
 __all__ = [
-    "AsyncSession",
     "AsyncEngine",
-    "Session",
-    "Engine",
+    "AsyncSession",
     "AsyncSessionMaker",
+    "Engine",
+    "Session",
     "SyncSessionMaker",
     "create_async_engine",
-    "create_sync_engine",
     "create_async_sessionmaker",
+    "create_sync_engine",
     "create_sync_sessionmaker",
 ]

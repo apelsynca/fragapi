@@ -5,4 +5,4 @@ from dataclasses import dataclass
 class FragmentSession:
     hash: str
     ton_proof_payload: str
-    cookies: dict[str, str | None]
+    cookies: dict[str, str]

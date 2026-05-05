@@ -5,19 +5,26 @@ from fastapi import Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from src.config import settings
-from src.kit.database.postgres import AsyncEngine, AsyncSession, AsyncSessionMaker
+from src.kit.database.postgres import (
+    AsyncEngine,
+    AsyncSession,
+    AsyncSessionMaker,
+)
 from src.kit.database.postgres import create_async_engine as _create_async_engine
 
 type ProcessName = Literal["app", "bot"]
 
 
-def create_async_engine(process_name: ProcessName) -> AsyncEngine:
+def create_async_engine(
+    process_name: ProcessName, *, pool_logging_name: str | None = None
+) -> AsyncEngine:
     return _create_async_engine(
         dsn=str(settings.get_postgres_dsn("asyncpg")),
-        application_name=f"{settings.env.value}.{process_name}",
-        pool_size=5,
-        pool_recycle=600,
-        command_timeout=30.0,
+        application_name=f"{settings.ENV.value}.{process_name}",
+        pool_logging_name=pool_logging_name or process_name,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        pool_recycle=settings.DATABASE_POOL_RECYCLE_SECONDS,
+        command_timeout=settings.DATABASE_COMMAND_TIMEOUT_SECONDS,
     )
 
 
@@ -62,6 +69,7 @@ async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession]:
 __all__ = [
     "AsyncEngine",
     "AsyncSession",
+    "AsyncSessionMiddleware",
     "create_async_engine",
     "get_db_session",
     "get_db_sessionmaker",
