@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 
+from src.fragment_rest.base_rest import BaseFragmentRest
 from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnect
 from tests.fixtures.random_objects import lstr, rstr
@@ -23,3 +25,8 @@ def fragment_session() -> FragmentSession:
         ton_proof_payload=rstr("somepayload"),
         cookies={},
     )
+
+
+@pytest.fixture(autouse=True)
+def load_session_patch(mocker: MockerFixture) -> None:
+    mocker.patch.object(BaseFragmentRest, "_load_session", return_value=None)
