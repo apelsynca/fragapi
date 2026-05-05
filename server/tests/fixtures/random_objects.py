@@ -46,7 +46,6 @@ async def create_transaction(
         amount=random.randint(1, 10000) / 100 if amount is None else amount,
         reason=reason,
         status=status,
-        tx_hash=rstr("abcdef"),
         recipient=rstr("recipient") if recipient is None else recipient,
         user=user,
     )

@@ -62,17 +62,14 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     log.info("Fragment API started")
 
-    await toncenter_client.connect()
-
-    yield State(
-        async_engine=async_engine,
-        async_sessionmaker=async_sessionmaker,
-        bot_application=bot_application,
-        wallet=wallet,
-        fragment_rest=fragment_rest,
-    )
-
-    await toncenter_client.close()
+    async with toncenter_client:
+        yield State(
+            async_engine=async_engine,
+            async_sessionmaker=async_sessionmaker,
+            bot_application=bot_application,
+            wallet=wallet,
+            fragment_rest=fragment_rest,
+        )
 
     await bot_application.stop()
     await bot_application.shutdown()

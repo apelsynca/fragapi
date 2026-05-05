@@ -133,7 +133,7 @@ async def test_calls_get_wallet_balance(
 
     wallet_service.get_balance.assert_called_once()
 
-    assert buy_stars_response.transaction_hash == "xxx-somehash-KAKA"
+    assert buy_stars_response.message_hash == "xxx-somehash-KAKA"
 
 
 @pytest.mark.asyncio

@@ -8,4 +8,4 @@ class BaseRecipient(Schema):
 
 
 class BaseBuyResponse(Schema):
-    transaction_hash: str
+    message_hash: str

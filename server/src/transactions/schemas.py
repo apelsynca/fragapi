@@ -9,7 +9,7 @@ class Transaction(Schema):
     amount: float
     reason: TransactionReason
     status: TransactionStatus
-    tx_hash: str | None
+    message_hash: str | None
     stars_quantity: int | None
     recipient: str | None
     created_at: datetime

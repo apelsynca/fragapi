@@ -73,7 +73,7 @@ class StarsService:
         )
 
         try:
-            tx_hash = await wallet_service.transfer_from_tc(
+            message_hash = await wallet_service.transfer_from_tc(
                 transaction=buy_link.transaction
             )
         except Exception:
@@ -81,9 +81,9 @@ class StarsService:
             log.error("stars_service.buy transfering error")
             raise
 
-        transaction.tx_hash = tx_hash
+        transaction.message_hash = message_hash
 
-        return BuyStarsResponse(transaction_hash=tx_hash)
+        return BuyStarsResponse(message_hash=message_hash)
 
     async def get_recipient(
         self, fragment_rest: FragmentRest, username: str, *, quantity: int | None = None

@@ -24,6 +24,7 @@ dependencies = [
   "zstandard>=0.25.0",
   "sqlalchemy-utils>=0.42.1",
   "makefun>=1.16.0",
+  "pytonapi>=2.2.0",
 ]
 
 [dependency-groups]

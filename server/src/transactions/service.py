@@ -14,7 +14,7 @@ class TransactionService:
         reason: TransactionReason,
         user: User,
         recipient: str,
-        tx_hash: str | None = None,
+        message_hash: str | None = None,
         status: TransactionStatus = TransactionStatus.PENDING,
     ) -> Transaction:
         repository = TransactionRepository.from_session(session)
@@ -23,7 +23,7 @@ class TransactionService:
                 amount=amount,
                 reason=reason,
                 user=user,
-                tx_hash=tx_hash,
+                message_hash=message_hash,
                 recipient=recipient,
                 status=status,
             )

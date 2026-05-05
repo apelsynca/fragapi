@@ -32,7 +32,9 @@ class Transaction(RecordModel):
         default=TransactionStatus.PENDING,
     )
 
-    tx_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    message_hash: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
 
     recipient: Mapped[str] = mapped_column(String(255))
 

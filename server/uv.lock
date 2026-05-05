@@ -551,6 +551,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-telegram-bot" },
+    { name = "pytonapi" },
     { name = "sqlalchemy" },
     { name = "sqlalchemy-utils" },
     { name = "structlog" },
@@ -585,6 +586,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "python-telegram-bot", specifier = ">=22.3" },
+    { name = "pytonapi", specifier = ">=2.2.0" },
     { name = "sqlalchemy", specifier = ">=2.0.49" },
     { name = "sqlalchemy-utils", specifier = ">=0.42.1" },
     { name = "structlog", specifier = ">=25.5.0" },
@@ -1361,6 +1363,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/25/2258161b1069e66d6c39c0a602dbe57461d4767dc0012539970ea40bc9d6/python_telegram_bot-22.7.tar.gz", hash = "sha256:784b59ea3852fe4616ad63b4a0264c755637f5d725e87755ecdee28300febf61", size = 1516454, upload-time = "2026-03-16T09:36:03.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/94/f7/0e2f89dd62f45d46d4ea0d8aec5893ce5b37389638db010c117f46f11450/python_telegram_bot-22.7-py3-none-any.whl", hash = "sha256:d72eed532cf763758cd9331b57a6d790aff0bb4d37d8f4e92149436fe21c6475", size = 745365, upload-time = "2026-03-16T09:36:01.498Z" },
+]
+
+[[package]]
+name = "pytonapi"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/00/5e690e3a29d85d8a32b34a135b8e48474c0121eb586f66580d58c5acb7d2/pytonapi-2.2.0.tar.gz", hash = "sha256:c22f0416fc85c1219ef7b731a383c393b4212bd016805280f1c3c875dfed361a", size = 52655, upload-time = "2026-04-09T20:16:54.599Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/92/f0746fe373a4ad617a256dc888227ac5774dc40f453326da0d9b19ce8e05/pytonapi-2.2.0-py3-none-any.whl", hash = "sha256:a6c31e8c375385fdbbbd9464de6d61c7727520d604dcdd76f295568afff7a121", size = 74689, upload-time = "2026-04-09T20:16:56.948Z" },
 ]
 
 [[package]]

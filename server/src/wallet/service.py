@@ -1,6 +1,5 @@
 from ton_core import Address, Cell, NetworkGlobalID, WalletV5Params
 from ton_core.boc.deserialize import BocError
-from tonutils.contracts import WalletV5R1
 
 from src.config import settings
 from src.exceptions import BadRequest
@@ -13,9 +12,13 @@ else:
 
 
 class WalletService:
-    async def transfer_from_tc(
-        self, wallet: WalletV5R1, transaction: TonConnectTransaction
-    ) -> str:
+    """
+    Service of a global FragAPI wallet
+
+    Since the wallets can be split
+    """
+
+    async def transfer_from_tc(self, transaction: TonConnectTransaction) -> str:
         if len(transaction.messages) > 1:
             raise BadRequest("Multiple messages transfer is not supported")
 
@@ -43,12 +46,10 @@ class WalletService:
 
         return ext_msg.normalized_hash
 
-    async def get_balance(self, wallet: WalletV5R1) -> float:
-        await wallet.refresh()
-        return wallet.balance
-
-    async def process_webhook(self) -> None:
+    async def get_balance(self) -> float:
         pass
+        # await wallet.refresh()
+        # return wallet.balance
 
 
 wallet = WalletService()

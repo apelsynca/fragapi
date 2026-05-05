@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     TON_ADDRESS: str = ""
     TONCENTER_API_KEY: str = ""
+    TONAPI_API_KEY: str = ""
     WALLET_MNEMONIC: list[str] = []
 
     # User session
