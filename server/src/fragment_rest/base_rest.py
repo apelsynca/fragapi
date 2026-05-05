@@ -43,13 +43,12 @@ class BaseFragmentRest:
 
         if need_to_authorize:
             new_session = await self._auth.authorize(api_client=self._api)
-
-            self._session = new_session
+            self._save_session(new_session)
 
     async def _request(self, method: str, data: dict[str, Any]) -> dict[str, Any]:
         if self._session is None:
             raise RuntimeError(
-                "Fragment session is not present in the client state. "
+                "Fragment session is not present in the FragmentRest. "
                 "Are you sure you called FragmentRest.start method?"
             )
 
@@ -87,4 +86,16 @@ class BaseFragmentRest:
             log.error("Error loading session", error=str(exc))
             raise
 
-    # TODO: call save session here
+    def _save_session(self, session: FragmentSession) -> None:
+        self._session = session
+
+        with open(settings.FRAGMENT_SESSION_PATH, "w") as fw:
+            json.dump(
+                {
+                    "hash": session.hash,
+                    "ton_proof_payload": session.ton_proof_payload,
+                    "cookies": session.cookies,
+                },
+                fw,
+                indent=2,
+            )

@@ -30,3 +30,8 @@ def fragment_session() -> FragmentSession:
 @pytest.fixture(autouse=True)
 def load_session_patch(mocker: MockerFixture) -> None:
     mocker.patch.object(BaseFragmentRest, "_load_session", return_value=None)
+
+
+@pytest.fixture(autouse=True)
+def save_session_patch(mocker: MockerFixture):
+    return mocker.patch.object(BaseFragmentRest, "_save_session", return_value=None)

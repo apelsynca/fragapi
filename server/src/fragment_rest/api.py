@@ -14,9 +14,13 @@ class FragmentAPIClient:
     SESSION_REFRESH_LT = 60 * 60 * 3  # 3 hours
     RELEVANT_COOKIES = ["stel_dt", "stel_ssid", "stel_token", "stel_ton_token"]
 
-    def __init__(self, initial_cookies: dict | None = None) -> None:
-        self.base_url = "https://fragment.com/"
-
+    def __init__(
+        self,
+        initial_cookies: dict | None = None,
+        *,
+        base_url: str = "https://fragment.com/",
+    ) -> None:
+        self.base_url = base_url
         self._client: AsyncClient = AsyncClient(
             headers={
                 "Origin": self.base_url,
