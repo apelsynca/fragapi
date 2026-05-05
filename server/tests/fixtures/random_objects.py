@@ -3,6 +3,7 @@ import string
 
 import pytest_asyncio
 
+from src.fragment_rest.types import FoundRecipientData, RecipientData
 from src.models import User
 from tests.fixtures.database import SaveFixture
 
@@ -24,3 +25,15 @@ async def create_user(save_fixture: SaveFixture) -> User:
     user = User(first_name=rstr("Mock"), username=rstr("test_"))
     await save_fixture(user)
     return user
+
+
+def get_fake_recipient_data() -> RecipientData:
+    return RecipientData(
+        ok=True,
+        found=FoundRecipientData(
+            myself=False,
+            recipient=rstr("XXxaaAxXXxXXxxXXXxxA"),
+            photo=rstr("img"),
+            name=rstr("Homo Citrus"),
+        ),
+    )

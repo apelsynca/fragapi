@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.exceptions import ResourceNotFound
 from src.kit.utils import generate_api_key
 from src.logging import get_logger
@@ -10,18 +12,17 @@ log = get_logger()
 
 
 class UserService:
-    def __init__(self, repository: UserRepository):
-        self.repository = repository
-
-    async def get_by_id(self, id: int) -> User:
-        user = await self.repository.get_by_id(id=id)
+    async def get_by_id(self, session: AsyncSession, id: int) -> User:
+        repository = UserRepository.from_session(session)
+        user = await repository.get_by_id(id=id)
 
         if user is None:
             raise ResourceNotFound("User not found")
 
         return user
 
-    async def create(self, user: UserCreate) -> User:
+    async def create(self, session: AsyncSession, user: UserCreate) -> User:
+        repository = UserRepository.from_session(session)
         log.info(
             "Creating user",
             user_id=user.id,
@@ -29,7 +30,7 @@ class UserService:
             username=user.username,
         )
 
-        return await self.repository.create(
+        return await repository.create(
             User(
                 id=user.id,
                 first_name=user.first_name,
@@ -40,18 +41,5 @@ class UserService:
             )
         )
 
-    async def get_by_api_key(self, api_key: str) -> User:
-        user = await self.repository.get_one_or_none(
-            self.repository.get_base_stmt().where(User.api_key == api_key)
-        )
 
-        if user is None:
-            raise ResourceNotFound("User by API key is not found")
-
-        return user
-
-    async def update_balance(self, user: User, new_balance: float) -> User:
-        log.info(
-            "Updating user balance", prev_balance=user.balance, new_balance=new_balance
-        )
-        return await self.repository.update(user, {"balance": new_balance})
+todohereepta = UserService()

@@ -30,4 +30,4 @@ class BuyRequest(FragmentAPIObject):
 
 class BuyLink(FragmentAPIResponseObject):
     transaction: TonConnectTransaction
-    confirm_method: str
+    confirm_method: str | None = None

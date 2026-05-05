@@ -1,7 +1,6 @@
 from sqlalchemy import func, select
 
-from src.kit.repository.id_mixin import IDRepositoryMixin
-from src.kit.repository.main import BaseRepository
+from src.kit.repository import BaseRepository, IDRepositoryMixin
 from src.models import Transaction, TransactionReason, User
 
 from .schemas import TransactionStats
@@ -15,13 +14,13 @@ class TransactionRepository(
     async def get_stats(self, user: User) -> TransactionStats:
         stmt = select(
             # Количество покупок звезд (count вместо sum)
-            func.count().filter(
-                Transaction.reason == TransactionReason.STARS
-            ).label("stars_purchases_count"),
+            func.count()
+            .filter(Transaction.reason == TransactionReason.STARS)
+            .label("stars_purchases_count"),
             # Количество покупок премиума
-            func.count().filter(
-                Transaction.reason == TransactionReason.PREMIUM
-            ).label("premium_count"),
+            func.count()
+            .filter(Transaction.reason == TransactionReason.PREMIUM)
+            .label("premium_count"),
             # Общая сумма потраченных средств
             func.coalesce(func.sum(Transaction.amount), 0).label("total_spent"),
         ).where(Transaction.user == user)

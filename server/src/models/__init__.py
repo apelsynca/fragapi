@@ -9,6 +9,6 @@ __all__ = [
     "Transaction",
     "TransactionReason",
     "TransactionStatus",
-    "UserSession",
     "User",
+    "UserSession",
 ]

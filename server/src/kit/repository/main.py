@@ -1,7 +1,11 @@
+from collections.abc import Sequence
 from typing import Any, Self
 
 from sqlalchemy import Select, func, over, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.base import ExecutableOption
+
+type Options = Sequence[ExecutableOption]
 
 
 class BaseRepository[M]:
@@ -20,27 +24,29 @@ class BaseRepository[M]:
         result = await self.session.execute(stmt)
         return list(result.scalars().unique().all())
 
-    async def update(self, obj: M, update_dict: dict[str, Any]) -> M:
+    async def update(
+        self, obj: M, *, update_dict: dict[str, Any], flush: bool = False
+    ) -> M:
         for attr, value in update_dict.items():
             setattr(obj, attr, value)
 
         self.session.add(obj)
 
-        await self.session.commit()
+        if flush:
+            await self.session.flush()
 
         return obj
 
-    async def create(self, obj: M) -> M:
+    async def create(self, obj: M, *, flush: bool = False) -> M:
         self.session.add(obj)
 
-        await self.session.commit()
-        await self.session.refresh(obj)
+        if flush:
+            await self.session.flush()
 
         return obj
 
     async def delete(self, obj: M) -> None:
         await self.session.delete(obj)
-        await self.session.commit()
 
     async def paginate(
         self, stmt: Select[tuple[M]], limit: int, page: int
@@ -59,6 +65,13 @@ class BaseRepository[M]:
             items.append(item)
 
         return items, count
+
+    async def count(self, stmt: Select[tuple[M]]) -> int:
+        count_statement = stmt.with_only_columns(
+            func.count(), maintain_column_froms=True
+        )
+        result = await self.session.execute(count_statement)
+        return result.scalar_one()
 
     @classmethod
     def from_session(cls, session: AsyncSession) -> Self:

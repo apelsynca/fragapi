@@ -1,5 +1,16 @@
-from src.fragment_rest.enums import PremiumMonths
+# from src.fragment_rest.enums import PremiumMonths
+# from src.kit.schemas import Schema
+#
+#
+#
+# class PremiumPriceResponse(Schema):
+#     three_months: float
+#     six_months: float
+#     year: float
+
+from src.enums import PremiumMonths
 from src.kit.schemas import Schema
+from src.schemas import BaseRecipient
 
 
 class BuyPremium(Schema):
@@ -8,17 +19,8 @@ class BuyPremium(Schema):
 
 
 class BuyPremiumResponse(Schema):
-    success: bool
     transaction_hash: str
 
 
-class PremiumRecipient(Schema):
-    recipient: str
-    photo: str | None
-    name: str
-
-
-class PremiumPriceResponse(Schema):
-    three_months: float
-    six_months: float
-    year: float
+class PremiumRecipient(BaseRecipient):
+    pass

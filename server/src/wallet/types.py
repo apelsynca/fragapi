@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TonConnectMessage(BaseModel):
@@ -11,6 +11,8 @@ class TonConnectMessage(BaseModel):
 
 
 class TonConnectTransaction(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     valid_until: Annotated[datetime, Field(alias="validUntil")]
     from_address: Annotated[str, Field(alias="from")]
     messages: list[TonConnectMessage]

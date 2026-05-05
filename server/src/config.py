@@ -3,7 +3,7 @@ from datetime import timedelta
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import PostgresDsn
+from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
 
     # Application behaviours
-    API_PRICE_MARKUP: float = 0.005  # 0.5%
+    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)  # 1%
     API_PAGINATION_MAX_LIMIT: int = 100
 
     DOCS_URL: str = "https://docs.fragapi.com"

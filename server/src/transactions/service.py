@@ -15,7 +15,6 @@ class TransactionService:
         reason: TransactionReason,
         user: User,
         tx_hash: str | None = None,
-        stars_quantity: int | None = None,
         recipient: str | None = None,
         status: TransactionStatus = TransactionStatus.PENDING,
     ) -> Transaction:
@@ -26,7 +25,6 @@ class TransactionService:
                 reason=reason,
                 user=user,
                 tx_hash=tx_hash,
-                stars_quantity=stars_quantity,
                 recipient=recipient,
                 status=status,
             )
@@ -46,18 +44,6 @@ class TransactionService:
             raise ResourceNotFound("Transaction not found")
 
         return transaction
-
-    async def update_status(
-        self,
-        transaction: Transaction,
-        status: TransactionStatus,
-        tx_hash: str | None = None,
-    ) -> Transaction:
-        """Update transaction status and optionally tx_hash"""
-        update_data: dict = {"status": status}
-        if tx_hash:
-            update_data["tx_hash"] = tx_hash
-        return await repository.update(transaction, update_data)
 
     async def get_list(
         self, session: AsyncSession, pagination: PaginationParams, user: User

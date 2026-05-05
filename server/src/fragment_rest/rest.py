@@ -1,8 +1,9 @@
 from typing import Literal
 
 from src.fragment_rest.base_rest import BaseFragmentRest
-from src.fragment_rest.enums import PremiumMonths
 from src.fragment_rest.types import BuyLink, BuyRequest, RecipientData
+
+type MonthsAmount = Literal["3", "6", "12"]
 
 
 class FragmentRest(BaseFragmentRest):
@@ -33,7 +34,7 @@ class FragmentRest(BaseFragmentRest):
         )
 
     async def search_premium_gift_recipient(
-        self, query: str, months: PremiumMonths
+        self, query: str, months: MonthsAmount = "12"
     ) -> RecipientData:
         data = await self._request(
             method="searchPremiumGiftRecipient",
@@ -42,7 +43,7 @@ class FragmentRest(BaseFragmentRest):
         return RecipientData.model_validate(data)
 
     async def init_gift_premium_request(
-        self, recipient: str, months: PremiumMonths
+        self, recipient: str, months: MonthsAmount
     ) -> BuyRequest:
         data = await self._request(
             method="initGiftPremiumRequest",

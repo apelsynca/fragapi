@@ -1,111 +1,59 @@
-import re
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import settings
-from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment_rest.enums import PremiumMonths
-from src.fragment_rest.exceptions import FragmentBadRequest
-from src.fragment_rest.main import FragmentRest
-from src.kit.utils import after_fee
-from src.logging import get_logger
-from src.models.transactions import TransactionReason, TransactionStatus
-from src.models.users import User
+from src.enums import PremiumMonths
+from src.exceptions import FragError, InsuficcientFunds, ResourceNotFound
+from src.fee import after_fee, after_ton_network_fee
+from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
+from src.fragment_rest.rest import FragmentRest
 from src.premium.schemas import PremiumRecipient
-from src.wallet.service import wallet as wallet_service
-
-log = get_logger()
+from src.users.repository import UserRepository
 
 
 class PremiumService:
     async def buy(
         self,
+        session: AsyncSession,
         fragment_rest: FragmentRest,
-        user: User,
+        user_id: int,
         username: str,
         months: PremiumMonths,
-    ) -> str:
-        recipient_data = await fragment_rest.search_premium_recipient(
-            query=username, months=months
+    ):
+        # probably will need to lock user, so that no race conditions happen
+        recipient_data = await self.get_recipient(fragment_rest, username=username)
+        buy_request = await fragment_rest.init_gift_premium_request(
+            recipient=recipient_data.recipient, months=months.value
         )
 
-        buy_premium_request = await fragment_rest.init_premium_request(
-            recipient=recipient_data.found.recipient, months=months
+        premium_price = after_ton_network_fee(after_fee(buy_request.amount))
+
+        user = await UserRepository.from_session(session).get_by_id_for_update(
+            id=user_id
         )
+        if user is None:
+            raise FragError()
 
-        premium_ton_price = after_fee(buy_premium_request.amount)
-        user_premium_ton_price = premium_ton_price * (1 + settings.API_PRICE_MARKUP)
-        if user.balance < user_premium_ton_price:
-            raise InsuficcientFunds
+        if premium_price > user.balance:
+            raise InsuficcientFunds("Not enough balance")
 
-        balance = await wallet_service.get_real_ton_balance()
-        if balance < premium_ton_price:
-            raise AppError(f"We have insufficcient funds: {balance}")
+        user.balance -= premium_price
 
-        link = await fragment_rest.get_premium_link(req_id=buy_premium_request.req_id)
-
-        await user_service.update_balance(
-            user=user, new_balance=user.balance - user_premium_ton_price
-        )
-
-        # Create transaction with PENDING status first
-        transaction = await transaction_service.create(
-            amount=user_premium_ton_price,
-            reason=TransactionReason.PREMIUM,
-            user=user,
-            recipient=username,
-            status=TransactionStatus.PENDING,
-        )
-
+    async def get_recipient(
+        self,
+        fragment_rest: FragmentRest,
+        username: str,
+    ) -> PremiumRecipient:
         try:
-            tx_hash = await wallet_service.transfer_from_tc(
-                message=link.transaction.messages[0],
-                valid_until=link.transaction.valid_until,
+            recipient = await fragment_rest.search_premium_gift_recipient(
+                query=username
             )
-
-            # Update transaction with tx_hash and COMPLETED status
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.COMPLETED,
-                tx_hash=tx_hash,
-            )
-
-            log.info(
-                "New buy premium transaction!",
-                hash=tx_hash,
-                username=username,
-                months=months,
-                transaction_id=transaction.id,
-            )
-
-            return tx_hash
-
-        except Exception as exc:
-            # If transfer fails, mark transaction as FAILED
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.FAILED,
-            )
-            log.error(
-                "Failed to transfer premium",
-                error=str(exc),
-                username=username,
-                months=months,
-                transaction_id=transaction.id,
-            )
-            raise
-
-    async def get_recipient(self, username: str) -> PremiumRecipient:
-        try:
-            recipient_data = await fragment.search_premium_recipient(query=username)
-        except FragmentBadRequest:
-            raise ResourceNotFound(f"No recipient found by username {username}")
-
-        photo_match = re.search(r'src="(.*)"', recipient_data.found.photo)
+        except FragmentAPIUsersNotFound:
+            raise ResourceNotFound("User is not found")
 
         return PremiumRecipient(
-            recipient=recipient_data.found.recipient,
-            name=recipient_data.found.name,
-            photo=photo_match.group(1) if photo_match else None,
+            recipient=recipient.found.recipient,
+            photo=recipient.found.photo,
+            name=recipient.found.name,
         )
 
 
-premium_service = PremiumService()
+premium = PremiumService()

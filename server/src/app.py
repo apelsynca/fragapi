@@ -14,6 +14,7 @@ from src.bot.endpoints import router as bot_router
 from src.bot.setup import setup_bot
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
+from src.fragment_rest import create_fragment_rest
 from src.fragment_rest.rest import FragmentRest
 from src.health.endpoints import router as health_router
 from src.kit.database.postgres import (
@@ -21,7 +22,6 @@ from src.kit.database.postgres import (
     AsyncSessionMaker,
     create_async_sessionmaker,
 )
-from src.kit.ton_connect import TonConnect
 from src.logging import configure as configure_logging
 from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
@@ -55,8 +55,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         await bot_application.start()
 
     wallet = create_wallet()
-    fragment_ton_connect = TonConnect(wallet, tc_domain="fragment.com")
-    fragment_rest = FragmentRest(fragment_ton_connect)
+    fragment_rest = create_fragment_rest(wallet)
+
+    await fragment_rest.start()
 
     log.info("Fragment API started")
 
@@ -70,8 +71,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await bot_application.stop()
     await bot_application.shutdown()
-
-    # await toncenter_client.close()
 
     log.info("Fragment API stopped")
 
