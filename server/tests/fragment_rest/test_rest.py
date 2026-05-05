@@ -2,6 +2,7 @@ from time import time
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic import ValidationError
 from pytest_mock import MockerFixture
 
 from src.fragment_rest.api import FragmentAPIClient
@@ -58,12 +59,12 @@ async def test_search_stars_recipient(
 
 
 @pytest.mark.asyncio
-async def test_search_stars_recipient_b(
+async def test_search_stars_recipient_validation_error(
     fragment_rest: FragmentRest, fragment_rest_request
 ) -> None:
     fragment_rest_request.return_value = {}
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         await fragment_rest.search_stars_recipient(query="apelsin")
 
     fragment_rest_request.assert_called_once_with(

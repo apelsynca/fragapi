@@ -15,7 +15,7 @@ class FragmentRestAuth:
                 f"ton_connect.tc_domain is different from required {self.TC_DOMAIN}."
             )
 
-        self._tc = ton_connect
+        self.ton_connect = ton_connect
 
     async def authorize(self, api_client: FragmentAPIClient) -> FragmentSession:
         not_authed_session = await self.get_online_session(api_client)
@@ -48,7 +48,7 @@ class FragmentRestAuth:
     async def check_session(
         self, api_client: FragmentAPIClient, session: FragmentSession
     ) -> bool:
-        data = self._tc.get_connect_request_data(
+        data = self.ton_connect.get_connect_request_data(
             ton_proof_payload=session.ton_proof_payload
         )
 
