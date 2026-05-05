@@ -84,7 +84,7 @@ async def test_check_auth_calls_api_if_was_authorized(
         hash=fragment_session.hash,
         method="checkTonProofAuth",
         data=ANY,
-        headers={"X-Requested-With": "XMLHttpRequest"},
+        cookies=fragment_session.cookies,
     )
 
     assert verified is True

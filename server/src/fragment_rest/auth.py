@@ -52,15 +52,12 @@ class FragmentRestAuth:
             ton_proof_payload=session.ton_proof_payload
         )
 
-        headers = {"X-Requested-With": "XMLHttpRequest"}
-
         try:
             auth_data = await api_client.request(
                 hash=session.hash,
                 method="checkTonProofAuth",
                 data=data.model_dump(),
-                headers=headers,
-                # cookies
+                cookies=session.cookies,
             )
         except FragmentAPIBadRequest:
             return False

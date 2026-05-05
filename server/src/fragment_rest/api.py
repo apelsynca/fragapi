@@ -17,9 +17,17 @@ class FragmentAPIClient:
     def __init__(self, initial_cookies: dict | None = None) -> None:
         self.base_url = "https://fragment.com/"
 
-        self._default_headers = {"Origin": self.base_url, "Referer": self.base_url}
         self._client: AsyncClient = AsyncClient(
-            headers=self._default_headers, cookies=initial_cookies
+            headers={
+                "Origin": self.base_url,
+                "Referer": self.base_url,
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0",
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
+            cookies=initial_cookies,
+            http2=True,
         )
 
     async def request(
@@ -30,6 +38,12 @@ class FragmentAPIClient:
         headers: dict[str, str] | None = None,
         cookies: dict[str, str] | None = None,
     ) -> dict[str, Any]:
+        if headers is None:
+            headers = {}
+
+        # must always be like this for requests
+        headers["X-Requested-With"] = "XMLHttpRequest"
+
         response = await self._client.post(
             url=f"{self.base_url}/api?hash={hash}",
             data={"method": method, **data},
