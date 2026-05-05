@@ -3,7 +3,7 @@ import asyncio
 from src.fragment_rest.exceptions import FragmentAPIAccessDenied
 from src.fragment_rest.rest import FragmentRest
 from src.kit.ton_connect import TonConnect
-from src.ton import create_wallet
+from src.wallet.ton import create_wallet
 
 
 def main():

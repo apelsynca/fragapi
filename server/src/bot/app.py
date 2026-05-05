@@ -4,7 +4,7 @@ from telegram.ext import Application, Defaults
 from src.config import settings
 
 
-def get_application() -> Application:
+def get_bot_application() -> Application:
     defaults = Defaults(parse_mode=ParseMode.HTML)
     return (
         Application.builder()

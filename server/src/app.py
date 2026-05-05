@@ -8,7 +8,7 @@ from telegram.ext import Application as BotApplication
 
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
-from src.bot.app import get_application as get_bot_application
+from src.bot.app import get_bot_application
 from src.bot.endpoints import router as bot_router
 from src.bot.setup import setup_bot
 from src.config import settings
@@ -26,9 +26,8 @@ from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
-from src.ton import create_wallet
-from src.ton import toncenter as toncenter_client
 from src.wallet.manager import WalletManager
+from src.wallet.ton import toncenter as toncenter_client
 
 log = get_logger()
 
@@ -55,9 +54,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         await bot_application.initialize()
         await bot_application.start()
 
-    wallet = create_wallet()
-    fragment_rest = create_fragment_rest(wallet)
     wallet_manager = WalletManager()
+    fragment_rest = create_fragment_rest(
+        ton_connect=wallet_manager.get_ton_connect(tc_domain="fragment.com")
+    )
 
     await fragment_rest.start()
 

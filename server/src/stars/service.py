@@ -11,16 +11,18 @@ from src.models.transactions import TransactionReason, TransactionStatus
 from src.stars.schemas import BuyStarsResponse, StarsRecipient
 from src.transactions.service import transaction as transaction_service
 from src.users.repository import UserRepository
-from src.wallet.service import wallet as wallet_service
+from src.wallet.manager import WalletManager
 
 log = get_logger()
 
 
 class StarsService:
+    # split buy into get_buy_info | actually do buying and removing money from users balance
     async def buy(
         self,
         session: AsyncSession,
         fragment_rest: FragmentRest,
+        wallet_manager: WalletManager,
         user_id: int,
         username: str,
         quantity: int,
@@ -54,7 +56,7 @@ class StarsService:
 
         user.balance = user.balance - stars_price
 
-        wallet_balance = await wallet_service.get_balance()
+        wallet_balance = await wallet_manager.get_balance()
         if wallet_balance < stars_price:
             raise FragError()
 
