@@ -3,11 +3,16 @@ from ton_core import NetworkGlobalID
 from tonutils.clients import ToncenterClient
 from tonutils.contracts import WalletV5R1
 
-from src.config import settings
+from src.config import Environment, settings
 
-toncenter = ToncenterClient(
-    network=NetworkGlobalID.TESTNET, api_key=settings.TONCENTER_API_KEY
+# i know that in development it is bad, but we need to test fragment
+network = (
+    NetworkGlobalID.MAINNET
+    if settings.is_environment({Environment.production, Environment.development})
+    else NetworkGlobalID.TESTNET
 )
+
+toncenter = ToncenterClient(network=network, api_key=settings.TONCENTER_API_KEY)
 
 
 def create_wallet():

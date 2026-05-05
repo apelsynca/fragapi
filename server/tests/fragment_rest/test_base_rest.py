@@ -8,6 +8,7 @@ from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.base_rest import BaseFragmentRest
 from src.fragment_rest.models import FragmentSession
+from tests.fixtures.random_objects import rstr
 
 
 @pytest.fixture
@@ -64,7 +65,7 @@ async def test_request_calls_api_request_with_right_session_data(
 
 @pytest.mark.asyncio
 async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_new(
-    fragment_rest: BaseFragmentRest, mocker: MockerFixture
+    fragment_rest: BaseFragmentRest,
 ) -> None:
     fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
     fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT
@@ -76,7 +77,7 @@ async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_new(
 
 @pytest.mark.asyncio
 async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_stale(
-    fragment_rest: BaseFragmentRest, mocker: MockerFixture
+    fragment_rest: BaseFragmentRest,
 ) -> None:
     fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
     fragment_rest._last_session_check = 0
@@ -84,3 +85,21 @@ async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_stale(
     await fragment_rest.ensure_fresh_session()
 
     fragment_rest._auth.authorize.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_request_returns_data(
+    fragment_rest: BaseFragmentRest, fragment_session: FragmentSession
+) -> None:
+    fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
+    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
+    fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT
+    fragment_rest._session = fragment_session
+
+    prepared = {"something": rstr("mooock"), "otherData": "yes"}
+    fragment_rest._api.request.return_value = prepared
+
+    data = await fragment_rest._request(method="someMethod", data={})
+
+    fragment_rest._api.request.assert_called_once()
+    assert data == prepared

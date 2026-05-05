@@ -3,6 +3,7 @@ from typing import Any
 from httpx import AsyncClient
 
 from src.fragment_rest.exceptions import (
+    FragmentAPIAccessDenied,
     FragmentAPIBadRequest,
     FragmentAPIError,
     FragmentAPIUsersNotFound,
@@ -44,6 +45,8 @@ class FragmentAPIClient:
         if "error" in json:
             if json["error"].startswith("No Telegram users found"):
                 raise FragmentAPIUsersNotFound(json["error"])
+            if json["error"].startswith("Access denied"):
+                raise FragmentAPIAccessDenied(json["error"])
             raise FragmentAPIBadRequest(json["error"])
 
         return json

@@ -46,7 +46,7 @@ class BaseFragmentRest:
 
             self._session = new_session
 
-    async def _request(self, method: str, data: dict[str, Any]) -> None:
+    async def _request(self, method: str, data: dict[str, Any]) -> dict[str, Any]:
         if self._session is None:
             raise RuntimeError(
                 "Fragment session is not present in the client state. "
@@ -55,7 +55,7 @@ class BaseFragmentRest:
 
         await self.ensure_fresh_session()
 
-        await self._api.request(
+        return await self._api.request(
             hash=self._session.hash,
             method=method,
             data=data,
@@ -73,6 +73,8 @@ class BaseFragmentRest:
                 )
                 session.cookies["stel_dt"] = "-180"
                 return session
+        except json.JSONDecodeError:
+            return None
         except FileNotFoundError:
             log.error(
                 "Fragment session file not found", path=settings.FRAGMENT_SESSION_PATH
@@ -84,3 +86,5 @@ class BaseFragmentRest:
         except Exception as exc:
             log.error("Error loading session", error=str(exc))
             raise
+
+    # TODO: call save session here

@@ -5,6 +5,7 @@ from httpx import AsyncClient, Cookies, Response
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.exceptions import (
+    FragmentAPIAccessDenied,
     FragmentAPIBadRequest,
     FragmentAPIError,
     FragmentAPIUsersNotFound,
@@ -56,7 +57,22 @@ async def test_request_raises_if_not_found(
 
     with pytest.raises(FragmentAPIUsersNotFound):
         await fragment_api_client.request(
-            hash="somehash", method="getStarsRecipient", data={"somedata": "yes"}
+            hash="somehash", method=rstr("method"), data={"somedata": "yes"}
+        )
+
+
+@pytest.mark.asyncio
+async def test_request_raises_if_access_denied(
+    fragment_api_client: FragmentAPIClient,
+) -> None:
+    fragment_api_client._client = MagicMock(spec=AsyncClient)
+    fragment_api_client._client.post.return_value = Response(
+        status_code=200, json={"error": "Access denied"}
+    )
+
+    with pytest.raises(FragmentAPIAccessDenied):
+        await fragment_api_client.request(
+            hash="otherhash", method=rstr("method"), data={"somedata": rstr("yeah")}
         )
 
 
