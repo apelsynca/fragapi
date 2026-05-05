@@ -5,7 +5,6 @@ from typing import TypedDict
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from telegram.ext import Application as BotApplication
-from tonutils.contracts import WalletV5R1
 
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
@@ -29,6 +28,7 @@ from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
 from src.ton import create_wallet
 from src.ton import toncenter as toncenter_client
+from src.wallet.manager import WalletManager
 
 log = get_logger()
 
@@ -37,8 +37,8 @@ class State(TypedDict):
     async_engine: AsyncEngine
     async_sessionmaker: AsyncSessionMaker
     bot_application: BotApplication
-    wallet: WalletV5R1
     fragment_rest: FragmentRest
+    wallet_manager: WalletManager
 
 
 @asynccontextmanager
@@ -57,6 +57,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     wallet = create_wallet()
     fragment_rest = create_fragment_rest(wallet)
+    wallet_manager = WalletManager()
 
     await fragment_rest.start()
 
@@ -67,8 +68,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             async_engine=async_engine,
             async_sessionmaker=async_sessionmaker,
             bot_application=bot_application,
-            wallet=wallet,
             fragment_rest=fragment_rest,
+            wallet_manager=wallet_manager,
         )
 
     await bot_application.stop()
