@@ -28,6 +28,7 @@ from src.middlewares import LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
 from src.ton import create_wallet
+from src.ton import toncenter as toncenter_client
 
 log = get_logger()
 
@@ -61,6 +62,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     log.info("Fragment API started")
 
+    await toncenter_client.connect()
+
     yield State(
         async_engine=async_engine,
         async_sessionmaker=async_sessionmaker,
@@ -68,6 +71,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         wallet=wallet,
         fragment_rest=fragment_rest,
     )
+
+    await toncenter_client.close()
 
     await bot_application.stop()
     await bot_application.shutdown()

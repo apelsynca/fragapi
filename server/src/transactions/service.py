@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import Transaction, TransactionReason, TransactionStatus, User
 from src.transactions.repository import TransactionRepository
@@ -14,8 +13,8 @@ class TransactionService:
         amount: float,
         reason: TransactionReason,
         user: User,
+        recipient: str,
         tx_hash: str | None = None,
-        recipient: str | None = None,
         status: TransactionStatus = TransactionStatus.PENDING,
     ) -> Transaction:
         repository = TransactionRepository.from_session(session)
@@ -29,21 +28,6 @@ class TransactionService:
                 status=status,
             )
         )
-
-    async def get_by_id(
-        self, session: AsyncSession, transaction_id: int, user: User
-    ) -> Transaction:
-        repository = TransactionRepository.from_session(session)
-        transaction = await repository.get_one_or_none(
-            repository.get_base_stmt()
-            .where(Transaction.id == transaction_id)
-            .where(Transaction.user == user)
-        )
-
-        if transaction is None:
-            raise ResourceNotFound("Transaction not found")
-
-        return transaction
 
     async def get_list(
         self, session: AsyncSession, pagination: PaginationParams, user: User

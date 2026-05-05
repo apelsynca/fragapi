@@ -23,18 +23,18 @@ class TransactionStatus(StrEnum):
 
 class Transaction(RecordModel):
     amount: Mapped[float]
+
     reason: Mapped[TransactionReason] = mapped_column(
         Enum(TransactionReason, native_enum=False)
     )
-
-    tx_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
-
     status: Mapped[TransactionStatus] = mapped_column(
         Enum(TransactionStatus, native_enum=False),
         default=TransactionStatus.PENDING,
     )
 
-    recipient: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    tx_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+
+    recipient: Mapped[str] = mapped_column(String(255))
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User")

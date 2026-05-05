@@ -19,12 +19,3 @@ class TransactionStats(Schema):
     stars_purchases_count: int  # Количество покупок звезд
     premium_count: int
     total_spent: float
-
-
-class TransactionVerifyResponse(Schema):
-    """Response for transaction verification"""
-    id: int
-    status: TransactionStatus
-    tx_hash: str | None
-    verified: bool
-    message: str
