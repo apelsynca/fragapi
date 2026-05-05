@@ -4,7 +4,8 @@ import string
 import pytest_asyncio
 
 from src.fragment_rest.types import FoundRecipientData, RecipientData
-from src.models import User
+from src.models import Transaction, User
+from src.models.transactions import TransactionReason, TransactionStatus
 from tests.fixtures.database import SaveFixture
 
 
@@ -21,10 +22,36 @@ async def user(save_fixture: SaveFixture) -> User:
     return await create_user(save_fixture)
 
 
+@pytest_asyncio.fixture
+async def user_second(save_fixture: SaveFixture) -> User:
+    return await create_user(save_fixture)
+
+
 async def create_user(save_fixture: SaveFixture) -> User:
     user = User(first_name=rstr("Mock"), username=rstr("test_"))
     await save_fixture(user)
     return user
+
+
+async def create_transaction(
+    save_fixture: SaveFixture,
+    user: User,
+    reason: TransactionReason = TransactionReason.STARS,
+    status: TransactionStatus = TransactionStatus.PENDING,
+    *,
+    amount: float | None = None,
+    recipient: str | None = None,
+) -> Transaction:
+    transaction = Transaction(
+        amount=random.randint(1, 10000) / 100 if amount is None else amount,
+        reason=reason,
+        status=status,
+        tx_hash=rstr("abcdef"),
+        recipient=rstr("recipient") if recipient is None else recipient,
+        user=user,
+    )
+    await save_fixture(transaction)
+    return transaction
 
 
 def get_fake_recipient_data() -> RecipientData:
