@@ -16,3 +16,9 @@ class TonConnectTransaction(BaseModel):
     valid_until: Annotated[datetime, Field(alias="validUntil")]
     from_address: Annotated[str, Field(alias="from")]
     messages: list[TonConnectMessage]
+
+
+class TonAPIWebhookMessage(BaseModel):
+    account_id: str
+    lt: int  # logical time
+    tx_hash: str  # blockchain transaction hash

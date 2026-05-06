@@ -6,5 +6,5 @@ from src.wallet.manager import WalletManager
 
 
 @pytest.fixture(autouse=True)
-def wallet_manager() -> MagicMock:
+def wallet_manager() -> WalletManager:
     return MagicMock(spec=WalletManager)

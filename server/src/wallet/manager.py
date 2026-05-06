@@ -1,9 +1,9 @@
-from ton_core import NetworkGlobalID
+from ton_core import Address, Cell, NetworkGlobalID, WalletV5Params
 from tonutils.contracts import WalletV5R1
 
 from src.config import settings
 from src.kit.ton_connect import TonConnect
-from src.wallet.ton import create_wallet
+from src.wallet.types import TonConnectTransaction
 
 if settings.is_production():
     env_network_id = NetworkGlobalID.MAINNET
@@ -18,11 +18,37 @@ class WalletManager:
     Since the wallets can be split
     """
 
-    def __init__(self) -> None:
-        self.ton_wallet: WalletV5R1 = create_wallet()
+    def __init__(self, ton_wallet: WalletV5R1) -> None:
+        self.ton_wallet = ton_wallet
 
     def get_ton_connect(self, tc_domain: str) -> TonConnect:
         return TonConnect(self.ton_wallet, tc_domain=tc_domain)
 
     async def get_balance(self) -> float:
-        return 0
+        await self.ton_wallet.refresh()
+        return self.ton_wallet.balance
+
+    async def transfer_from_tc(self, transaction: TonConnectTransaction) -> str:
+        if len(transaction.messages) > 1:
+            raise ValueError("Multiple messages transfer is not supported")
+
+        message = transaction.messages[0]
+        address = Address(message.address)
+        body = None
+
+        if message.payload is not None:
+            padded_payload = message.payload + "=" * (
+                ((4 - len(message.payload)) % 4) % 4
+            )
+            body = Cell.one_from_boc(padded_payload)
+
+        valid_until = int(transaction.valid_until.timestamp()) + 10
+
+        ext_msg = await self.ton_wallet.transfer(
+            destination=address,
+            amount=message.amount,
+            body=body,
+            params=WalletV5Params(valid_until=valid_until),
+        )
+
+        return ext_msg.normalized_hash

@@ -9,7 +9,6 @@ from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
 from src.fragment_rest.types import BuyRequest
 from src.models import User
 from src.premium.service import premium as premium_service
-from src.wallet.manager import WalletManager
 from tests.fixtures.random_objects import get_fake_recipient_data, rstr
 
 
@@ -17,7 +16,7 @@ from tests.fixtures.random_objects import get_fake_recipient_data, rstr
 async def test_raises_if_not_enough_balance(
     session: AsyncSession,
     fragment_rest: MagicMock,
-    wallet_manager: WalletManager,
+    wallet_manager: MagicMock,
     user: User,
 ) -> None:
     fragment_rest.search_premium_gift_recipient.return_value = get_fake_recipient_data()

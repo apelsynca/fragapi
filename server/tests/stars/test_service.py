@@ -10,7 +10,6 @@ from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
 from src.fragment_rest.types import BuyLink, BuyRequest
 from src.models import User
 from src.stars.service import stars as stars_service
-from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectMessage, TonConnectTransaction
 from tests.fixtures.random_objects import get_fake_recipient_data, rstr
 
@@ -76,7 +75,7 @@ async def test_buy_raises_if_not_enough_balance(
 async def test_buy_raises_not_enough_balance_if_same_amount(
     session: AsyncSession,
     fragment_rest: MagicMock,
-    wallet_manager: WalletManager,
+    wallet_manager: MagicMock,
     user: User,
 ) -> None:
     assert settings.API_PRICE_MARKUP != 0

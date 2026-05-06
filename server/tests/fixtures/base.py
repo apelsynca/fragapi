@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from unittest.mock import MagicMock
 
 import httpx
 import pytest_asyncio
@@ -11,7 +12,6 @@ from src.fragment_rest import get_fragment_rest
 from src.fragment_rest.rest import FragmentRest
 from src.postgres import get_db_session
 from src.wallet.dependencies import get_wallet_manager
-from src.wallet.manager import WalletManager
 from tests.fixtures.auth import AuthSubjectFixture
 
 
@@ -20,7 +20,7 @@ async def app(
     auth_subject: AuthSubjectFixture,
     session: AsyncSession,
     fragment_rest: FragmentRest,
-    wallet_manager: WalletManager,
+    wallet_manager: MagicMock,
 ) -> AsyncGenerator[Starlette]:
     frag_app.dependency_overrides[get_db_session] = lambda: session
     frag_app.dependency_overrides[get_fragment_rest] = lambda: fragment_rest
