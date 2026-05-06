@@ -48,15 +48,15 @@ class FragmentRestAuth:
     async def check_session(
         self, api_client: FragmentAPIClient, session: FragmentSession
     ) -> bool:
-        data = self.ton_connect.get_connect_request_data(
-            ton_proof_payload=session.ton_proof_payload
+        ton_connect_data = self.ton_connect.get_connect_json_data(
+            session.ton_proof_payload
         )
 
         try:
             auth_data = await api_client.request(
                 hash=session.hash,
                 method="checkTonProofAuth",
-                data=data.model_dump(),
+                data=ton_connect_data,
                 cookies=session.cookies,
             )
         except FragmentAPIBadRequest:

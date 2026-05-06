@@ -1,3 +1,4 @@
+import json
 from base64 import b64encode
 from hashlib import sha256
 from time import time
@@ -10,7 +11,7 @@ from pydantic import BaseModel
 from tonutils.contracts import BaseWallet
 
 
-class TonConnectRequestData(BaseModel):
+class TonConnectData(BaseModel):
     account: dict
     device: dict
     proof: dict
@@ -29,8 +30,17 @@ class TonConnect:
 
         self.tc_domain = tc_domain
 
-    def get_connect_request_data(self, ton_proof_payload: str) -> TonConnectRequestData:
-        return TonConnectRequestData(
+    def get_connect_json_data(self, ton_proof_payload: str) -> dict[str, str]:
+        connect_data = self.get_connect_data(ton_proof_payload=ton_proof_payload)
+
+        return {
+            "account": json.dumps(connect_data.account),
+            "device": json.dumps(connect_data.device),
+            "proof": json.dumps(connect_data.proof),
+        }
+
+    def get_connect_data(self, ton_proof_payload: str) -> TonConnectData:
+        return TonConnectData(
             account=self.get_account(),
             device=self.get_device(),
             proof=self.get_proof(payload_hex=ton_proof_payload),
