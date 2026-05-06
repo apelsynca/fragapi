@@ -1,32 +1,32 @@
 import random
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from ton_core import to_amount
 
-from src.exceptions import BadRequest, FragError, InsuficcientFunds, ResourceNotFound
-from src.fee import after_fee, after_ton_network_fee
+from src.exceptions import (
+    BadRequest,
+    FragError,
+    FragRequestValidationError,
+    InsuficcientFunds,
+    ResourceNotFound,
+)
+from src.fee import TON_FEE, after_fee, after_ton_network_fee
 from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
 from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
-from src.models.transactions import TransactionReason, TransactionStatus
-from src.stars.schemas import BuyStarsResponse, StarsRecipient
-from src.transactions.service import transaction as transaction_service
+from src.models import User
+from src.stars.schemas import StarsRecipient
 from src.users.repository import UserRepository
 from src.wallet.manager import WalletManager
+from src.wallet.types import TonConnectTransaction
 
 log = get_logger()
 
 
 class StarsService:
-    # split buy into get_buy_info | actually do buying and removing money from users balance
-    async def buy(
-        self,
-        session: AsyncSession,
-        fragment_rest: FragmentRest,
-        wallet_manager: WalletManager,
-        user_id: int,
-        username: str,
-        quantity: int,
-    ) -> BuyStarsResponse:
+    async def get_buy_tc_transaction(
+        self, fragment_rest: FragmentRest, username: str, quantity: int
+    ) -> TonConnectTransaction:
         if quantity < 50 or quantity > 10_000_000:
             raise BadRequest("Invalid quantity")
 
@@ -35,57 +35,61 @@ class StarsService:
         buy_request = await fragment_rest.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=quantity
         )
-        stars_price = after_ton_network_fee(after_fee(buy_request.amount))
 
-        log.info(
-            "stars_service.buy",
-            from_user_id=user_id,
-            username=username,
-            quantity=quantity,
-            stars_price=stars_price,
-        )
-
-        user = await UserRepository.from_session(session).get_by_id_for_update(
-            id=user_id
-        )
-        if user is None:
-            raise FragError()
-
-        if stars_price > user.balance:
-            raise InsuficcientFunds("Not enough balance")
-
-        user.balance = user.balance - stars_price
-
-        wallet_balance = await wallet_manager.get_balance()
-        if wallet_balance < stars_price:
-            raise FragError()
-
-        # NOTE: maybe here would be a great idea to send it to taskiq
         buy_link = await fragment_rest.get_buy_stars_link(
             req_id=buy_request.req_id, show_sender=False
         )
 
-        transaction = await transaction_service.create(
-            session=session,
-            amount=stars_price,
-            reason=TransactionReason.STARS,
-            user=user,
-            recipient=username,
-            status=TransactionStatus.PENDING,
-        )
+        return buy_link.transaction
 
-        try:
-            message_hash = await wallet_service.transfer_from_tc(
-                transaction=buy_link.transaction
+    async def buy_from_transaction(
+        self,
+        session: AsyncSession,
+        user: User,
+        wallet_manager: WalletManager,
+        transaction: TonConnectTransaction,
+    ) -> str:
+        if len(transaction.messages) != 1:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "loc": ("transaction", "messages"),
+                        "msg": "only one transaction message is required",
+                        "type": "value_error",
+                        "input": None,
+                    }
+                ]
             )
-        except Exception:
-            transaction.status = TransactionStatus.FAILED
-            log.error("stars_service.buy transfering error")
-            raise
 
-        transaction.message_hash = message_hash
+        if transaction.messages[0].payload is None:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "loc": ("transaction", "message", "payload"),
+                        "msg": "transaction message must have a payload",
+                        "type": "value_error",
+                        "input": None,
+                    }
+                ]
+            )
 
-        return BuyStarsResponse(message_hash=message_hash)
+        stars_price_on_fragment = float(to_amount(transaction.messages[0].amount))
+        stars_price = after_ton_network_fee(after_fee(stars_price_on_fragment))
+
+        wallet_balance = await wallet_manager.get_balance()
+        if wallet_balance < stars_price_on_fragment + TON_FEE:
+            raise FragError("FragAPI internal wallet balance is too low!")
+
+        user_repository = UserRepository.from_session(session)
+        # WARN: im not sure whether it is not HACKABLE!!!!
+        await user_repository.get_by_id_for_update(id=user.id)
+
+        if user.balance <= stars_price:
+            raise InsuficcientFunds()
+
+        user.balance -= stars_price
+
+        return await wallet_manager.transfer_from_tc(transaction=transaction)
 
     async def get_recipient(
         self, fragment_rest: FragmentRest, username: str, *, quantity: int | None = None
