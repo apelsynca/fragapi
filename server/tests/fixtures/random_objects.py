@@ -1,11 +1,14 @@
 import random
 import string
+from datetime import datetime
 
 import pytest_asyncio
+from ton_core import to_nano
 
 from src.fragment_rest.types import FoundRecipientData, RecipientData
 from src.models import Transaction, User
 from src.models.transactions import TransactionReason, TransactionStatus
+from src.wallet.types import TonConnectMessage, TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
 
@@ -62,4 +65,24 @@ def get_fake_recipient_data() -> RecipientData:
             photo=rstr("img"),
             name=rstr("Homo Citrus"),
         ),
+    )
+
+
+def get_valid_transaction(amount: float) -> TonConnectTransaction:
+    return get_tc_transaction(
+        messages=[
+            TonConnectMessage(
+                address=rstr("mockaddress"),
+                amount=to_nano(amount),
+                payload="TrustMeBroValidPayload",
+            )
+        ]
+    )
+
+
+def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTransaction:
+    return TonConnectTransaction(
+        valid_until=datetime(year=2000, month=3, day=1),
+        from_address="EQxxx",
+        messages=messages,
     )

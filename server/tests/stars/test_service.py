@@ -1,4 +1,3 @@
-from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
@@ -22,33 +21,12 @@ from src.fragment_rest.types import (
 )
 from src.models.users import User
 from src.stars.service import stars as stars_service
-from src.wallet.types import TonConnectMessage, TonConnectTransaction
-from tests.fixtures.random_objects import rstr
-
-
-def get_valid_transaction(amount: float) -> TonConnectTransaction:
-    return get_tc_transaction(
-        messages=[
-            TonConnectMessage(
-                address=rstr("mockaddress"),
-                amount=to_nano(amount),
-                payload="TrustMeBroValidPayload",
-            )
-        ]
-    )
-
-
-def get_tc_transaction(messages: list | None = None) -> TonConnectTransaction:
-    if messages is None:
-        messages = [
-            TonConnectMessage(address=rstr("mockaddress"), amount=25, payload=None)
-        ]
-
-    return TonConnectTransaction(
-        valid_until=datetime(year=2000, month=3, day=1),
-        from_address="EQxxx",
-        messages=messages,
-    )
+from src.wallet.types import TonConnectMessage
+from tests.fixtures.random_objects import (
+    get_tc_transaction,
+    get_valid_transaction,
+    rstr,
+)
 
 
 @pytest.mark.asyncio
@@ -96,21 +74,18 @@ async def test_buy_from_transaction_calls_wallet_manager_right(
     session: AsyncSession, user: User, wallet_manager: MagicMock
 ) -> None:
     user.balance = 50
-    transa = get_tc_transaction(
-        messages=[
-            TonConnectMessage(
-                address="EQxxx", amount=to_nano(1), payload="meaningfull payload"
-            )
-        ]
-    )
+    tc_transaction = get_valid_transaction(1)
     wallet_manager.get_balance.return_value = 50
     wallet_manager.transfer_from_tc.return_value = "WHATTHEHELLY"
 
     message_hash = await stars_service.buy_from_transaction(
-        session=session, user=user, wallet_manager=wallet_manager, transaction=transa
+        session=session,
+        user=user,
+        wallet_manager=wallet_manager,
+        transaction=tc_transaction,
     )
 
-    wallet_manager.transfer_from_tc.assert_called_once_with(transaction=transa)
+    wallet_manager.transfer_from_tc.assert_called_once_with(transaction=tc_transaction)
     assert user.balance < 50
     assert message_hash == "WHATTHEHELLY"
 
@@ -121,20 +96,14 @@ async def test_buy_from_transa_raises_if_insufficient_funds(
 ) -> None:
     assert user.balance == 0
     wallet_manager.get_balance.return_value = 50
-    transa = get_tc_transaction(
-        messages=[
-            TonConnectMessage(
-                address="EQxxx", amount=to_nano(1.1), payload="meaningfull payload"
-            )
-        ]
-    )
+    tc_transaction = get_valid_transaction(1.1)
 
     with pytest.raises(InsuficcientFunds):
         await stars_service.buy_from_transaction(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transa,
+            transaction=tc_transaction,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
