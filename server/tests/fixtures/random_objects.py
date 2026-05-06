@@ -61,7 +61,7 @@ def get_fake_recipient_data() -> RecipientData:
         ok=True,
         found=FoundRecipientData(
             myself=False,
-            recipient=rstr("XXxaaAxXXxXXxxXXXxxA"),
+            recipient=rstr("XXxaaAxXXxxA"),
             photo=rstr("img"),
             name=rstr("Homo Citrus"),
         ),

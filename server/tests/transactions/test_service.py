@@ -1,19 +1,3 @@
-# test get stats stars_purchases_count
-
-# test get stats premium_purchases_count
-
-# test get stats total_amount
-
-# test get stats stars_purchases_amount
-
-# test get stats premium_purchases_amount
-
-
-# ---
-
-# test get verify status
-
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 

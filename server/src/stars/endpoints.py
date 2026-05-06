@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependencies import AuthorizeAPIUser
@@ -10,6 +10,8 @@ from src.postgres import get_db_session
 from src.routing import APIRouter
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.stars.service import stars as stars_service
+from src.wallet.dependencies import get_wallet_manager
+from src.wallet.manager import WalletManager
 
 router = APIRouter(
     prefix="/stars",
@@ -27,13 +29,17 @@ async def buy_stars(
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
-    return await stars_service.buy(
+    transaction = await stars_service.get_tc_transaction(
+        fragment_rest, username=data.username, quantity=data.quantity
+    )
+
+    return await stars_service.buy_from_tc_transaction(
         session=session,
-        fragment_rest=fragment_rest,
-        user_id=auth_subject.subject.id,
-        quantity=data.quantity,
-        username=data.username,
+        user=auth_subject.subject,
+        wallet_manager=wallet_manager,
+        transaction=transaction,
     )
 
 
@@ -42,6 +48,7 @@ async def get_recipient(
     auth_subject: AuthorizeAPIUser,
     username: str,
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    quantity: int | None = Query(default=None),
 ) -> StarsRecipient:
     log.info(
         "Get recipient request from",
@@ -49,5 +56,7 @@ async def get_recipient(
         username=auth_subject.subject.username,
     )
     return await stars_service.get_recipient(
-        fragment_rest=fragment_rest, username=username
+        fragment_rest=fragment_rest,
+        username=username,
+        quantity=quantity,
     )
