@@ -23,3 +23,6 @@ class WalletManager:
 
     def get_ton_connect(self, tc_domain: str) -> TonConnect:
         return TonConnect(self.ton_wallet, tc_domain=tc_domain)
+
+    async def get_balance(self) -> float:
+        return 0

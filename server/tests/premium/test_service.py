@@ -58,7 +58,7 @@ async def test_get_recipient_raises_when_not_found(fragment_rest: MagicMock) -> 
 
 @pytest.mark.asyncio
 async def test_buy_raises_if_user_not_found(
-    session: AsyncSession, fragment_rest: MagicMock
+    session: AsyncSession, fragment_rest: MagicMock, wallet_manager: MagicMock
 ) -> None:
     fragment_rest.search_premium_gift_recipient.return_value = get_fake_recipient_data()
     fragment_rest.init_gift_premium_request.return_value = BuyRequest(
@@ -67,8 +67,9 @@ async def test_buy_raises_if_user_not_found(
 
     with pytest.raises(FragError):
         await premium_service.buy(
-            session,
-            fragment_rest,
+            session=session,
+            fragment_rest=fragment_rest,
+            wallet_manager=wallet_manager,
             user_id=291529,
             username="doesnotmatter",
             months=PremiumMonths.SIX_MONTHS,

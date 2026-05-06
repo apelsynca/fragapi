@@ -123,12 +123,10 @@ async def test_buy_raises_if_user_not_found(
 async def test_raises_app_error_if_wallet_balance_is_lower(
     session: AsyncSession,
     user: User,
-    wallet_manager: WalletManager,
+    wallet_manager: MagicMock,
     fragment_rest: MagicMock,
 ) -> None:
-    pass
-
-    # wallet_service.get_balance.return_value = 5
+    wallet_manager.get_balance.return_value = 5
     fragment_rest.search_stars_recipient.return_value = get_fake_recipient_data()
     fragment_rest.init_buy_stars_request.return_value = BuyRequest(
         req_id=rstr("something"), myself=False, amount=5.25
