@@ -7,7 +7,10 @@ from starlette.types import Scope as ASGIScope
 from src.auth.models import Anonymous, AuthSubject, Subject
 from src.auth.scope import Scope
 from src.auth.service import auth as auth_service
+from src.logging import get_logger
 from src.models.user_sessions import USER_SESSION_PREFIX
+
+log = get_logger()
 
 
 def get_bearer_token(request: Request) -> str | None:
@@ -54,3 +57,6 @@ class AuthSubjectMiddleware:
         auth_subject = await get_auth_subject(request, session)
 
         scope["state"]["auth_subject"] = auth_subject
+
+        log.info("Authenticated subject", **auth_subject.log_context)
+        await self.app(scope, receive, send)

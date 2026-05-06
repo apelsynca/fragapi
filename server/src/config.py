@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     WALLET_MNEMONIC: list[str] = []
 
     # User session
-    USER_SESSION_TTL: timedelta = timedelta(days=31)
+    USER_SESSION_TTL: timedelta = timedelta(days=7)
 
     # Database
     POSTGRES_USER: str = "frag"

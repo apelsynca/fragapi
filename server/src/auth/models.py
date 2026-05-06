@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import TypeGuard
 
 from src.auth.scope import Scope
@@ -22,6 +23,19 @@ class AuthSubject[S]:
         self.subject = subject
         self.scopes = scopes
         self.session = session
+
+    @cached_property
+    def log_context(self) -> dict[str, str]:
+        baggage: dict[str, str] = {
+            "subject_type": self.subject.__class__.__name__,
+        }
+        if isinstance(self.subject, User):
+            baggage["subject_id"] = str(self.subject.id)
+
+        if self.session:
+            baggage["session_type"] = self.session.__class__.__name__
+
+        return baggage
 
 
 def is_anonymous[S: Subject](
