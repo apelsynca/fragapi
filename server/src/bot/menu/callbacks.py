@@ -12,9 +12,8 @@ from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
 from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.models.users import User
-from src.users.repository import UserRepository
 from src.users.schemas import UserCreate
-from src.users.service import UserService
+from src.users.service import user as user_service
 
 LOGIN_ARG = "login"
 
@@ -26,19 +25,18 @@ async def menu(
     message = cast(Message, update.message)
     e_user = cast(TGUser, update.effective_user)
 
-    user_service = UserService(repository=UserRepository(session=session))
-
     try:
-        user = await user_service.get_by_id(id=e_user.id)
+        user = await user_service.get_by_id(session=session, id=e_user.id)
     except ResourceNotFound:
         user = await user_service.create(
+            session=session,
             user=UserCreate(
                 id=e_user.id,
                 first_name=e_user.first_name,
                 last_name=e_user.last_name,
                 username=e_user.username,
                 is_premium=e_user.is_premium or False,
-            )
+            ),
         )
 
     if context.args and context.args[0] == LOGIN_ARG:

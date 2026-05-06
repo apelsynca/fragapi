@@ -1,12 +1,10 @@
 import logging.config
 import uuid
-from typing import Any, TypeVar
+from typing import Any
 
 import structlog
 
 from src.config import settings
-
-RendererType = TypeVar("RendererType")
 
 Logger = structlog.stdlib.BoundLogger
 
@@ -133,6 +131,8 @@ class DevelopmentRenderer(Logging[structlog.dev.ConsoleRenderer]):
         return structlog.dev.ConsoleRenderer(colors=True)
 
 
+# could be the JSON renderer, but since i host on dokploy,
+# i dont need it (and timestamper aswell)
 class ProductionRenderer(Logging[structlog.dev.ConsoleRenderer]):
     @classmethod
     def include_timestamper(cls) -> bool:

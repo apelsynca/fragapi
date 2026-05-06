@@ -25,6 +25,7 @@ dependencies = [
   "sqlalchemy-utils>=0.42.1",
   "makefun>=1.16.0",
   "pytonapi>=2.2.0",
+  "typer>=0.25.1",
 ]
 
 [dependency-groups]
@@ -36,10 +37,16 @@ dev = [
   "pytest-mock>=3.15.1",
   "pytest-xdist[psutil]>=3.8.0",
   "ruff>=0.15.12",
+  "typer>=0.25.1",
 ]
 
 [tool.taskipy.tasks]
 api = { cmd = "uvicorn src.app:app --reload --workers 1 --host 0.0.0.0 --port 8000", help = "Run api service" }
+test = { cmd = "POLAR_ENV=testing python -m pytest --cov polar/ --cov-report=term-missing", help = "run all tests" }
+test_fast = { cmd = "POLAR_ENV=testing python -m pytest -n auto -p no:sugar --no-cov", help = "run all tests, but fast" }
+db_migrate = { cmd = "python -m scripts.db upgrade", help = "run alembic upgrade" }
+db_reparent = { cmd = "python -m scripts.db reparent", help = "try to auto-fix conflicting migrations" }
+pre_deploy = { cmd = "task db_migrate", help = "Pre-deploy command run by Dokploy" }
 
 [tool.ruff]
 line-length = 88
