@@ -6,11 +6,17 @@ from pydantic_core import ValidationError as PydanticValidationError
 
 
 class FragError(Exception):
-    def __init__(self, message: str = "Frag error", status_code: int = 500):
+    def __init__(
+        self,
+        message: str,
+        status_code: int = 500,
+        headers: dict[str, str] | None = None,
+    ):
         super().__init__(message)
 
         self.message = message
         self.status_code = status_code
+        self.headers = headers
 
 
 class BadRequest(FragError):

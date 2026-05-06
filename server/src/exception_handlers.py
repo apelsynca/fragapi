@@ -10,6 +10,7 @@ async def app_exception_handler(_: Request, exc: FragError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": type(exc).__name__, "detail": exc.message},
+        headers=exc.headers,
     )
 
 

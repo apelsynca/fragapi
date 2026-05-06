@@ -32,7 +32,7 @@ class PremiumService:
             id=user_id
         )
         if user is None:
-            raise FragError()
+            raise FragError("user is somehow none")
 
         if premium_price > user.balance:
             raise InsuficcientFunds("Not enough balance")
