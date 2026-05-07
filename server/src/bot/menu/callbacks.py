@@ -60,7 +60,7 @@ async def login(update: Update, user: User, session: AsyncSession) -> None:
 
     user_session = UserSession(
         user=user,
-        user_agant=None,
+        user_agent=None,
         token=generate_token(prefix=USER_SESSION_PREFIX),
         bot_hash=secrets.token_urlsafe(24),
     )

@@ -14,6 +14,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedDashboardRouteRouteImport } from './routes/_authed/dashboard.route'
 import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard.index'
+import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard.api-keys'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
@@ -39,16 +40,23 @@ const AuthedDashboardIndexRoute = AuthedDashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedDashboardRouteRoute,
 } as any)
+const AuthedDashboardApiKeysRoute = AuthedDashboardApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AuthedDashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
   '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
+  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
+  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -57,19 +65,26 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/bot-login': typeof BotLoginRoute
   '/_authed/dashboard': typeof AuthedDashboardRouteRouteWithChildren
+  '/_authed/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bot-login' | '/dashboard' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/bot-login'
+    | '/dashboard'
+    | '/dashboard/api-keys'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bot-login' | '/dashboard'
+  to: '/' | '/bot-login' | '/dashboard/api-keys' | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/_authed'
     | '/bot-login'
     | '/_authed/dashboard'
+    | '/_authed/dashboard/api-keys'
     | '/_authed/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -116,14 +131,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardIndexRouteImport
       parentRoute: typeof AuthedDashboardRouteRoute
     }
+    '/_authed/dashboard/api-keys': {
+      id: '/_authed/dashboard/api-keys'
+      path: '/api-keys'
+      fullPath: '/dashboard/api-keys'
+      preLoaderRoute: typeof AuthedDashboardApiKeysRouteImport
+      parentRoute: typeof AuthedDashboardRouteRoute
+    }
   }
 }
 
 interface AuthedDashboardRouteRouteChildren {
+  AuthedDashboardApiKeysRoute: typeof AuthedDashboardApiKeysRoute
   AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
 }
 
 const AuthedDashboardRouteRouteChildren: AuthedDashboardRouteRouteChildren = {
+  AuthedDashboardApiKeysRoute: AuthedDashboardApiKeysRoute,
   AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
 }
 

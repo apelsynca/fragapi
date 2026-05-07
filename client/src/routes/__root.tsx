@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { fetchUser } from '#/lib/auth'
+import { fetchSessionToken } from '#/lib/auth'
 import type { QueryClient } from '@tanstack/react-query'
 
 import appCss from '../styles.css?url'
@@ -17,10 +17,10 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   beforeLoad: async () => {
-    const user = await fetchUser()
+    const token = await fetchSessionToken()
 
     return {
-      user,
+      token,
     }
   },
   head: () => ({
@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<{
   }),
   component: RootComponent,
   errorComponent: ({ error }) => {
-    return <div>IM ERROR COMPONENT OF __ROOT</div>
+    return <div>Root error: {error.message}</div>
   },
 })
 

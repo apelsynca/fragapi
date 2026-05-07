@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authed')({
   beforeLoad: ({ context }) => {
-    if (!context.user) {
+    if (!context.token) {
       throw new Error('Not authenticated')
     }
   },

@@ -2,26 +2,41 @@ import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
 import { useAppSession } from './session'
+import { doRequest } from './request'
 
-export const fetchUser = createServerFn({ method: 'GET' }).handler(async () => {
-  const session = await useAppSession()
+export const fetchSessionToken = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const session = await useAppSession()
 
-  if (!session.data.token) {
-    return null
-  }
+    if (!session.data.token) {
+      return null
+    }
 
-  return {
-    token: session.data.token,
-  }
-})
+    return session.data.token
+  },
+)
+
+export const verifySession = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const token = await fetchSessionToken()
+
+    if (!token) {
+      throw redirect({ href: '/' })
+    }
+
+    return token
+  },
+)
 
 export const botHashLoginFn = createServerFn({ method: 'POST' })
   .inputValidator((hash: string) => hash)
   .handler(async ({ data: hash }) => {
-    const response = await fetch('http://localhost:8000/v1/auth/tgbot', {
+    const response = await doRequest({
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hash }),
+      endpoint: '/auth/tgbot',
+      json: {
+        hash,
+      },
     })
 
     if (!response.ok) {

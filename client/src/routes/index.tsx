@@ -5,7 +5,7 @@ import { Button } from '#/components/ui/button'
 export const Route = createFileRoute('/')({
   component: App,
   beforeLoad: ({ context }) => {
-    if (context.user !== null) {
+    if (context.token !== null) {
       throw redirect({ to: '/dashboard' })
     }
   },
@@ -27,7 +27,7 @@ function App() {
         </div>
 
         <div className="flex justify-center gap-1">
-          {context.user ? (
+          {context.token ? (
             <Button asChild>
               <Link to="/dashboard">В панель</Link>
             </Button>
