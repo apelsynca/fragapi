@@ -40,3 +40,12 @@ export const botHashLoginFn = createServerFn({ method: 'POST' })
     const session = await useAppSession()
     await session.update({ token })
   })
+
+export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
+  const session = await useAppSession()
+  session.clear()
+
+  throw redirect({
+    href: '/',
+  })
+})
