@@ -10,7 +10,7 @@ from src.routing import APIRouter
 
 from .schemas import PanelUserRead, RevokeTokenResponse, UserRead
 
-router = APIRouter(prefix="/users", tags=["Users", APITag.documented])
+router = APIRouter(prefix="/users", tags=["Users", APITag.public])
 
 
 @router.get("/me", response_model=UserRead)

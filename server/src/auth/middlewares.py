@@ -34,10 +34,14 @@ async def get_auth_subject(
         if token.startswith(USER_SESSION_PREFIX):
             user_session = await auth_service.authenticate(session, session_token=token)
             if user_session is not None:
-                return AuthSubject(user_session.user, {Scope.web}, user_session)
+                return AuthSubject(
+                    user_session.user,
+                    {Scope.web, Scope.transactions_read},
+                    user_session,
+                )
         user = await auth_service.authenticate_by_api_token(session, api_key=token)
         if user is not None:
-            return AuthSubject(user, {Scope.api}, None)
+            return AuthSubject(user, {Scope.api, Scope.transactions_read}, None)
 
     return AuthSubject(Anonymous(), set(), None)
 

@@ -39,9 +39,9 @@ async def create_user(save_fixture: SaveFixture) -> User:
 async def create_transaction(
     save_fixture: SaveFixture,
     user: User,
+    *,
     reason: TransactionReason = TransactionReason.STARS,
     status: TransactionStatus = TransactionStatus.PENDING,
-    *,
     amount: float | None = None,
     recipient: str | None = None,
 ) -> Transaction:

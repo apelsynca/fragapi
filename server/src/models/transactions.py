@@ -35,6 +35,7 @@ class Transaction(RecordModel):
         default=TransactionStatus.PENDING,
     )
 
+    # in theory we could know the message_hash even before sending
     message_hash: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True
     )

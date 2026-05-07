@@ -29,7 +29,7 @@ class TransactionService:
             )
         )
 
-    async def get_list(
+    async def paginate(
         self, session: AsyncSession, pagination: PaginationParams, user: User
     ) -> tuple[list[Transaction], int]:
         repository = TransactionRepository.from_session(session)

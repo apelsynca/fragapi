@@ -15,7 +15,7 @@ from src.wallet.manager import WalletManager
 
 router = APIRouter(
     prefix="/stars",
-    tags=["Stars", APITag.documented],
+    tags=["Stars", APITag.public],
 )
 
 log = get_logger()

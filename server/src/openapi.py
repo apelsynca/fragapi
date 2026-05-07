@@ -28,7 +28,7 @@ class APITag(StrEnum):
     """
 
     private = "private"
-    documented = "documented"
+    public = "public"
 
     @classmethod
     def metadata(cls) -> list[OpenAPITag]:
@@ -41,7 +41,7 @@ class APITag(StrEnum):
                 ),
             },
             {
-                "name": cls.documented,
+                "name": cls.public,
                 "description": (
                     "Endpoints shown and documented in the Fragment API documentation."
                 ),
@@ -61,7 +61,7 @@ class OpenAPIParameters(TypedDict):
 OPENAPI_PARAMETERS: OpenAPIParameters = {
     "title": "Fragment API",
     "summary": "Fragment HTTP and Webhooks API",
-    "version": "0.9.1",
+    "version": "0.9.4",
     "description": "Read the docs at https://docs.fragapi.ru/api-reference",
     "openapi_tags": APITag.metadata(),  # type: ignore
     "servers": None

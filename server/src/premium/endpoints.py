@@ -13,7 +13,7 @@ from src.routing import APIRouter
 from src.wallet.dependencies import get_wallet_manager
 from src.wallet.manager import WalletManager
 
-router = APIRouter(prefix="/premium", tags=["Premium", APITag.documented])
+router = APIRouter(prefix="/premium", tags=["Premium", APITag.public])
 
 log = get_logger()
 
