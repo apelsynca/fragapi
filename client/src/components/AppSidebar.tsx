@@ -1,3 +1,4 @@
+import { HomeIcon, JoystickIcon, KeySquareIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { logoutFn } from '#/lib/auth'
 import { Button } from './ui/button'
@@ -13,13 +14,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from './ui/sidebar'
-import { Link, useLocation } from '@tanstack/react-router'
-import { HomeIcon, JoystickIcon, KeySquareIcon } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import ThemeToggle from './ThemeToggle'
 
 function AppSidebar() {
   const logout = useServerFn(logoutFn)
-  const location = useLocation()
 
   return (
     <Sidebar>
@@ -66,15 +65,18 @@ function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <ThemeToggle />
-        <Button
-          variant="destructive"
-          onClick={async () => {
-            await logout()
-          }}
-        >
-          Выйти
-        </Button>
+        <div className="flex gap-1">
+          <ThemeToggle />
+          <Button
+            className="flex-1"
+            variant="destructive"
+            onClick={async () => {
+              await logout()
+            }}
+          >
+            Выйти
+          </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
