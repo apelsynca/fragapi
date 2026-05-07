@@ -14,7 +14,7 @@ function RouteComponent() {
 
   return (
     <div className="">
-      <DashboardStats userBalance={2.52} />
+      <DashboardStats userBalance={user.balance} />
     </div>
   )
 }

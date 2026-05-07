@@ -66,7 +66,6 @@ function AppSidebar() {
 
       <SidebarFooter>
         <div className="flex gap-1">
-          <ThemeToggle />
           <Button
             className="flex-1"
             variant="destructive"
@@ -76,6 +75,7 @@ function AppSidebar() {
           >
             Выйти
           </Button>
+          <ThemeToggle />
         </div>
       </SidebarFooter>
     </Sidebar>

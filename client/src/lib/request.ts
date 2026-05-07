@@ -1,3 +1,6 @@
+import { createServerFn } from '@tanstack/react-start'
+import { verifySession } from './auth'
+
 const ENDPOINT = process.env.BACKEND_ENDPOINT
 
 interface RequestData {
@@ -18,3 +21,28 @@ export const doRequest = async (data: RequestData): Promise<Response> => {
     body: JSON.stringify(data.json),
   })
 }
+
+interface ApiRequest {
+  method: 'GET' | 'POST'
+  endpoint: string
+  payload?: object | null
+}
+
+export const apiRequest = createServerFn()
+  .inputValidator((data: ApiRequest) => data)
+  .handler(async ({ data: { method, endpoint, payload } }) => {
+    const token = await verifySession()
+
+    const response = await doRequest({
+      method,
+      endpoint,
+      token,
+      json: payload,
+    })
+
+    if (!response.ok) {
+      throw new Error('CHANGE THIS MAYBE?')
+    }
+
+    return await response.json()
+  })
