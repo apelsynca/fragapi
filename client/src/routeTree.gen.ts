@@ -9,38 +9,69 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthedHomeRouteRouteImport } from './routes/_authed/home.route'
+import { Route as AuthedHomeIndexRouteImport } from './routes/_authed/home.index'
 
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedHomeRouteRoute = AuthedHomeRouteRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedHomeIndexRoute = AuthedHomeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedHomeRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/home': typeof AuthedHomeRouteRouteWithChildren
+  '/home/': typeof AuthedHomeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/home': typeof AuthedHomeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/_authed/home': typeof AuthedHomeRouteRouteWithChildren
+  '/_authed/home/': typeof AuthedHomeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/home' | '/home/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/home'
+  id: '__root__' | '/' | '/_authed' | '/_authed/home' | '/_authed/home/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +79,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/home': {
+      id: '/_authed/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthedHomeRouteRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/home/': {
+      id: '/_authed/home/'
+      path: '/'
+      fullPath: '/home/'
+      preLoaderRoute: typeof AuthedHomeIndexRouteImport
+      parentRoute: typeof AuthedHomeRouteRoute
+    }
   }
 }
 
+interface AuthedHomeRouteRouteChildren {
+  AuthedHomeIndexRoute: typeof AuthedHomeIndexRoute
+}
+
+const AuthedHomeRouteRouteChildren: AuthedHomeRouteRouteChildren = {
+  AuthedHomeIndexRoute: AuthedHomeIndexRoute,
+}
+
+const AuthedHomeRouteRouteWithChildren = AuthedHomeRouteRoute._addFileChildren(
+  AuthedHomeRouteRouteChildren,
+)
+
+interface AuthedRouteChildren {
+  AuthedHomeRouteRoute: typeof AuthedHomeRouteRouteWithChildren
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedHomeRouteRoute: AuthedHomeRouteRouteWithChildren,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthedRoute: AuthedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
