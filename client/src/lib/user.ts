@@ -12,9 +12,5 @@ export const fetchMe = createServerFn().handler(async () => {
     token,
   })
 
-  const json = await response.json()
-
-  console.log(json)
-
-  return json as User
+  return (await response.json()) as User
 })
