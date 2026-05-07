@@ -8,7 +8,7 @@ from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
 from src.models import TransactionReason, User
 from src.payment.service import payment as payment_service
-from src.stars.schemas import BuyStarsResponse, StarsRecipient
+from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
 
@@ -16,6 +16,31 @@ log = get_logger()
 
 
 class StarsService:
+    async def buy(
+        self,
+        session: AsyncSession,
+        user: User,
+        data: BuyStars,
+        fragment_rest: FragmentRest,
+        wallet_manager: WalletManager,
+    ) -> BuyStarsResponse:
+        log.info("Buy stars request", quantity=data.quantity, username=data.username)
+
+        recipient_data = await self.get_recipient(
+            fragment_rest=fragment_rest, username=data.username, quantity=data.quantity
+        )
+        transaction = await self.get_tc_transaction(
+            fragment_rest, recipient_data=recipient_data, quantity=data.quantity
+        )
+
+        return await self.buy_from_tc_transaction(
+            session=session,
+            user=user,
+            wallet_manager=wallet_manager,
+            tc_transaction=transaction,
+            recipient=recipient_data.recipient,
+        )
+
     async def buy_from_tc_transaction(
         self,
         session: AsyncSession,

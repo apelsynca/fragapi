@@ -7,7 +7,7 @@ from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
 from src.models import TransactionReason, User
 from src.payment.service import payment as payment_service
-from src.premium.schemas import BuyPremiumResponse, PremiumRecipient
+from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
 
@@ -15,6 +15,34 @@ log = get_logger()
 
 
 class PremiumService:
+    async def buy(
+        self,
+        session: AsyncSession,
+        user: User,
+        data: BuyPremium,
+        fragment_rest: FragmentRest,
+        wallet_manager: WalletManager,
+    ) -> BuyPremiumResponse:
+        log.info("Buying premium", months=data.months, username=data.username)
+
+        recipient_data = await self.get_recipient(
+            fragment_rest, username=data.username, months=data.months
+        )
+
+        transaction = await self.get_buy_tc_transaction(
+            fragment_rest=fragment_rest,
+            recipient_data=recipient_data,
+            months=data.months,
+        )
+
+        return await self.gift_from_tc_transaction(
+            session=session,
+            user=user,
+            wallet_manager=wallet_manager,
+            tc_transaction=transaction,
+            recipient=recipient_data.recipient,
+        )
+
     async def gift_from_tc_transaction(
         self,
         session: AsyncSession,

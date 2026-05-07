@@ -21,9 +21,7 @@ router = APIRouter(
 log = get_logger()
 
 
-@router.post(
-    "/buy", description="Buy stars for a user. Takes user username and stars quantity"
-)
+@router.post("/buy", description="Buys stars for a given user.")
 async def buy_stars(
     auth_subject: AuthorizeAPIUser,
     data: BuyStars,
@@ -31,21 +29,12 @@ async def buy_stars(
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
-    log.info("Buy stars request", quantity=data.quantity, username=data.username)
-
-    recipient_data = await stars_service.get_recipient(
-        fragment_rest=fragment_rest, username=data.username, quantity=data.quantity
-    )
-    transaction = await stars_service.get_tc_transaction(
-        fragment_rest, recipient_data=recipient_data, quantity=data.quantity
-    )
-
-    return await stars_service.buy_from_tc_transaction(
+    return await stars_service.buy(
         session=session,
         user=auth_subject.subject,
+        data=data,
+        fragment_rest=fragment_rest,
         wallet_manager=wallet_manager,
-        tc_transaction=transaction,
-        recipient=recipient_data.recipient,
     )
 
 

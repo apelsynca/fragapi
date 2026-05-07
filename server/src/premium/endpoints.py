@@ -26,22 +26,12 @@ async def buy_premium(
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyPremiumResponse:
-    log.info("Buy premium request", months=data.months, username=data.username)
-
-    recipient_data = await premium_service.get_recipient(
-        fragment_rest, username=data.username, months=data.months
-    )
-
-    transaction = await premium_service.get_buy_tc_transaction(
-        fragment_rest=fragment_rest, recipient_data=recipient_data, months=data.months
-    )
-
-    return await premium_service.gift_from_tc_transaction(
+    return await premium_service.buy(
         session=session,
         user=auth_subject.subject,
+        data=data,
+        fragment_rest=fragment_rest,
         wallet_manager=wallet_manager,
-        tc_transaction=transaction,
-        recipient=recipient_data.recipient,
     )
 
 
