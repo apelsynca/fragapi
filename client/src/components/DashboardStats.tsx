@@ -1,7 +1,8 @@
-import DashboardStatsCard from './DashboardStatsCard'
-import { useQuery } from '@tanstack/react-query'
-import { fetchTransactionStats } from '#/lib/transactions'
 import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import DashboardStatsCard from './DashboardStatsCard'
+import { fetchTransactionStats } from '#/lib/transactions'
+import { tonRateQueryOptions } from '#/lib/fragment'
 
 interface DashboardStatsProps {
   userBalance: number
@@ -12,6 +13,7 @@ export default function DashboardStats({ userBalance }: DashboardStatsProps) {
     queryKey: ['transactions', 'stats'],
     queryFn: () => fetchTransactionStats(),
   })
+  const { data: tonRate } = useQuery(tonRateQueryOptions())
 
   const transactionStats = useMemo(() => {
     return data === undefined
@@ -28,24 +30,24 @@ export default function DashboardStats({ userBalance }: DashboardStatsProps) {
       <DashboardStatsCard
         description="Баланс"
         amount={userBalance}
-        fiatAmount={2.5}
+        fiatAmount={userBalance * (tonRate || 0)}
       />
       <DashboardStatsCard
         description="Общие траты"
         amount={transactionStats.totalSpent}
-        fiatAmount={3.62}
+        fiatAmount={transactionStats.totalSpent * (tonRate || 0)}
         percent={15.2}
       />
       <DashboardStatsCard
         description="Траты на звезды"
         amount={transactionStats.starsPurchasesCount}
-        fiatAmount={3.25}
+        fiatAmount={0 * (tonRate || 0)}
         percent={52.2}
       />
       <DashboardStatsCard
         description="Траты на премиум"
         amount={transactionStats.premiumCount}
-        fiatAmount={3}
+        fiatAmount={0 * (tonRate || 0)}
         percent={-3.3}
       />
     </div>
