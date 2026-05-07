@@ -8,4 +8,4 @@ def utc_now() -> datetime:
 
 def generate_api_key() -> str:
     """Create new api token string"""
-    return secrets.token_urlsafe(48)
+    return secrets.token_urlsafe(32)

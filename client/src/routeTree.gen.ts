@@ -12,9 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as BotLoginRouteImport } from './routes/bot-login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthedDashboardRouteRouteImport } from './routes/_authed/dashboard.route'
-import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard.index'
-import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard.api-keys'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
+import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard/index'
+import { Route as AuthedDashboardHandRouteImport } from './routes/_authed/dashboard/hand'
+import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard/api-keys'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
@@ -30,7 +31,7 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedDashboardRouteRoute = AuthedDashboardRouteRouteImport.update({
+const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthedRoute,
@@ -38,25 +39,32 @@ const AuthedDashboardRouteRoute = AuthedDashboardRouteRouteImport.update({
 const AuthedDashboardIndexRoute = AuthedDashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthedDashboardRouteRoute,
+  getParentRoute: () => AuthedDashboardRoute,
+} as any)
+const AuthedDashboardHandRoute = AuthedDashboardHandRouteImport.update({
+  id: '/hand',
+  path: '/hand',
+  getParentRoute: () => AuthedDashboardRoute,
 } as any)
 const AuthedDashboardApiKeysRoute = AuthedDashboardApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
-  getParentRoute: () => AuthedDashboardRouteRoute,
+  getParentRoute: () => AuthedDashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
-  '/dashboard': typeof AuthedDashboardRouteRouteWithChildren
+  '/dashboard': typeof AuthedDashboardRouteWithChildren
   '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/dashboard/hand': typeof AuthedDashboardHandRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
   '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/dashboard/hand': typeof AuthedDashboardHandRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -64,8 +72,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/_authed/dashboard': typeof AuthedDashboardRouteRouteWithChildren
+  '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/_authed/dashboard/hand': typeof AuthedDashboardHandRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -75,9 +84,15 @@ export interface FileRouteTypes {
     | '/bot-login'
     | '/dashboard'
     | '/dashboard/api-keys'
+    | '/dashboard/hand'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bot-login' | '/dashboard/api-keys' | '/dashboard'
+  to:
+    | '/'
+    | '/bot-login'
+    | '/dashboard/api-keys'
+    | '/dashboard/hand'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
@@ -85,6 +100,7 @@ export interface FileRouteTypes {
     | '/bot-login'
     | '/_authed/dashboard'
     | '/_authed/dashboard/api-keys'
+    | '/_authed/dashboard/hand'
     | '/_authed/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -121,7 +137,7 @@ declare module '@tanstack/react-router' {
       id: '/_authed/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthedDashboardRouteRouteImport
+      preLoaderRoute: typeof AuthedDashboardRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/dashboard/': {
@@ -129,37 +145,47 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthedDashboardIndexRouteImport
-      parentRoute: typeof AuthedDashboardRouteRoute
+      parentRoute: typeof AuthedDashboardRoute
+    }
+    '/_authed/dashboard/hand': {
+      id: '/_authed/dashboard/hand'
+      path: '/hand'
+      fullPath: '/dashboard/hand'
+      preLoaderRoute: typeof AuthedDashboardHandRouteImport
+      parentRoute: typeof AuthedDashboardRoute
     }
     '/_authed/dashboard/api-keys': {
       id: '/_authed/dashboard/api-keys'
       path: '/api-keys'
       fullPath: '/dashboard/api-keys'
       preLoaderRoute: typeof AuthedDashboardApiKeysRouteImport
-      parentRoute: typeof AuthedDashboardRouteRoute
+      parentRoute: typeof AuthedDashboardRoute
     }
   }
 }
 
-interface AuthedDashboardRouteRouteChildren {
+interface AuthedDashboardRouteChildren {
   AuthedDashboardApiKeysRoute: typeof AuthedDashboardApiKeysRoute
+  AuthedDashboardHandRoute: typeof AuthedDashboardHandRoute
   AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
 }
 
-const AuthedDashboardRouteRouteChildren: AuthedDashboardRouteRouteChildren = {
+const AuthedDashboardRouteChildren: AuthedDashboardRouteChildren = {
   AuthedDashboardApiKeysRoute: AuthedDashboardApiKeysRoute,
+  AuthedDashboardHandRoute: AuthedDashboardHandRoute,
   AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
 }
 
-const AuthedDashboardRouteRouteWithChildren =
-  AuthedDashboardRouteRoute._addFileChildren(AuthedDashboardRouteRouteChildren)
+const AuthedDashboardRouteWithChildren = AuthedDashboardRoute._addFileChildren(
+  AuthedDashboardRouteChildren,
+)
 
 interface AuthedRouteChildren {
-  AuthedDashboardRouteRoute: typeof AuthedDashboardRouteRouteWithChildren
+  AuthedDashboardRoute: typeof AuthedDashboardRouteWithChildren
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedDashboardRouteRoute: AuthedDashboardRouteRouteWithChildren,
+  AuthedDashboardRoute: AuthedDashboardRouteWithChildren,
 }
 
 const AuthedRouteWithChildren =
