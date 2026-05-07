@@ -31,6 +31,8 @@ async def buy_stars(
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
+    log.info("Buy stars request", quantity=data.quantity, username=data.username)
+
     transaction = await stars_service.get_tc_transaction(
         fragment_rest, username=data.username, quantity=data.quantity
     )
@@ -54,7 +56,9 @@ async def get_recipient(
         "Get recipient request from",
         user=auth_subject.subject,
         username=auth_subject.subject.username,
+        recipient_username=username,
     )
+
     return await stars_service.get_recipient(
         fragment_rest=fragment_rest,
         username=username,

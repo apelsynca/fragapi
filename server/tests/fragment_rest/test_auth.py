@@ -1,4 +1,5 @@
-from unittest.mock import ANY, AsyncMock, MagicMock
+import json
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from tonutils.contracts import WalletV5R1
@@ -6,7 +7,7 @@ from tonutils.contracts import WalletV5R1
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
 from src.fragment_rest.models import FragmentSession
-from src.kit.ton_connect import TonConnect, TonConnectRequestData
+from src.kit.ton_connect import TonConnect, TonConnectData
 
 
 @pytest.fixture
@@ -63,54 +64,38 @@ async def test_gets_right_session_tokens(
 
 
 @pytest.mark.asyncio
-async def test_check_auth_calls_api_if_was_authorized(
+async def test_check_calls_ton_connect_request_data(
     fragment_rest_auth: FragmentRestAuth,
     fragment_api_client: AsyncMock,
     ton_connect: MagicMock,
     fragment_session: FragmentSession,
 ) -> None:
-    # ton connect returns
-    ton_connect.get_connect_request_data.return_value = TonConnectRequestData(
-        account={}, proof={}, device={}
-    )
-    fragment_api_client.request.return_value = {"verified": True}
-
-    verified = await fragment_rest_auth.check_session(
-        api_client=fragment_api_client,
-        session=fragment_session,
-    )
-
-    fragment_api_client.request.assert_called_once_with(
-        hash=fragment_session.hash,
-        method="checkTonProofAuth",
-        data=ANY,
-        cookies=fragment_session.cookies,
-    )
-
-    assert verified is True
-
-
-@pytest.mark.asyncio
-async def test_check_calls_ton_connect_request_data(
-    fragment_rest_auth: FragmentRestAuth,
-    fragment_api_client: AsyncMock,
-    ton_connect,
-    fragment_session: FragmentSession,
-) -> None:
-    request_data_model = TonConnectRequestData(
+    connect_data = TonConnectData(
         proof={"hello": "world"},
         account={"accountInfo": "someinfo"},
         device={"hash_type": "321231"},
     )
-    ton_connect.get_connect_request_data.return_value = request_data_model
+    connect_data_json = {
+        "account": json.dumps(connect_data.account),
+        "device": json.dumps(connect_data.device),
+        "proof": json.dumps(connect_data.proof),
+    }
+
+    ton_connect.get_connect_json_data.return_value = connect_data_json
     fragment_api_client.request.return_value = {}
 
     await fragment_rest_auth.check_session(
         api_client=fragment_api_client, session=fragment_session
     )
 
-    ton_connect.get_connect_request_data.assert_called_once_with(
+    ton_connect.get_connect_json_data.assert_called_once_with(
         ton_proof_payload=fragment_session.ton_proof_payload
+    )
+    fragment_api_client.request.assert_called_once_with(
+        hash=fragment_session.hash,
+        method="checkTonProofAuth",
+        data=connect_data_json,
+        cookies=fragment_session.cookies,
     )
 
 

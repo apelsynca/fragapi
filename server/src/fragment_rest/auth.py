@@ -49,7 +49,7 @@ class FragmentRestAuth:
         self, api_client: FragmentAPIClient, session: FragmentSession
     ) -> bool:
         ton_connect_data = self.ton_connect.get_connect_json_data(
-            session.ton_proof_payload
+            ton_proof_payload=session.ton_proof_payload
         )
 
         try:

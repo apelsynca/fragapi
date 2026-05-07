@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.dependencies import AuthorizeAPIUser
 from src.fragment_rest import get_fragment_rest
 from src.fragment_rest.rest import FragmentRest
+from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
@@ -14,6 +15,8 @@ from src.wallet.manager import WalletManager
 
 router = APIRouter(prefix="/premium", tags=["Premium", APITag.documented])
 
+log = get_logger()
+
 
 @router.post("/buy", description="Buy premium subscription for a user.")
 async def buy_premium(
@@ -23,6 +26,8 @@ async def buy_premium(
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyPremiumResponse:
+    log.info("Buy premium request", months=data.months, username=data.username)
+
     transaction = await premium_service.get_buy_tc_transaction(
         fragment_rest=fragment_rest, username=data.username, months=data.months
     )
@@ -37,6 +42,17 @@ async def buy_premium(
 
 @router.get("/recipient/{username}", description="Get premium recipient")
 async def get_recipient(
-    username: str, auth_subject: AuthorizeAPIUser
+    username: str,
+    auth_subject: AuthorizeAPIUser,
+    fragment_rest: FragmentRest = Depends(get_fragment_rest),
 ) -> PremiumRecipient:
-    raise
+    log.info(
+        "Get recipient request from",
+        user=auth_subject.subject,
+        username=auth_subject.subject.username,
+        recipient_username=username,
+    )
+
+    return await premium_service.get_recipient(
+        fragment_rest=fragment_rest, username=username
+    )

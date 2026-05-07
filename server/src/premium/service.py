@@ -22,7 +22,7 @@ class PremiumService:
         wallet_manager: WalletManager,
         transaction: TonConnectTransaction,
     ) -> BuyPremiumResponse:
-        log.info("HELLO IM HERE")
+        log.debug("Buying premium from TC transaction", user=user)
         message_hash = await payment_service.from_tc_transaction(
             session=session,
             user=user,

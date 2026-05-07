@@ -36,6 +36,7 @@ class BaseFragmentRest:
     async def refresh_session(self) -> None:
         need_to_authorize = True
 
+        # if session already present in file, check it's validity
         if self._session is not None:
             need_to_authorize = await self._auth.check_session(
                 api_client=self._api, session=self._session

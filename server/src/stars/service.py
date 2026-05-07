@@ -23,7 +23,7 @@ class StarsService:
         wallet_manager: WalletManager,
         transaction: TonConnectTransaction,
     ) -> BuyStarsResponse:
-        log.info("INFO HERE PLZ")
+        log.debug("Buying stars from TC transaction", user=user)
         message_hash = await payment_service.from_tc_transaction(
             session=session,
             user=user,
