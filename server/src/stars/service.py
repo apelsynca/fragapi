@@ -21,28 +21,26 @@ class StarsService:
         session: AsyncSession,
         user: User,
         wallet_manager: WalletManager,
-        transaction: TonConnectTransaction,
+        tc_transaction: TonConnectTransaction,
+        recipient: str,
     ) -> BuyStarsResponse:
         log.debug("Buying stars from TC transaction", user=user)
         message_hash = await payment_service.from_tc_transaction(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transaction,
+            tc_transaction=tc_transaction,
             reason=TransactionReason.STARS,
+            recipient=recipient,
         )
 
         return BuyStarsResponse(message_hash=message_hash)
 
     async def get_tc_transaction(
-        self, fragment_rest: FragmentRest, username: str, quantity: int
+        self, fragment_rest: FragmentRest, recipient_data: StarsRecipient, quantity: int
     ) -> TonConnectTransaction:
         if quantity < 50 or quantity > 10_000_000:
             raise BadRequest("Invalid quantity")
-
-        recipient_data = await self.get_recipient(
-            fragment_rest, username=username, quantity=quantity
-        )
 
         buy_request = await fragment_rest.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=quantity

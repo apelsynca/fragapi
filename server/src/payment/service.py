@@ -5,6 +5,7 @@ from src.exceptions import FragError, FragRequestValidationError, InsuficcientFu
 from src.fee import TON_FEE, after_fee, after_ton_network_fee
 from src.models import User
 from src.models.transactions import TransactionReason
+from src.transactions.service import transaction as transaction_service
 from src.users.repository import UserRepository
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
@@ -16,22 +17,23 @@ class PaymentService:
         session: AsyncSession,
         user: User,
         wallet_manager: WalletManager,
-        transaction: TonConnectTransaction,
+        tc_transaction: TonConnectTransaction,
+        recipient: str,
         reason: TransactionReason,
     ) -> str:
-        if len(transaction.messages) != 1:
+        if len(tc_transaction.messages) != 1:
             raise FragRequestValidationError(
                 [
                     {
                         "loc": ("transaction", "messages"),
                         "msg": "only one transaction message is required",
                         "type": "value_error",
-                        "input": None,
+                        "input": f"given {len(tc_transaction.messages)}",
                     }
                 ]
             )
 
-        if transaction.messages[0].payload is None:
+        if tc_transaction.messages[0].payload is None:
             raise FragRequestValidationError(
                 [
                     {
@@ -43,7 +45,7 @@ class PaymentService:
                 ]
             )
 
-        amount_from_transaction = float(to_amount(transaction.messages[0].amount))
+        amount_from_transaction = float(to_amount(tc_transaction.messages[0].amount))
         with_fee_amount = after_fee(after_ton_network_fee(amount_from_transaction))
 
         wallet_balance = await wallet_manager.get_balance()
@@ -60,7 +62,16 @@ class PaymentService:
 
         user.balance -= with_fee_amount
 
-        return await wallet_manager.transfer_from_tc(transaction=transaction)
+        await transaction_service.create(
+            session=session,
+            amount=with_fee_amount,
+            reason=reason,
+            user=user,
+            recipient=recipient,
+            message_hash=None,
+        )
+
+        return await wallet_manager.transfer_from_tc(transaction=tc_transaction)
 
 
 payment = PaymentService()

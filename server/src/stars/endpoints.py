@@ -33,15 +33,19 @@ async def buy_stars(
 ) -> BuyStarsResponse:
     log.info("Buy stars request", quantity=data.quantity, username=data.username)
 
+    recipient_data = await stars_service.get_recipient(
+        fragment_rest=fragment_rest, username=data.username, quantity=data.quantity
+    )
     transaction = await stars_service.get_tc_transaction(
-        fragment_rest, username=data.username, quantity=data.quantity
+        fragment_rest, recipient_data=recipient_data, quantity=data.quantity
     )
 
     return await stars_service.buy_from_tc_transaction(
         session=session,
         user=auth_subject.subject,
         wallet_manager=wallet_manager,
-        transaction=transaction,
+        tc_transaction=transaction,
+        recipient=recipient_data.recipient,
     )
 
 

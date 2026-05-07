@@ -6,10 +6,10 @@ from ton_core import to_nano
 
 from src.config import settings
 from src.exceptions import FragError, FragRequestValidationError, InsuficcientFunds
-from src.fee import TON_FEE
-from src.models.transactions import TransactionReason
-from src.models.users import User
+from src.fee import TON_FEE, after_fee, after_ton_network_fee
+from src.models import TransactionReason, User
 from src.payment.service import payment as payment_service
+from src.transactions.repository import TransactionRepository
 from src.wallet.types import TonConnectMessage
 from tests.fixtures.random_objects import (
     get_tc_transaction,
@@ -31,7 +31,8 @@ async def test_from_transaction_calls_wallet_manager_right(
         session=session,
         user=user,
         wallet_manager=wallet_manager,
-        transaction=tc_transaction,
+        tc_transaction=tc_transaction,
+        recipient="somerecipient",
         reason=TransactionReason.STARS,
     )
 
@@ -52,7 +53,8 @@ async def test_from_transaction_raises_if_insufficient_funds(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=tc_transaction,
+            tc_transaction=tc_transaction,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
@@ -74,7 +76,8 @@ async def test_from_transaction_raises_if_wallet_balance_lower(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transaction,
+            tc_transaction=transaction,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
@@ -93,7 +96,8 @@ async def test_from_transaction_raises_if_no_message(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transa,
+            tc_transaction=transa,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
@@ -122,7 +126,8 @@ async def test_from_transaction_raises_if_more_than_one_message(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transa,
+            tc_transaction=transa,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
@@ -146,7 +151,8 @@ async def test_from_transaction_raises_if_payload_is_none(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transa,
+            tc_transaction=transa,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
@@ -169,7 +175,8 @@ async def test_subtracts_with_fee_from_users_balance(
         session=session,
         user=user,
         wallet_manager=wallet_manager,
-        transaction=transaction,
+        tc_transaction=transaction,
+        recipient="somerecipient",
         reason=TransactionReason.STARS,
     )
 
@@ -196,8 +203,39 @@ async def test_buy_raises_frag_error_if_wallet_balance_plus_fee(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transaction,
+            tc_transaction=transaction,
+            recipient="somerecipient",
             reason=TransactionReason.STARS,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_creates_transaction(
+    session: AsyncSession, user: User, wallet_manager: MagicMock
+) -> None:
+    user.balance = 100
+    wallet_manager.get_balance.return_value = 100
+    tc_transaction = get_valid_transaction(3.25)
+
+    repository = TransactionRepository.from_session(session)
+    transactions = await repository.get_all(stmt=repository.get_base_stmt())
+    assert len(transactions) == 0
+
+    await payment_service.from_tc_transaction(
+        session=session,
+        user=user,
+        wallet_manager=wallet_manager,
+        tc_transaction=tc_transaction,
+        recipient="MySuperCoolFakeRecipient",
+        reason=TransactionReason.PREMIUM,
+    )
+
+    transactions = await repository.get_all(stmt=repository.get_base_stmt())
+    assert len(transactions) == 1
+
+    assert transactions[0].user == user
+    assert transactions[0].amount == after_fee(after_ton_network_fee(3.25))
+    assert transactions[0].reason == TransactionReason.PREMIUM
+    assert transactions[0].recipient == "MySuperCoolFakeRecipient"

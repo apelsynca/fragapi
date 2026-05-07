@@ -24,6 +24,9 @@ class TransactionStatus(StrEnum):
 class Transaction(RecordModel):
     amount: Mapped[float]
 
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["User"] = relationship("User", back_populates="transactions")
+
     reason: Mapped[TransactionReason] = mapped_column(
         Enum(TransactionReason, native_enum=False)
     )
@@ -37,6 +40,3 @@ class Transaction(RecordModel):
     )
 
     recipient: Mapped[str] = mapped_column(String(255))
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped["User"] = relationship("User")

@@ -20,26 +20,27 @@ class PremiumService:
         session: AsyncSession,
         user: User,
         wallet_manager: WalletManager,
-        transaction: TonConnectTransaction,
+        tc_transaction: TonConnectTransaction,
+        recipient: str,
     ) -> BuyPremiumResponse:
         log.debug("Buying premium from TC transaction", user=user)
         message_hash = await payment_service.from_tc_transaction(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            transaction=transaction,
+            tc_transaction=tc_transaction,
+            recipient=recipient,
             reason=TransactionReason.PREMIUM,
         )
 
         return BuyPremiumResponse(message_hash=message_hash)
 
     async def get_buy_tc_transaction(
-        self, fragment_rest: FragmentRest, username: str, months: PremiumMonths
+        self,
+        fragment_rest: FragmentRest,
+        recipient_data: PremiumRecipient,
+        months: PremiumMonths,
     ) -> TonConnectTransaction:
-        recipient_data = await self.get_recipient(
-            fragment_rest=fragment_rest, username=username, months=months
-        )
-
         buy_request = await fragment_rest.init_gift_premium_request(
             recipient=recipient_data.recipient, months=months.value
         )
