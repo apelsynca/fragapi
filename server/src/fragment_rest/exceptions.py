@@ -1,3 +1,7 @@
+class FragmentAPIPageError(Exception):
+    pass
+
+
 class FragmentAPIError(Exception):
     pass
 

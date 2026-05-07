@@ -1,7 +1,6 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.dependencies import AuthorizeWebUser
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.logging import get_logger
 from src.openapi import APITag
@@ -9,6 +8,7 @@ from src.postgres import get_db_session
 from src.routing import APIRouter
 from src.transactions import auth
 from src.transactions.schemas import Transaction as TransactionSchema
+from src.transactions.schemas import TransactionStats
 from src.transactions.service import transaction as transaction_service
 
 router = APIRouter(prefix="/transactions", tags=["Transactions", APITag.public])
@@ -38,5 +38,9 @@ async def list(
 
 
 @router.get("/stats")
-async def get_transaction_stats(user: AuthorizeWebUser):
-    pass
+async def get_transaction_stats(
+    auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
+) -> TransactionStats:
+    return await transaction_service.get_stats(
+        session=session, user=auth_subject.subject
+    )

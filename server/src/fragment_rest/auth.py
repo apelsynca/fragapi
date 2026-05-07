@@ -1,7 +1,5 @@
-import re
-
 from src.fragment_rest.api import FragmentAPIClient
-from src.fragment_rest.exceptions import FragmentAPIBadRequest, FragmentAuthError
+from src.fragment_rest.exceptions import FragmentAPIBadRequest
 from src.fragment_rest.models import FragmentSession
 from src.kit.ton_connect import TonConnect
 
@@ -27,21 +25,11 @@ class FragmentRestAuth:
     async def get_online_session(
         self, api_client: FragmentAPIClient
     ) -> FragmentSession:
-        response_text = await api_client.get_main_page()
-
-        session_hash_match = re.search(r'"apiUrl":"\\/api\?hash=(\w+)"', response_text)
-        if session_hash_match is None:
-            raise FragmentAuthError("No session hash match")
-        session_hash = session_hash_match.group(1)
-
-        ton_proof_match = re.search(r'"ton_proof":"(.+?)"', response_text)
-        if ton_proof_match is None:
-            raise FragmentAuthError("No ton proof match")
-        session_ton_proof = ton_proof_match.group(1)
+        main_page_tokens = await api_client.get_main_page_tokens()
 
         return FragmentSession(
-            hash=session_hash,
-            ton_proof_payload=session_ton_proof,
+            hash=main_page_tokens.hash,
+            ton_proof_payload=main_page_tokens.ton_proof_payload,
             cookies=api_client.get_client_relevant_cookies(),
         )
 

@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 from httpx import AsyncClient
@@ -5,9 +6,10 @@ from httpx import AsyncClient
 from src.fragment_rest.exceptions import (
     FragmentAPIAccessDenied,
     FragmentAPIBadRequest,
-    FragmentAPIError,
+    FragmentAPIPageError,
     FragmentAPIUsersNotFound,
 )
+from src.fragment_rest.models import MainPageTokens
 
 
 class FragmentAPIClient:
@@ -69,13 +71,32 @@ class FragmentAPIClient:
 
         return json
 
-    async def get_main_page(self) -> str:
+    async def get_main_page_tokens(self) -> MainPageTokens:
         response = await self._client.get(url=self.base_url)
 
         if response.status_code != 200:
-            raise FragmentAPIError()
+            raise FragmentAPIPageError("Main page unavailable")
 
-        return response.text
+        session_hash_match = re.search(r'"apiUrl":"\\/api\?hash=(\w+)"', response.text)
+        if session_hash_match is None:
+            raise FragmentAPIPageError("No session hash match")
+        session_hash = session_hash_match.group(1)
+
+        ton_proof_match = re.search(r'"ton_proof":"(.+?)"', response.text)
+        if ton_proof_match is None:
+            raise FragmentAPIPageError("No ton proof match")
+        session_ton_proof = ton_proof_match.group(1)
+
+        ton_rate_match = re.search(r'"tonRate":(\d+.?\d+)', response.text)
+        if ton_rate_match is None:
+            raise FragmentAPIPageError("No ton rate")
+        ton_rate_match = float(ton_rate_match.group(1))
+
+        return MainPageTokens(
+            hash=session_hash,
+            ton_proof_payload=session_ton_proof,
+            ton_rate=ton_rate_match,
+        )
 
     def get_client_relevant_cookies(self) -> dict[str, str]:
         all_cookies = {}

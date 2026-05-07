@@ -7,7 +7,8 @@ from pytest_mock import MockerFixture
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
-from src.fragment_rest.models import FragmentSession
+from src.fragment_rest.exceptions import FragmentAPIPageError
+from src.fragment_rest.models import FragmentSession, MainPageTokens
 from src.fragment_rest.rest import FragmentRest
 from tests.fixtures.random_objects import lstr, rstr
 
@@ -60,7 +61,7 @@ async def test_search_stars_recipient(
 
 @pytest.mark.asyncio
 async def test_search_stars_recipient_validation_error(
-    fragment_rest: FragmentRest, fragment_rest_request
+    fragment_rest: FragmentRest, fragment_rest_request: MagicMock
 ) -> None:
     fragment_rest_request.return_value = {}
 
@@ -70,3 +71,61 @@ async def test_search_stars_recipient_validation_error(
     fragment_rest_request.assert_called_once_with(
         method="searchStarsRecipient", data={"query": "apelsin", "quantity": ""}
     )
+
+
+@pytest.mark.asyncio
+async def test_gets_cached_ton_rate_if_no_time(fragment_rest: FragmentRest) -> None:
+    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
+    fragment_rest._ton_rate_ut = time() + 1
+    fragment_rest._cached_ton_rate = 1.05
+
+    ton_rate = await fragment_rest.get_ton_rate()
+    assert ton_rate == 1.05
+
+    fragment_rest._api.get_main_page_tokens.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_gets_fresh_ton_rate_if_expired(fragment_rest: FragmentRest) -> None:
+    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
+    fragment_rest._ton_rate_ut = 0
+    fragment_rest._cached_ton_rate = 1.62
+
+    fragment_rest._api.get_main_page_tokens.return_value = MainPageTokens(
+        hash="canbeany", ton_proof_payload="canbeany", ton_rate=2.192
+    )
+
+    ton_rate = await fragment_rest.get_ton_rate()
+    assert ton_rate == 2.192
+
+    fragment_rest._api.get_main_page_tokens.assert_called_once_with()
+
+
+@pytest.mark.asyncio
+async def test_returns_cached_if_main_page_tokens_fails(
+    fragment_rest: FragmentRest,
+) -> None:
+    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
+    fragment_rest._ton_rate_ut = 0
+    fragment_rest._cached_ton_rate = 1.85
+
+    fragment_rest._api.get_main_page_tokens.side_effect = FragmentAPIPageError()
+
+    ton_rate = await fragment_rest.get_ton_rate()
+    assert ton_rate == 1.85
+
+    fragment_rest._api.get_main_page_tokens.assert_called_once_with()
+
+
+@pytest.mark.asyncio
+async def test_raises_if_cached_none_and_main_page_fails(
+    fragment_rest: FragmentRest,
+) -> None:
+    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
+    fragment_rest._ton_rate_ut = 0
+    fragment_rest._cached_ton_rate = None
+
+    fragment_rest._api.get_main_page_tokens.side_effect = FragmentAPIPageError()
+
+    with pytest.raises(FragmentAPIPageError):
+        await fragment_rest.get_ton_rate()

@@ -6,7 +6,7 @@ from tonutils.contracts import WalletV5R1
 
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.auth import FragmentRestAuth
-from src.fragment_rest.models import FragmentSession
+from src.fragment_rest.models import FragmentSession, MainPageTokens
 from src.kit.ton_connect import TonConnect, TonConnectData
 
 
@@ -24,10 +24,12 @@ def fragment_rest_auth(ton_connect) -> FragmentRestAuth:
     return FragmentRestAuth(ton_connect=ton_connect)
 
 
-def generate_fake_main_page_text(hash: str, ton_proof: str) -> str:
+def generate_fake_main_page_text(
+    hash: str, ton_proof: str, ton_rate: float = 1.33501149
+) -> str:
     return (
         "<html>...somethign<div></div><script>\n"
-        f'ajInit({{"version":589,"apiUrl":"\\/api?hash={hash}","state":{{"quickSearch":false,"tonRate":1.33501149}}}});\n'
+        f'ajInit({{"version":589,"apiUrl":"\\/api?hash={hash}","state":{{"quickSearch":false,"tonRate":{ton_rate:.6f}}}}});\n'
         "</script>\n"
         "<script>\n"
         "Aj._useScrollHack=true;\n"
@@ -50,8 +52,10 @@ def test_raises_runtime_if_bad_ton_connect_domain():
 async def test_gets_right_session_tokens(
     fragment_rest_auth: FragmentRestAuth, fragment_api_client: AsyncMock
 ) -> None:
-    fragment_api_client.get_main_page.return_value = generate_fake_main_page_text(
-        hash="a883d11d2fc9somehash", ton_proof="5550ffd0ff31a55ca4"
+    fragment_api_client.get_main_page_tokens.return_value = MainPageTokens(
+        hash="a883d11d2fc9somehash",
+        ton_proof_payload="5550ffd0ff31a55ca4",
+        ton_rate=1.1,
     )
 
     fragment_session = await fragment_rest_auth.get_online_session(fragment_api_client)
@@ -105,8 +109,10 @@ async def test_get_online_session_saves_cookies(
 ) -> None:
     target_cookies = {"some-cookie": "some-value", "other": "other-value"}
     fragment_api_client.get_client_relevant_cookies.return_value = target_cookies
-    fragment_api_client.get_main_page.return_value = generate_fake_main_page_text(
-        hash="any", ton_proof="any"
+    fragment_api_client.get_main_page_tokens.return_value = MainPageTokens(
+        hash="any",
+        ton_proof_payload="any",
+        ton_rate=1.1,
     )
 
     fragment_session = await fragment_rest_auth.get_online_session(fragment_api_client)

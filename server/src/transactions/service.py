@@ -46,6 +46,7 @@ class TransactionService:
         )
 
     async def get_stats(self, session: AsyncSession, user: User) -> TransactionStats:
+        # TODO: MONTHLY
         repository = TransactionRepository.from_session(session)
         return await repository.get_stats(user)
 
