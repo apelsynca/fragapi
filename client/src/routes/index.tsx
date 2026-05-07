@@ -1,12 +1,21 @@
 import { ExternalLink } from 'lucide-react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({
+  component: App,
+  beforeLoad: ({ context }) => {
+    if (context.user !== null) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
+})
 
 // if already logged in -> redirect
 
 function App() {
+  const context = Route.useRouteContext()
+
   return (
     <main className="flex min-h-screen items-center justify-center">
       <div className="flex flex-col gap-6 max-w-xl pb-20">
@@ -18,9 +27,17 @@ function App() {
         </div>
 
         <div className="flex justify-center gap-1">
-          <Button asChild>
-            <a href="https://t.me/fragauthbot">Войти через бота</a>
-          </Button>
+          {context.user ? (
+            <Button asChild>
+              <Link to="/dashboard">В панель</Link>
+            </Button>
+          ) : (
+            <Button asChild>
+              <a href="https://t.me/fragauthbot?start=login">
+                Войти через бота
+              </a>
+            </Button>
+          )}
           <Button asChild variant="secondary">
             <a href="https://docs.fragapi.com">
               Узнать больше <ExternalLink />

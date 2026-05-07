@@ -104,7 +104,7 @@ class Logging[RendererType]:
                             else level,  # disable debug logs
                             "propagate": True,
                         }
-                        for logger in ["telegram", "httpcore"]
+                        for logger in ["telegram", "httpcore", "httpx", "hpack"]
                     },
                 },
             }
