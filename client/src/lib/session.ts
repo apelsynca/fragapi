@@ -6,6 +6,6 @@ type SessionUser = {
 
 export function useAppSession() {
   return useSession<SessionUser>({
-    password: 'ChangeThisBeforeShippingToProdOrYouWillBeFired',
+    password: process.env.SESSION_PASSWORD!,
   })
 }
