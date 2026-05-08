@@ -4,12 +4,12 @@ description: Тут описаны все основные способы вза
 ---
 
 <Accordion title="Как получить API токен?">
-  Получить API токен можно в [панеле](https://panel.fragapi.ru)
+  Получить API токен можно в [панеле](https://fragapi.com)
 
   <img src="/images/api-keys.png" alt="Скрин панели" className="rounded-xl" /> 
 </Accordion>
 <Accordion title="Как делать запросы?">
-  Запросы делаются на `https://fragapi.ru/v1/название-метода`
+  Запросы делаются на `https://api.fragapi.com/v1/название-метода`
 
   Обязятельно передав заголовок авторизации, с API ключом:
 
@@ -24,7 +24,7 @@ description: Тут описаны все основные способы вза
 ```python fragapi.py
 import requests
 
-BASE_URL = "https://fragapi.ru/v1"
+BASE_URL = "https://api.fragapi.com/v1"
 token = "<Ваш API ключ>"
 
 # Делаем запрос к API передавая свой API ключ
@@ -42,7 +42,7 @@ print(me)
 ```
 
 ```javascript fragapi.js
-const baseUrl = "https://fragapi.ru/v1"
+const baseUrl = "https://api.fragapi.com/v1"
 const token = "<Ваш API ключ>"
 
 // Делаем запрос к API передавая свой API ключ

@@ -33,7 +33,7 @@
             ]
           }
         ],
-        "openapi": "https://fragapi.ru/openapi.json"
+        "openapi": "https://api.fragapi.com/openapi.json"
       }
     ]
   },
