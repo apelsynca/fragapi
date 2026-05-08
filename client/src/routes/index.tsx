@@ -33,7 +33,7 @@ function App() {
             </Button>
           ) : (
             <Button asChild>
-              <a href="https://t.me/fragauthbot?start=login">
+              <a href="https://t.me/literalyanybot?start=login">
                 Войти через бота
               </a>
             </Button>
