@@ -20,9 +20,9 @@ class BaseRepository[M]:
     async def get_one_or_none(self, stmt: Select[tuple[M]]) -> M | None:
         return await self.session.scalar(stmt)
 
-    async def get_all(self, stmt: Select[tuple[M]]) -> list[M]:
+    async def get_all(self, stmt: Select[tuple[M]]) -> Sequence[M]:
         result = await self.session.execute(stmt)
-        return list(result.scalars().unique().all())
+        return result.scalars().unique().all()
 
     async def update(
         self, obj: M, *, update_dict: dict[str, Any], flush: bool = False

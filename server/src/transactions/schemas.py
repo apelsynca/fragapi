@@ -1,3 +1,5 @@
+from datetime import date
+
 from src.kit.schemas import Schema
 
 
@@ -17,3 +19,9 @@ class TransactionStats(Schema):
     stars_purchases_count: int  # Количество покупок звезд
     premium_count: int
     total_spent: float
+
+
+class ChartStat(Schema):
+    date: date
+    ton_amount: float
+    transactions_count: int
