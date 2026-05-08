@@ -76,7 +76,7 @@ async def login(update: Update, user: User, session: AsyncSession) -> None:
                 [
                     InlineKeyboardButton(
                         text="Войти",
-                        url=f"{settings.PANEL_URL}/login?hash={user_session.bot_hash}",
+                        url=f"{settings.PANEL_URL}/bot-login?hash={user_session.bot_hash}",
                     )
                 ]
             ]
