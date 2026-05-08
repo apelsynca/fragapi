@@ -28,7 +28,7 @@ function RouteComponent() {
             size="icon-lg"
             onClick={() => {
               navigator.clipboard.writeText(user.apiKey)
-              toast('Апи ключ скопирован', {})
+              toast.success('Апи ключ скопирован', {})
             }}
           >
             <ClipboardCopyIcon />

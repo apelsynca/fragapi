@@ -1,3 +1,7 @@
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { LoaderIcon } from 'lucide-react'
+import { useServerFn } from '@tanstack/react-start'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import { Button } from './ui/button'
 import {
@@ -13,17 +17,46 @@ import {
 import { Field, FieldGroup } from './ui/field'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { requestTonPayment as requestTonPaymentFn } from '#/lib/payments'
 
 export default function BalanceTopUp() {
   const [tonConnectUI] = useTonConnectUI()
   const wallet = useTonWallet()
 
-  console.log(wallet)
+  const requestTonPayment = useServerFn(requestTonPaymentFn)
+
+  const [amount, setAmount] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handlePayment = async () => {
     if (wallet === null) {
       tonConnectUI.openModal()
       return
+    }
+
+    setLoading(true)
+
+    const numAmount = parseFloat(amount)
+    if (!amount || isNaN(numAmount) || numAmount < 0.1) {
+      toast.error('Введите правильную сумму пополнения', {
+        richColors: true,
+      })
+      return
+    }
+
+    try {
+      const message = await requestTonPayment({ data: numAmount })
+
+      await tonConnectUI.sendTransaction({
+        messages: [message],
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        from: wallet.account.address,
+      })
+    } catch (e: any) {
+      console.error(e)
+      toast.error(e.message || 'Payment failed')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -50,14 +83,29 @@ export default function BalanceTopUp() {
         <FieldGroup>
           <Field>
             <Label htmlFor="amount-1">Сумма</Label>
-            <Input id="amount-1" name="name" defaultValue="3" />
+            <Input
+              id="amount-1"
+              name="name"
+              defaultValue="5"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value.replace(/[^0-9.]/g, ''))
+              }}
+            />
           </Field>
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Отмена</Button>
           </DialogClose>
-          <Button onClick={handlePayment}>Пополнить</Button>
+          <Button
+            className="min-w-24"
+            type="button"
+            onClick={handlePayment}
+            disabled={loading}
+          >
+            {loading ? <LoaderIcon /> : 'Пополнить'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

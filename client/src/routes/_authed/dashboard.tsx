@@ -1,5 +1,5 @@
-import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { Toaster } from 'sonner'
+import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { TooltipProvider } from '#/components/ui/tooltip'
 import AppSidebar from '#/components/AppSidebar'

@@ -65,6 +65,7 @@ class TonAPIService:
                 raise BadRequest("Transaction with that hash is not found")
 
     def get_hash_from_comment_text(self, comment_text: str) -> str | None:
+        # CAREFULL
         match = re.match(pattern=r"[\w\-\ ]+\n\nRef#(.+)", string=comment_text)
         if match is not None:
             return match.group(1)

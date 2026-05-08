@@ -7,8 +7,8 @@ from ton_core import begin_cell, to_nano
 
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
-from src.kit.ton_connect import TonConnectMessage
 from src.models import User
+from src.payments.schemas import PaymentTonRequestMessage
 from src.payments.service import payment as payment_service
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_payment
@@ -60,9 +60,9 @@ async def test_payment_request_right_amount_and_payload(
     )
     expected_payload = base64.b64encode(payload_cell.to_boc()).decode("utf-8")
 
-    assert data == TonConnectMessage(
+    assert data == PaymentTonRequestMessage(
         address=settings.TON_ADDRESS,
-        amount=to_nano(7.252),
+        amount=str(to_nano(7.252)),
         payload=expected_payload,
     )
 
