@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
@@ -13,7 +12,7 @@ const config = defineConfig({
     allowedHosts: true,
   },
   resolve: { tsconfigPaths: true },
-  plugins: [devtools(), nitro(), tailwindcss(), tanstackStart(), viteReact()],
+  plugins: [nitro(), tailwindcss(), tanstackStart(), viteReact()],
 })
 
 export default config
