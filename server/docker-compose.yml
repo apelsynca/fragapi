@@ -22,8 +22,7 @@ services:
     ports:
       - ${FRAG_PORT}
     volumes:
-      - ${FRAG_SECRETS_PATH}:/app/.secrets.toml
-      - ${FRAG_SESSION_PATH}:/app/.fragment-session.json
+      - ${FRAG_SESSION_PATH}:/app/${FRAG_FRAGMENT_SESSION_PATH}
     networks:
       - dokploy-network
 
