@@ -16,7 +16,7 @@ function RouteComponent() {
         <AppSidebar />
         <main className="w-full relative">
           <SidebarTrigger className="ml-2 mt-2 absolute" />
-          <div className="mt-8 p-4 w-full max-w-7xl mx-auto">
+          <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
             <Outlet />
           </div>
           <Toaster theme="system" richColors />
