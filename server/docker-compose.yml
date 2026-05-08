@@ -19,7 +19,7 @@ services:
     restart: always
     depends_on:
       - db
-    ports:
+    expose:
       - "8000"
     volumes:
       - ${FRAG_SESSION_PATH}:/app/${FRAG_FRAGMENT_SESSION_PATH}
