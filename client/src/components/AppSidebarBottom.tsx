@@ -56,7 +56,9 @@ export default function AppSidebarBottom() {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.firstName}</span>
-                <span className="truncate text-xs">@{user.username}</span>
+                {user.username && (
+                  <span className="truncate text-xs">@{user.username}</span>
+                )}
               </div>
             </div>
           </DropdownMenuLabel>
