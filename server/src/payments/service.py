@@ -1,15 +1,21 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from ton_core import to_amount
+import base64
+from secrets import token_urlsafe
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from ton_core import begin_cell, to_amount, to_nano
+
+from src.config import settings
 from src.exceptions import (
+    BadRequest,
     FragError,
     FragRequestValidationError,
     InsuficcientFunds,
     ResourceNotFound,
 )
 from src.fee import TON_FEE, after_fee, after_ton_network_fee
+from src.kit.ton_connect import TonConnectMessage
 from src.logging import get_logger
-from src.models import User
+from src.models import Payment, User
 from src.models.transactions import TransactionReason
 from src.payments.repository import PaymentRepository
 from src.transactions.service import transaction as transaction_service
@@ -21,6 +27,38 @@ log = get_logger()
 
 
 class PaymentService:
+    COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
+
+    async def ton_payment_request(
+        self, session: AsyncSession, user: User, amount: float
+    ) -> TonConnectMessage:
+        if amount < settings.MIN_DEPOSIT_AMOUNT:
+            raise BadRequest()
+
+        payment = await self.create(session=session, user=user, amount=amount)
+
+        payload_cell = (
+            begin_cell()
+            .store_uint(0, 32)
+            .store_snake_string(self.COMMENT_TEMPLATE.format(payment.hash))
+            .end_cell()
+        )
+        payload_boc = payload_cell.to_boc()
+        payload = base64.b64encode(payload_boc).decode("utf-8")
+
+        return TonConnectMessage(
+            address=settings.TON_ADDRESS,
+            amount=to_nano(payment.amount),
+            payload=payload,
+        )
+
+    async def create(self, session: AsyncSession, user: User, amount: float) -> Payment:
+        repository = PaymentRepository.from_session(session)
+
+        return await repository.create(
+            Payment(user=user, amount=amount, hash=token_urlsafe(24)), flush=True
+        )
+
     async def process_ton_payment(self, session: AsyncSession, hash: str) -> None:
         repository = PaymentRepository.from_session(session)
 

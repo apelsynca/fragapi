@@ -17,6 +17,12 @@ class TonConnectData(BaseModel):
     proof: dict
 
 
+class TonConnectMessage(BaseModel):
+    address: str
+    amount: int
+    payload: str | None = None
+
+
 class TonConnect:
     def __init__(self, wallet: BaseWallet, tc_domain: str) -> None:
         assert wallet.state_init is not None

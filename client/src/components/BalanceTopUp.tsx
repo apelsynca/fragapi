@@ -20,6 +20,13 @@ export default function BalanceTopUp() {
 
   console.log(wallet)
 
+  const handlePayment = async () => {
+    if (wallet === null) {
+      tonConnectUI.openModal()
+      return
+    }
+  }
+
   if (wallet === null) {
     return (
       <Button onClick={() => tonConnectUI.openModal()} className="w-full">
@@ -50,7 +57,7 @@ export default function BalanceTopUp() {
           <DialogClose asChild>
             <Button variant="outline">Отмена</Button>
           </DialogClose>
-          <Button>Пополнить</Button>
+          <Button onClick={handlePayment}>Пополнить</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

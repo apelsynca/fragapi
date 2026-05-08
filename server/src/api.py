@@ -1,5 +1,6 @@
 from src.auth.endpoints import router as auth_router
 from src.fragment.endpoints import router as fragment_router
+from src.payments.endpoints import router as payments_router
 from src.premium.endpoints import router as premium_router
 from src.routing import APIRouter
 from src.stars.endpoints import router as stars_router
@@ -18,3 +19,4 @@ router.include_router(premium_router)
 router.include_router(transactions_router)
 router.include_router(fragment_router)
 router.include_router(tonapi_router)
+router.include_router(payments_router)

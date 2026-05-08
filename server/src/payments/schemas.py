@@ -1,0 +1,2 @@
+class PaymentRequestResponse:
+    pass

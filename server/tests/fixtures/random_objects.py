@@ -7,8 +7,9 @@ import pytest_asyncio
 from ton_core import to_nano
 
 from src.fragment_rest.types import FoundRecipientData, RecipientData
+from src.kit.ton_connect import TonConnectMessage
 from src.models import Payment, Transaction, TransactionReason, TransactionStatus, User
-from src.wallet.types import TonConnectMessage, TonConnectTransaction
+from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
 

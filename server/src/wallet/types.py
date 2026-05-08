@@ -3,11 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
-class TonConnectMessage(BaseModel):
-    address: str
-    amount: int
-    payload: str | None = None
+from src.kit.ton_connect import TonConnectMessage
 
 
 class TonConnectTransaction(BaseModel):

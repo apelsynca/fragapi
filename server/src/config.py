@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     # Application behaviours
     API_PRICE_MARKUP: float = Field(gt=0, default=0.01)  # 1%
     API_PAGINATION_MAX_LIMIT: int = 100
+    MIN_DEPOSIT_AMOUNT: float = 0.25
 
     DOCS_URL: str = "https://docs.fragapi.com"
     API_URL: str = "https://api.fragapi.com"
