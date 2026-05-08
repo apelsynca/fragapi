@@ -1,4 +1,4 @@
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 
 import {
   Card,
@@ -16,8 +16,7 @@ import {
   ChartTooltipContent,
 } from '#/components/ui/chart'
 import { useQuery } from '@tanstack/react-query'
-import { fetchTransactionsChart } from '#/lib/transactions'
-import { useMemo } from 'react'
+import { transactionChartOptions } from '#/lib/transactions'
 
 export const description = 'An interactive area chart'
 
@@ -36,10 +35,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
-  const { data: chartData } = useQuery({
-    queryKey: ['transactions', 'chart'],
-    queryFn: () => fetchTransactionsChart(),
-  })
+  const { data: chartData } = useQuery(transactionChartOptions())
 
   return (
     <Card className="pt-0">

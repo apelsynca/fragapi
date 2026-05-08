@@ -1,18 +1,13 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import { fetchTransactionStats } from '#/lib/transactions'
 import { tonRateQueryOptions } from '#/lib/fragment'
+import { transactionStatsOptions } from '#/lib/transactions'
+import { userMeQueryOptions } from '#/lib/user'
 
-interface DashboardStatsProps {
-  userBalance: number
-}
-
-export default function DashboardStats({ userBalance }: DashboardStatsProps) {
-  const { data } = useQuery({
-    queryKey: ['transactions', 'stats'],
-    queryFn: () => fetchTransactionStats(),
-  })
+export default function DashboardStats() {
+  const { data: user } = useQuery(userMeQueryOptions())
+  const { data } = useQuery(transactionStatsOptions())
   const { data: tonRate } = useQuery(tonRateQueryOptions())
 
   const transactionStats = useMemo(() => {
@@ -29,8 +24,8 @@ export default function DashboardStats({ userBalance }: DashboardStatsProps) {
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
         description="Баланс"
-        amount={userBalance}
-        fiatAmount={userBalance * (tonRate || 0)}
+        amount={user ? user.balance : 0}
+        fiatAmount={user ? user.balance * (tonRate || 0) : 0}
       />
       <DashboardStatsCard
         description="Общие траты"

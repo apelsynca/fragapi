@@ -1,7 +1,5 @@
+import { Link } from '@tanstack/react-router'
 import { HomeIcon, JoystickIcon, KeySquareIcon } from 'lucide-react'
-import { useServerFn } from '@tanstack/react-start'
-import { logoutFn } from '#/lib/auth'
-import { Button } from './ui/button'
 import {
   Sidebar,
   SidebarContent,
@@ -14,12 +12,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from './ui/sidebar'
-import { Link } from '@tanstack/react-router'
-import ThemeToggle from './ThemeToggle'
+import AppSidebarBottom from './AppSidebarBottom'
+import { Suspense } from 'react'
+import AppSidebarBottomSkeleton from './AppSidebarBottomSkeleton'
 
 function AppSidebar() {
-  const logout = useServerFn(logoutFn)
-
   return (
     <Sidebar>
       <SidebarHeader />
@@ -65,18 +62,13 @@ function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="flex gap-1">
-          <Button
-            className="flex-1"
-            variant="destructive"
-            onClick={async () => {
-              await logout()
-            }}
-          >
-            Выйти
-          </Button>
-          <ThemeToggle />
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <Suspense fallback={<AppSidebarBottomSkeleton />}>
+              <AppSidebarBottom />
+            </Suspense>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )
