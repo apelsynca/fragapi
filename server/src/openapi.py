@@ -62,13 +62,13 @@ OPENAPI_PARAMETERS: OpenAPIParameters = {
     "title": "Fragment API",
     "summary": "Fragment HTTP and Webhooks API",
     "version": "0.9.4",
-    "description": "Read the docs at https://docs.fragapi.ru/api-reference",
+    "description": "Read the docs at https://docs.fragapi.com/api-reference",
     "openapi_tags": APITag.metadata(),  # type: ignore
     "servers": None
     if settings.is_development()
     else [
         {
-            "url": "https://fragapi.ru",
+            "url": "https://api.fragapi.com",
             "description": "Production environment",
         },
     ],
