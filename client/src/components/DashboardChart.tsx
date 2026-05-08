@@ -1,4 +1,4 @@
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 import {
   Card,
@@ -36,13 +36,10 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
-  const { data } = useQuery({
+  const { data: chartData } = useQuery({
     queryKey: ['transactions', 'chart'],
     queryFn: () => fetchTransactionsChart(),
   })
-
-  const chartData = useMemo(() => (data ? data : []), [data])
-  console.log(chartData)
 
   return (
     <Card className="pt-0">
@@ -61,7 +58,7 @@ export default function DashboardChart() {
         >
           <AreaChart data={chartData}>
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillTonAmount" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
                   stopColor="var(--color-tonAmount)"
@@ -73,7 +70,13 @@ export default function DashboardChart() {
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id="fillTransactionsCount"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop
                   offset="5%"
                   stopColor="var(--color-tonAmount)"
@@ -101,6 +104,7 @@ export default function DashboardChart() {
                 })
               }}
             />
+
             <ChartTooltip
               cursor={false}
               content={
@@ -117,17 +121,15 @@ export default function DashboardChart() {
             />
             <Area
               dataKey="tonAmount"
-              type="natural"
-              fill="url(#fillMobile)"
+              type="step"
+              fill="url(#fillTonAmount)"
               stroke="var(--color-tonAmount)"
-              stackId="a"
             />
             <Area
               dataKey="transactionsCount"
-              type="natural"
-              fill="url(#fillDesktop)"
+              type="step"
+              fill="url(#fillTransactionsCount)"
               stroke="var(--color-transactionsCount)"
-              stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>

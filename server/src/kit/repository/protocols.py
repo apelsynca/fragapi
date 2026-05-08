@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import Any, Protocol
 
 from sqlalchemy import Select
@@ -11,7 +12,7 @@ class RepositoryProtocol[M](Protocol):
 
     async def get_one_or_none(self, stmt: Select[tuple[M]]) -> M | None: ...
 
-    async def get_all(self, stmt: Select[tuple[M]]) -> list[M]: ...
+    async def get_all(self, stmt: Select[tuple[M]]) -> Sequence[M]: ...
 
     async def update(
         self, obj: M, *, update_dict: dict[str, Any], flush: bool = False
