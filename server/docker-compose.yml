@@ -27,6 +27,8 @@ services:
       - dokploy-network
     env_file:
       - .env
+    labels:
+      - "traefik.docker.network=dokploy-network"  # Tell Traefik which network to use
 
 volumes:
   db_data:
