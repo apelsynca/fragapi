@@ -21,7 +21,7 @@ class TransactionStats(Schema):
     total_spent: float
 
 
-class ChartStat(Schema):
+class TransactionChartPoint(Schema):
     date: date
     ton_amount: float
     transactions_count: int

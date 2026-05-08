@@ -15,41 +15,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '#/components/ui/chart'
+import { useQuery } from '@tanstack/react-query'
+import { fetchTransactionsChart } from '#/lib/transactions'
+import { useMemo } from 'react'
 
 export const description = 'An interactive area chart'
-
-const chartData = [
-  { date: '2024-06-01', tonAmount: 178, transactionsCount: 200 },
-  { date: '2024-06-02', tonAmount: 470, transactionsCount: 410 },
-  { date: '2024-06-03', tonAmount: 103, transactionsCount: 160 },
-  { date: '2024-06-04', tonAmount: 439, transactionsCount: 380 },
-  { date: '2024-06-05', tonAmount: 88, transactionsCount: 140 },
-  { date: '2024-06-06', tonAmount: 294, transactionsCount: 250 },
-  { date: '2024-06-07', tonAmount: 323, transactionsCount: 370 },
-  { date: '2024-06-08', tonAmount: 385, transactionsCount: 320 },
-  { date: '2024-06-09', tonAmount: 438, transactionsCount: 480 },
-  { date: '2024-06-10', tonAmount: 155, transactionsCount: 200 },
-  { date: '2024-06-11', tonAmount: 92, transactionsCount: 150 },
-  { date: '2024-06-12', tonAmount: 492, transactionsCount: 420 },
-  { date: '2024-06-13', tonAmount: 81, transactionsCount: 130 },
-  { date: '2024-06-14', tonAmount: 426, transactionsCount: 380 },
-  { date: '2024-06-15', tonAmount: 307, transactionsCount: 350 },
-  { date: '2024-06-16', tonAmount: 371, transactionsCount: 310 },
-  { date: '2024-06-17', tonAmount: 475, transactionsCount: 520 },
-  { date: '2024-06-18', tonAmount: 107, transactionsCount: 170 },
-  { date: '2024-06-19', tonAmount: 341, transactionsCount: 290 },
-  { date: '2024-06-20', tonAmount: 408, transactionsCount: 450 },
-  { date: '2024-06-21', tonAmount: 169, transactionsCount: 210 },
-  { date: '2024-06-22', tonAmount: 317, transactionsCount: 270 },
-  { date: '2024-06-23', tonAmount: 480, transactionsCount: 530 },
-  { date: '2024-06-24', tonAmount: 132, transactionsCount: 180 },
-  { date: '2024-06-25', tonAmount: 141, transactionsCount: 190 },
-  { date: '2024-06-26', tonAmount: 434, transactionsCount: 380 },
-  { date: '2024-06-27', tonAmount: 448, transactionsCount: 490 },
-  { date: '2024-06-28', tonAmount: 149, transactionsCount: 200 },
-  { date: '2024-06-29', tonAmount: 103, transactionsCount: 160 },
-  { date: '2024-06-30', tonAmount: 446, transactionsCount: 400 },
-]
 
 const chartConfig = {
   visitors: {
@@ -66,6 +36,14 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
+  const { data } = useQuery({
+    queryKey: ['transactions', 'chart'],
+    queryFn: () => fetchTransactionsChart(),
+  })
+
+  const chartData = useMemo(() => (data ? data : []), [data])
+  console.log(chartData)
+
   return (
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">

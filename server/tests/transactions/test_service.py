@@ -7,7 +7,7 @@ from src.kit.utils import utc_now
 from src.models import User
 from src.models.transactions import Transaction, TransactionReason, TransactionStatus
 from src.transactions.repository import TransactionRepository
-from src.transactions.schemas import ChartStat
+from src.transactions.schemas import TransactionChartPoint
 from src.transactions.service import transaction as transaction_service
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_transaction, rstr
@@ -33,7 +33,7 @@ async def _create_transaction(
     return transaction
 
 
-def empty_chart_stats() -> list[ChartStat]:
+def empty_chart_stats() -> list[TransactionChartPoint]:
     today = utc_now().date()
 
     start_date = today - timedelta(days=90)
@@ -41,7 +41,7 @@ def empty_chart_stats() -> list[ChartStat]:
     fakedata = []
     for i in range(1, 90 + 1):
         fakedata.append(
-            ChartStat(
+            TransactionChartPoint(
                 date=start_date + timedelta(days=i),
                 ton_amount=0,
                 transactions_count=0,
@@ -126,7 +126,7 @@ async def test_get_chart_stats_ignores_over_90days(
     )
 
     expected = empty_chart_stats()
-    expected[-1] = ChartStat(
+    expected[-1] = TransactionChartPoint(
         date=utc_now().date(), ton_amount=225, transactions_count=1
     )
 
@@ -174,7 +174,7 @@ async def test_get_chart_stats_only_include_completed(
 
     chart_stats = await transaction_service.get_chart_stats(session, user)
 
-    assert chart_stats[-2] == ChartStat(
+    assert chart_stats[-2] == TransactionChartPoint(
         date=today - timedelta(days=1), ton_amount=7.24, transactions_count=2
     )
 

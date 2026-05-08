@@ -8,7 +8,7 @@ from src.postgres import get_db_session
 from src.routing import APIRouter
 from src.transactions import auth
 from src.transactions.schemas import Transaction as TransactionSchema
-from src.transactions.schemas import TransactionStats
+from src.transactions.schemas import TransactionChartPoint, TransactionStats
 from src.transactions.service import transaction as transaction_service
 
 router = APIRouter(prefix="/transactions", tags=["Transactions", APITag.public])
@@ -16,9 +16,8 @@ router = APIRouter(prefix="/transactions", tags=["Transactions", APITag.public])
 log = get_logger()
 
 
-# change auth subject to diff
 @router.get("/", description="List transactions")
-async def list(
+async def list_transactions(
     auth_subject: auth.TransactionsRead,
     pagination: PaginationParamsQuery,
     session: AsyncSession = Depends(get_db_session),
@@ -37,10 +36,19 @@ async def list(
     )
 
 
-@router.get("/stats")
+@router.get("/stats", description="Get transaction stats")
 async def get_transaction_stats(
     auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
 ) -> TransactionStats:
     return await transaction_service.get_stats(
+        session=session, user=auth_subject.subject
+    )
+
+
+@router.get("/chart", description="Get transactions chart data")
+async def get_transactions_chart(
+    auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
+) -> list[TransactionChartPoint]:
+    return await transaction_service.get_chart_stats(
         session=session, user=auth_subject.subject
     )

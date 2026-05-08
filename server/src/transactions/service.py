@@ -6,7 +6,7 @@ from src.kit.pagination import PaginationParams
 from src.kit.utils import utc_now
 from src.models import Transaction, TransactionReason, TransactionStatus, User
 from src.transactions.repository import TransactionRepository
-from src.transactions.schemas import ChartStat, TransactionStats
+from src.transactions.schemas import TransactionChartPoint, TransactionStats
 
 
 class TransactionService:
@@ -55,7 +55,7 @@ class TransactionService:
 
     async def get_chart_stats(
         self, session: AsyncSession, user: User
-    ) -> list[ChartStat]:
+    ) -> list[TransactionChartPoint]:
         days_count = 90
 
         end_date = utc_now().date()
@@ -68,7 +68,7 @@ class TransactionService:
         rows = result.all()
 
         validated = [
-            ChartStat(
+            TransactionChartPoint(
                 date=row.date,
                 ton_amount=row.ton_amount,
                 transactions_count=row.transactions_count,
@@ -78,12 +78,13 @@ class TransactionService:
 
         non_empty_dates = {ch_st.date: ch_st for ch_st in validated}
 
-        full_stats = []
+        full_stats: list[TransactionChartPoint] = []
         for i in range(days_count):
             day = start_date + timedelta(days=i)
             full_stats.append(
                 non_empty_dates.get(
-                    day, ChartStat(date=day, ton_amount=0, transactions_count=0)
+                    day,
+                    TransactionChartPoint(date=day, ton_amount=0, transactions_count=0),
                 ),
             )
 
