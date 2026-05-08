@@ -61,7 +61,7 @@ class OpenAPIParameters(TypedDict):
 OPENAPI_PARAMETERS: OpenAPIParameters = {
     "title": "Fragment API",
     "summary": "Fragment HTTP and Webhooks API",
-    "version": "0.9.4",
+    "version": "0.9.9",
     "description": "Read the docs at https://docs.fragapi.com/api-reference",
     "openapi_tags": APITag.metadata(),  # type: ignore
     "servers": None
