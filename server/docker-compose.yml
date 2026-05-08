@@ -25,6 +25,8 @@ services:
       - ${FRAG_SESSION_PATH}:/app/${FRAG_FRAGMENT_SESSION_PATH}
     networks:
       - dokploy-network
+    env_file:
+      - .env
 
 volumes:
   db_data:
