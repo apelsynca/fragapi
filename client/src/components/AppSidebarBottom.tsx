@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
 import { logoutFn } from '#/lib/auth'
-import { userMeQueryOptions } from '#/lib/user'
+import { userMeQueryOptions } from '#/lib/queries'
 import ThemeToggle from './ThemeToggle'
 
 export default function AppSidebarBottom() {

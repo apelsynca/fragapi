@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import DashboardStats from '#/components/DashboardStats'
 import DashboardChart from '#/components/DashboardChart'
-import { tonRateQueryOptions } from '#/lib/fragment'
 import {
+  tonRateQueryOptions,
   transactionChartOptions,
   transactionStatsOptions,
-} from '#/lib/transactions'
+} from '#/lib/queries'
 
 export const Route = createFileRoute('/_authed/dashboard/')({
   component: RouteComponent,

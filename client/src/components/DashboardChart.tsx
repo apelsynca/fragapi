@@ -16,7 +16,7 @@ import {
   ChartTooltipContent,
 } from '#/components/ui/chart'
 import { useQuery } from '@tanstack/react-query'
-import { transactionChartOptions } from '#/lib/transactions'
+import { transactionChartOptions } from '#/lib/queries'
 
 export const description = 'An interactive area chart'
 

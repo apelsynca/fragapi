@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import { tonRateQueryOptions } from '#/lib/fragment'
-import { transactionStatsOptions } from '#/lib/transactions'
-import { userMeQueryOptions } from '#/lib/user'
-import { Button } from './ui/button'
+import {
+  tonRateQueryOptions,
+  transactionStatsOptions,
+  userMeQueryOptions,
+} from '#/lib/queries'
 import BalanceTopUp from './BalanceTopUp'
 
 export default function DashboardStats() {
