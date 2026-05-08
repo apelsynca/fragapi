@@ -3,12 +3,12 @@ services:
     image: postgres:17
     restart: always
     environment:
-      - POSTGRES_DB=fragment
-      - POSTGRES_USER=${FRAG_PG_USER}
-      - POSTGRES_PASSWORD=${FRAG_PG_PASS}
-      - PGPORT=${FRAG_PG_PORT}
+      - POSTGRES_DB=${FRAG_POSTGRES_DATABASE}
+      - POSTGRES_USER=${FRAG_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${FRAG_POSTGRES_PWD}
+      - PGPORT=${FRAG_POSTGRES_PORT}
     ports:
-      - ${FRAG_PG_PORT}
+      - ${FRAG_POSTGRES_PORT}
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
