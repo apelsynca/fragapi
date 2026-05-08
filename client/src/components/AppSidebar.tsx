@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { HomeIcon, JoystickIcon, KeySquareIcon } from 'lucide-react'
+import {
+  BookIcon,
+  ExternalLinkIcon,
+  HomeIcon,
+  JoystickIcon,
+  KeySquareIcon,
+} from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -31,11 +37,6 @@ function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-
-          <SidebarGroupContent>
-            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/api-keys">
@@ -43,6 +44,16 @@ function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuButton asChild>
+                <a href="https://docs.fragapi.com">
+                  <ExternalLinkIcon /> Документация
+                </a>
+              </SidebarMenuButton>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
