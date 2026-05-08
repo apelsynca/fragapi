@@ -7,7 +7,7 @@ from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
 from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
 from src.models import TransactionReason, User
-from src.payment.service import payment as payment_service
+from src.payments.service import payment as payment_service
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction

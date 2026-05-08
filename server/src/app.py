@@ -74,8 +74,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             wallet_manager=wallet_manager,
         )
 
-    await bot_application.stop()
-    await bot_application.shutdown()
+    if settings.is_production():
+        await bot_application.stop()
+        await bot_application.shutdown()
 
     log.info("Fragment API stopped")
 

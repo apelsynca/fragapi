@@ -1,17 +1,37 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import to_amount
 
-from src.exceptions import FragError, FragRequestValidationError, InsuficcientFunds
+from src.exceptions import (
+    FragError,
+    FragRequestValidationError,
+    InsuficcientFunds,
+    ResourceNotFound,
+)
 from src.fee import TON_FEE, after_fee, after_ton_network_fee
+from src.logging import get_logger
 from src.models import User
 from src.models.transactions import TransactionReason
+from src.payments.repository import PaymentRepository
 from src.transactions.service import transaction as transaction_service
 from src.users.repository import UserRepository
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
 
+log = get_logger()
+
 
 class PaymentService:
+    async def process_ton_payment(self, session: AsyncSession, hash: str) -> None:
+        repository = PaymentRepository.from_session(session)
+
+        payment = await repository.get_by_hash(hash=hash)
+        if payment is None:
+            raise ResourceNotFound()
+
+        log.info("User balance top-up", amount=payment.amount, user=payment.user)
+
+        payment.user.balance += payment.amount
+
     async def from_tc_transaction(
         self,
         session: AsyncSession,

@@ -8,7 +8,7 @@ from src.config import settings
 from src.exceptions import FragError, FragRequestValidationError, InsuficcientFunds
 from src.fee import TON_FEE, after_fee, after_ton_network_fee
 from src.models import TransactionReason, User
-from src.payment.service import payment as payment_service
+from src.payments.service import payment as payment_service
 from src.transactions.repository import TransactionRepository
 from src.wallet.types import TonConnectMessage
 from tests.fixtures.random_objects import (

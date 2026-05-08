@@ -1,13 +1,13 @@
 import random
 import string
 from datetime import datetime
+from secrets import token_urlsafe
 
 import pytest_asyncio
 from ton_core import to_nano
 
 from src.fragment_rest.types import FoundRecipientData, RecipientData
-from src.models import Transaction, User
-from src.models.transactions import TransactionReason, TransactionStatus
+from src.models import Payment, Transaction, TransactionReason, TransactionStatus, User
 from src.wallet.types import TonConnectMessage, TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
@@ -86,3 +86,13 @@ def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTran
         from_address="EQxxx",
         messages=messages,
     )
+
+
+async def create_payment(
+    save_fixture: SaveFixture, user: User, amount: float, hash: str | None = None
+) -> Payment:
+    payment = Payment(
+        user=user, amount=amount, hash=hash if hash is not None else token_urlsafe(32)
+    )
+    await save_fixture(payment)
+    return payment

@@ -1,6 +1,19 @@
+import hashlib
+import hmac
 import secrets
 import string
 import zlib
+
+
+def generate_token_hash_pair(*, secret: str, prefix: str = "") -> tuple[str, str]:
+    """
+    Generate a token suitable for sensitive values like API tokens.
+
+    Returns both the actual value and its HMAC-SHA256 hash.
+    Only the latter shall be stored in database.
+    """
+    token = generate_token(prefix=prefix)
+    return token, get_token_hash(token, secret=secret)
 
 
 def generate_token(*, prefix: str = "") -> str:
@@ -15,6 +28,11 @@ def generate_token(*, prefix: str = "") -> str:
 
     # Concatenate the prefix, token, and checksum
     return f"{prefix}{token}{checksum_base62}"
+
+
+def get_token_hash(token: str, *, secret: str) -> str:
+    hash = hmac.new(secret.encode("ascii"), token.encode("ascii"), hashlib.sha256)
+    return hash.hexdigest()
 
 
 def _crc32_to_base62(number: int) -> str:
