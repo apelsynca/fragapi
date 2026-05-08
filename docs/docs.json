@@ -1,12 +1,12 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
-  "name": "Fragment API",
+  "theme": "almond",
   "colors": {
-    "primary": "#cc5000",
-    "light": "#cc5000",
-    "dark": "#cc5000"
+    "primary": "#248BDA",
+    "light": "#50ADF4",
+    "dark": "#167294"
   },
+  "name": "Frag API",
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
@@ -44,7 +44,7 @@
   "navbar": {
     "links": [
       {
-        "label": "Помощь",
+        "label": "Чат проекта",
         "href": "https://t.me/fragapi"
       },
       {
@@ -55,13 +55,13 @@
     "primary": {
       "type": "button",
       "label": "Панель",
-      "href": "https://panel.fragapi.ru"
+      "href": "https://fragapi.com"
     }
   },
   "footer": {
     "socials": {
-      "telegram": "https://t.me/apelsynca",
-      "github": "https://gitlab.com/apelsynca/"
+      "telegram": "https://t.me/homocitrus",
+      "github": "https://gitlab.com/apelsynca/fragment-api"
     }
   }
 }

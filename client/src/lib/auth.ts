@@ -1,57 +1,66 @@
-import { redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 
-import { useAppSession } from "./session";
-import { request } from "./client";
+import { useAppSession } from './session'
+import { doRequest } from './request'
 
-const authTelegramBot = async (hash: string) => {
-  const response = await request("/auth/tgbot", {
-    method: "POST",
-    body: { hash },
-  });
-
-  const json = await response.json();
-
-  if (response.status !== 200) {
-    console.log("Error in API request", json);
-    throw new Error("Response is not 200");
-  }
-
-  return json["token"];
-};
-
-export const loginFn = createServerFn({ method: "POST" })
-  .inputValidator((hash: string) => hash)
-  .handler(async ({ data }) => {
-    const token = await authTelegramBot(data);
-
-    if (token === null) {
-      throw new Error("Authorization failed, empty token");
-    }
-
-    console.debug("User logged in successfully!");
-
-    const session = await useAppSession();
-    await session.update({ token });
-
-    throw redirect({ to: "/home" });
-  });
-
-export const verifySession = createServerFn({ method: "GET" }).handler(
+export const fetchSessionToken = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const session = await useAppSession();
+    const session = await useAppSession()
 
     if (!session.data.token) {
-      throw redirect({ to: "/" });
+      return null
     }
 
-    return session.data.token;
+    return session.data.token
   },
-);
+)
 
-export const getSession = createServerFn({ method: "GET" }).handler(
+export const verifySession = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const session = await useAppSession();
-    return session.data;
+    const token = await fetchSessionToken()
+
+    if (!token) {
+      throw redirect({ href: '/' })
+    }
+
+    return token
   },
-);
+)
+
+export const botHashLoginFn = createServerFn({ method: 'POST' })
+  .inputValidator((hash: string) => hash)
+  .handler(async ({ data: hash }) => {
+    const response = await doRequest({
+      method: 'POST',
+      endpoint: '/auth/tgbot',
+      json: {
+        hash,
+      },
+    })
+
+    if (!response.ok) {
+      throw redirect({ to: '/' })
+    }
+
+    const { token, success } = (await response.json()) as {
+      token: string
+      success: boolean
+    }
+
+    if (success !== true) {
+      throw redirect({ to: '/' })
+    }
+
+    const session = await useAppSession()
+    await session.update({ token })
+  })
+
+export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
+  const session = await useAppSession()
+  session.clear()
+
+  throw redirect({
+    href: '/',
+  })
+})

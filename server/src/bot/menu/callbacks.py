@@ -1,3 +1,4 @@
+import secrets
 from typing import cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,15 +6,14 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram import User as TGUser
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-from src.auth.repository import UserSessionRepository
-from src.auth.service import AuthService
 from src.bot.utils import with_session
 from src.config import settings
 from src.exceptions import ResourceNotFound
+from src.kit.crypto import generate_token
+from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.models.users import User
-from src.users.repository import UserRepository
 from src.users.schemas import UserCreate
-from src.users.service import UserService
+from src.users.service import user as user_service
 
 LOGIN_ARG = "login"
 
@@ -25,19 +25,18 @@ async def menu(
     message = cast(Message, update.message)
     e_user = cast(TGUser, update.effective_user)
 
-    user_service = UserService(repository=UserRepository(session=session))
-
     try:
-        user = await user_service.get_by_id(id=e_user.id)
+        user = await user_service.get_by_id(session=session, id=e_user.id)
     except ResourceNotFound:
         user = await user_service.create(
+            session=session,
             user=UserCreate(
                 id=e_user.id,
                 first_name=e_user.first_name,
                 last_name=e_user.last_name,
                 username=e_user.username,
                 is_premium=e_user.is_premium or False,
-            )
+            ),
         )
 
     if context.args and context.args[0] == LOGIN_ARG:
@@ -48,8 +47,8 @@ async def menu(
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton(text="Доки", url=settings.docs_url),
-                    InlineKeyboardButton(text="Панель", url=settings.panel_url),
+                    InlineKeyboardButton(text="Доки", url=settings.DOCS_URL),
+                    InlineKeyboardButton(text="Панель", url=settings.PANEL_URL),
                 ]
             ]
         ),
@@ -59,10 +58,16 @@ async def menu(
 async def login(update: Update, user: User, session: AsyncSession) -> None:
     message = cast(Message, update.message)
 
-    auth_service = AuthService(
-        session_repository=UserSessionRepository(session=session)
+    user_session = UserSession(
+        user=user,
+        user_agent=None,
+        token=generate_token(prefix=USER_SESSION_PREFIX),
+        bot_hash=secrets.token_urlsafe(24),
     )
-    login_data = await auth_service.login(user=user, with_bot_hash=True)
+
+    session.add(user_session)
+    await session.commit()
+    await session.refresh(user_session)
 
     await message.reply_text(
         text="Авторизация прошла успешно!\n\nНажмите войти 👇",
@@ -71,7 +76,7 @@ async def login(update: Update, user: User, session: AsyncSession) -> None:
                 [
                     InlineKeyboardButton(
                         text="Войти",
-                        url=f"{settings.panel_url}/login?hash={login_data.bot_hash}",
+                        url=f"{settings.PANEL_URL}/login?hash={user_session.bot_hash}",
                     )
                 ]
             ]

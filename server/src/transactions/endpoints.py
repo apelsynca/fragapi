@@ -1,39 +1,54 @@
-from src.auth.dependencies import WebUser
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.logging import get_logger
 from src.openapi import APITag
+from src.postgres import get_db_session
 from src.routing import APIRouter
+from src.transactions import auth
+from src.transactions.schemas import Transaction as TransactionSchema
+from src.transactions.schemas import TransactionChartPoint, TransactionStats
+from src.transactions.service import transaction as transaction_service
 
-from .dependencies import TransactionServiceDependency
-from .schemas import Transaction, TransactionStats
-
-router = APIRouter(
-    prefix="/panel/transactions", tags=["Transactions", "Panel", APITag.private]
-)
+router = APIRouter(prefix="/transactions", tags=["Transactions", APITag.public])
 
 log = get_logger()
 
 
-@router.get("", description="List all transactions")
-async def get_transactions_list(
-    user: WebUser,
+@router.get("/", description="List transactions")
+async def list_transactions(
+    auth_subject: auth.TransactionsRead,
     pagination: PaginationParamsQuery,
-    transaction_service: TransactionServiceDependency,
-) -> ListResource[Transaction]:
-    transactions, count = await transaction_service.get_list(
-        pagination=pagination, user=user
+    session: AsyncSession = Depends(get_db_session),
+) -> ListResource[TransactionSchema]:
+    transactions, count = await transaction_service.paginate(
+        session=session, pagination=pagination, user=auth_subject.subject
     )
 
     return ListResource.from_paginated_results(
-        items=[Transaction.model_validate(transaction) for transaction in transactions],
+        items=[
+            TransactionSchema.model_validate(transaction)
+            for transaction in transactions
+        ],
         total_count=count,
         pagination_params=pagination,
     )
 
 
-@router.get("/stats", description="Get transaction statistics")
+@router.get("/stats", description="Get transaction stats")
 async def get_transaction_stats(
-    user: WebUser,
-    transaction_service: TransactionServiceDependency,
+    auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
 ) -> TransactionStats:
-    return await transaction_service.get_stats(user)
+    return await transaction_service.get_stats(
+        session=session, user=auth_subject.subject
+    )
+
+
+@router.get("/chart", description="Get transactions chart data")
+async def get_transactions_chart(
+    auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
+) -> list[TransactionChartPoint]:
+    return await transaction_service.get_chart_stats(
+        session=session, user=auth_subject.subject
+    )

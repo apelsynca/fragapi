@@ -1,152 +1,100 @@
-import re
-from time import time
+import random
 
-from src.config import settings
-from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment import fragment
-from src.fragment.exceptions import FragmentBadRequest
-from src.kit.utils import after_fee
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.exceptions import BadRequest, ResourceNotFound
+from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
+from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
-from src.models import TransactionReason, TransactionStatus, User
-from src.ton_wallet import wallet
-from src.transactions.service import TransactionService
-from src.users.service import UserService
-
-from .schemas import StarsRecipient
+from src.models import TransactionReason, User
+from src.payments.service import payment as payment_service
+from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
+from src.wallet.manager import WalletManager
+from src.wallet.types import TonConnectTransaction
 
 log = get_logger()
 
 
 class StarsService:
-    CACHE_TIME = 60
-
-    def __init__(self) -> None:
-        self.last_price = None
-        self.price_ut = 0
-
     async def buy(
         self,
-        user_service: UserService,
-        transaction_service: TransactionService,
+        session: AsyncSession,
         user: User,
-        quantity: int,
-        username: str,
-    ) -> str:
-        log.info(
-            "Buy stars request",
+        data: BuyStars,
+        fragment_rest: FragmentRest,
+        wallet_manager: WalletManager,
+    ) -> BuyStarsResponse:
+        log.info("Buy stars request", quantity=data.quantity, username=data.username)
+
+        recipient_data = await self.get_recipient(
+            fragment_rest=fragment_rest, username=data.username, quantity=data.quantity
+        )
+        transaction = await self.get_tc_transaction(
+            fragment_rest, recipient_data=recipient_data, quantity=data.quantity
+        )
+
+        return await self.buy_from_tc_transaction(
+            session=session,
             user=user,
-            username=username,
-            quantity=quantity,
+            wallet_manager=wallet_manager,
+            tc_transaction=transaction,
+            recipient=recipient_data.recipient,
         )
 
-        if quantity < 50:
-            raise ValueError("Stars amount should be bigger than 50")
-
-        recipient_data = await fragment.search_stars_recipient(
-            query=username, quantity=quantity
-        )
-
-        buy_stars_request = await fragment.init_buy_stars_request(
-            recipient=recipient_data.found.recipient, quantity=quantity
-        )
-
-        stars_ton_price = after_fee(buy_stars_request.amount)
-        user_stars_ton_price = stars_ton_price * (1 + settings.price_markup)
-        if user.balance < user_stars_ton_price:
-            raise InsuficcientFunds
-
-        balance = await wallet.get_real_ton_balance()
-        if balance < stars_ton_price:
-            raise AppError(f"We have insufficcient funds: {balance}")
-
-        link = await fragment.get_buy_stars_link(req_id=buy_stars_request.req_id)
-
-        await user_service.update_balance(
-            user=user, new_balance=user.balance - user_stars_ton_price
-        )
-
-        # Create transaction with PENDING status first
-        transaction = await transaction_service.create(
-            amount=user_stars_ton_price,
+    async def buy_from_tc_transaction(
+        self,
+        session: AsyncSession,
+        user: User,
+        wallet_manager: WalletManager,
+        tc_transaction: TonConnectTransaction,
+        recipient: str,
+    ) -> BuyStarsResponse:
+        log.debug("Buying stars from TC transaction", user=user)
+        message_hash = await payment_service.from_tc_transaction(
+            session=session,
+            user=user,
+            wallet_manager=wallet_manager,
+            tc_transaction=tc_transaction,
             reason=TransactionReason.STARS,
-            user=user,
-            stars_quantity=quantity,
-            recipient=username,
-            status=TransactionStatus.PENDING,
+            recipient=recipient,
         )
 
+        return BuyStarsResponse(message_hash=message_hash)
+
+    async def get_tc_transaction(
+        self, fragment_rest: FragmentRest, recipient_data: StarsRecipient, quantity: int
+    ) -> TonConnectTransaction:
+        if quantity < 50 or quantity > 10_000_000:
+            raise BadRequest("Invalid quantity")
+
+        buy_request = await fragment_rest.init_buy_stars_request(
+            recipient=recipient_data.recipient, quantity=quantity
+        )
+
+        buy_link = await fragment_rest.get_buy_stars_link(
+            req_id=buy_request.req_id, show_sender=False
+        )
+
+        return buy_link.transaction
+
+    async def get_recipient(
+        self, fragment_rest: FragmentRest, username: str, *, quantity: int | None = None
+    ) -> StarsRecipient:
         try:
-            tx_hash = await wallet.transfer_from_tc(
-                message=link.transaction.messages[0],
-                valid_until=link.transaction.valid_until,
+            recipient = await fragment_rest.search_stars_recipient(
+                query=username,
+                quantity=random.choice([50, 75, 500, 2500])
+                if quantity is None
+                else quantity,
             )
-
-            # Update transaction with tx_hash and COMPLETED status
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.COMPLETED,
-                tx_hash=tx_hash,
-            )
-
-            log.info(
-                "New buy stars transaction!",
-                hash=tx_hash,
-                username=username,
-                quantity=quantity,
-                transaction_id=transaction.id,
-            )
-
-            return tx_hash
-
-        except Exception as exc:
-            # If transfer fails, mark transaction as FAILED
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.FAILED,
-            )
-            log.error(
-                "Failed to transfer stars",
-                error=str(exc),
-                username=username,
-                quantity=quantity,
-                transaction_id=transaction.id,
-            )
-            raise
-
-    async def get_recipient(self, username: str) -> StarsRecipient:
-        try:
-            recipient_data = await fragment.search_stars_recipient(query=username)
-        except FragmentBadRequest:
-            raise ResourceNotFound(f"No recipient found by username {username}")
-
-        photo_match = re.search(r'src="(.*)"', recipient_data.found.photo)
+        except FragmentAPIUsersNotFound:
+            raise ResourceNotFound("User is not found")
 
         return StarsRecipient(
-            recipient=recipient_data.found.recipient,
-            name=recipient_data.found.name,
-            photo=photo_match.group(1) if photo_match else None,
+            recipient=recipient.found.recipient,
+            photo=recipient.found.photo,
+            name=recipient.found.name,
         )
 
-    async def get_price(self) -> float:
-        """
-        Returns price in TON's for 1 star.
-        """
 
-        now = time()
-        if self.last_price is not None and now - self.price_ut < self.CACHE_TIME:
-            return self.last_price
-
-        recipient_data = await fragment.search_stars_recipient(
-            query="apelsynca", quantity=100
-        )
-        buy_stars_request = await fragment.init_buy_stars_request(
-            recipient=recipient_data.found.recipient, quantity=100
-        )
-
-        self.last_price = buy_stars_request.amount / 100
-        self.price_ut = now
-
-        return self.last_price
-
-
-stars_service = StarsService()
+stars = StarsService()

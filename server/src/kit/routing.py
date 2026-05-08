@@ -20,7 +20,7 @@ class IncludedInSchemaAPIRoute(APIRoute):
         if self.include_in_schema:
             if APITag.private in tags:
                 self.include_in_schema = settings.is_development()
-            elif APITag.documented in tags:
+            elif APITag.public in tags:
                 self.include_in_schema = True
             else:
                 self.include_in_schema = False

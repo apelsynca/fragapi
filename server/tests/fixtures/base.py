@@ -1,21 +1,37 @@
 from collections.abc import AsyncGenerator
+from unittest.mock import MagicMock
 
 import httpx
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.applications import Starlette
 
-from src.app import app as rolls_app
+from src.app import app as frag_app
+from src.auth.dependencies import _auth_subject_factory_cache
+from src.fragment_rest import get_fragment_rest
+from src.fragment_rest.rest import FragmentRest
 from src.postgres import get_db_session
+from src.wallet.dependencies import get_wallet_manager
+from tests.fixtures.auth import AuthSubjectFixture
 
 
 @pytest_asyncio.fixture
-async def app(session: AsyncSession) -> AsyncGenerator[Starlette]:
-    rolls_app.dependency_overrides[get_db_session] = lambda: session
+async def app(
+    auth_subject: AuthSubjectFixture,
+    session: AsyncSession,
+    fragment_rest: FragmentRest,
+    wallet_manager: MagicMock,
+) -> AsyncGenerator[Starlette]:
+    frag_app.dependency_overrides[get_db_session] = lambda: session
+    frag_app.dependency_overrides[get_fragment_rest] = lambda: fragment_rest
+    frag_app.dependency_overrides[get_wallet_manager] = lambda: wallet_manager
 
-    yield rolls_app
+    for auth_subject_getter in _auth_subject_factory_cache.values():
+        frag_app.dependency_overrides[auth_subject_getter] = lambda: auth_subject
 
-    rolls_app.dependency_overrides.pop(get_db_session)
+    yield frag_app
+
+    frag_app.dependency_overrides.pop(get_db_session)
 
 
 @pytest_asyncio.fixture

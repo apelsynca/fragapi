@@ -1,78 +1,84 @@
-/// <reference types="vite/client" />
-import type { ReactNode } from "react";
 import {
-  Outlet,
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
-} from "@tanstack/react-router";
-import type { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+} from '@tanstack/react-router'
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import { TanStackDevtools } from '@tanstack/react-devtools'
+import { fetchSessionToken } from '#/lib/auth'
+import type { QueryClient } from '@tanstack/react-query'
 
-import globalsCss from "./globals.css?url";
-import appCss from "./app.css?url";
-import { DefaultNotFound } from "~/components/not-found";
+import appCss from '../styles.css?url'
+
+const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
 
 export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient;
+  queryClient: QueryClient
 }>()({
+  beforeLoad: async () => {
+    const token = await fetchSessionToken()
+
+    return {
+      token,
+    }
+  },
   head: () => ({
-    links: [
-      {
-        rel: "stylesheet",
-        href: globalsCss,
-      },
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
     meta: [
       {
-        charSet: "utf-8",
+        charSet: 'utf-8',
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
       },
       {
-        title: "Fragment API",
+        title: 'Seo very important here',
       },
+    ],
+    links: [
       {
-        name: "description",
-        content: "Удобное API фрагмента",
-      },
-      { name: "og:type", content: "website" },
-      { name: "og:title", content: "Fragment API" },
-      {
-        name: "og:description",
-        content: "Лучшее апи фрагмента, без KYC, без суеты",
+        rel: 'stylesheet',
+        href: appCss,
       },
     ],
   }),
   component: RootComponent,
-  notFoundComponent: DefaultNotFound,
-});
+  errorComponent: ({ error }) => {
+    return <div>Root error: {error.message}</div>
+  },
+})
 
 function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
     </RootDocument>
-  );
+  )
 }
 
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="dark">
+      <body>
         {children}
+        <TanStackDevtools
+          config={{
+            position: 'bottom-right',
+          }}
+          plugins={[
+            {
+              name: 'Tanstack Router',
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
-        <ReactQueryDevtools initialIsOpen={false} />
       </body>
     </html>
-  );
+  )
 }

@@ -9,19 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as PanelRouteImport } from './routes/_panel'
+import { Route as BotLoginRouteImport } from './routes/bot-login'
+import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PanelHomeRouteImport } from './routes/_panel/home'
-import { Route as PanelTonapiApiKeysRouteImport } from './routes/_panel/tonapi/api-keys'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
+import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard/index'
+import { Route as AuthedDashboardHandRouteImport } from './routes/_authed/dashboard/hand'
+import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard/api-keys'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const BotLoginRoute = BotLoginRouteImport.update({
+  id: '/bot-login',
+  path: '/bot-login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PanelRoute = PanelRouteImport.update({
-  id: '/_panel',
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -29,71 +31,99 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PanelHomeRoute = PanelHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => PanelRoute,
+const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthedRoute,
 } as any)
-const PanelTonapiApiKeysRoute = PanelTonapiApiKeysRouteImport.update({
-  id: '/tonapi/api-keys',
-  path: '/tonapi/api-keys',
-  getParentRoute: () => PanelRoute,
+const AuthedDashboardIndexRoute = AuthedDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedDashboardRoute,
+} as any)
+const AuthedDashboardHandRoute = AuthedDashboardHandRouteImport.update({
+  id: '/hand',
+  path: '/hand',
+  getParentRoute: () => AuthedDashboardRoute,
+} as any)
+const AuthedDashboardApiKeysRoute = AuthedDashboardApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AuthedDashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/home': typeof PanelHomeRoute
-  '/tonapi/api-keys': typeof PanelTonapiApiKeysRoute
+  '/bot-login': typeof BotLoginRoute
+  '/dashboard': typeof AuthedDashboardRouteWithChildren
+  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/home': typeof PanelHomeRoute
-  '/tonapi/api-keys': typeof PanelTonapiApiKeysRoute
+  '/bot-login': typeof BotLoginRoute
+  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/dashboard': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_panel': typeof PanelRouteWithChildren
-  '/login': typeof LoginRoute
-  '/_panel/home': typeof PanelHomeRoute
-  '/_panel/tonapi/api-keys': typeof PanelTonapiApiKeysRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/bot-login': typeof BotLoginRoute
+  '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
+  '/_authed/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
+  '/_authed/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/home' | '/tonapi/api-keys'
+  fullPaths:
+    | '/'
+    | '/bot-login'
+    | '/dashboard'
+    | '/dashboard/api-keys'
+    | '/dashboard/hand'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/home' | '/tonapi/api-keys'
+  to:
+    | '/'
+    | '/bot-login'
+    | '/dashboard/api-keys'
+    | '/dashboard/hand'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
-    | '/_panel'
-    | '/login'
-    | '/_panel/home'
-    | '/_panel/tonapi/api-keys'
+    | '/_authed'
+    | '/bot-login'
+    | '/_authed/dashboard'
+    | '/_authed/dashboard/api-keys'
+    | '/_authed/dashboard/hand'
+    | '/_authed/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PanelRoute: typeof PanelRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  BotLoginRoute: typeof BotLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/bot-login': {
+      id: '/bot-login'
+      path: '/bot-login'
+      fullPath: '/bot-login'
+      preLoaderRoute: typeof BotLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_panel': {
-      id: '/_panel'
+    '/_authed': {
+      id: '/_authed'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof PanelRouteImport
+      preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -103,39 +133,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_panel/home': {
-      id: '/_panel/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof PanelHomeRouteImport
-      parentRoute: typeof PanelRoute
+    '/_authed/dashboard': {
+      id: '/_authed/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardRouteImport
+      parentRoute: typeof AuthedRoute
     }
-    '/_panel/tonapi/api-keys': {
-      id: '/_panel/tonapi/api-keys'
-      path: '/tonapi/api-keys'
-      fullPath: '/tonapi/api-keys'
-      preLoaderRoute: typeof PanelTonapiApiKeysRouteImport
-      parentRoute: typeof PanelRoute
+    '/_authed/dashboard/': {
+      id: '/_authed/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthedDashboardIndexRouteImport
+      parentRoute: typeof AuthedDashboardRoute
+    }
+    '/_authed/dashboard/hand': {
+      id: '/_authed/dashboard/hand'
+      path: '/hand'
+      fullPath: '/dashboard/hand'
+      preLoaderRoute: typeof AuthedDashboardHandRouteImport
+      parentRoute: typeof AuthedDashboardRoute
+    }
+    '/_authed/dashboard/api-keys': {
+      id: '/_authed/dashboard/api-keys'
+      path: '/api-keys'
+      fullPath: '/dashboard/api-keys'
+      preLoaderRoute: typeof AuthedDashboardApiKeysRouteImport
+      parentRoute: typeof AuthedDashboardRoute
     }
   }
 }
 
-interface PanelRouteChildren {
-  PanelHomeRoute: typeof PanelHomeRoute
-  PanelTonapiApiKeysRoute: typeof PanelTonapiApiKeysRoute
+interface AuthedDashboardRouteChildren {
+  AuthedDashboardApiKeysRoute: typeof AuthedDashboardApiKeysRoute
+  AuthedDashboardHandRoute: typeof AuthedDashboardHandRoute
+  AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
 }
 
-const PanelRouteChildren: PanelRouteChildren = {
-  PanelHomeRoute: PanelHomeRoute,
-  PanelTonapiApiKeysRoute: PanelTonapiApiKeysRoute,
+const AuthedDashboardRouteChildren: AuthedDashboardRouteChildren = {
+  AuthedDashboardApiKeysRoute: AuthedDashboardApiKeysRoute,
+  AuthedDashboardHandRoute: AuthedDashboardHandRoute,
+  AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
 }
 
-const PanelRouteWithChildren = PanelRoute._addFileChildren(PanelRouteChildren)
+const AuthedDashboardRouteWithChildren = AuthedDashboardRoute._addFileChildren(
+  AuthedDashboardRouteChildren,
+)
+
+interface AuthedRouteChildren {
+  AuthedDashboardRoute: typeof AuthedDashboardRouteWithChildren
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedDashboardRoute: AuthedDashboardRouteWithChildren,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PanelRoute: PanelRouteWithChildren,
-  LoginRoute: LoginRoute,
+  AuthedRoute: AuthedRouteWithChildren,
+  BotLoginRoute: BotLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

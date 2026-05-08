@@ -19,7 +19,7 @@ async def setup_bot_webhook(bot: Bot) -> None:
         log.debug("Webhook was not set.")
         return
 
-    webhook_url = settings.bot.webhook_url + settings.bot.webhook_path
+    webhook_url = settings.BOT_WEBHOOK_URL + settings.BOT_WEBHOOK_PATH
     allowed_updates = (Update.MESSAGE, Update.CALLBACK_QUERY)
 
     if need_to_update_webhook(
@@ -28,7 +28,7 @@ async def setup_bot_webhook(bot: Bot) -> None:
         await bot.set_webhook(
             url=webhook_url,
             allowed_updates=allowed_updates,
-            secret_token=settings.bot.get_webhook_secret_token(),
+            secret_token=settings.BOT_WEBHOOK_SECRET_TOKEN,
         )
 
 

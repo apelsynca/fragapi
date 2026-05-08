@@ -11,11 +11,10 @@ dependencies = [
   "cryptography>=45.0.6",
   "fastapi>=0.135.3",
   "greenlet>=3.2.4",
-  "httpx>=0.28.1",
+  "httpx[http2]>=0.28.1",
   "psycopg2-binary>=2.9.12",
   "pydantic>=2.12.5",
   "pydantic-settings>=2.13.1",
-  "pyjwt>=2.12.1",
   "python-telegram-bot>=22.3",
   "sqlalchemy>=2.0.49",
   "structlog>=25.5.0",
@@ -24,39 +23,59 @@ dependencies = [
   "uvicorn>=0.44.0",
   "zstandard>=0.25.0",
   "sqlalchemy-utils>=0.42.1",
+  "makefun>=1.16.0",
+  "pytonapi>=2.2.0",
+  "typer>=0.25.1",
 ]
 
 [dependency-groups]
 dev = [
+  "coverage>=7.13.5",
   "pytest>=9.0.3",
   "pytest-asyncio>=1.3.0",
+  "pytest-cov>=7.1.0",
   "pytest-mock>=3.15.1",
   "pytest-xdist[psutil]>=3.8.0",
   "ruff>=0.15.12",
+  "typer>=0.25.1",
 ]
 
 [tool.taskipy.tasks]
 api = { cmd = "uvicorn src.app:app --reload --workers 1 --host 0.0.0.0 --port 8000", help = "Run api service" }
-
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
+test = { cmd = "FRAG_ENV=testing python -m pytest --cov src/ --cov-report=term-missing", help = "run all tests" }
+test_fast = { cmd = "FRAG_ENV=testing python -m pytest -n auto -p no:sugar --no-cov", help = "run all tests, but fast" }
+db_migrate = { cmd = "python -m scripts.db upgrade", help = "run alembic upgrade" }
+db_reparent = { cmd = "python -m scripts.db reparent", help = "try to auto-fix conflicting migrations" }
+pre_deploy = { cmd = "task db_migrate", help = "Pre-deploy command run by Dokploy" }
 
 [tool.ruff]
 line-length = 88
 target-version = "py313"
 
 [tool.ruff.lint]
-extend-select = ["I", "UP", "T20", "B039"]
+extend-select = [
+  "I",
+  "UP",
+  "T20",
+  "B039",
+  "PT",
+  "RUF022",
+  "RUF023",
+  "RUF10",  # RUF10x
+  "RUF20",  # RUF200
+]
 ignore = ["F841"]
 
 [tool.ruff.lint.per-file-ignores]
-"migrations/*" = ["F401"]
+"migrations/*" = [
+  "F401", # remove unusud import
+]
+"scripts/*" = ["T20"]
 
 [tool.pytest.ini_options]
-pythonpath = "."
+markers = ["auth"]
 asyncio_mode = "strict"
-testpaths = ['tests']
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 concurrency = ["thread", "greenlet"]
@@ -66,3 +85,7 @@ exclude_lines = [
   "pragma: no cover",
   "if TYPE_CHECKING:",
 ] # See: https://github.com/nedbat/coveragepy/issues/831
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

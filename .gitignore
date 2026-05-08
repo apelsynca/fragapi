@@ -6,12 +6,8 @@ dist/
 wheels/
 *.egg-info
 
-.secrets.toml
 .env
 .env.local
-
-# for now
-.test-secrets.toml 
 
 # Virtual environments
 .venv
@@ -21,3 +17,5 @@ fragment-session.json
 
 .nitro/
 .output/
+
+

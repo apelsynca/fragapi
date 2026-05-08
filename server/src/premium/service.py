@@ -1,18 +1,15 @@
-import re
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import settings
-from src.exceptions import AppError, InsuficcientFunds, ResourceNotFound
-from src.fragment import fragment
-from src.fragment.enums import PremiumMonths
-from src.fragment.exceptions import FragmentBadRequest
-from src.kit.utils import after_fee
+from src.enums import PremiumMonths
+from src.exceptions import ResourceNotFound
+from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
+from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
-from src.models.transactions import TransactionReason, TransactionStatus
-from src.models.users import User
-from src.premium.schemas import PremiumRecipient
-from src.ton_wallet import wallet
-from src.transactions.service import TransactionService
-from src.users.service import UserService
+from src.models import TransactionReason, User
+from src.payments.service import payment as payment_service
+from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
+from src.wallet.manager import WalletManager
+from src.wallet.types import TonConnectTransaction
 
 log = get_logger()
 
@@ -20,95 +17,84 @@ log = get_logger()
 class PremiumService:
     async def buy(
         self,
-        user_service: UserService,
-        transaction_service: TransactionService,
+        session: AsyncSession,
         user: User,
-        username: str,
-        months: PremiumMonths,
-    ) -> str:
-        recipient_data = await fragment.search_premium_recipient(
-            query=username, months=months
+        data: BuyPremium,
+        fragment_rest: FragmentRest,
+        wallet_manager: WalletManager,
+    ) -> BuyPremiumResponse:
+        log.info("Buying premium", months=data.months, username=data.username)
+
+        recipient_data = await self.get_recipient(
+            fragment_rest, username=data.username, months=data.months
         )
 
-        buy_premium_request = await fragment.init_premium_request(
-            recipient=recipient_data.found.recipient, months=months
+        transaction = await self.get_buy_tc_transaction(
+            fragment_rest=fragment_rest,
+            recipient_data=recipient_data,
+            months=data.months,
         )
 
-        premium_ton_price = after_fee(buy_premium_request.amount)
-        user_premium_ton_price = premium_ton_price * (1 + settings.price_markup)
-        if user.balance < user_premium_ton_price:
-            raise InsuficcientFunds
-
-        balance = await wallet.get_real_ton_balance()
-        if balance < premium_ton_price:
-            raise AppError(f"We have insufficcient funds: {balance}")
-
-        link = await fragment.get_premium_link(req_id=buy_premium_request.req_id)
-
-        await user_service.update_balance(
-            user=user, new_balance=user.balance - user_premium_ton_price
-        )
-
-        # Create transaction with PENDING status first
-        transaction = await transaction_service.create(
-            amount=user_premium_ton_price,
-            reason=TransactionReason.PREMIUM,
+        return await self.gift_from_tc_transaction(
+            session=session,
             user=user,
-            recipient=username,
-            status=TransactionStatus.PENDING,
+            wallet_manager=wallet_manager,
+            tc_transaction=transaction,
+            recipient=recipient_data.recipient,
         )
 
+    async def gift_from_tc_transaction(
+        self,
+        session: AsyncSession,
+        user: User,
+        wallet_manager: WalletManager,
+        tc_transaction: TonConnectTransaction,
+        recipient: str,
+    ) -> BuyPremiumResponse:
+        log.debug("Buying premium from TC transaction", user=user)
+        message_hash = await payment_service.from_tc_transaction(
+            session=session,
+            user=user,
+            wallet_manager=wallet_manager,
+            tc_transaction=tc_transaction,
+            recipient=recipient,
+            reason=TransactionReason.PREMIUM,
+        )
+
+        return BuyPremiumResponse(message_hash=message_hash)
+
+    async def get_buy_tc_transaction(
+        self,
+        fragment_rest: FragmentRest,
+        recipient_data: PremiumRecipient,
+        months: PremiumMonths,
+    ) -> TonConnectTransaction:
+        buy_request = await fragment_rest.init_gift_premium_request(
+            recipient=recipient_data.recipient, months=months.value
+        )
+        buy_link = await fragment_rest.get_gift_premium_link(req_id=buy_request.req_id)
+
+        return buy_link.transaction
+
+    async def get_recipient(
+        self,
+        fragment_rest: FragmentRest,
+        username: str,
+        *,
+        months: PremiumMonths = PremiumMonths.YEAR,
+    ) -> PremiumRecipient:
         try:
-            tx_hash = await wallet.transfer_from_tc(
-                message=link.transaction.messages[0],
-                valid_until=link.transaction.valid_until,
+            recipient = await fragment_rest.search_premium_gift_recipient(
+                query=username, months=months.value
             )
-
-            # Update transaction with tx_hash and COMPLETED status
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.COMPLETED,
-                tx_hash=tx_hash,
-            )
-
-            log.info(
-                "New buy premium transaction!",
-                hash=tx_hash,
-                username=username,
-                months=months,
-                transaction_id=transaction.id,
-            )
-
-            return tx_hash
-
-        except Exception as exc:
-            # If transfer fails, mark transaction as FAILED
-            await transaction_service.update_status(
-                transaction=transaction,
-                status=TransactionStatus.FAILED,
-            )
-            log.error(
-                "Failed to transfer premium",
-                error=str(exc),
-                username=username,
-                months=months,
-                transaction_id=transaction.id,
-            )
-            raise
-
-    async def get_recipient(self, username: str) -> PremiumRecipient:
-        try:
-            recipient_data = await fragment.search_premium_recipient(query=username)
-        except FragmentBadRequest:
-            raise ResourceNotFound(f"No recipient found by username {username}")
-
-        photo_match = re.search(r'src="(.*)"', recipient_data.found.photo)
+        except FragmentAPIUsersNotFound:
+            raise ResourceNotFound("User is not found")
 
         return PremiumRecipient(
-            recipient=recipient_data.found.recipient,
-            name=recipient_data.found.name,
-            photo=photo_match.group(1) if photo_match else None,
+            recipient=recipient.found.recipient,
+            photo=recipient.found.photo,
+            name=recipient.found.name,
         )
 
 
-premium_service = PremiumService()
+premium = PremiumService()

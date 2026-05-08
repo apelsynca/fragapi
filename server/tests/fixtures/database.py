@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator, Callable, Coroutine
+from collections.abc import AsyncGenerator, AsyncIterator, Callable, Coroutine
 
 import pytest
 import pytest_asyncio
@@ -23,8 +23,8 @@ async def initialize_test_database(worker_id: str) -> AsyncIterator[None]:
     engine = create_async_engine(
         dsn=get_database_url(worker_id),
         application_name=f"test_{worker_id}",
-        pool_size=5,
-        pool_recycle=600,  # 10 mins
+        pool_size=settings.DATABASE_POOL_SIZE,
+        pool_recycle=settings.DATABASE_POOL_RECYCLE_SECONDS,
     )
 
     async with engine.begin() as conn:
@@ -37,12 +37,12 @@ async def initialize_test_database(worker_id: str) -> AsyncIterator[None]:
 
 
 @pytest_asyncio.fixture
-async def session(worker_id: str):
+async def session(worker_id: str) -> AsyncGenerator[AsyncSession]:
     engine = create_async_engine(
         dsn=get_database_url(worker_id),
         application_name=f"test_{worker_id}",
-        pool_size=5,
-        pool_recycle=600,
+        pool_size=settings.DATABASE_POOL_SIZE,
+        pool_recycle=settings.DATABASE_POOL_RECYCLE_SECONDS,
     )
     connection = await engine.connect()
     transaction = await connection.begin()
@@ -60,16 +60,16 @@ def get_database_url(worker_id: str, driver: str = "asyncpg") -> str:
     return str(
         Url.build(
             scheme=f"postgresql+{driver}",
-            username=settings.database.user,
-            password=settings.database.pwd.get_secret_value(),
-            host=settings.database.host,
-            port=settings.database.port,
-            path=f"{settings.database.name}_{worker_id}",
+            username=settings.POSTGRES_USER,
+            password=settings.POSTGRES_PWD,
+            host=settings.POSTGRES_HOST,
+            port=settings.POSTGRES_PORT,
+            path=f"{settings.POSTGRES_DATABASE}_{worker_id}",
         )
     )
 
 
-SaveFixture = Callable[[Model], Coroutine[None, None, None]]
+type SaveFixture = Callable[[Model], Coroutine[None, None, None]]
 
 
 def save_fixture_factory(session: AsyncSession) -> SaveFixture:

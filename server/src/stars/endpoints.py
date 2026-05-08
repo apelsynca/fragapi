@@ -1,47 +1,59 @@
-from src.auth.dependencies import APIUser
+from fastapi import Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.auth.dependencies import AuthorizeAPIUser
+from src.fragment_rest import get_fragment_rest
+from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
 from src.openapi import APITag
+from src.postgres import get_db_session
 from src.routing import APIRouter
-from src.transactions.dependencies import TransactionServiceDependency
-from src.users.dependencies import UserServiceDependency
+from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
+from src.stars.service import stars as stars_service
+from src.wallet.dependencies import get_wallet_manager
+from src.wallet.manager import WalletManager
 
-from .schemas import BuyStars, BuyStarsResponse, StarsPriceResponse, StarsRecipient
-from .service import stars_service
-
-router = APIRouter(prefix="/stars", tags=["Stars", APITag.documented])
+router = APIRouter(
+    prefix="/stars",
+    tags=["Stars", APITag.public],
+)
 
 log = get_logger()
 
 
-@router.post(
-    "/buy", description="Buy stars for a user. Takes user username and stars quantity"
-)
+@router.post("/buy", description="Buys stars for a given user.")
 async def buy_stars(
-    user: APIUser,
+    auth_subject: AuthorizeAPIUser,
     data: BuyStars,
-    user_service: UserServiceDependency,
-    transaction_service: TransactionServiceDependency,
+    session: AsyncSession = Depends(get_db_session),
+    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
-    tx_hash = await stars_service.buy(
-        user_service=user_service,
-        transaction_service=transaction_service,
-        user=user,
-        quantity=data.quantity,
-        username=data.username,
+    return await stars_service.buy(
+        session=session,
+        user=auth_subject.subject,
+        data=data,
+        fragment_rest=fragment_rest,
+        wallet_manager=wallet_manager,
     )
 
-    return BuyStarsResponse(success=True, transaction_hash=tx_hash)
 
+@router.get("/recipient/{username}", description="Get stars recipient info")
+async def get_recipient(
+    auth_subject: AuthorizeAPIUser,
+    username: str,
+    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    quantity: int | None = Query(default=None),
+) -> StarsRecipient:
+    log.info(
+        "Get recipient request from",
+        user=auth_subject.subject,
+        username=auth_subject.subject.username,
+        recipient_username=username,
+    )
 
-@router.get("/recipient/{username}", description="Get stars recipient")
-async def get_recipient(username: str, user: APIUser) -> StarsRecipient:
-    log.info("Search stars recipient request", user_id=user.id)
-
-    return await stars_service.get_recipient(username=username)
-
-
-@router.get("/price", description="Get price for a single star")
-async def get_price() -> StarsPriceResponse:
-    ton = await stars_service.get_price()
-
-    return StarsPriceResponse(ton=ton)
+    return await stars_service.get_recipient(
+        fragment_rest=fragment_rest,
+        username=username,
+        quantity=quantity,
+    )

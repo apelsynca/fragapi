@@ -1,11 +1,15 @@
 import random
 import string
+from datetime import datetime
+from secrets import token_urlsafe
 
 import pytest_asyncio
+from ton_core import to_nano
 
-from src.kit.jwt import encode_token
-from src.kit.utils import generate_api_key
-from src.models import User, UserSession
+from src.fragment_rest.types import FoundRecipientData, RecipientData
+from src.kit.ton_connect import TonConnectMessage
+from src.models import Payment, Transaction, TransactionReason, TransactionStatus, User
+from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
 
@@ -22,18 +26,74 @@ async def user(save_fixture: SaveFixture) -> User:
     return await create_user(save_fixture)
 
 
+@pytest_asyncio.fixture
+async def user_second(save_fixture: SaveFixture) -> User:
+    return await create_user(save_fixture)
+
+
 async def create_user(save_fixture: SaveFixture) -> User:
     user = User(first_name=rstr("Mock"), username=rstr("test_"))
     await save_fixture(user)
     return user
 
 
-@pytest_asyncio.fixture
-async def user_session(save_fixture: SaveFixture, user: User) -> UserSession:
-    user_session = UserSession(
-        token=encode_token(user.id, user.first_name),
-        bot_hash=generate_api_key(),
+async def create_transaction(
+    save_fixture: SaveFixture,
+    user: User,
+    *,
+    reason: TransactionReason = TransactionReason.STARS,
+    status: TransactionStatus = TransactionStatus.PENDING,
+    amount: float | None = None,
+    recipient: str | None = None,
+) -> Transaction:
+    transaction = Transaction(
+        amount=random.randint(1, 10000) / 100 if amount is None else amount,
+        reason=reason,
+        status=status,
+        recipient=rstr("recipient") if recipient is None else recipient,
         user=user,
     )
-    await save_fixture(user_session)
-    return user_session
+    await save_fixture(transaction)
+    return transaction
+
+
+def get_fake_recipient_data() -> RecipientData:
+    return RecipientData(
+        ok=True,
+        found=FoundRecipientData(
+            myself=False,
+            recipient=rstr("XXxaaAxXXxxA"),
+            photo=rstr("img"),
+            name=rstr("Homo Citrus"),
+        ),
+    )
+
+
+def get_valid_transaction(amount: float) -> TonConnectTransaction:
+    return get_tc_transaction(
+        messages=[
+            TonConnectMessage(
+                address=rstr("mockaddress"),
+                amount=to_nano(amount),
+                payload="TrustMeBroValidPayload",
+            )
+        ]
+    )
+
+
+def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTransaction:
+    return TonConnectTransaction(
+        valid_until=datetime(year=2000, month=3, day=1),
+        from_address="EQxxx",
+        messages=messages,
+    )
+
+
+async def create_payment(
+    save_fixture: SaveFixture, user: User, amount: float, hash: str | None = None
+) -> Payment:
+    payment = Payment(
+        user=user, amount=amount, hash=hash if hash is not None else token_urlsafe(32)
+    )
+    await save_fixture(payment)
+    return payment
