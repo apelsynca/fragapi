@@ -12,23 +12,27 @@ import { TrendingUpIcon } from 'lucide-react'
 
 interface DashboardStatsCardProps {
   className?: string
-  description: string
+  name: string
+  description?: string
   amount: number
   fiatAmount: number
   percent?: number
+  after?: React.ReactNode
 }
 
 export default function DashboardStatsCard({
   className,
+  name,
   description,
   amount,
   fiatAmount,
   percent,
+  after,
 }: DashboardStatsCardProps) {
   return (
     <Card className={cn('w-full max-w-sm h-full', className)}>
       <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>{name}</CardDescription>
         <CardTitle className="flex flex-col text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           {parseFloat(amount.toFixed(2))} TON
           <span className="text-sm text-muted-foreground">
@@ -49,7 +53,8 @@ export default function DashboardStatsCard({
         )}
       </CardHeader>
       <CardContent className="px-6">
-        <CardDescription>За последние 30 дней</CardDescription>
+        {description && <CardDescription>{description}</CardDescription>}
+        {after && after}
       </CardContent>
     </Card>
   )

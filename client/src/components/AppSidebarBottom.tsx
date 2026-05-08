@@ -52,11 +52,14 @@ export default function AppSidebarBottom() {
               </div>
             </div>
           </DropdownMenuLabel>
-          <div className="text-sm flex items-center gap-1 py-2 px-1">
-            Баланс:{' '}
-            <span className="font-semibold flex gap-0.5 items-center">
-              {user.balance.toFixed(2)} <TonIcon />
-            </span>
+          <div className="text-sm flex flex-col gap-1 py-2 px-1">
+            <div>
+              Баланс в сервисе:{' '}
+              <span className="font-semibold flex gap-0.5 items-center">
+                {user.balance.toFixed(2)} <TonIcon />
+              </span>
+            </div>
+            <div>Баланс в кошельке:</div>
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

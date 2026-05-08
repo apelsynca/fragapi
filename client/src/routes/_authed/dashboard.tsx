@@ -1,3 +1,4 @@
+import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { Toaster } from 'sonner'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { TooltipProvider } from '#/components/ui/tooltip'
@@ -15,17 +16,19 @@ export const Route = createFileRoute('/_authed/dashboard')({
 // idk about p-4 globally
 function RouteComponent() {
   return (
-    <TooltipProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="w-full relative">
-          <SidebarTrigger className="ml-2 mt-2 absolute" />
-          <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
-            <Outlet />
-          </div>
-          <Toaster theme="system" richColors />
-        </main>
-      </SidebarProvider>
-    </TooltipProvider>
+    <TonConnectUIProvider manifestUrl={import.meta.env.VITE_MANIFEST_URL}>
+      <TooltipProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <main className="w-full relative">
+            <SidebarTrigger className="ml-2 mt-2 absolute" />
+            <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
+              <Outlet />
+            </div>
+            <Toaster theme="system" richColors />
+          </main>
+        </SidebarProvider>
+      </TooltipProvider>
+    </TonConnectUIProvider>
   )
 }

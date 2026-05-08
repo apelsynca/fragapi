@@ -4,6 +4,8 @@ import DashboardStatsCard from './DashboardStatsCard'
 import { tonRateQueryOptions } from '#/lib/fragment'
 import { transactionStatsOptions } from '#/lib/transactions'
 import { userMeQueryOptions } from '#/lib/user'
+import { Button } from './ui/button'
+import BalanceTopUp from './BalanceTopUp'
 
 export default function DashboardStats() {
   const { data: user } = useQuery(userMeQueryOptions())
@@ -23,27 +25,31 @@ export default function DashboardStats() {
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
-        description="Баланс"
+        name="Баланс"
         amount={user ? user.balance : 0}
         fiatAmount={user ? user.balance * (tonRate || 0) : 0}
+        after={<BalanceTopUp />}
       />
       <DashboardStatsCard
-        description="Общие траты"
+        name="Общие траты"
         amount={transactionStats.totalSpent}
         fiatAmount={transactionStats.totalSpent * (tonRate || 0)}
         percent={15.2}
+        description="За последние 30 дней"
       />
       <DashboardStatsCard
-        description="Траты на звезды"
+        name="Траты на звезды"
         amount={transactionStats.starsPurchasesCount}
         fiatAmount={0 * (tonRate || 0)}
         percent={52.2}
+        description="За последние 30 дней"
       />
       <DashboardStatsCard
-        description="Траты на премиум"
+        name="Траты на премиум"
         amount={transactionStats.premiumCount}
         fiatAmount={0 * (tonRate || 0)}
         percent={-3.3}
+        description="За последние 30 дней"
       />
     </div>
   )
