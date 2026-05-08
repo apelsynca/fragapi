@@ -8,11 +8,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint",
-    "format": "prettier --write . && eslint --fix",
-    "check": "prettier --check ."
+    "stars": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
@@ -64,3 +60,4 @@
     ]
   }
 }
+
