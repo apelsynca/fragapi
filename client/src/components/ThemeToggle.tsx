@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from './ui/button'
-import { SunIcon, SunMoonIcon, MoonIcon, MonitorIcon } from 'lucide-react'
+import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react'
+import { DropdownMenuItem } from './ui/dropdown-menu'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -70,21 +70,20 @@ export default function ThemeToggle() {
       : `Theme mode: ${mode}. Click to switch mode.`
 
   return (
-    <Button
-      size="icon"
-      type="button"
-      onClick={toggleMode}
-      aria-label={label}
-      title={label}
-      variant="secondary"
-    >
+    <DropdownMenuItem onClick={toggleMode} aria-label={label} title={label}>
       {mode === 'auto' ? (
-        <MonitorIcon />
+        <>
+          <MonitorIcon /> Система
+        </>
       ) : mode === 'dark' ? (
-        <MoonIcon />
+        <>
+          <MoonIcon /> Тёмная
+        </>
       ) : (
-        <SunIcon />
+        <>
+          <SunIcon /> Светлая
+        </>
       )}
-    </Button>
+    </DropdownMenuItem>
   )
 }

@@ -1,16 +1,21 @@
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
-import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react'
+import {
+  ChevronsUpDownIcon,
+  LogOutIcon,
+  PlugZapIcon,
+  UnplugIcon,
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import { TonIcon } from './icons/TonIcon'
-import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
 import { logoutFn } from '#/lib/auth'
@@ -22,6 +27,9 @@ export default function AppSidebarBottom() {
 
   const { isMobile } = useSidebar()
   const { data: user } = useSuspenseQuery(userMeQueryOptions())
+
+  const wallet = useTonWallet()
+  const [tonConnectUI] = useTonConnectUI()
 
   return (
     <DropdownMenu>
@@ -52,23 +60,20 @@ export default function AppSidebarBottom() {
               </div>
             </div>
           </DropdownMenuLabel>
-          <div className="text-sm flex flex-col gap-1 py-2 px-1">
-            <div>
-              Баланс в сервисе:{' '}
-              <span className="font-semibold flex gap-0.5 items-center">
-                {user.balance.toFixed(2)} <TonIcon />
-              </span>
-            </div>
-            <div>Баланс в кошельке:</div>
-          </div>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
           <ThemeToggle />
+          {wallet === null ? (
+            <DropdownMenuItem onClick={() => tonConnectUI.openModal()}>
+              <PlugZapIcon /> Подключить кошелек
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => tonConnectUI.disconnect()}>
+              <UnplugIcon /> Отключить кошелек
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="flex gap-1">
-          <Button
+          <DropdownMenuItem
             className="flex-1 w-full"
             variant="destructive"
             onClick={async () => {
@@ -77,7 +82,7 @@ export default function AppSidebarBottom() {
           >
             <LogOutIcon />
             Выйти
-          </Button>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
