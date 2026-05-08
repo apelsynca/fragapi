@@ -94,7 +94,7 @@ class Logging[RendererType]:
                             "handlers": [],
                             "propagate": True,
                         }
-                        for logger in ["uvicorn", "sqlalchemy"]
+                        for logger in ["sqlalchemy"]
                     },
                     **{
                         logger: {
@@ -104,7 +104,7 @@ class Logging[RendererType]:
                             else level,  # disable debug logs
                             "propagate": True,
                         }
-                        for logger in ["telegram", "httpcore", "httpx", "hpack"]
+                        for logger in ["telegram"]
                     },
                 },
             }
