@@ -15,8 +15,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '~/components/ui/chart'
-import { useQuery } from '@tanstack/react-query'
-import { fetchATransactionsChart } from '~/lib/different'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { transactionChartOptions } from '~/lib/queries'
 
 export const description = 'An interactive area chart'
 
@@ -35,10 +35,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
-  const { data: chartData } = useQuery({
-    queryKey: ['transactions', 'chart'],
-    queryFn: () => fetchATransactionsChart(),
-  })
+  const { data: chartData } = useSuspenseQuery(transactionChartOptions())
 
   return (
     <Card className="pt-0">

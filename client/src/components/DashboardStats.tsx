@@ -1,42 +1,23 @@
-import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
 import BalanceTopUp from './BalanceTopUp'
-import { fetchMe } from '~/lib/user'
-import { fetchATransactionStats } from '~/lib/different'
-import { fetchTonRate } from '~/lib/fragment'
+import {
+  tonRateQueryOptions,
+  transactionStatsOptions,
+  userMeQueryOptions,
+} from '~/lib/queries'
 
 export default function DashboardStats() {
-  const { data: user } = useQuery({
-    queryKey: ['users', 'me'],
-    queryFn: () => fetchMe(),
-  })
-
-  const { data } = useQuery({
-    queryKey: ['transactions', 'stats'],
-    queryFn: () => fetchATransactionStats(),
-  })
-  const { data: tonRate } = useQuery({
-    queryKey: ['rate'],
-    queryFn: () => fetchTonRate(),
-  })
-
-  const transactionStats = useMemo(() => {
-    return data === undefined
-      ? {
-          starsPurchasesCount: 0,
-          premiumCount: 0,
-          totalSpent: 0,
-        }
-      : data
-  }, [data])
+  const { data: user } = useSuspenseQuery(userMeQueryOptions())
+  const { data: transactionStats } = useSuspenseQuery(transactionStatsOptions())
+  const { data: tonRate } = useSuspenseQuery(tonRateQueryOptions())
 
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
         name="Баланс"
-        amount={user ? user.balance : 0}
-        fiatAmount={user ? user.balance * (tonRate || 0) : 0}
+        amount={user.balance}
+        fiatAmount={user.balance * (tonRate || 0)}
         after={<BalanceTopUp />}
       />
       <DashboardStatsCard
