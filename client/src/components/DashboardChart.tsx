@@ -6,17 +6,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '#/components/ui/card'
-import type { ChartConfig } from '#/components/ui/chart'
+} from '~/components/ui/card'
+import type { ChartConfig } from '~/components/ui/chart'
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '#/components/ui/chart'
+} from '~/components/ui/chart'
 import { useQuery } from '@tanstack/react-query'
-import { transactionChartOptions } from '#/lib/queries'
+import { fetchATransactionsChart } from '~/lib/different'
 
 export const description = 'An interactive area chart'
 
@@ -35,7 +35,10 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
-  const { data: chartData } = useQuery(transactionChartOptions())
+  const { data: chartData } = useQuery({
+    queryKey: ['transactions', 'chart'],
+    queryFn: () => fetchATransactionsChart(),
+  })
 
   return (
     <Card className="pt-0">

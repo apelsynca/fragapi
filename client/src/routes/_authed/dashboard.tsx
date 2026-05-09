@@ -1,9 +1,9 @@
 import { Toaster } from 'sonner'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { SidebarProvider, SidebarTrigger } from '#/components/ui/sidebar'
-import { TooltipProvider } from '#/components/ui/tooltip'
-import AppSidebar from '#/components/AppSidebar'
-import { TonConnectUIProvider } from '@tonconnect/ui-react'
+import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
+import { TooltipProvider } from '~/components/ui/tooltip'
+import AppSidebar from '~/components/AppSidebar'
+import Providers from '~/components/Providers'
 
 export const Route = createFileRoute('/_authed/dashboard')({
   component: DashboardComponent,
@@ -14,7 +14,7 @@ function DashboardComponent() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <TonConnectUIProvider manifestUrl={import.meta.env.VITE_MANIFEST_URL}>
+        <Providers>
           <AppSidebar />
           <main className="w-full relative">
             <SidebarTrigger className="ml-2 mt-2 absolute" />
@@ -23,7 +23,7 @@ function DashboardComponent() {
             </div>
             <Toaster theme="system" richColors />
           </main>
-        </TonConnectUIProvider>
+        </Providers>
       </SidebarProvider>
     </TooltipProvider>
   )

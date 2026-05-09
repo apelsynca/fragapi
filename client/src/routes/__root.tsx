@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
@@ -5,7 +7,8 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { fetchSessionToken } from '#/lib/auth'
+import { fetchSessionToken } from '~/lib/auth'
+import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
 
@@ -57,13 +60,24 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ru" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
         {children}
+        <TanStackDevtools
+          config={{
+            position: 'bottom-right',
+          }}
+          plugins={[
+            {
+              name: 'Tanstack Router',
+              render: <TanStackRouterDevtoolsInProd />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

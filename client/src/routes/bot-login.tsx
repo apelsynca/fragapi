@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { botHashLoginFn } from '#/lib/auth-second'
+import { botHashLoginFn } from '~/lib/auth-second'
 
 type LoginSearch = {
   hash: string

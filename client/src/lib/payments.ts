@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { apiRequest } from './request'
 import type { TonConnectMessage } from './models/message'
+import { apiRequest } from './request'
 
 export const requestTonPayment = createServerFn({ method: 'POST' })
   .inputValidator((amount: number) => amount)

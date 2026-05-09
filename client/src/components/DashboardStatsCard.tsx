@@ -1,4 +1,4 @@
-import { Badge } from '#/components/ui/badge'
+import { Badge } from '~/components/ui/badge'
 import {
   Card,
   CardAction,
@@ -6,8 +6,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '#/components/ui/card'
-import { cn } from '#/lib/utils'
+} from '~/components/ui/card'
+import { cn } from '~/lib/utils'
 import { TrendingUpIcon } from 'lucide-react'
 
 interface DashboardStatsCardProps {

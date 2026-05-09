@@ -17,7 +17,7 @@ import {
 import { Field, FieldGroup } from './ui/field'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { requestTonPayment as requestTonPaymentFn } from '#/lib/payments'
+import { requestTonPayment as requestTonPaymentFn } from '~/lib/payments'
 
 export default function BalanceTopUp() {
   const [tonConnectUI] = useTonConnectUI()

@@ -1,17 +1,25 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import {
-  tonRateQueryOptions,
-  transactionStatsOptions,
-  userMeQueryOptions,
-} from '#/lib/queries'
 import BalanceTopUp from './BalanceTopUp'
+import { fetchMe } from '~/lib/user'
+import { fetchATransactionStats } from '~/lib/different'
+import { fetchTonRate } from '~/lib/fragment'
 
 export default function DashboardStats() {
-  const { data: user } = useQuery(userMeQueryOptions())
-  const { data } = useQuery(transactionStatsOptions())
-  const { data: tonRate } = useQuery(tonRateQueryOptions())
+  const { data: user } = useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: () => fetchMe(),
+  })
+
+  const { data } = useQuery({
+    queryKey: ['transactions', 'stats'],
+    queryFn: () => fetchATransactionStats(),
+  })
+  const { data: tonRate } = useQuery({
+    queryKey: ['rate'],
+    queryFn: () => fetchTonRate(),
+  })
 
   const transactionStats = useMemo(() => {
     return data === undefined

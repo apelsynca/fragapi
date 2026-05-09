@@ -1,6 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { Button } from '#/components/ui/button'
+import { Button } from '~/components/ui/button'
 
 export const Route = createFileRoute('/')({
   component: App,

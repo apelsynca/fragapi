@@ -25,6 +25,4 @@ export const tonRateQueryOptions = () =>
   queryOptions({
     queryKey: ['rate'],
     queryFn: () => fetchTonRate(),
-    staleTime: 300 * 1000,
-    refetchInterval: 300 * 1000,
   })
