@@ -43,7 +43,7 @@ export const Route = createRootRouteWithContext<{
   }),
   component: RootComponent,
   errorComponent: ({ error }) => {
-    return <div>Root error: {error.message}</div>
+    return <div>Error: {error.message}</div>
   },
 })
 
