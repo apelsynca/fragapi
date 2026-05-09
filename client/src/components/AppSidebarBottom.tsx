@@ -20,16 +20,13 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
 import { logoutFn } from '~/lib/auth-second'
 import ThemeToggle from './ThemeToggle'
-import { fetchMe } from '~/lib/user'
+import { userMeQueryOptions } from '~/lib/queries'
 
 export default function AppSidebarBottom() {
   const logout = useServerFn(logoutFn)
 
   const { isMobile } = useSidebar()
-  const { data: user } = useSuspenseQuery({
-    queryKey: ['users', 'me'],
-    queryFn: () => fetchMe(),
-  })
+  const { data: user } = useSuspenseQuery(userMeQueryOptions())
 
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()

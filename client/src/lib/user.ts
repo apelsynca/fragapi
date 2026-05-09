@@ -1,16 +1,16 @@
 import { createServerFn } from '@tanstack/react-start'
-import { verifySession } from './auth'
-import { doRequest } from './request'
 import type { User } from './models/users'
+import { apiRequest } from './request'
+import { verifySession } from './auth'
 
 export const fetchMe = createServerFn().handler(async () => {
   const token = await verifySession()
 
-  const response = await doRequest({
+  const data = await apiRequest({
     method: 'GET',
     endpoint: '/panel/users/me',
     token,
   })
 
-  return (await response.json()) as User
+  return data as User
 })

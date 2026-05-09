@@ -2,17 +2,16 @@ import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
 import { useAppSession } from './session'
-import { doRequest } from './request'
 
 export const botHashLoginFn = createServerFn({ method: 'POST' })
   .inputValidator((hash: string) => hash)
   .handler(async ({ data: hash }) => {
-    const response = await doRequest({
+    const defaultHeaders = { 'Content-Type': 'application/json' }
+
+    const response = await fetch(`${process.env.BACKEND_ENDPOINT}/auth/tgbot`, {
       method: 'POST',
-      endpoint: '/auth/tgbot',
-      json: {
-        hash,
-      },
+      headers: defaultHeaders,
+      body: JSON.stringify({ hash }),
     })
 
     if (!response.ok) {
