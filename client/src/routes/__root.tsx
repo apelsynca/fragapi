@@ -1,3 +1,4 @@
+import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
   Outlet,
@@ -5,7 +6,6 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { fetchSessionToken } from '#/lib/auth'
-import type { QueryClient } from '@tanstack/react-query'
 
 import appCss from '../styles.css?url'
 
