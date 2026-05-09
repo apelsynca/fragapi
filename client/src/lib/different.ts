@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import type { TransactionStats, TransChartPoint } from './models/transactions'
 import { apiRequest } from './request'
 
-export const fetchTransactionStats = createServerFn().handler(async () => {
+export const fetchATransactionStats = createServerFn().handler(async () => {
   return (await apiRequest({
     data: {
       method: 'GET',
@@ -11,7 +11,7 @@ export const fetchTransactionStats = createServerFn().handler(async () => {
   })) as TransactionStats
 })
 
-export const fetchTransactionsChart = createServerFn().handler(async () => {
+export const fetchATransactionsChart = createServerFn().handler(async () => {
   return (await apiRequest({
     data: {
       method: 'GET',

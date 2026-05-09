@@ -94,17 +94,10 @@ class Logging[RendererType]:
                             "handlers": [],
                             "propagate": True,
                         }
-                        for logger in ["sqlalchemy"]
-                    },
-                    **{
-                        logger: {
-                            "handlers": [],
-                            "level": "INFO"
-                            if level == "DEBUG"
-                            else level,  # disable debug logs
-                            "propagate": True,
-                        }
-                        for logger in ["telegram"]
+                        for logger in [
+                            "sqlalchemy",
+                            "uvicorn",
+                        ]
                     },
                 },
             }
