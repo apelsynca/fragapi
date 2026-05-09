@@ -27,7 +27,8 @@ class TonAPIService:
         transaction = await self.get_blockchain_transaction(tx_hash=message.tx_hash)
 
         if len(transaction.out_msgs) != 1:
-            raise
+            log.warn("No transaction out_msgs")
+            return
 
         out_msg = transaction.out_msgs[0]
 

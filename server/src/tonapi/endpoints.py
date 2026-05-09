@@ -17,7 +17,7 @@ log = get_logger()
 async def tonapi_webhook(
     message: TonAPIWebhookMessage, session: AsyncSession = Depends(get_db_session)
 ) -> None:
-    log.debug("Tonapi webhook message", message=message)
+    log.info("Tonapi webhook message", message=message)
 
     if message.event_type == "account_tx":
         await tonapi_service.process_webhook_account_tx_message(
