@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { verifySession } from './auth'
 
-const ENDPOINT = process.env.VITE_BACKEND_ENDPOINT
+const ENDPOINT = process.env.BACKEND_ENDPOINT
 
 interface RequestData {
   method: 'GET' | 'POST'

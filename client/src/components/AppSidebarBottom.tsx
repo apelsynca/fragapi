@@ -18,7 +18,7 @@ import {
 } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
-import { logoutFn } from '#/lib/auth'
+import { logoutFn } from '#/lib/auth-second'
 import { userMeQueryOptions } from '#/lib/queries'
 import ThemeToggle from './ThemeToggle'
 
