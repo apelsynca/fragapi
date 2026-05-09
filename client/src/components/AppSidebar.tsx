@@ -4,6 +4,7 @@ import {
   HomeIcon,
   JoystickIcon,
   KeySquareIcon,
+  ListIcon,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -33,6 +34,13 @@ function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard">
                     <HomeIcon /> Главная
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/transactions">
+                    <ListIcon /> Тразнакции
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

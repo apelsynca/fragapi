@@ -14,6 +14,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard/index'
+import { Route as AuthedDashboardTransactionsRouteImport } from './routes/_authed/dashboard/transactions'
 import { Route as AuthedDashboardHandRouteImport } from './routes/_authed/dashboard/hand'
 import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard/api-keys'
 
@@ -41,6 +42,12 @@ const AuthedDashboardIndexRoute = AuthedDashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedDashboardRoute,
 } as any)
+const AuthedDashboardTransactionsRoute =
+  AuthedDashboardTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthedDashboardRoute,
+  } as any)
 const AuthedDashboardHandRoute = AuthedDashboardHandRouteImport.update({
   id: '/hand',
   path: '/hand',
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardRouteWithChildren
   '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -65,6 +73,7 @@ export interface FileRoutesByTo {
   '/bot-login': typeof BotLoginRoute
   '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -75,6 +84,7 @@ export interface FileRoutesById {
   '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
   '/_authed/dashboard/hand': typeof AuthedDashboardHandRoute
+  '/_authed/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/api-keys'
     | '/dashboard/hand'
+    | '/dashboard/transactions'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
     | '/bot-login'
     | '/dashboard/api-keys'
     | '/dashboard/hand'
+    | '/dashboard/transactions'
     | '/dashboard'
   id:
     | '__root__'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
     | '/_authed/dashboard'
     | '/_authed/dashboard/api-keys'
     | '/_authed/dashboard/hand'
+    | '/_authed/dashboard/transactions'
     | '/_authed/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -147,6 +160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardIndexRouteImport
       parentRoute: typeof AuthedDashboardRoute
     }
+    '/_authed/dashboard/transactions': {
+      id: '/_authed/dashboard/transactions'
+      path: '/transactions'
+      fullPath: '/dashboard/transactions'
+      preLoaderRoute: typeof AuthedDashboardTransactionsRouteImport
+      parentRoute: typeof AuthedDashboardRoute
+    }
     '/_authed/dashboard/hand': {
       id: '/_authed/dashboard/hand'
       path: '/hand'
@@ -167,12 +187,14 @@ declare module '@tanstack/react-router' {
 interface AuthedDashboardRouteChildren {
   AuthedDashboardApiKeysRoute: typeof AuthedDashboardApiKeysRoute
   AuthedDashboardHandRoute: typeof AuthedDashboardHandRoute
+  AuthedDashboardTransactionsRoute: typeof AuthedDashboardTransactionsRoute
   AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
 }
 
 const AuthedDashboardRouteChildren: AuthedDashboardRouteChildren = {
   AuthedDashboardApiKeysRoute: AuthedDashboardApiKeysRoute,
   AuthedDashboardHandRoute: AuthedDashboardHandRoute,
+  AuthedDashboardTransactionsRoute: AuthedDashboardTransactionsRoute,
   AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
 }
 

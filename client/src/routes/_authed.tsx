@@ -1,4 +1,4 @@
-import Login from '~/components/Login'
+import Landing from '~/components/Landing'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authed')({
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authed')({
   },
   errorComponent: ({ error }) => {
     if (error.message === 'Not authenticated') {
-      return <Login />
+      return <Landing />
     }
 
     throw error
