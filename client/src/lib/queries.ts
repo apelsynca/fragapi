@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { fetchMe } from './user'
 import { fetchTonRate } from './fragment'
-import { fetchATransactionsChart, fetchATransactionStats } from './different'
+import { fetchTransactionsChart, fetchTransactionStats } from './transactions'
 
 export const userMeQueryOptions = () =>
   queryOptions({
@@ -12,13 +12,13 @@ export const userMeQueryOptions = () =>
 export const transactionStatsOptions = () =>
   queryOptions({
     queryKey: ['transactions', 'stats'],
-    queryFn: () => fetchATransactionStats(),
+    queryFn: () => fetchTransactionStats(),
   })
 
 export const transactionChartOptions = () =>
   queryOptions({
     queryKey: ['transactions', 'chart'],
-    queryFn: () => fetchATransactionsChart(),
+    queryFn: () => fetchTransactionsChart(),
   })
 
 export const tonRateQueryOptions = () =>

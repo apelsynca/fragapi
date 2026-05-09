@@ -20,14 +20,16 @@ async def setup_bot_webhook(bot: Bot) -> None:
         return
 
     webhook_url = settings.BOT_WEBHOOK_URL + settings.BOT_WEBHOOK_PATH
-    log.info("ABC", webhook_info=webhook_info, webhook_url=webhook_url)
     allowed_updates = (Update.MESSAGE, Update.CALLBACK_QUERY)
 
-    await bot.set_webhook(
-        url=webhook_url,
-        allowed_updates=allowed_updates,
-        secret_token=settings.BOT_WEBHOOK_SECRET_TOKEN,
-    )
+    if need_to_update_webhook(
+        webhook_info, url=webhook_url, allowed_updates=allowed_updates
+    ):
+        await bot.set_webhook(
+            url=webhook_url,
+            allowed_updates=allowed_updates,
+            secret_token=settings.BOT_WEBHOOK_SECRET_TOKEN,
+        )
 
 
 def need_to_update_webhook(

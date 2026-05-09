@@ -1,3 +1,12 @@
+export interface Transaction {
+  amount: number
+  reason: 'premium' | 'stars'
+  status: 'pending' | 'completed' | 'failed'
+  message_hash: string | null
+  recipient: string
+  created_at: string
+}
+
 export interface TransactionStats {
   starsPurchasesCount: number
   premiumCount: number

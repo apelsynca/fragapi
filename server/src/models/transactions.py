@@ -1,4 +1,4 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey, String
@@ -10,15 +10,17 @@ if TYPE_CHECKING:
     from .users import User
 
 
+# rename this to lowercase
 class TransactionReason(StrEnum):
-    PREMIUM = auto()
-    STARS = auto()
+    PREMIUM = "PREMIUM"
+    STARS = "STARS"
 
 
+# rename this to lowercase
 class TransactionStatus(StrEnum):
-    PENDING = auto()
-    COMPLETED = auto()
-    FAILED = auto()
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
 
 class Transaction(RecordModel):
