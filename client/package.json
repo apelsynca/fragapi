@@ -10,8 +10,6 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "npm run build",
-    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
