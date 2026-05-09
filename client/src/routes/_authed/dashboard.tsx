@@ -1,9 +1,9 @@
 import { Toaster } from 'sonner'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { SidebarProvider, SidebarTrigger } from '#/components/ui/sidebar'
 import { TooltipProvider } from '#/components/ui/tooltip'
 import AppSidebar from '#/components/AppSidebar'
-import { SidebarProvider, SidebarTrigger } from '#/components/ui/sidebar'
 
 export const Route = createFileRoute('/_authed/dashboard')({
   component: RouteComponent,
