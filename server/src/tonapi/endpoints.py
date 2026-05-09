@@ -20,6 +20,9 @@ async def tonapi_webhook(
     log.info("Tonapi webhook message", message=message)
 
     if message.event_type == "account_tx":
-        await tonapi_service.process_webhook_account_tx_message(
-            session=session, message=message
-        )
+        try:
+            await tonapi_service.process_webhook_account_tx_message(
+                session=session, message=message
+            )
+        except Exception as exc:
+            log.error("Deposit error", error=str(exc))
