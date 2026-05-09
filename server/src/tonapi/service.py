@@ -26,15 +26,15 @@ class TonAPIService:
 
         transaction = await self.get_blockchain_transaction(tx_hash=message.tx_hash)
 
-        if len(transaction.out_msgs) != 1:
+        if transaction.in_msg is None:
             log.warn("No transaction out_msgs")
             return
 
-        out_msg = transaction.out_msgs[0]
+        in_msg = transaction.in_msg
 
-        assert out_msg.decoded_op_name == "text_comment"
-        assert out_msg.decoded_body
-        comment_text = out_msg.decoded_body["text"]
+        assert in_msg.decoded_op_name == "text_comment"
+        assert in_msg.decoded_body
+        comment_text = in_msg.decoded_body["text"]
 
         payment_hash = self.get_hash_from_comment_text(comment_text)
 
