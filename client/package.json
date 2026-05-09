@@ -10,16 +10,16 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "build": "npm run build",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.100.9",
-    "@tanstack/react-router": "^1.169.2",
+    "@tanstack/react-router": "^1.168.25",
     "@tanstack/react-router-ssr-query": "^1.166.12",
-    "@tanstack/react-start": "^1.167.65",
+    "@tanstack/react-start": "^1.167.50",
     "@tanstack/router-plugin": "^1.167.35",
     "@tonconnect/ui-react": "^2.4.4",
     "class-variance-authority": "^0.7.1",

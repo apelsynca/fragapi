@@ -1,4 +1,5 @@
 import { useSession } from '@tanstack/react-start/server'
+import { SESSION_PASSWORD } from '#/env'
 
 type SessionUser = {
   token: string
@@ -6,6 +7,6 @@ type SessionUser = {
 
 export function useAppSession() {
   return useSession<SessionUser>({
-    password: process.env.NITRO_SESSION_PASSWORD!,
+    password: SESSION_PASSWORD!,
   })
 }

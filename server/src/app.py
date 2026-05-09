@@ -57,11 +57,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     await fragment_rest.start()
 
     bot_application = get_bot_application()
-    await setup_bot(bot_application)
-    await bot_application.initialize()
-    await bot_application.start()
-    print("App init")
-    log.info("APP INIT")
+    if settings.is_production():
+        await setup_bot(bot_application)
+        await bot_application.initialize()
+        await bot_application.start()
 
     log.info("Fragment API started")
 
@@ -74,9 +73,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             wallet_manager=wallet_manager,
         )
 
-    print("App stop")
-    await bot_application.stop()
-    await bot_application.shutdown()
+    if settings.is_production():
+        await bot_application.stop()
+        await bot_application.shutdown()
 
     log.info("Fragment API stopped")
 
