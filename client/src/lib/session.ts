@@ -6,6 +6,6 @@ type SessionUser = {
 
 export function useAppSession() {
   return useSession<SessionUser>({
-    password: process.env.SESSION_PASSWORD!,
+    password: process.env.NITRO_SESSION_PASSWORD!,
   })
 }
