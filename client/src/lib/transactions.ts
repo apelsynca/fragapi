@@ -23,23 +23,29 @@ export const fetchTransactionStats = createServerFn().handler(async () => {
 export const fetchTransactionsChart = createServerFn().handler(async () => {
   const token = await verifySession()
 
-  const data = await apiRequest({
+  const chartData = await apiRequest({
     method: 'GET',
     endpoint: '/transactions/chart',
     token,
   })
 
-  return data as TransChartPoint[]
+  return chartData as TransChartPoint[]
 })
 
-export const fetchTransactionsPage = createServerFn().handler(async () => {
-  const token = await verifySession()
+export const fetchTransactionsPage = createServerFn()
+  .inputValidator((page: number) => page)
+  .handler(async ({ data: page }) => {
+    const token = await verifySession()
 
-  const data = await apiRequest({
-    method: 'GET',
-    endpoint: '/transactions/',
-    token,
+    const params = new URLSearchParams({
+      page: page.toString(),
+    })
+
+    const listResource = await apiRequest({
+      method: 'GET',
+      endpoint: `/transactions/?${params.toString()}`,
+      token,
+    })
+
+    return listResource as ListResource<Transaction>
   })
-
-  return data as ListResource<Transaction>
-})

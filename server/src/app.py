@@ -73,6 +73,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             wallet_manager=wallet_manager,
         )
 
+    if fragment_rest._session:
+        fragment_rest._save_session(fragment_rest._session)
+
     if settings.is_production():
         await bot_application.stop()
         await bot_application.shutdown()
