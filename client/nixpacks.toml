@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["nodejs_24", "bun"]
-
-[start]
-cmd = "bun run start"
