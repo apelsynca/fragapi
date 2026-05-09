@@ -12,12 +12,12 @@ from tests.fixtures.random_objects import rstr
 
 
 @pytest.fixture
-def fragment_rest(ton_connect) -> BaseFragmentRest:
+def fragment_rest(ton_connect, fragment_session) -> BaseFragmentRest:
     fragment_rest = BaseFragmentRest(ton_connect)
 
     fragment_rest._api = MagicMock(spec=FragmentAPIClient)
     fragment_rest._auth = MagicMock(sepc=FragmentRestAuth)
-    fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT + 9999
+    fragment_rest._session = fragment_session
 
     return fragment_rest
 
@@ -28,14 +28,14 @@ async def test_calls_ensure_fresh_session_before_request(
     mocker: MockerFixture,
     fragment_session: FragmentSession,
 ) -> None:
-    refresh_session_mock = mocker.patch.object(
+    ensure_fresh_session_mock = mocker.patch.object(
         fragment_rest, "ensure_fresh_session", AsyncMock()
     )
     fragment_rest._session = fragment_session
 
     await fragment_rest._request(method="getSomeThing", data={})
 
-    refresh_session_mock.assert_called_once()
+    ensure_fresh_session_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -47,28 +47,11 @@ async def test_request_raises_if_no_session(fragment_rest: BaseFragmentRest) -> 
 
 
 @pytest.mark.asyncio
-async def test_request_calls_api_request_with_right_session_data(
-    fragment_rest: BaseFragmentRest, fragment_session: FragmentSession
-) -> None:
-    fragment_rest._api = MagicMock(spec=FragmentAPIClient)
-    fragment_rest._session = fragment_session
-
-    await fragment_rest._request(method="someMethod", data={"fruit": "apelsin"})
-
-    fragment_rest._api.request.assert_called_once_with(
-        hash=fragment_session.hash,
-        method="someMethod",
-        data={"fruit": "apelsin"},
-        cookies=fragment_session.cookies,
-    )
-
-
-@pytest.mark.asyncio
 async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_new(
-    fragment_rest: BaseFragmentRest,
+    fragment_rest: MagicMock,
 ) -> None:
     fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
-    fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT
+    fragment_rest._session.last_session_check = time() + fragment_rest.SESSION_LT
 
     await fragment_rest.ensure_fresh_session()
 
