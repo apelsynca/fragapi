@@ -20,7 +20,7 @@ class FragmentAPIClient:
         self,
         initial_cookies: dict | None = None,
         *,
-        base_url: str = "https://fragment.com/",
+        base_url: str = "https://fragment.com",
     ) -> None:
         self.base_url = base_url
         self._client: AsyncClient = AsyncClient(
