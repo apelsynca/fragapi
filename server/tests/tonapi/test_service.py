@@ -91,7 +91,7 @@ async def test_calls_process_ton_payment(
     trans_message_mock = MagicMock(spec=Message)
     trans_message_mock.decoded_op_name = "text_comment"
     trans_message_mock.decoded_body = {"text": "FragAPI Top-up\n\nRef#ThisIsTherefhash"}
-    transa_mock.out_msgs = [trans_message_mock]
+    transa_mock.in_msg = trans_message_mock
     rest_client.blockchain.get_transaction.return_value = transa_mock
 
     await tonapi_service.process_webhook_account_tx_message(

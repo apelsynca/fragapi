@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import TonAPIService
@@ -34,7 +35,7 @@ async def test_tonapi_webhook_silent(
 
 @pytest.mark.asyncio
 async def test_tonapi_webhook_good(
-    client: AsyncClient, tonapi_service: MagicMock
+    client: AsyncClient, tonapi_service: MagicMock, session: AsyncSession
 ) -> None:
     response = await client.post(
         "/v1/tonapi/webhook",
@@ -48,10 +49,11 @@ async def test_tonapi_webhook_good(
     assert response.status_code == 200
 
     tonapi_service.process_webhook_account_tx_message.assert_called_once_with(
+        session=session,
         message=TonAPIWebhookMessage(
             event_type="account_tx",
             account_id="0:ssssuperaccid",
             lt=52020202,
             tx_hash="sometx_hashverygood",
-        )
+        ),
     )
