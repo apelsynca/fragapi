@@ -1,18 +1,16 @@
-from datetime import date
+from datetime import date, datetime
 
 from src.kit.schemas import Schema
+from src.models.transactions import TransactionReason, TransactionStatus
 
 
 class Transaction(Schema):
-    pass
-    # id: int
-    # amount: float
-    # reason: TransactionReason
-    # status: TransactionStatus
-    # message_hash: str | None
-    # stars_quantity: int | None
-    # recipient: str | None
-    # created_at: datetime
+    amount: float
+    reason: TransactionReason
+    status: TransactionStatus
+    message_hash: str | None
+    recipient: str
+    created_at: datetime
 
 
 class TransactionStats(Schema):
