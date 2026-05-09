@@ -6,7 +6,9 @@
     "node": "=24"
   },
   "scripts": {
-    "dev": "vite dev --port 3000"
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
