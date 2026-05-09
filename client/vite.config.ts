@@ -10,6 +10,9 @@ const config = defineConfig({
   },
   resolve: { tsconfigPaths: true },
   plugins: [tanstackStart(), viteReact(), tailwindcss(), nitro()],
+  environments: {
+    ssr: { build: { rollupOptions: { input: './server.ts' } } },
+  },
 })
 
 export default config
