@@ -2,14 +2,11 @@
   "name": "client",
   "private": true,
   "type": "module",
-  "imports": {
-    "#/*": "./src/*"
-  },
   "engines": {
     "node": "=24"
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "vite dev --port 3000"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
