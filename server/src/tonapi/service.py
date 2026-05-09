@@ -32,8 +32,10 @@ class TonAPIService:
 
         in_msg = transaction.in_msg
 
-        assert in_msg.decoded_op_name == "text_comment"
-        assert in_msg.decoded_body
+        if in_msg.decoded_op_name != "text_comment":
+            return
+        if in_msg.decoded_body is None:
+            return
         comment_text = in_msg.decoded_body["text"]
 
         payment_hash = self.get_hash_from_comment_text(comment_text)
