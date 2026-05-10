@@ -1,3 +1,5 @@
+from time import time
+
 from src.fragment_rest.api import FragmentAPIClient
 from src.fragment_rest.exceptions import FragmentAPIBadRequest
 from src.fragment_rest.models import FragmentSession
@@ -31,6 +33,7 @@ class FragmentRestAuth:
             hash=main_page_tokens.hash,
             ton_proof_payload=main_page_tokens.ton_proof_payload,
             cookies=api_client.get_client_relevant_cookies(),
+            last_session_check=time(),
         )
 
     async def check_session(
