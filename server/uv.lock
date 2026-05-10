@@ -140,6 +140,15 @@ wheels = [
 ]
 
 [[package]]
+name = "asgi-ratelimit"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/cb/95c484467e758ba97120dccbcd039adbd30fd78d55d5bc1a0af2a62dfab3/asgi_ratelimit-0.10.0.tar.gz", hash = "sha256:f45197f93db7713c8c0ec7bd6a5d0ffc36ed9beb90f54a389b683abdfcce8d5d", size = 15959, upload-time = "2022-12-07T05:21:55.969Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c4/c9/fef7c3dbbd5066f48458c2f3042d6a7c8ffc66654c4d10c91eaaa618d83b/asgi_ratelimit-0.10.0-py3-none-any.whl", hash = "sha256:7618356839242270e3c826c2b20f5a4c3184851b6a0ec61de0eff76eedcb0839", size = 16651, upload-time = "2022-12-07T05:21:53.976Z" },
+]
+
+[[package]]
 name = "asyncpg"
 version = "0.31.0"
 source = { registry = "https://pypi.org/simple" }
@@ -519,6 +528,19 @@ wheels = [
 ]
 
 [[package]]
+name = "fakeredis"
+version = "2.35.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "redis" },
+    { name = "sortedcontainers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/43/50/b748233c02fa77e5105238190cc9bb58b852eb1c8b1d0763230d3a5b745a/fakeredis-2.35.1.tar.gz", hash = "sha256:5bae5eba7b9d93cb968944ac40936373cf2397ff71667d4b595df65c3d2e413f", size = 189118, upload-time = "2026-04-12T17:05:58.539Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6f/27/b8b057a23f7777177e92d3a602fd866751b6b45014964548997e92e048fd/fakeredis-2.35.1-py3-none-any.whl", hash = "sha256:67d97e11f562b7870e11e5c30cf182270bfb2dd37f6707dba47cc6d91628d1b9", size = 129678, upload-time = "2026-04-12T17:05:56.86Z" },
+]
+
+[[package]]
 name = "fastapi"
 version = "0.136.1"
 source = { registry = "https://pypi.org/simple" }
@@ -540,6 +562,7 @@ version = "0.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
+    { name = "asgi-ratelimit" },
     { name = "asyncpg" },
     { name = "brotli" },
     { name = "cryptography" },
@@ -552,6 +575,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "python-telegram-bot" },
     { name = "pytonapi" },
+    { name = "redis" },
     { name = "sqlalchemy" },
     { name = "sqlalchemy-utils" },
     { name = "structlog" },
@@ -565,6 +589,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "coverage" },
+    { name = "fakeredis" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
@@ -572,11 +597,13 @@ dev = [
     { name = "pytest-xdist", extra = ["psutil"] },
     { name = "ruff" },
     { name = "typer" },
+    { name = "types-redis" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.16.4" },
+    { name = "asgi-ratelimit", specifier = ">=0.10.0" },
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "brotli", specifier = ">=1.2.0" },
     { name = "cryptography", specifier = ">=45.0.6" },
@@ -589,6 +616,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "python-telegram-bot", specifier = ">=22.3" },
     { name = "pytonapi", specifier = ">=2.2.0" },
+    { name = "redis", specifier = ">=7.4.0" },
     { name = "sqlalchemy", specifier = ">=2.0.49" },
     { name = "sqlalchemy-utils", specifier = ">=0.42.1" },
     { name = "structlog", specifier = ">=25.5.0" },
@@ -602,6 +630,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coverage", specifier = ">=7.13.5" },
+    { name = "fakeredis", specifier = ">=2.35.1" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-asyncio", specifier = ">=1.3.0" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
@@ -609,6 +638,7 @@ dev = [
     { name = "pytest-xdist", extras = ["psutil"], specifier = ">=3.8.0" },
     { name = "ruff", specifier = ">=0.15.12" },
     { name = "typer", specifier = ">=0.25.1" },
+    { name = "types-redis", specifier = ">=4.6.0.20241004" },
 ]
 
 [[package]]
@@ -1421,6 +1451,15 @@ wheels = [
 ]
 
 [[package]]
+name = "redis"
+version = "7.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/7f/3759b1d0d72b7c92f0d70ffd9dc962b7b7b5ee74e135f9d7d8ab06b8a318/redis-7.4.0.tar.gz", hash = "sha256:64a6ea7bf567ad43c964d2c30d82853f8df927c5c9017766c55a1d1ed95d18ad", size = 4943913, upload-time = "2026-03-24T09:14:37.53Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/74/3a/95deec7db1eb53979973ebd156f3369a72732208d1391cd2e5d127062a32/redis-7.4.0-py3-none-any.whl", hash = "sha256:a9c74a5c893a5ef8455a5adb793a31bb70feb821c86eccb62eebef5a19c429ec", size = 409772, upload-time = "2026-03-24T09:14:35.968Z" },
+]
+
+[[package]]
 name = "requests"
 version = "2.33.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1489,6 +1528,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/58/15/8b3609fd3830ef7b27b655beb4b4e9c62313a4e8da8c676e142cc210d58e/shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de", size = 10310, upload-time = "2023-10-24T04:13:40.426Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686", size = 9755, upload-time = "2023-10-24T04:13:38.866Z" },
+]
+
+[[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
 ]
 
 [[package]]
@@ -1652,6 +1700,53 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/51/9aed62104cea109b820bbd6c14245af756112017d309da813ef107d42e7e/typer-0.25.1.tar.gz", hash = "sha256:9616eb8853a09ffeabab1698952f33c6f29ffdbceb4eaeecf571880e8d7664cc", size = 122276, upload-time = "2026-04-30T19:32:16.964Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/f9/2b3ff4e56e5fa7debfaf9eb135d0da96f3e9a1d5b27222223c7296336e5f/typer-0.25.1-py3-none-any.whl", hash = "sha256:75caa44ed46a03fb2dab8808753ffacdbfea88495e74c85a28c5eefcf5f39c89", size = 58409, upload-time = "2026-04-30T19:32:18.271Z" },
+]
+
+[[package]]
+name = "types-cffi"
+version = "2.0.0.20260508"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-setuptools" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f9/17/dd80304dade64eefae44f273e829734fc01243bf94555e787386c09146a9/types_cffi-2.0.0.20260508.tar.gz", hash = "sha256:746b081b4bf84f9d8855c517a67c2dff717f3c18657fcff8e9c251fb5778f311", size = 17750, upload-time = "2026-05-08T04:51:48.365Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/02/95d98d4473197da55bb5b9c67f7ff1e49c0a12ca870e29004129f635be18/types_cffi-2.0.0.20260508-py3-none-any.whl", hash = "sha256:d094065daf4edcfbdd3e11c37d2fa9511eaf7c509da7a9d9573c276398a8e745", size = 20174, upload-time = "2026-05-08T04:51:47.548Z" },
+]
+
+[[package]]
+name = "types-pyopenssl"
+version = "24.1.0.20240722"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+    { name = "types-cffi" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/93/29/47a346550fd2020dac9a7a6d033ea03fccb92fa47c726056618cc889745e/types-pyOpenSSL-24.1.0.20240722.tar.gz", hash = "sha256:47913b4678a01d879f503a12044468221ed8576263c1540dcb0484ca21b08c39", size = 8458, upload-time = "2024-07-22T02:32:22.558Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/05/c868a850b6fbb79c26f5f299b768ee0adc1f9816d3461dcf4287916f655b/types_pyOpenSSL-24.1.0.20240722-py3-none-any.whl", hash = "sha256:6a7a5d2ec042537934cfb4c9d4deb0e16c4c6250b09358df1f083682fe6fda54", size = 7499, upload-time = "2024-07-22T02:32:21.232Z" },
+]
+
+[[package]]
+name = "types-redis"
+version = "4.6.0.20241004"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+    { name = "types-pyopenssl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/95/c054d3ac940e8bac4ca216470c80c26688a0e79e09f520a942bb27da3386/types-redis-4.6.0.20241004.tar.gz", hash = "sha256:5f17d2b3f9091ab75384153bfa276619ffa1cf6a38da60e10d5e6749cc5b902e", size = 49679, upload-time = "2024-10-04T02:43:59.224Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/82/7d25dce10aad92d2226b269bce2f85cfd843b4477cd50245d7d40ecf8f89/types_redis-4.6.0.20241004-py3-none-any.whl", hash = "sha256:ef5da68cb827e5f606c8f9c0b49eeee4c2669d6d97122f301d3a55dc6a63f6ed", size = 58737, upload-time = "2024-10-04T02:43:57.968Z" },
+]
+
+[[package]]
+name = "types-setuptools"
+version = "82.0.0.20260508"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/53/8c7ca2263165f13b493f5258a317acb09cab02742e816c38cd5fe6f09e5a/types_setuptools-82.0.0.20260508.tar.gz", hash = "sha256:e76ade6f42ba9b4211636b84b65a8e55948a67ffe81f9a44e66b8af93d57e77e", size = 44919, upload-time = "2026-05-08T04:47:48.32Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/67/f49414a00fc61a4bc64bd0ff879bb230818b68e62c5cf91fc7c098912aac/types_setuptools-82.0.0.20260508-py3-none-any.whl", hash = "sha256:ba1d863bbd11526d7232bca8d5a4aebe1d38fa1677a550f47a2692b7d5776900", size = 68395, upload-time = "2026-05-08T04:47:47.391Z" },
 ]
 
 [[package]]

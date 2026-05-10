@@ -2,6 +2,7 @@ from functools import cached_property
 from typing import TypeGuard
 
 from src.auth.scope import Scope
+from src.enums import RateLimitGroup
 from src.models import User, UserSession
 
 
@@ -23,6 +24,26 @@ class AuthSubject[S]:
         self.subject = subject
         self.scopes = scopes
         self.session = session
+
+    @cached_property
+    def rate_limit_key(self) -> tuple[str, RateLimitGroup]:
+        return self.rate_limit_user, self.rate_limit_group
+
+    @cached_property
+    def rate_limit_user(self) -> str:
+        match self.subject:
+            case User():
+                return f"user:{self.subject.id}"
+            case Anonymous():
+                return "anonymous"
+        raise
+
+    @cached_property
+    def rate_limit_group(self) -> RateLimitGroup:
+        if isinstance(self.session, UserSession):
+            return RateLimitGroup.web
+
+        return RateLimitGroup.default
 
     @cached_property
     def log_context(self) -> dict[str, str]:

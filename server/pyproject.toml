@@ -26,11 +26,14 @@ dependencies = [
   "makefun>=1.16.0",
   "pytonapi>=2.2.0",
   "typer>=0.25.1",
+  "asgi-ratelimit>=0.10.0",
+  "redis>=7.4.0",
 ]
 
 [dependency-groups]
 dev = [
   "coverage>=7.13.5",
+  "fakeredis>=2.35.1",
   "pytest>=9.0.3",
   "pytest-asyncio>=1.3.0",
   "pytest-cov>=7.1.0",
@@ -38,6 +41,7 @@ dev = [
   "pytest-xdist[psutil]>=3.8.0",
   "ruff>=0.15.12",
   "typer>=0.25.1",
+  "types-redis>=4.6.0.20241004",
 ]
 
 [tool.taskipy.tasks]

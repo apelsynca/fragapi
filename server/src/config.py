@@ -59,6 +59,15 @@ class Settings(BaseSettings):
 
     FRAGMENT_SESSION_PATH: str = ""
 
+    # Redis
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+
+    @property
+    def redis_url(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
     def get_postgres_dsn(self, driver: Literal["asyncpg", "psycopg2"]) -> str:
         return str(
             PostgresDsn.build(
