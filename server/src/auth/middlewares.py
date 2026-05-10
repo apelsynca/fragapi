@@ -36,12 +36,14 @@ async def get_auth_subject(
             if user_session is not None:
                 return AuthSubject(
                     user_session.user,
-                    {Scope.web, Scope.transactions_read},
+                    {Scope.web, Scope.transactions_read, Scope.stars_buy},
                     user_session,
                 )
         user = await auth_service.authenticate_by_api_token(session, api_key=token)
         if user is not None:
-            return AuthSubject(user, {Scope.api, Scope.transactions_read}, None)
+            return AuthSubject(
+                user, {Scope.api, Scope.transactions_read, Scope.stars_buy}, None
+            )
 
     return AuthSubject(Anonymous(), set(), None)
 

@@ -8,6 +8,7 @@ from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session
 from src.routing import APIRouter
+from src.stars import auth
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.stars.service import stars as stars_service
 from src.wallet.dependencies import get_wallet_manager
@@ -23,7 +24,7 @@ log = get_logger()
 
 @router.post("/buy", description="Buys stars for a given user.")
 async def buy_stars(
-    auth_subject: AuthorizeAPIUser,
+    auth_subject: auth.StarsBuy,
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
     fragment_rest: FragmentRest = Depends(get_fragment_rest),

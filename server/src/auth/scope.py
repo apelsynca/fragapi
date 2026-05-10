@@ -7,3 +7,4 @@ class Scope(StrEnum):
     admin = "admin"
 
     transactions_read = "transactions:read"
+    stars_buy = "stars_buy"
