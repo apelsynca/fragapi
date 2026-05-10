@@ -1,6 +1,6 @@
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import {
   ChevronsUpDownIcon,
   LogOutIcon,
@@ -23,6 +23,7 @@ import ThemeToggle from './ThemeToggle'
 import { userMeQueryOptions } from '~/lib/queries'
 
 export default function AppSidebarBottom() {
+  const queryClient = useQueryClient()
   const logout = useServerFn(logoutFn)
 
   const { isMobile } = useSidebar()
@@ -30,6 +31,11 @@ export default function AppSidebarBottom() {
 
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()
+
+  const handleLogout = async () => {
+    queryClient.invalidateQueries()
+    await logout()
+  }
 
   return (
     <DropdownMenu>
@@ -78,9 +84,7 @@ export default function AppSidebarBottom() {
           <DropdownMenuItem
             className="flex-1 w-full"
             variant="destructive"
-            onClick={async () => {
-              await logout()
-            }}
+            onClick={handleLogout}
           >
             <LogOutIcon />
             Выйти

@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 
+from pydantic import BaseModel
 
-@dataclass
-class FragmentSession:
+
+class FragmentSession(BaseModel):
     hash: str
     ton_proof_payload: str
     cookies: dict[str, str]

@@ -1,7 +1,6 @@
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.dependencies import AuthorizeAPIUser
 from src.fragment_rest import get_fragment_rest
 from src.fragment_rest.rest import FragmentRest
 from src.logging import get_logger
@@ -41,7 +40,7 @@ async def buy_stars(
 
 @router.get("/recipient/{username}", description="Get stars recipient info")
 async def get_recipient(
-    auth_subject: AuthorizeAPIUser,
+    auth_subject: auth.StarsBuy,
     username: str,
     fragment_rest: FragmentRest = Depends(get_fragment_rest),
     quantity: int | None = Query(default=None),

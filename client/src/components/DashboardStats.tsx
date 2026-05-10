@@ -12,8 +12,6 @@ export default function DashboardStats() {
   const { data: transactionStats } = useSuspenseQuery(transactionStatsOptions())
   const { data: tonRate } = useSuspenseQuery(tonRateQueryOptions())
 
-  console.log(transactionStats)
-
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard

@@ -12,7 +12,7 @@ from src.fragment_rest.exceptions import (
 )
 from src.fragment_rest.models import MainPageTokens
 from tests.fixtures.random_objects import rstr
-from tests.fragment_rest.test_auth import generate_fake_main_page_text
+from tests.fragment_rest.conftest import generate_fake_main_page_text
 
 
 @pytest.fixture

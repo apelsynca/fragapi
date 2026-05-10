@@ -19,7 +19,7 @@ export const apiRequest = async (data: ApiRequest) => {
   })
 
   if (!response.ok) {
-    console.log('this is an error')
+    console.error('Error during API request')
     throw new Error('Some error, idk what')
   }
 
