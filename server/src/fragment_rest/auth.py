@@ -36,6 +36,8 @@ class FragmentRestAuth:
     async def check_session(
         self, api_client: FragmentAPIClient, session: FragmentSession
     ) -> bool:
+        """Not only checks session, but creates new one anyway"""
+
         ton_connect_data = self.ton_connect.get_connect_json_data(
             ton_proof_payload=session.ton_proof_payload
         )

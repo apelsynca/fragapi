@@ -76,7 +76,7 @@ async def test_request_returns_data(
 ) -> None:
     fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
     fragment_rest._api = MagicMock(spec=FragmentAPIClient)
-    fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT
+    fragment_rest._last_session_check = time() + fragment_rest.SESSION_CHECK_DELTA
     fragment_rest._session = fragment_session
 
     prepared = {"something": rstr("mooock"), "otherData": "yes"}

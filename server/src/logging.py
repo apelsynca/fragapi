@@ -99,6 +99,10 @@ class Logging[RendererType]:
                             "uvicorn",
                         ]
                     },
+                    **{
+                        logger: {"handlers": [], "level": "INFO", "propagate": False}
+                        for logger in ["hpack"]
+                    },
                 },
             }
         )

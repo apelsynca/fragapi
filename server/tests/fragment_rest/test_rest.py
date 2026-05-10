@@ -19,7 +19,9 @@ def fragment_rest(ton_connect, fragment_session: FragmentSession) -> FragmentRes
 
     fragment_rest._api = MagicMock(spec=FragmentAPIClient)
     fragment_rest._auth = MagicMock(sepc=FragmentRestAuth)
-    fragment_rest._last_session_check = time() + fragment_rest.SESSION_LT + 9999
+    fragment_rest._last_session_check = (
+        time() + fragment_rest.SESSION_CHECK_DELTA + 9999
+    )
 
     fragment_rest._session = fragment_session
 

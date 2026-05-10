@@ -13,7 +13,7 @@ log = get_logger()
 
 
 class BaseFragmentRest:
-    SESSION_LT: int = 60 * 60 * 3  # 3 hours
+    SESSION_CHECK_DELTA: int = 60 * 60 * 3  # 3 hours
 
     def __init__(self, ton_connect: TonConnect) -> None:
         self._api = FragmentAPIClient()
@@ -30,7 +30,7 @@ class BaseFragmentRest:
 
         if (
             self._session is not None
-            and now - self._session.last_session_check < self.SESSION_LT
+            and now - self._session.last_session_check < self.SESSION_CHECK_DELTA
         ):
             return
 
@@ -96,6 +96,7 @@ class BaseFragmentRest:
                     "hash": session.hash,
                     "ton_proof_payload": session.ton_proof_payload,
                     "cookies": session.cookies,
+                    "last_session_check": session.last_session_check,
                 },
                 fw,
                 indent=2,
