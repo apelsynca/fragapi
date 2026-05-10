@@ -12,6 +12,8 @@ export default function DashboardStats() {
   const { data: transactionStats } = useSuspenseQuery(transactionStatsOptions())
   const { data: tonRate } = useSuspenseQuery(tonRateQueryOptions())
 
+  console.log(transactionStats)
+
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
@@ -22,23 +24,23 @@ export default function DashboardStats() {
       />
       <DashboardStatsCard
         name="Общие траты"
-        amount={transactionStats.totalSpent}
+        amount={transactionStats.monthlySpend || 0}
         fiatAmount={transactionStats.totalSpent * (tonRate || 0)}
-        percent={15.2}
+        percent={0}
         description="За последние 30 дней"
       />
       <DashboardStatsCard
         name="Траты на звезды"
-        amount={transactionStats.starsPurchasesCount}
+        amount={transactionStats.starsMonthlySpend || 0}
         fiatAmount={0 * (tonRate || 0)}
-        percent={52.2}
+        percent={0}
         description="За последние 30 дней"
       />
       <DashboardStatsCard
         name="Траты на премиум"
-        amount={transactionStats.premiumCount}
+        amount={transactionStats.premiumMonthlySpend || 0}
         fiatAmount={0 * (tonRate || 0)}
-        percent={-3.3}
+        percent={0}
         description="За последние 30 дней"
       />
     </div>

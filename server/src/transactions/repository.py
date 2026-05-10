@@ -1,12 +1,11 @@
-from datetime import date
+from datetime import date, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 
 from src.kit.repository import BaseRepository, IDRepositoryMixin
+from src.kit.utils import utc_now
 from src.models import Transaction, TransactionReason, User
 from src.models.transactions import TransactionStatus
-
-from .schemas import TransactionStats
 
 
 class TransactionRepository(
@@ -14,7 +13,7 @@ class TransactionRepository(
 ):
     model = Transaction
 
-    async def get_stats(self, user: User) -> TransactionStats:
+    async def get_stats(self, user: User) -> tuple[int, int, float]:
         stmt = select(
             # Количество покупок звезд (count вместо sum)
             func.count()
@@ -31,11 +30,21 @@ class TransactionRepository(
         result = await self.session.execute(stmt)
         row = result.one()
 
-        return TransactionStats(
-            stars_purchases_count=row.stars_purchases_count,
-            premium_count=row.premium_count,
-            total_spent=float(row.total_spent),
-        )
+        return (row.stars_purchases_count, row.premium_count, float(row.total_spent))
+
+    def get_monthly_stmt(self, user: User) -> Select[tuple[float, float, float]]:
+        now = utc_now()
+        start_of_the_month = now - timedelta(days=30)
+
+        return select(
+            func.sum(Transaction.amount).label("monthly_spend"),
+            func.sum(Transaction.amount)
+            .filter(Transaction.reason == TransactionReason.STARS)
+            .label("stars_monthly_spend"),
+            func.sum(Transaction.amount)
+            .filter(Transaction.reason == TransactionReason.PREMIUM)
+            .label("premium_monthly_spend"),
+        ).where(Transaction.created_at >= start_of_the_month, Transaction.user == user)
 
     def get_chart_data_stmt(self, user: User, start_date: date):
         return (

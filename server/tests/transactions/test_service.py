@@ -189,3 +189,49 @@ async def test_get_chart_stats_gives_90_empty_items(
 
     assert len(chart_stats) == 90
     assert chart_stats == expected
+
+
+@pytest.mark.asyncio
+async def test_get_chart_stats_all_spend_monthly(
+    session: AsyncSession, user: User, save_fixture: SaveFixture
+) -> None:
+    transaction = Transaction(
+        amount=10,
+        reason=TransactionReason.STARS,
+        status=TransactionStatus.PENDING,
+        recipient=rstr("reci"),
+        user=user,
+        created_at=utc_now() - timedelta(days=33),
+    )
+    await save_fixture(transaction)
+    transaction = Transaction(
+        amount=10,
+        reason=TransactionReason.STARS,
+        status=TransactionStatus.PENDING,
+        recipient=rstr("reci"),
+        user=user,
+    )
+    await save_fixture(transaction)
+    transaction = Transaction(
+        amount=3,
+        reason=TransactionReason.PREMIUM,
+        status=TransactionStatus.PENDING,
+        recipient=rstr("reci"),
+        user=user,
+        created_at=utc_now() - timedelta(days=3),
+    )
+    await save_fixture(transaction)
+    transaction = Transaction(
+        amount=2.52,
+        reason=TransactionReason.PREMIUM,
+        status=TransactionStatus.COMPLETED,
+        recipient=rstr("reci"),
+        user=user,
+    )
+    await save_fixture(transaction)
+
+    stats = await transaction_service.get_stats(session=session, user=user)
+
+    assert stats.monthly_spend == 15.52
+    assert stats.stars_monthly_spend == 10
+    assert stats.premium_monthly_spend == 5.52

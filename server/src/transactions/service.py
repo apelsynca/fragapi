@@ -49,9 +49,24 @@ class TransactionService:
         )
 
     async def get_stats(self, session: AsyncSession, user: User) -> TransactionStats:
-        # TODO: MONTHLY
         repository = TransactionRepository.from_session(session)
-        return await repository.get_stats(user)
+        stars_purchases_count, premium_count, total_spent = await repository.get_stats(
+            user
+        )
+
+        monthly_stmt = repository.get_monthly_stmt(user=user)
+
+        result = await session.execute(monthly_stmt)
+        row = result.one()
+
+        return TransactionStats(
+            stars_purchases_count=stars_purchases_count,
+            premium_count=premium_count,
+            total_spent=total_spent,
+            monthly_spend=row.monthly_spend or 0,
+            stars_monthly_spend=row.stars_monthly_spend or 0,
+            premium_monthly_spend=row.premium_monthly_spend or 0,
+        )
 
     async def get_chart_stats(
         self, session: AsyncSession, user: User

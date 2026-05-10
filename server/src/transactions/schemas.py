@@ -17,6 +17,9 @@ class TransactionStats(Schema):
     stars_purchases_count: int  # Количество покупок звезд
     premium_count: int
     total_spent: float
+    monthly_spend: float
+    stars_monthly_spend: float
+    premium_monthly_spend: float
 
 
 class TransactionChartPoint(Schema):

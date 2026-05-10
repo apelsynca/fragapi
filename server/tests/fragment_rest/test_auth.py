@@ -1,5 +1,5 @@
 import json
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
 from tonutils.contracts import WalletV5R1
@@ -64,6 +64,7 @@ async def test_gets_right_session_tokens(
         hash="a883d11d2fc9somehash",
         ton_proof_payload="5550ffd0ff31a55ca4",
         cookies=fragment_session.cookies,
+        last_session_check=ANY,
     )
 
 

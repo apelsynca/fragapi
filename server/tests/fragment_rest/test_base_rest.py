@@ -51,7 +51,9 @@ async def test_ensure_fresh_session_does_not_authorizes_if_last_upd_new(
     fragment_rest: MagicMock,
 ) -> None:
     fragment_rest._auth = MagicMock(spec=FragmentRestAuth)
-    fragment_rest._session.last_session_check = time() + fragment_rest.SESSION_LT
+    fragment_rest._session.last_session_check = (
+        time() + fragment_rest.SESSION_CHECK_DELTA
+    )
 
     await fragment_rest.ensure_fresh_session()
 

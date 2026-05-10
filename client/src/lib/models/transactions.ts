@@ -11,6 +11,10 @@ export interface TransactionStats {
   starsPurchasesCount: number
   premiumCount: number
   totalSpent: number
+
+  monthlySpend: number
+  starsMonthlySpend: number
+  premiumMonthlySpend: number
 }
 
 export interface TransChartPoint {

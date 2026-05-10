@@ -43,7 +43,7 @@ export default function DashboardStatsCard({
           <CardAction className="col-start-2 row-span-2 row-start-1 self-start justify-self-end">
             <Badge
               variant="outline"
-              className={`${percent > 0 ? 'text-green-400 border-green-400' : 'text-red-400 border-red-400'} text-xs gap-1`}
+              className={`${percent >= 0 ? 'text-green-400 border-green-400' : 'text-red-400 border-red-400'} text-xs gap-1`}
             >
               <TrendingUpIcon className="h-3 w-3" />
               {percent > 0 ? '+' : null}
