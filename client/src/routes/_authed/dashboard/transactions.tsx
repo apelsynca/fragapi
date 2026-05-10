@@ -9,7 +9,12 @@ export const Route = createFileRoute('/_authed/dashboard/transactions')({
 function RouteComponent() {
   return (
     <div>
-      <h2 className="text-center">Транзакции</h2>
+      <div className="mb-6 text-center">
+        <h2 className="text-center font-semibold text-xl">Транзакции</h2>
+        <p className="text-muted-foreground text-sm">
+          История ваших транзакций
+        </p>
+      </div>
       <Suspense>
         <TransactionsList />
       </Suspense>

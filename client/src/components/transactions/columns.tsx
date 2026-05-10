@@ -1,3 +1,4 @@
+import { MoreHorizontalIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Transaction } from '~/lib/models/transactions'
 import {
@@ -9,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
-import { MoreHorizontalIcon } from 'lucide-react'
+import { TonIcon } from '../icons/TonIcon'
 
 export const columns: ColumnDef<Transaction>[] = [
   {
@@ -29,6 +30,11 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'amount',
     header: 'Amount',
+    cell: ({ row }) => (
+      <span className="flex items-center gap-1">
+        {parseFloat(row.original.amount.toFixed(2))} <TonIcon size={16} />
+      </span>
+    ),
   },
   {
     id: 'actions',
@@ -39,22 +45,26 @@ export const columns: ColumnDef<Transaction>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">Открыть меню</span>
               <MoreHorizontalIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Действия</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
                 navigator.clipboard.writeText(transaction.message_hash!)
               }
             >
-              Copy message hash
+              Скопировать хэш
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                navigator.clipboard.writeText(transaction.recipient)
+              }
+            >
+              Скопировать хэш получателя
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )

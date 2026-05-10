@@ -33,8 +33,30 @@ export default function TransactionsList() {
             />
           </PaginationItem>
           <PaginationItem>
-            <PaginationEllipsis />
+            <PaginationLink
+              href="#"
+              onClick={() => setCurrentPage(1)}
+              isActive={currentPage === 1}
+            >
+              1
+            </PaginationLink>
           </PaginationItem>
+          {data.pagination.maxPage > 2 && (
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+          )}
+          {data.pagination.maxPage > 1 && (
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                onClick={() => setCurrentPage(data.pagination.maxPage)}
+                isActive={currentPage === data.pagination.maxPage}
+              >
+                {data.pagination.maxPage}
+              </PaginationLink>
+            </PaginationItem>
+          )}
           <PaginationItem>
             <PaginationNext
               href="#"
