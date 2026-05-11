@@ -1,6 +1,12 @@
+import json
 from time import time
 
-from src.fragment.exceptions import FragmentError
+from src.fragment.exceptions import (
+    FragmentAPIAccessDenied,
+    FragmentAPIError,
+    FragmentAPIUsersNotFound,
+    FragmentError,
+)
 from src.fragment.rest_request import BaseRequest, HttpxRequest
 from src.fragment.session_storage import SessionStorage
 from src.kit.ton_connect import TonConnect
@@ -19,6 +25,10 @@ class FragmentRestClient:
         self.last_session_check: float = 0
 
     async def api_request(self, method: str, data: dict[str, str]) -> None:
+        if data.get("method", None) is not None:
+            raise ValueError("Cannot include key method in api_request.data")
+        data["method"] = method
+
         if self.session_storage.session is None:
             raise FragmentError()
 
@@ -29,13 +39,25 @@ class FragmentRestClient:
         ):
             await self.check_session()
 
-        data = {}
-
-        status_code, content, cookies = await self._request.do_request(
+        status_code, content, _ = await self._request.do_request(
             url=f"https://fragment.com/api?hash={self.session_storage.session.hash}",
             method="POST",
             json_data=data,
         )
+
+        if status_code != 200:
+            raise FragmentError(f"Status - {status_code}")
+
+        response_data = json.loads(content)
+
+        if "error" in response_data:
+            if "no telegram users found" in response_data["error"].lower():
+                raise FragmentAPIUsersNotFound(response_data["error"])
+            if "access denied" in response_data["error"].lower():
+                raise FragmentAPIAccessDenied(response_data["error"])
+            raise FragmentAPIError(response_data["error"])
+
+        return response_data
 
     async def check_session(self) -> None:
         if self.session_storage.session is None:
