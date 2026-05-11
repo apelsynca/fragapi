@@ -56,18 +56,6 @@ async def create_transaction(
     return transaction
 
 
-# def get_fake_recipient_data() -> RecipientData:
-#     return RecipientData(
-#         ok=True,
-#         found=FoundRecipientData(
-#             myself=False,
-#             recipient=rstr("XXxaaAxXXxxA"),
-#             photo=rstr("img"),
-#             name=rstr("Homo Citrus"),
-#         ),
-#     )
-
-
 def get_valid_transaction(amount: float) -> TonConnectTransaction:
     return get_tc_transaction(
         messages=[

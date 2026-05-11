@@ -18,7 +18,12 @@ class MockRequest(BaseRequest):
         self.return_cookies = return_cookies
 
     async def do_request(
-        self, url: str, method: str, json_data: dict | None = None
+        self,
+        url: str,
+        method: str,
+        json_data: dict | None = None,
+        *,
+        cookies: dict[str, str] | None = None,
     ) -> tuple[int, bytes, dict[str, str]]:
         if self.return_json and self.return_text:
             raise RuntimeError("Cannot do both self.return_json and self.return_text")
