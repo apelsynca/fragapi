@@ -67,22 +67,33 @@ class FragmentRestClient:
         if self.session_storage.session is None:
             await self._authorize()
         else:
-            await self._ensure_correct_session_tokens()
+            await self._is_correct_session_tokens()
 
     async def _authorize(self) -> None:
         pass
 
-    async def _ensure_correct_session_tokens(self) -> None:
-        pass
+    async def _is_correct_session_tokens(self) -> bool:
+        if self.session_storage.session is None:
+            raise ValueError("Session must not be None")
 
-    async def get_main_page(self) -> tuple[MainPageTokens, FragCookie]:
+        session = self.session_storage.session
+
+        main_page_tokens = await self.get_main_page_tokens()
+        if main_page_tokens.hash != session.hash:
+            return False
+        if main_page_tokens.ton_proof_payload != session.ton_proof_payload:
+            return False
+
+        return True
+
+    async def get_main_page_tokens(self) -> MainPageTokens:
         request_cookies = (
             None
             if self.session_storage.session is None
             else self.session_storage.session.cookies
         )
 
-        status_code, content, response_cookies = await self._request.do_request(
+        status_code, content, _ = await self._request.do_request(
             url="https://fragment.com/", method="GET", cookies=request_cookies
         )
         text = content.decode("utf-8")
@@ -109,4 +120,4 @@ class FragmentRestClient:
             hash=session_hash,
             ton_proof_payload=session_ton_proof,
             ton_rate=ton_rate_match,
-        ), response_cookies
+        )
