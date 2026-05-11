@@ -14,8 +14,7 @@ from src.bot.endpoints import router as bot_router
 from src.bot.setup import setup_bot
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
-from src.fragment_rest import create_fragment_rest
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment
 from src.health.endpoints import router as health_router
 from src.kit.database.postgres import (
     AsyncEngine,
@@ -38,7 +37,7 @@ class State(TypedDict):
     async_engine: AsyncEngine
     async_sessionmaker: AsyncSessionMaker
     bot_application: BotApplication
-    fragment_rest: FragmentRest
+    fragment: Fragment
     wallet_manager: WalletManager
 
 
@@ -51,11 +50,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     wallet = create_wallet()
     wallet_manager = WalletManager(wallet)
-    fragment_rest = create_fragment_rest(
-        ton_connect=wallet_manager.get_ton_connect(tc_domain="fragment.com")
-    )
 
-    await fragment_rest.start()
+    fragment = Fragment()
 
     bot_application = get_bot_application()
     if settings.is_production():
@@ -70,12 +66,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             async_engine=async_engine,
             async_sessionmaker=async_sessionmaker,
             bot_application=bot_application,
-            fragment_rest=fragment_rest,
+            fragment=fragment,
             wallet_manager=wallet_manager,
         )
-
-    if fragment_rest._session:
-        fragment_rest._save_session(fragment_rest._session)
 
     if settings.is_production():
         await bot_application.stop()

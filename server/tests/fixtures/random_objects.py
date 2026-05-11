@@ -6,7 +6,6 @@ from secrets import token_urlsafe
 import pytest_asyncio
 from ton_core import to_nano
 
-from src.fragment_rest.types import FoundRecipientData, RecipientData
 from src.kit.ton_connect import TonConnectMessage
 from src.models import Payment, Transaction, TransactionReason, TransactionStatus, User
 from src.wallet.types import TonConnectTransaction
@@ -57,16 +56,16 @@ async def create_transaction(
     return transaction
 
 
-def get_fake_recipient_data() -> RecipientData:
-    return RecipientData(
-        ok=True,
-        found=FoundRecipientData(
-            myself=False,
-            recipient=rstr("XXxaaAxXXxxA"),
-            photo=rstr("img"),
-            name=rstr("Homo Citrus"),
-        ),
-    )
+# def get_fake_recipient_data() -> RecipientData:
+#     return RecipientData(
+#         ok=True,
+#         found=FoundRecipientData(
+#             myself=False,
+#             recipient=rstr("XXxaaAxXXxxA"),
+#             photo=rstr("img"),
+#             name=rstr("Homo Citrus"),
+#         ),
+#     )
 
 
 def get_valid_transaction(amount: float) -> TonConnectTransaction:

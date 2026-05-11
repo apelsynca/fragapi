@@ -2,8 +2,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependencies import AuthorizeAPIUser
-from src.fragment_rest import get_fragment_rest
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment, get_fragment
 from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session
@@ -23,7 +22,7 @@ async def buy_premium(
     auth_subject: AuthorizeAPIUser,
     data: BuyPremium,
     session: AsyncSession = Depends(get_db_session),
-    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    fragment: Fragment = Depends(get_fragment),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyPremiumResponse:
     return await premium_service.buy(

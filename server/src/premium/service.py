@@ -2,8 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.enums import PremiumMonths
 from src.exceptions import ResourceNotFound
-from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment
+from src.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import get_logger
 from src.models import TransactionReason, User
 from src.payments.service import payment as payment_service
@@ -20,7 +20,7 @@ class PremiumService:
         session: AsyncSession,
         user: User,
         data: BuyPremium,
-        fragment_rest: FragmentRest,
+        fragment: Fragment,
         wallet_manager: WalletManager,
     ) -> BuyPremiumResponse:
         log.info("Buying premium", months=data.months, username=data.username)

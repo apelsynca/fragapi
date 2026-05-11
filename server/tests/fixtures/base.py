@@ -8,8 +8,7 @@ from starlette.applications import Starlette
 
 from src.app import app as frag_app
 from src.auth.dependencies import _auth_subject_factory_cache
-from src.fragment_rest import get_fragment_rest
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment, get_fragment
 from src.postgres import get_db_session
 from src.redis import Redis, get_redis
 from src.wallet.dependencies import get_wallet_manager
@@ -20,12 +19,12 @@ from tests.fixtures.auth import AuthSubjectFixture
 async def app(
     auth_subject: AuthSubjectFixture,
     session: AsyncSession,
-    fragment_rest: FragmentRest,
+    fragment: Fragment,
     wallet_manager: MagicMock,
     redis: Redis,
 ) -> AsyncGenerator[Starlette]:
     frag_app.dependency_overrides[get_db_session] = lambda: session
-    frag_app.dependency_overrides[get_fragment_rest] = lambda: fragment_rest
+    frag_app.dependency_overrides[get_fragment] = lambda: fragment
     frag_app.dependency_overrides[get_wallet_manager] = lambda: wallet_manager
     frag_app.dependency_overrides[get_redis] = lambda: redis
 

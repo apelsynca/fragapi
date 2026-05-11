@@ -1,0 +1,2 @@
+class FragmentError(Exception):
+    pass
