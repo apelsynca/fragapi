@@ -6,11 +6,9 @@ import { verifySession } from './auth'
 export const fetchMe = createServerFn().handler(async () => {
   const token = await verifySession()
 
-  const data = await apiRequest({
+  return await apiRequest<User>({
     method: 'GET',
     endpoint: '/panel/users/me',
     token,
   })
-
-  return data as User
 })

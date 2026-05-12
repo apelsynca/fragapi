@@ -8,11 +8,11 @@
 
 @import '@fontsource-variable/geist';
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
-@import "shadcn/tailwind.css";
+@import 'shadcn/tailwind.css';
 
-@import "@fontsource-variable/geist";
+@import '@fontsource-variable/geist';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -190,3 +190,4 @@ body,
     @apply font-sans;
   }
 }
+

@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from telegram.ext import Application as BotApplication
 
-from src import rate_limit
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
 from src.bot.app import get_bot_application
@@ -53,11 +52,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     wallet = create_wallet()
     wallet_manager = WalletManager(wallet)
 
-    FragmentRestClient(
+    fragment_rest_client = FragmentRestClient(
         ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),
         session_key="anyfornow",
     )
-    fragment = Fragment(clients=[])
+    fragment = Fragment(clients=[fragment_rest_client])
 
     bot_application = get_bot_application()
     if settings.is_production():
@@ -91,7 +90,8 @@ def create_app() -> FastAPI:
     )
 
     if not settings.is_testing():
-        app.add_middleware(rate_limit.get_middleware)
+        # i disable rate limiting for now, since requests from the web come from the server
+        # app.add_middleware(rate_limit.get_middleware)
         app.add_middleware(AuthSubjectMiddleware)
         app.add_middleware(AsyncSessionMiddleware)
     app.add_middleware(LogCorrelationIdMiddleware)

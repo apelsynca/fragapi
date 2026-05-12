@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import TransactionsList from '~/components/transactions/TransactionsList'
 
-export const Route = createFileRoute('/_authed/dashboard/transactions')({
+export const Route = createFileRoute('/dashboard/transactions')({
   component: RouteComponent,
 })
 

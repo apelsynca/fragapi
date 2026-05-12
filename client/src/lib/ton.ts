@@ -2,15 +2,19 @@ import { createServerFn } from '@tanstack/react-start'
 import { apiRequest } from './request'
 import { verifySession } from './auth'
 
+interface TonRate {
+  tonRate: number
+}
+
 // in USD
 export const fetchTonRate = createServerFn().handler(async () => {
   const token = await verifySession()
 
-  const answer = await apiRequest({
+  const data = await apiRequest<TonRate>({
     method: 'GET',
-    endpoint: '/panel/fragment/rate',
+    endpoint: '/ton/rate',
     token,
   })
 
-  return answer['tonRate']
+  return data.tonRate
 })

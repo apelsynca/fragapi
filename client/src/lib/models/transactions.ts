@@ -2,9 +2,9 @@ export interface Transaction {
   amount: number
   reason: 'premium' | 'stars'
   status: 'pending' | 'completed' | 'failed'
-  message_hash: string | null
+  messageHash: string | null
   recipient: string
-  created_at: string
+  createdAt: string
 }
 
 export interface TransactionStats {

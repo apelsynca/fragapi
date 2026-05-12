@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import type { QueryClient } from '@tanstack/react-query'
 import {
+  ErrorComponent,
   HeadContent,
   Outlet,
   Scripts,
@@ -49,7 +50,11 @@ export const Route = createRootRouteWithContext<{
   }),
   component: RootComponent,
   errorComponent: ({ error }) => {
-    return <div>Error: {error.message}</div>
+    return (
+      <div className="p-4 bg-red-100 text-red-900 dark:bg-red-900 dark:text-red-100 rounded">
+        <ErrorComponent error={error} />
+      </div>
+    )
   },
 })
 

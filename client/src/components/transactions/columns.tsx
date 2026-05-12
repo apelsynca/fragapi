@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
@@ -16,16 +15,23 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'reason',
     header: 'Reason',
+    cell: ({ row }) =>
+      row.original.reason.toLowerCase() === 'stars' ? (
+        <p className="text-yellow-800 dark:text-yellow-200">Звезды</p>
+      ) : (
+        <p className="text-blue-800 dark:text-blue-200">Премиум</p>
+      ),
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Дата создания',
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString('ru-RU'),
   },
   {
     accessorKey: 'recipient',
-    header: 'Recipient',
-    cell: ({ row }) => (
-      <p>
-        {row.original.recipient.slice(0, 8)}...
-        {row.original.recipient.slice(-8, -1)}
-      </p>
-    ),
+    header: 'Получатель',
+    accessorFn: (transaction) =>
+      `${transaction.recipient.slice(0, 8)}...${transaction.recipient.slice(-8, -1)}`,
   },
   {
     accessorKey: 'amount',

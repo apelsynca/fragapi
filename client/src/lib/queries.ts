@@ -1,6 +1,6 @@
-import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query'
 import { fetchMe } from './user'
-import { fetchTonRate } from './fragment'
+import { fetchTonRate } from './ton'
 import {
   fetchTransactionsChart,
   fetchTransactionsPage,

@@ -10,21 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as BotLoginRouteImport } from './routes/bot-login'
-import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
-import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard/index'
-import { Route as AuthedDashboardTransactionsRouteImport } from './routes/_authed/dashboard/transactions'
-import { Route as AuthedDashboardHandRouteImport } from './routes/_authed/dashboard/hand'
-import { Route as AuthedDashboardApiKeysRouteImport } from './routes/_authed/dashboard/api-keys'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardTransactionsRouteImport } from './routes/dashboard/transactions'
+import { Route as DashboardHandRouteImport } from './routes/dashboard/hand'
+import { Route as DashboardApiKeysRouteImport } from './routes/dashboard/api-keys'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
   path: '/bot-login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRoute = AuthedRouteImport.update({
-  id: '/_authed',
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -32,67 +32,60 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedDashboardIndexRoute = AuthedDashboardIndexRouteImport.update({
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthedDashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
-const AuthedDashboardTransactionsRoute =
-  AuthedDashboardTransactionsRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => AuthedDashboardRoute,
-  } as any)
-const AuthedDashboardHandRoute = AuthedDashboardHandRouteImport.update({
+const DashboardTransactionsRoute = DashboardTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardHandRoute = DashboardHandRouteImport.update({
   id: '/hand',
   path: '/hand',
-  getParentRoute: () => AuthedDashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
-const AuthedDashboardApiKeysRoute = AuthedDashboardApiKeysRouteImport.update({
+const DashboardApiKeysRoute = DashboardApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
-  getParentRoute: () => AuthedDashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/dashboard': typeof AuthedDashboardRouteWithChildren
-  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
-  '/dashboard/hand': typeof AuthedDashboardHandRoute
-  '/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
-  '/dashboard/': typeof AuthedDashboardIndexRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/hand': typeof DashboardHandRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
-  '/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
-  '/dashboard/hand': typeof AuthedDashboardHandRoute
-  '/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
-  '/dashboard': typeof AuthedDashboardIndexRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/hand': typeof DashboardHandRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
-  '/_authed/dashboard/api-keys': typeof AuthedDashboardApiKeysRoute
-  '/_authed/dashboard/hand': typeof AuthedDashboardHandRoute
-  '/_authed/dashboard/transactions': typeof AuthedDashboardTransactionsRoute
-  '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/hand': typeof DashboardHandRoute
+  '/dashboard/transactions': typeof DashboardTransactionsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/bot-login'
     | '/dashboard'
+    | '/bot-login'
     | '/dashboard/api-keys'
     | '/dashboard/hand'
     | '/dashboard/transactions'
@@ -108,18 +101,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/_authed'
+    | '/dashboard'
     | '/bot-login'
-    | '/_authed/dashboard'
-    | '/_authed/dashboard/api-keys'
-    | '/_authed/dashboard/hand'
-    | '/_authed/dashboard/transactions'
-    | '/_authed/dashboard/'
+    | '/dashboard/api-keys'
+    | '/dashboard/hand'
+    | '/dashboard/transactions'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   BotLoginRoute: typeof BotLoginRoute
 }
 
@@ -132,11 +124,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BotLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed': {
-      id: '/_authed'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -146,76 +138,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/dashboard': {
-      id: '/_authed/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthedDashboardRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/dashboard/': {
-      id: '/_authed/dashboard/'
+    '/dashboard/': {
+      id: '/dashboard/'
       path: '/'
       fullPath: '/dashboard/'
-      preLoaderRoute: typeof AuthedDashboardIndexRouteImport
-      parentRoute: typeof AuthedDashboardRoute
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
-    '/_authed/dashboard/transactions': {
-      id: '/_authed/dashboard/transactions'
+    '/dashboard/transactions': {
+      id: '/dashboard/transactions'
       path: '/transactions'
       fullPath: '/dashboard/transactions'
-      preLoaderRoute: typeof AuthedDashboardTransactionsRouteImport
-      parentRoute: typeof AuthedDashboardRoute
+      preLoaderRoute: typeof DashboardTransactionsRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
-    '/_authed/dashboard/hand': {
-      id: '/_authed/dashboard/hand'
+    '/dashboard/hand': {
+      id: '/dashboard/hand'
       path: '/hand'
       fullPath: '/dashboard/hand'
-      preLoaderRoute: typeof AuthedDashboardHandRouteImport
-      parentRoute: typeof AuthedDashboardRoute
+      preLoaderRoute: typeof DashboardHandRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
-    '/_authed/dashboard/api-keys': {
-      id: '/_authed/dashboard/api-keys'
+    '/dashboard/api-keys': {
+      id: '/dashboard/api-keys'
       path: '/api-keys'
       fullPath: '/dashboard/api-keys'
-      preLoaderRoute: typeof AuthedDashboardApiKeysRouteImport
-      parentRoute: typeof AuthedDashboardRoute
+      preLoaderRoute: typeof DashboardApiKeysRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
   }
 }
 
-interface AuthedDashboardRouteChildren {
-  AuthedDashboardApiKeysRoute: typeof AuthedDashboardApiKeysRoute
-  AuthedDashboardHandRoute: typeof AuthedDashboardHandRoute
-  AuthedDashboardTransactionsRoute: typeof AuthedDashboardTransactionsRoute
-  AuthedDashboardIndexRoute: typeof AuthedDashboardIndexRoute
+interface DashboardRouteRouteChildren {
+  DashboardApiKeysRoute: typeof DashboardApiKeysRoute
+  DashboardHandRoute: typeof DashboardHandRoute
+  DashboardTransactionsRoute: typeof DashboardTransactionsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
-const AuthedDashboardRouteChildren: AuthedDashboardRouteChildren = {
-  AuthedDashboardApiKeysRoute: AuthedDashboardApiKeysRoute,
-  AuthedDashboardHandRoute: AuthedDashboardHandRoute,
-  AuthedDashboardTransactionsRoute: AuthedDashboardTransactionsRoute,
-  AuthedDashboardIndexRoute: AuthedDashboardIndexRoute,
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardApiKeysRoute: DashboardApiKeysRoute,
+  DashboardHandRoute: DashboardHandRoute,
+  DashboardTransactionsRoute: DashboardTransactionsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
-const AuthedDashboardRouteWithChildren = AuthedDashboardRoute._addFileChildren(
-  AuthedDashboardRouteChildren,
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
 )
-
-interface AuthedRouteChildren {
-  AuthedDashboardRoute: typeof AuthedDashboardRouteWithChildren
-}
-
-const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedDashboardRoute: AuthedDashboardRouteWithChildren,
-}
-
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   BotLoginRoute: BotLoginRoute,
 }
 export const routeTree = rootRouteImport

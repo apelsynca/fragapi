@@ -4,12 +4,24 @@ import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import AppSidebar from '~/components/AppSidebar'
 import Providers from '~/components/Providers'
+import Landing from '~/components/Landing'
 
-export const Route = createFileRoute('/_authed/dashboard')({
+export const Route = createFileRoute('/dashboard')({
+  beforeLoad: ({ context }) => {
+    if (!context.token) {
+      throw new Error('Not authenticated')
+    }
+  },
+  errorComponent: ({ error }) => {
+    if (error.message === 'Not authenticated') {
+      return <Landing />
+    }
+
+    throw error
+  },
   component: DashboardComponent,
 })
 
-// idk about p-4 globally
 function DashboardComponent() {
   return (
     <TooltipProvider>

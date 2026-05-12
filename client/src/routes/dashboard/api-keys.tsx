@@ -5,7 +5,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { ClipboardCopyIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/_authed/dashboard/api-keys')({
+export const Route = createFileRoute('/dashboard/api-keys')({
   component: RouteComponent,
   loader: async () => {
     return await fetchMe()

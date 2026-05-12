@@ -17,27 +17,27 @@ export default function DashboardStats() {
       <DashboardStatsCard
         name="Баланс"
         amount={user.balance}
-        fiatAmount={user.balance * (tonRate || 0)}
+        fiatAmount={user.balance * tonRate}
         after={<BalanceTopUp />}
       />
       <DashboardStatsCard
         name="Общие траты"
         amount={transactionStats.monthlySpend || 0}
-        fiatAmount={transactionStats.totalSpent * (tonRate || 0)}
+        fiatAmount={transactionStats.totalSpent * tonRate}
         percent={0}
         description="За последние 30 дней"
       />
       <DashboardStatsCard
         name="Траты на звезды"
         amount={transactionStats.starsMonthlySpend || 0}
-        fiatAmount={0 * (tonRate || 0)}
+        fiatAmount={transactionStats.starsMonthlySpend * tonRate}
         percent={0}
         description="За последние 30 дней"
       />
       <DashboardStatsCard
         name="Траты на премиум"
         amount={transactionStats.premiumMonthlySpend || 0}
-        fiatAmount={0 * (tonRate || 0)}
+        fiatAmount={transactionStats.premiumMonthlySpend * tonRate}
         percent={0}
         description="За последние 30 дней"
       />
