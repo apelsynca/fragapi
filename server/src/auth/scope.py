@@ -7,4 +7,7 @@ class Scope(StrEnum):
     admin = "admin"
 
     transactions_read = "transactions:read"
-    stars_buy = "stars_buy"
+
+    # for now global stars and premium, also can be stars:buy, premium:gift
+    stars = "stars"
+    premium = "premium"

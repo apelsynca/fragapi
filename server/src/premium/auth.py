@@ -7,6 +7,6 @@ from src.auth.models import AuthSubject
 from src.auth.scope import Scope
 from src.models import User
 
-_StarsGlobal = Authenticator(required_scopes={Scope.stars}, allowed_subjects={User})
+_PremiumGlobal = Authenticator(required_scopes={Scope.premium}, allowed_subjects={User})
 
-StarsGlobal = Annotated[AuthSubject[User], Depends(_StarsGlobal)]
+PremiumGlobal = Annotated[AuthSubject[User], Depends(_PremiumGlobal)]

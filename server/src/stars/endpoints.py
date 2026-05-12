@@ -22,7 +22,7 @@ log = get_logger()
 
 @router.post("/buy", description="Buys stars for a given user.")
 async def buy_stars(
-    auth_subject: auth.StarsBuy,
+    auth_subject: auth.StarsGlobal,
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
     fragment: Fragment = Depends(get_fragment),
@@ -39,7 +39,7 @@ async def buy_stars(
 
 @router.get("/recipient/{username}", description="Get stars recipient info")
 async def get_recipient(
-    auth_subject: auth.StarsBuy,
+    auth_subject: auth.StarsGlobal,
     username: str,
     fragment: Fragment = Depends(get_fragment),
     quantity: int | None = Query(default=None),

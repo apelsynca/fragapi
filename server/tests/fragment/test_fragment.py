@@ -8,12 +8,12 @@ from src.fragment.types import FoundRecipientData, RecipientData
 
 @pytest.mark.asyncio
 async def test_search_stars_recipient(
-    fragment_rest_client: FragmentRestClient, mocker: MockerFixture
+    rest_client: FragmentRestClient, mocker: MockerFixture
 ) -> None:
-    fragment = Fragment(clients=[fragment_rest_client])
+    fragment = Fragment(clients=[rest_client])
 
     api_request_mock = mocker.patch.object(
-        fragment_rest_client,
+        rest_client,
         "api_request",
         return_value={
             "ok": True,
