@@ -15,12 +15,14 @@ from src.bot.setup import setup_bot
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
 from src.fragment import Fragment
+from src.fragment.rest_client import FragmentRestClient
 from src.health.endpoints import router as health_router
 from src.kit.database.postgres import (
     AsyncEngine,
     AsyncSessionMaker,
     create_async_sessionmaker,
 )
+from src.kit.ton_connect import TonConnect
 from src.logging import configure as configure_logging
 from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
@@ -51,7 +53,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     wallet = create_wallet()
     wallet_manager = WalletManager(wallet)
 
-    fragment = Fragment()
+    FragmentRestClient(
+        ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),
+        session_key="anyfornow",
+    )
+    fragment = Fragment(clients=[])
 
     bot_application = get_bot_application()
     if settings.is_production():

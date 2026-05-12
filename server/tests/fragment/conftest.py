@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 
 from src.kit.ton_connect import TonConnect
 
@@ -8,6 +9,13 @@ from src.kit.ton_connect import TonConnect
 @pytest.fixture
 def ton_connect() -> MagicMock:
     return MagicMock(spec=TonConnect)
+
+
+@pytest.fixture(autouse=True)
+def storage_load_session_mock(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch(
+        "src.fragment.rest_client.SessionStorage.load_session", return_value=None
+    )
 
 
 def generate_fake_main_page_text(hash: str, ton_proof: str, ton_rate: float) -> str:

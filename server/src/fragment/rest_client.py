@@ -1,5 +1,6 @@
 import json
 import re
+from asyncio import sleep
 from time import time
 from typing import Any
 
@@ -9,28 +10,48 @@ from src.fragment.exceptions import (
     FragmentAPIUsersNotFound,
     FragmentError,
 )
-from src.fragment.rest_request import BaseRequest, HttpxRequest
+from src.fragment.models import MainPageTokens
+from src.fragment.rest_request import BaseClient, HttpxClient
 from src.fragment.session_storage import SessionStorage
-from src.fragment.types import MainPageTokens
 from src.kit.ton_connect import TonConnect
-
-FragCookie = dict[str, str]
 
 
 class FragmentRestClient:
+    TC_DOMAIN = "fragment.com"
     STALE_TIME = 60 * 30  # 30 minutes
 
     def __init__(self, ton_connect: TonConnect, session_key: str) -> None:
-        self.session_storage = SessionStorage(session_key=session_key)
-        self.session_storage.load_session()  # fails only if file does not exists (AND THE TESTS FOR THAT IS GOING FOR IT, NOT FOR HERE)
+        if ton_connect.tc_domain != self.TC_DOMAIN:
+            raise RuntimeError(
+                f"ton_connect.tc_domain is different from required {self.TC_DOMAIN}."
+            )
 
-        self._request: BaseRequest = HttpxRequest()
+        self.session_storage = SessionStorage(session_key=session_key)
+        self.session_storage.load()  # fails only if file does not exists
+
+        self._client: BaseClient = HttpxClient(
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0",
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Host": "fragment.com",
+            },
+            http2=True,
+            cookies=self.session_storage.session.cookies
+            if self.session_storage.session
+            else None,
+        )
 
         self._ton_connect = ton_connect
         self.last_session_check: float = 0
 
     async def api_request(
-        self, method: str, data: dict[str, str], *, save_response_cookies: bool = False
+        self,
+        method: str,
+        data: dict[str, str],
+        *,
+        headers: dict[str, str] | None = None,
     ) -> Any:
         if data.get("method", None) is not None:
             raise ValueError("Cannot include key method in api_request.data")
@@ -44,13 +65,17 @@ class FragmentRestClient:
             self.session_storage.session is not None
             and now - self.STALE_TIME > self.last_session_check
         ):
-            await self._check_session()
+            await self.ensure_authorized()
 
-        status_code, content, response_cookies = await self._request.do_request(
+        if headers is None:
+            headers = {}
+        headers["X-Requested-With"] = "XMLHttpRequest"
+
+        status_code, content = await self._client.do_request(
             url=f"https://fragment.com/api?hash={self.session_storage.session.hash}",
             method="POST",
-            json_data=data,
-            cookies=self.session_storage.session.cookies,  # TEST THAT
+            form_data=data,
+            headers=headers,
         )
 
         if status_code != 200:
@@ -65,27 +90,29 @@ class FragmentRestClient:
                 raise FragmentAPIAccessDenied(response_data["error"])
             raise FragmentAPIError(response_data["error"])
 
-        if save_response_cookies:
-            self.session_storage.save_cookies(response_cookies)
-
         return response_data
 
-    async def _check_session(self) -> None:
+    async def ensure_authorized(self) -> None:
         if self.session_storage.session is None:
-            await self._authorize()
+            await self.authorize()
         else:
             is_correct = await self._is_correct_session_tokens()
             if not is_correct:
-                await self._authorize()
+                await self.authorize()
 
-    async def _authorize(self) -> None:
+    async def authorize(self) -> None:
+        """
+        Clears all of the current data and authorizes again via TonConnect
+        """
+
         main_page_tokens = await self.get_main_page_tokens()
         self.session_storage.save_tokens(main_page_tokens)
 
+        await sleep(0.5)
         await self.check_ton_proof_auth()
 
-        main_page_tokens = await self.get_main_page_tokens()
-        self.session_storage.save_tokens(main_page_tokens)
+        self.session_storage.save_cookies(self._client.extract_cookies())
+        self.session_storage.save()
 
     async def _is_correct_session_tokens(self) -> bool:
         if self.session_storage.session is None:
@@ -102,14 +129,8 @@ class FragmentRestClient:
         return True
 
     async def get_main_page_tokens(self) -> MainPageTokens:
-        request_cookies = (
-            None
-            if self.session_storage.session is None
-            else self.session_storage.session.cookies
-        )
-
-        status_code, content, _ = await self._request.do_request(
-            url="https://fragment.com/", method="GET", cookies=request_cookies
+        status_code, content = await self._client.do_request(
+            url="https://fragment.com/", method="GET"
         )
         text = content.decode("utf-8")
 
@@ -139,13 +160,19 @@ class FragmentRestClient:
 
     async def check_ton_proof_auth(self) -> tuple[bool]:
         if self.session_storage.session is None:
-            raise RuntimeError
+            raise RuntimeError("No session while checking ton proof auth")
 
         data = self._ton_connect.get_connect_json_data(
             ton_proof_payload=self.session_storage.session.ton_proof_payload
         )
         response_data = await self.api_request(
-            method="checkTonProofAuth", data=data, save_response_cookies=True
+            method="checkTonProofAuth",
+            data=data,
+            headers={
+                "Origin": "https://fragment.com",
+                "Referer": "https://fragment.com/",
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            },
         )
 
         return response_data["verified"]

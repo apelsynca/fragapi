@@ -1,10 +1,10 @@
 import json
 from typing import Any
 
-from src.fragment.rest_request import BaseRequest
+from src.fragment.rest_request import BaseClient
 
 
-class MockRequest(BaseRequest):
+class MockRequest(BaseClient):
     def __init__(
         self,
         return_status_code: int = 404,
@@ -15,7 +15,6 @@ class MockRequest(BaseRequest):
         self.return_status_code = return_status_code
         self.return_json = return_json
         self.return_text = return_text
-        self.return_cookies = return_cookies
 
     async def do_request(
         self,
@@ -24,7 +23,7 @@ class MockRequest(BaseRequest):
         json_data: dict | None = None,
         *,
         cookies: dict[str, str] | None = None,
-    ) -> tuple[int, bytes, dict[str, str]]:
+    ) -> tuple[int, bytes]:
         if self.return_json and self.return_text:
             raise RuntimeError("Cannot do both self.return_json and self.return_text")
 
@@ -37,5 +36,4 @@ class MockRequest(BaseRequest):
         return (
             self.return_status_code,
             content,
-            self.return_cookies,
         )

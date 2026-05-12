@@ -36,11 +36,12 @@ class TonConnect:
 
         self.tc_domain = tc_domain
 
+    # TEST THAT
     def get_connect_json_data(self, ton_proof_payload: str) -> dict[str, str]:
         connect_data = self.get_connect_data(ton_proof_payload=ton_proof_payload)
 
         return {
-            "account": json.dumps(connect_data.account),
+            "account": json.dumps(connect_data.account),  # separators
             "device": json.dumps(connect_data.device),
             "proof": json.dumps(connect_data.proof),
         }
@@ -68,14 +69,13 @@ class TonConnect:
 
     def get_device(self) -> dict:
         return {
-            "appVersion": "5.2.9",
             "platform": "iphone",
             "maxProtocolVersion": 2,
+            "appVersion": "26.04.2",
             "features": [
                 "SendTransaction",
                 {"name": "SendTransaction", "maxMessages": 255},
-                "SignData",
-                {"name": "SignData", "types": ["text", "binary", "cell"]},
+                {"types": ["text", "binary", "cell"], "name": "SignData"},
             ],
             "appName": "Tonkeeper",
         }
@@ -109,6 +109,6 @@ class TonConnect:
         return {
             "timestamp": timestamp,
             "domain": {"lengthBytes": len(domain_bytes), "value": self.tc_domain},
-            "signature": b64encode(signature).decode(),
             "payload": payload_hex,
+            "signature": b64encode(signature).decode(),
         }

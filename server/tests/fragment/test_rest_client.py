@@ -10,10 +10,10 @@ from src.fragment.exceptions import (
     FragmentAPIUsersNotFound,
     FragmentError,
 )
+from src.fragment.models import MainPageTokens
 from src.fragment.rest_client import FragmentRestClient
-from src.fragment.rest_request import BaseRequest
+from src.fragment.rest_request import BaseClient
 from src.fragment.session_storage import FragmentSession
-from src.fragment.types import MainPageTokens
 from src.kit.ton_connect import TonConnect
 from tests.fixtures.random_objects import rstr
 from tests.fragment.conftest import generate_fake_main_page_text
@@ -26,12 +26,9 @@ def valid_frag_session() -> FragmentSession:
 
 
 @pytest.fixture
-def rest_client(mocker: MockerFixture, ton_connect: MagicMock) -> FragmentRestClient:
-    mocker.patch(
-        "src.fragment.rest_client.SessionStorage.load_session", return_value=None
-    )
+def rest_client(ton_connect: MagicMock) -> FragmentRestClient:
     client = FragmentRestClient(ton_connect=ton_connect, session_key="phd")
-    client._request = MagicMock(spec=BaseRequest)
+    client._request = MagicMock(spec=BaseClient)
     client._request.do_request.return_value = (200, b"{}", {})
     client.last_session_check = time()
     return client
@@ -335,7 +332,7 @@ async def test_authorize(
 
     rest_client.session_storage.session = None
 
-    await rest_client._authorize()
+    await rest_client.authorize()
 
     assert rest_client.session_storage.session == FragmentSession(
         hash="bcedSecondHash",
@@ -392,8 +389,3 @@ async def test_check_ton_proof_auth_raises_if_no_session(
         await rest_client.check_ton_proof_auth()
 
     rest_client._ton_connect.get_connect_json_data.assert_not_called()
-
-
-@pytest.mark.asyncio
-async def test_idk() -> None:
-    pass

@@ -1,6 +1,12 @@
-from pydantic import BaseModel
+import json
 
-from src.fragment.types import MainPageTokens
+from pydantic import BaseModel, ValidationError
+
+from src.config import settings
+from src.fragment.models import MainPageTokens
+from src.logging import get_logger
+
+log = get_logger()
 
 
 class FragmentSession(BaseModel):
@@ -11,11 +17,29 @@ class FragmentSession(BaseModel):
 
 class SessionStorage:
     def __init__(self, session_key: str) -> None:
-        self._session_key = session_key
+        # self._session_key = session_key
         self.session: FragmentSession | None = None
 
-    def load_session(self) -> None:
-        raise RuntimeError("OH SHIT IM LOADING THE SESSION")
+    def load(self) -> None:
+        try:
+            with open(settings.FRAGMENT_SESSION_PATH) as fr:
+                json_str = fr.read()
+                self.session = FragmentSession.model_validate_json(json_str)
+        except FileNotFoundError as exc:
+            log.error(
+                "Fragment Session file is not found!",
+                session_path=settings.FRAGMENT_SESSION_PATH,
+            )
+            raise exc
+        except ValidationError as e:
+            log.warn("Session file validation error", error=str(e))
+
+    def save(self) -> None:
+        if self.session is None:
+            raise ValueError("There is no session to save")
+
+        with open(settings.FRAGMENT_SESSION_PATH, "w") as fw:
+            json.dump(self.session.model_dump(), fw, indent=2)
 
     def save_cookies(self, cookies: dict[str, str]) -> None:
         if self.session is None:
@@ -24,6 +48,11 @@ class SessionStorage:
         self.session.cookies.update(cookies)
 
     def save_tokens(self, tokens: MainPageTokens) -> None:
+        """
+        Saves main page tokens in the session,
+        if session is None -> Creates a new one
+        """
+
         if self.session is None:
             self.session = FragmentSession(
                 hash=tokens.hash, ton_proof_payload=tokens.ton_proof_payload, cookies={}
