@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react'
 import { DropdownMenuItem } from './ui/dropdown-menu'
+import { useTranslation } from 'react-i18next'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -34,6 +35,7 @@ function applyThemeMode(mode: ThemeMode) {
 }
 
 export default function ThemeToggle() {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<ThemeMode>('auto')
 
   useEffect(() => {
@@ -73,15 +75,15 @@ export default function ThemeToggle() {
     <DropdownMenuItem onClick={toggleMode} aria-label={label} title={label}>
       {mode === 'auto' ? (
         <>
-          <MonitorIcon /> Система
+          <MonitorIcon /> {t('sidebar.theme_system')}
         </>
       ) : mode === 'dark' ? (
         <>
-          <MoonIcon /> Тёмная
+          <MoonIcon /> {t('sidebar.theme_dark')}
         </>
       ) : (
         <>
-          <SunIcon /> Светлая
+          <SunIcon /> {t('sidebar.theme_light')}
         </>
       )}
     </DropdownMenuItem>

@@ -1,6 +1,6 @@
 import { MoreHorizontalIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { Transaction } from '~/lib/models/transactions'
+import type { Transaction } from '~/server/models/transactions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import { TonIcon } from '../icons/TonIcon'
 export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'reason',
-    header: 'Reason',
+    header: 'Тип',
     cell: ({ row }) =>
       row.original.reason.toLowerCase() === 'stars' ? (
         <p className="text-yellow-800 dark:text-yellow-200">Звезды</p>
@@ -25,7 +25,7 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Дата создания',
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString('ru-RU'),
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
   },
   {
     accessorKey: 'recipient',

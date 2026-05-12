@@ -3,7 +3,7 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import AppSidebar from '~/components/AppSidebar'
-import Providers from '~/components/Providers'
+import DashboardProviders from '~/components/DashboardProviders'
 import Landing from '~/components/Landing'
 
 export const Route = createFileRoute('/dashboard')({
@@ -26,7 +26,7 @@ function DashboardComponent() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <Providers>
+        <DashboardProviders>
           <AppSidebar />
           <main className="w-full relative">
             <SidebarTrigger className="ml-2 mt-2 absolute" />
@@ -35,7 +35,7 @@ function DashboardComponent() {
             </div>
             <Toaster theme="system" richColors />
           </main>
-        </Providers>
+        </DashboardProviders>
       </SidebarProvider>
     </TooltipProvider>
   )

@@ -6,7 +6,7 @@ import type {
 } from './models/transactions'
 import type { ListResource } from './models/misc'
 import { apiRequest } from './request'
-import { verifySession } from './auth'
+import { verifySession } from '../lib/auth'
 
 export const fetchTransactionStats = createServerFn().handler(async () => {
   const token = await verifySession()

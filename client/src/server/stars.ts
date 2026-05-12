@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
-import { verifySession } from './auth'
+import { verifySession } from '~/lib/auth'
 import { apiRequest } from './request'
-import type { BaseRecipient } from './models/recipient'
+import type { BaseRecipient } from '~/server/models/recipient'
 
 export const searchStarsRecipientFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { username: string; quantity?: number }) => data)

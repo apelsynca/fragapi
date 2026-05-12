@@ -1,6 +1,6 @@
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import { fetchMe } from '~/lib/user'
+import { fetchMe } from '~/server/user'
 import { createFileRoute } from '@tanstack/react-router'
 import { ClipboardCopyIcon } from 'lucide-react'
 import { toast } from 'sonner'

@@ -1,4 +1,4 @@
-import type { ListResource } from '~/lib/models/misc'
+import type { ListResource } from '~/server/models/misc'
 
 export const resourceGetNextPageParam = (
   lastPage: ListResource<any>,

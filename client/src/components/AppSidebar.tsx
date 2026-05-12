@@ -21,8 +21,11 @@ import {
 import AppSidebarBottom from './AppSidebarBottom'
 import { Suspense } from 'react'
 import AppSidebarBottomSkeleton from './AppSidebarBottomSkeleton'
+import { useTranslation } from 'react-i18next'
 
 function AppSidebar() {
+  const { t } = useTranslation()
+
   return (
     <Sidebar>
       <SidebarHeader />
@@ -33,21 +36,21 @@ function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard">
-                    <HomeIcon /> Главная
+                    <HomeIcon /> {t('sidebar.main')}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/transactions">
-                    <ListIcon /> Транзакции
+                    <ListIcon /> {t('sidebar.transactions')}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/api-keys">
-                    <KeySquareIcon /> API Ключи
+                    <KeySquareIcon /> {t('sidebar.api_keys')}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -58,7 +61,7 @@ function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuButton asChild>
                 <a href="https://docs.fragapi.com">
-                  <ExternalLinkIcon /> Документация
+                  <ExternalLinkIcon /> {t('sidebar.docs')}
                 </a>
               </SidebarMenuButton>
             </SidebarMenu>
@@ -66,12 +69,12 @@ function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Другое</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.other')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link to="/dashboard/hand">
-                  <JoystickIcon /> Ручная отправка
+                  <JoystickIcon /> {t('sidebar.hand_send')}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

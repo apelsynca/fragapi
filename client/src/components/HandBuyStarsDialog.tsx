@@ -1,5 +1,4 @@
-import { useServerFn } from '@tanstack/react-start'
-import type { BaseRecipient } from '~/lib/models/recipient'
+import type { BaseRecipient } from '~/server/models/recipient'
 import { Button } from './ui/button'
 import {
   Dialog,
@@ -11,17 +10,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog'
+import { useTranslation } from 'react-i18next'
 
 export const HandBuyStarsDialog: React.FC<{
   recipient: BaseRecipient
   quantity: string
   onClick: () => void
 }> = ({ recipient, quantity, onClick }) => {
+  const { t } = useTranslation()
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button disabled={!quantity} className="w-full">
-          {quantity ? `Купить ${quantity} звезды` : 'Введите кол-во'}
+          {quantity ? t('hand.buy', { quantity }) : 'Введите кол-во'}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -33,9 +35,9 @@ export const HandBuyStarsDialog: React.FC<{
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Отмена</Button>
+            <Button variant="outline">{t('cancel')}</Button>
           </DialogClose>
-          <Button onClick={onClick}>Да уверен</Button>
+          <Button onClick={onClick}>{t('iamsure')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

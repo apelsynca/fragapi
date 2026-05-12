@@ -1,11 +1,11 @@
 import { queryOptions } from '@tanstack/react-query'
-import { fetchMe } from './user'
-import { fetchTonRate } from './ton'
+import { fetchMe } from '~/server/user'
+import { fetchTonRate } from '~/server/ton'
 import {
   fetchTransactionsChart,
   fetchTransactionsPage,
   fetchTransactionStats,
-} from './transactions'
+} from '~/server/transactions'
 
 export const userMeQueryOptions = () =>
   queryOptions({

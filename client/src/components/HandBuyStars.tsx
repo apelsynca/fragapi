@@ -1,15 +1,18 @@
+import { useState } from 'react'
 import { useServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
-import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { searchStarsRecipientFn, buyStarsFn } from '~/lib/stars'
-import type { BaseRecipient } from '~/lib/models/recipient'
+import { searchStarsRecipientFn, buyStarsFn } from '~/server/stars'
+import type { BaseRecipient } from '~/server/models/recipient'
 import { XIcon } from 'lucide-react'
 import { HandBuyStarsDialog } from './HandBuyStarsDialog'
 
 export const HandBuyStars = () => {
+  const { t } = useTranslation()
+
   const [recipient, setRecipient] = useState<null | BaseRecipient>(null)
   const [username, setUsername] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
@@ -60,7 +63,7 @@ export const HandBuyStars = () => {
   return (
     <Card className="w-full max-w-72">
       <CardHeader>
-        <CardTitle>Купить звезды</CardTitle>
+        <CardTitle>{t('hand.stars_title')}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {recipient ? (
@@ -86,11 +89,10 @@ export const HandBuyStars = () => {
       <CardFooter>
         {recipient === null ? (
           <Button className="w-full" onClick={handleCheckRecipient}>
-            Проверить получателя
+            {t('hand.check_recipient')}
           </Button>
         ) : (
           <HandBuyStarsDialog
-            username={username}
             recipient={recipient}
             quantity={quantity}
             onClick={handleBuy}

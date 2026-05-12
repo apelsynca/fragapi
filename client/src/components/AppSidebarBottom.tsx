@@ -3,6 +3,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import {
   ChevronsUpDownIcon,
+  LanguagesIcon,
   LogOutIcon,
   PlugZapIcon,
   UnplugIcon,
@@ -18,11 +19,15 @@ import {
 } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
-import { logoutFn } from '~/lib/auth-second'
+import { logoutFn } from '~/server/auth-manager'
 import ThemeToggle from './ThemeToggle'
 import { userMeQueryOptions } from '~/lib/queries'
+import LanguageToggle from './LanguageToggle'
+import { useTranslation } from 'react-i18next'
 
 export default function AppSidebarBottom() {
+  const { t } = useTranslation()
+
   const queryClient = useQueryClient()
   const logout = useServerFn(logoutFn)
 
@@ -71,13 +76,14 @@ export default function AppSidebarBottom() {
           <ThemeToggle />
           {wallet === null ? (
             <DropdownMenuItem onClick={() => tonConnectUI.openModal()}>
-              <PlugZapIcon /> Подключить кошелек
+              <PlugZapIcon /> {t('connect_wallet')}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => tonConnectUI.disconnect()}>
-              <UnplugIcon /> Отключить кошелек
+              <UnplugIcon /> {t('disconnect_wallet')}
             </DropdownMenuItem>
           )}
+          <LanguageToggle />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="flex gap-1">
@@ -87,7 +93,7 @@ export default function AppSidebarBottom() {
             onClick={handleLogout}
           >
             <LogOutIcon />
-            Выйти
+            {t('sidebar.logout')}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

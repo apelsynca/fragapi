@@ -1,0 +1,40 @@
+{
+  "land": {
+    "desc": "Use fragment via API, without KYC, without 24words.",
+    "go_to_panel": "Go to panel",
+    "bot_login": "Login via Bot",
+    "learn_more": "Learn more"
+  },
+  "connect_wallet": "Connect wallet",
+  "disconnect_wallet": "Disconnect wallet",
+  "sidebar": {
+    "main": "Main",
+    "transactions": "Transactions",
+    "api_keys": "API Keys",
+    "docs": "Docs",
+    "other": "Other",
+    "hand_send": "Hand send",
+    "theme_dark": "Dark",
+    "theme_light": "Light",
+    "theme_system": "System",
+    "logout": "Logout"
+  },
+  "transactions": "Transactions",
+  "transactions_desc": "Your transactions history",
+  "stats": {
+    "balance": "Balance",
+    "spend": "Spend total",
+    "stars_spend": "Spend on Stars",
+    "premium_spend": "Spend on Premium",
+    "last_30days": "In the last 30 days",
+    "transaction_stats": "Transactions stats",
+    "90days_chart": "Showing stats for the last 90 days"
+  },
+  "hand": {
+    "stars_title": "Hand buy stars",
+    "check_recipient": "Check recipient",
+    "buy": "Buy {{quantity}} stars"
+  },
+  "cancel": "Cancel",
+  "iamsure": "Im Sure"
+}

@@ -1,0 +1,40 @@
+{
+  "land": {
+    "desc": "Используйте фрагмент через API, без KYC, без 24х слов",
+    "go_to_panel": "Go to panel",
+    "bot_login": "Login via Bot",
+    "learn_more": "Learn more"
+  },
+  "connect_wallet": "Подключить кошелек",
+  "disconnect_wallet": "Отключить кошелек",
+  "sidebar": {
+    "main": "Главная",
+    "transactions": "Транзакции",
+    "api_keys": "API Ключи",
+    "docs": "Документация",
+    "other": "Другое",
+    "hand_send": "Ручная отправка",
+    "theme_dark": "Тёмная",
+    "theme_light": "Светлая",
+    "theme_system": "Системная",
+    "logout": "Выйти"
+  },
+  "transactions": "Транзакции",
+  "transactions_desc": "История ваших транзакций",
+  "stats": {
+    "balance": "Баланс",
+    "spend": "Общие траты",
+    "stars_spend": "Траты на звезды",
+    "premium_spend": "Траты на премиум",
+    "last_30days": "За последние 30 дней",
+    "transaction_stats": "Статистика транзакций",
+    "90days_chart": "Показываем транзакции за последние 90 дней"
+  },
+  "hand": {
+    "stars_title": "Купить звезды вручную",
+    "check_recipient": "Проверить получателя",
+    "buy": "Купить {{quantity}} звезды"
+  },
+  "cancel": "Отмена",
+  "iamsure": "Я уверен"
+}

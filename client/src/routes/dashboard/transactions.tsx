@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
+import { createFileRoute } from '@tanstack/react-router'
 import TransactionsList from '~/components/transactions/TransactionsList'
 
 export const Route = createFileRoute('/dashboard/transactions')({
@@ -7,12 +8,16 @@ export const Route = createFileRoute('/dashboard/transactions')({
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
+
   return (
     <div>
       <div className="mb-6 text-center">
-        <h2 className="text-center font-semibold text-xl">Транзакции</h2>
+        <h2 className="text-center font-semibold text-xl">
+          {t('transactions')}
+        </h2>
         <p className="text-muted-foreground text-sm">
-          История ваших транзакций
+          {t('transactions_desc')}
         </p>
       </div>
       <Suspense>

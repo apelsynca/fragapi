@@ -1,7 +1,7 @@
 import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
-import { useAppSession } from './session'
+import { useAppSession } from '../lib/session'
 
 export const botHashLoginFn = createServerFn({ method: 'POST' })
   .inputValidator((hash: string) => hash)

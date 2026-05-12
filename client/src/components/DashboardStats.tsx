@@ -6,8 +6,11 @@ import {
   transactionStatsOptions,
   userMeQueryOptions,
 } from '~/lib/queries'
+import { useTranslation } from 'react-i18next'
 
 export default function DashboardStats() {
+  const { t } = useTranslation()
+
   const { data: user } = useSuspenseQuery(userMeQueryOptions())
   const { data: transactionStats } = useSuspenseQuery(transactionStatsOptions())
   const { data: tonRate } = useSuspenseQuery(tonRateQueryOptions())
@@ -15,31 +18,31 @@ export default function DashboardStats() {
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
-        name="Баланс"
+        name={t('stats.balance')}
         amount={user.balance}
         fiatAmount={user.balance * tonRate}
         after={<BalanceTopUp />}
       />
       <DashboardStatsCard
-        name="Общие траты"
+        name={t('stats.spend')}
         amount={transactionStats.monthlySpend || 0}
         fiatAmount={transactionStats.totalSpent * tonRate}
         percent={0}
-        description="За последние 30 дней"
+        description={t('stats.last_30days')}
       />
       <DashboardStatsCard
-        name="Траты на звезды"
+        name={t('stats.stars_spend')}
         amount={transactionStats.starsMonthlySpend || 0}
         fiatAmount={transactionStats.starsMonthlySpend * tonRate}
         percent={0}
-        description="За последние 30 дней"
+        description={t('stats.last_30days')}
       />
       <DashboardStatsCard
-        name="Траты на премиум"
+        name={t('stats.premium_spend')}
         amount={transactionStats.premiumMonthlySpend || 0}
         fiatAmount={transactionStats.premiumMonthlySpend * tonRate}
         percent={0}
-        description="За последние 30 дней"
+        description={t('stats.last_30days')}
       />
     </div>
   )

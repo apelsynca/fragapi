@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import DashboardStats from '~/components/DashboardStats'
 import DashboardChart from '~/components/DashboardChart'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
