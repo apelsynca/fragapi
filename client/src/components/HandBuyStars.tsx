@@ -16,6 +16,7 @@ export const HandBuyStars = () => {
   const [recipient, setRecipient] = useState<null | BaseRecipient>(null)
   const [username, setUsername] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
+  const [diOpen, setDiOpen] = useState<boolean>(false)
 
   const buyStars = useServerFn(buyStarsFn)
   const searchStarsRecipient = useServerFn(searchStarsRecipientFn)
@@ -40,6 +41,8 @@ export const HandBuyStars = () => {
   }
 
   const handleBuy = async () => {
+    setDiOpen(false)
+
     const qNum = parseInt(quantity)
 
     if (isNaN(qNum)) {
@@ -96,6 +99,8 @@ export const HandBuyStars = () => {
             recipient={recipient}
             quantity={quantity}
             onClick={handleBuy}
+            open={diOpen}
+            onOpenChange={(open) => setDiOpen(open)}
           />
         )}
       </CardFooter>

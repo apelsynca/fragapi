@@ -16,11 +16,13 @@ export const HandBuyStarsDialog: React.FC<{
   recipient: BaseRecipient
   quantity: string
   onClick: () => void
-}> = ({ recipient, quantity, onClick }) => {
+  onOpenChange: (open: boolean) => void
+  open: boolean
+}> = ({ recipient, quantity, onClick, onOpenChange, open }) => {
   const { t } = useTranslation()
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogTrigger asChild>
         <Button disabled={!quantity} className="w-full">
           {quantity ? t('hand.buy', { quantity }) : 'Введите кол-во'}
