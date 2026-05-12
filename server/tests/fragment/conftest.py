@@ -1,8 +1,13 @@
+import random
 from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
 
+from src.fragment.models import MainPageTokens
+from src.fragment.rest_client import FragmentRestClient
+from src.fragment.rest_request import BaseClient
+from src.fragment.session_storage import FragmentSession
 from src.kit.ton_connect import TonConnect
 
 
@@ -20,6 +25,35 @@ def session_storage_load_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
         "src.fragment.rest_client.SessionStorage.load", return_value=None
     )
+
+
+@pytest.fixture
+def valid_frag_session() -> FragmentSession:
+    return FragmentSession(hash="eecc", ton_proof_payload="bbdd", cookies={})
+
+
+@pytest.fixture
+def rest_client(
+    ton_connect: MagicMock, mocker: MockerFixture, valid_frag_session: FragmentSession
+) -> FragmentRestClient:
+    client = FragmentRestClient(ton_connect=ton_connect, session_key="any")
+
+    client._client = MagicMock(spec=BaseClient)
+    client._client.do_request.return_value = (200, b"{}")
+    client.last_session_check = 0
+
+    client.session_storage.session = valid_frag_session
+    mocker.patch.object(
+        client,
+        "get_main_page_tokens",
+        return_value=MainPageTokens(
+            hash=valid_frag_session.hash,
+            ton_proof_payload=valid_frag_session.ton_proof_payload,
+            ton_rate=random.randint(1, 500) / 100,
+        ),
+    )
+
+    return client
 
 
 def generate_fake_main_page_text(hash: str, ton_proof: str, ton_rate: float) -> str:

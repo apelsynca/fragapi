@@ -16,18 +16,18 @@ async def test_rejects_get_recipient_without_auth(client: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.auth
-async def test_abc(
-    client: AsyncClient, fragment_rest: MagicMock, wallet_manager: MagicMock, user: User
+async def test_buy_or_smth(
+    client: AsyncClient, fragment: MagicMock, wallet_manager: MagicMock, user: User
 ) -> None:
     user.balance = 100
     wallet_manager.transfer_from_tc.return_value = "somehashik"
     wallet_manager.get_balance.return_value = 100
 
-    fragment_rest.search_premium_gift_recipient.return_value = RecipientData(
+    fragment.search_premium_gift_recipient.return_value = RecipientData(
         ok=True,
         found=FoundRecipientData(myself=False, recipient="ogurchik", photo="", name=""),
     )
-    fragment_rest.get_gift_premium_link.return_value = BuyLink(
+    fragment.get_gift_premium_link.return_value = BuyLink(
         ok=True, transaction=get_valid_transaction(amount=5)
     )
 

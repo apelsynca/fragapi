@@ -3,14 +3,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.enums import PremiumMonths
-from src.exceptions import (
-    ResourceNotFound,
-)
+from src.exceptions import ResourceNotFound
 from src.fragment.exceptions import FragmentAPIUsersNotFound
-from src.fragment.types import (
-    BuyLink,
-    BuyRequest,
-)
+from src.fragment.types import BuyLink, BuyRequest
 from src.premium.schemas import PremiumRecipient
 from src.premium.service import premium as premium_service
 from tests.fixtures.random_objects import (

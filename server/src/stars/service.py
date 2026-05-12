@@ -27,10 +27,10 @@ class StarsService:
         log.info("Buy stars request", quantity=data.quantity, username=data.username)
 
         recipient_data = await self.get_recipient(
-            fragment_rest=fragment_rest, username=data.username, quantity=data.quantity
+            fragment=fragment, username=data.username, quantity=data.quantity
         )
         transaction = await self.get_tc_transaction(
-            fragment_rest, recipient_data=recipient_data, quantity=data.quantity
+            fragment, recipient_data=recipient_data, quantity=data.quantity
         )
 
         return await self.buy_from_tc_transaction(
@@ -67,11 +67,11 @@ class StarsService:
         if quantity < 50 or quantity > 10_000_000:
             raise BadRequest("Invalid quantity")
 
-        buy_request = await fragment_rest.init_buy_stars_request(
+        buy_request = await fragment.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=quantity
         )
 
-        buy_link = await fragment_rest.get_buy_stars_link(
+        buy_link = await fragment.get_buy_stars_link(
             req_id=buy_request.req_id, show_sender=False
         )
 
@@ -81,7 +81,7 @@ class StarsService:
         self, fragment: Fragment, username: str, *, quantity: int | None = None
     ) -> StarsRecipient:
         try:
-            recipient = await fragment_rest.search_stars_recipient(
+            recipient = await fragment.search_stars_recipient(
                 query=username,
                 quantity=random.choice([50, 75, 500, 2500])
                 if quantity is None

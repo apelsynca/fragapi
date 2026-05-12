@@ -1,27 +1,9 @@
-from unittest.mock import AsyncMock
-
 import pytest
 from pytest_mock import MockerFixture
 
 from src.fragment.main import Fragment
 from src.fragment.rest_client import FragmentRestClient
-from src.fragment.rest_request import BaseClient
-from src.fragment.session_storage import FragmentSession
 from src.fragment.types import FoundRecipientData, RecipientData
-from src.kit.ton_connect import TonConnect
-
-
-@pytest.fixture
-def fragment_rest_client(
-    ton_connect: TonConnect, mocker: MockerFixture
-) -> FragmentRestClient:
-    client = FragmentRestClient(ton_connect=ton_connect, session_key="thesession")
-    client.session_storage.session = FragmentSession(
-        hash="SessionHash", ton_proof_payload="SessionPayload", cookies={}
-    )
-    client._client = AsyncMock(spec=BaseClient)
-
-    return client
 
 
 @pytest.mark.asyncio
