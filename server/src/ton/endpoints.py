@@ -1,3 +1,6 @@
+from fastapi import Depends
+
+from src.fragment import Fragment, get_fragment
 from src.kit.schemas import Schema
 from src.openapi import APITag
 from src.routing import APIRouter
@@ -10,5 +13,6 @@ class TonRate(Schema):
 
 
 @router.get("/rate")
-async def get_ton_rate() -> TonRate:
-    return TonRate(ton_rate=1.25)
+async def get_ton_rate(fragment: Fragment = Depends(get_fragment)) -> TonRate:
+    ton_rate = await fragment.get_ton_usd_rate()
+    return TonRate(ton_rate=ton_rate)

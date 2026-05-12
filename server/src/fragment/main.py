@@ -1,4 +1,5 @@
 import json
+from time import time
 from typing import Literal
 
 from src.fragment.rest_client import FragmentRestClient
@@ -8,11 +9,29 @@ type MonthsAmount = Literal["3", "6", "12"]
 
 
 class Fragment:
+    CACHE_LT = 60 * 5  # 10 mins
+
     def __init__(self, clients: list[FragmentRestClient]) -> None:
         if len(clients) == 0:
             raise RuntimeError("Fragment needs at least 1 client")
 
         self.clients = clients
+
+        self._last_cache_ut: float = 0
+        self._cached_ton_rate: float | None = None
+
+    async def get_ton_usd_rate(self) -> float:
+        now = time()
+        if (
+            now - self._last_cache_ut <= self.CACHE_LT
+            and self._cached_ton_rate is not None
+        ):
+            return self._cached_ton_rate
+
+        client = self.get_client()
+        main_page_tokens = await client.get_main_page_tokens()
+
+        return main_page_tokens.ton_rate
 
     async def search_stars_recipient(
         self, query: str, quantity: int | None = None
