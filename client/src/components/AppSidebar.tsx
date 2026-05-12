@@ -40,7 +40,7 @@ function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/transactions">
-                    <ListIcon /> Тразнакции
+                    <ListIcon /> Транзакции
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
