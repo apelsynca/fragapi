@@ -7,8 +7,8 @@ from src.schemas import BaseBuyResponse, BaseRecipient
 
 
 class BuyStars(Schema):
-    quantity: Annotated[int, Field(ge=50, le=10_000_000)]
     username: str
+    quantity: Annotated[int, Field(ge=50, le=10_000_000)]
 
 
 class StarsRecipient(BaseRecipient):

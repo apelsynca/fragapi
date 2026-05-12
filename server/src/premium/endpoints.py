@@ -17,6 +17,22 @@ router = APIRouter(prefix="/premium", tags=["Premium", APITag.public])
 log = get_logger()
 
 
+@router.get("/recipient/{username}", description="Get premium recipient")
+async def get_recipient(
+    auth_subject: auth.PremiumGlobal,
+    username: str,
+    fragment: Fragment = Depends(get_fragment),
+) -> PremiumRecipient:
+    log.info(
+        "Get recipient request from",
+        user=auth_subject.subject,
+        username=auth_subject.subject.username,
+        recipient_username=username,
+    )
+
+    return await premium_service.get_recipient(fragment=fragment, username=username)
+
+
 @router.post("/buy", description="Buy premium subscription for a user.")
 async def buy_premium(
     auth_subject: auth.PremiumGlobal,
@@ -32,19 +48,3 @@ async def buy_premium(
         fragment=fragment,
         wallet_manager=wallet_manager,
     )
-
-
-@router.get("/recipient/{username}", description="Get premium recipient")
-async def get_recipient(
-    auth_subject: auth.PremiumGlobal,
-    username: str,
-    fragment: Fragment = Depends(get_fragment),
-) -> PremiumRecipient:
-    log.info(
-        "Get recipient request from",
-        user=auth_subject.subject,
-        username=auth_subject.subject.username,
-        recipient_username=username,
-    )
-
-    return await premium_service.get_recipient(fragment=fragment, username=username)

@@ -17,13 +17,13 @@ from src.kit.ton_connect import TonConnect
 
 
 class FragmentRestClient:
-    TC_DOMAIN = "fragment.com"
+    DOMAIN = "fragment.com"
     STALE_TIME = 60 * 30  # 30 minutes
 
     def __init__(self, ton_connect: TonConnect, session_key: str) -> None:
-        if ton_connect.tc_domain != self.TC_DOMAIN:
+        if ton_connect.tc_domain != self.DOMAIN:
             raise RuntimeError(
-                f"ton_connect.tc_domain is different from required {self.TC_DOMAIN}."
+                f"ton_connect.tc_domain is different from required {self.DOMAIN}."
             )
 
         self.session_storage = SessionStorage(session_key=session_key)
@@ -31,11 +31,11 @@ class FragmentRestClient:
 
         self._client: BaseClient = HttpxClient(
             headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0 HomoCitrus 150 (Windows)",
                 "Accept": "application/json, text/javascript, */*; q=0.01",
                 "Accept-Encoding": "gzip, deflate, br, zstd",
                 "Accept-Language": "en-US,en;q=0.9",
-                "Host": "fragment.com",
+                "Host": self.DOMAIN,
             },
             http2=True,
             cookies=self.session_storage.session.cookies

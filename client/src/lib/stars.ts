@@ -8,12 +8,12 @@ export const searchStarsRecipientFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const token = await verifySession()
 
-    const abc: any = {}
+    const params: { quantity?: string } = {}
     if (data.quantity !== undefined) {
-      abc['quantity'] = data.quantity.toString()
+      params.quantity = data.quantity.toString()
     }
 
-    const urlParams = new URLSearchParams(abc)
+    const urlParams = new URLSearchParams(params)
 
     const recipientData = await apiRequest({
       method: 'GET',
@@ -22,4 +22,23 @@ export const searchStarsRecipientFn = createServerFn({ method: 'GET' })
     })
 
     return recipientData as BaseRecipient
+  })
+
+interface BuyData {
+  username: string
+  quantity: number
+}
+
+export const buyStarsFn = createServerFn({})
+  .inputValidator((data: BuyData) => data)
+  .handler(async ({ data }) => {
+    const token = await verifySession()
+
+    const buyResp = await apiRequest({
+      method: 'POST',
+      endpoint: '/stars/buy',
+      payload: data,
+      token,
+    })
+    return buyResp as { messageHash: string }
   })

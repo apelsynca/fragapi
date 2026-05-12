@@ -4,15 +4,17 @@ import { useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { searchStarsRecipientFn } from '~/lib/stars'
+import { searchStarsRecipientFn, buyStarsFn } from '~/lib/stars'
 import type { BaseRecipient } from '~/lib/models/recipient'
-import { Avatar, AvatarImage } from './ui/avatar'
+import { XIcon } from 'lucide-react'
+import { HandBuyStarsDialog } from './HandBuyStarsDialog'
 
 export const HandBuyStars = () => {
   const [recipient, setRecipient] = useState<null | BaseRecipient>(null)
   const [username, setUsername] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
 
+  const buyStars = useServerFn(buyStarsFn)
   const searchStarsRecipient = useServerFn(searchStarsRecipientFn)
 
   const handleCheckRecipient = async () => {
@@ -22,15 +24,37 @@ export const HandBuyStars = () => {
     }
 
     // check recipient
-    const recipient = await searchStarsRecipient({
-      data: {
-        username,
-      },
-    })
+    try {
+      const responseRecipient = await searchStarsRecipient({
+        data: {
+          username,
+        },
+      })
+      setRecipient(responseRecipient)
+    } catch (e: any) {
+      toast.error(e.message)
+    }
+  }
 
-    console.log(recipient)
+  const handleBuy = async () => {
+    const qNum = parseInt(quantity)
 
-    setRecipient(recipient)
+    if (isNaN(qNum)) {
+      console.log('quantity is somehow NaN', quantity, qNum)
+      return
+    }
+
+    try {
+      const buyResp = await buyStars({
+        data: { username, quantity: qNum },
+      })
+
+      toast.success(`Купил ${quantity} звезды для @${username}`, {
+        description: `Хэш: ${buyResp.messageHash}`,
+      })
+    } catch (e: any) {
+      toast.error(e.message)
+    }
   }
 
   return (
@@ -40,8 +64,11 @@ export const HandBuyStars = () => {
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {recipient ? (
-          <div className="font-semibold h-8 px-2.5 py-1 border rounded-lg">
+          <div className="flex justify-between items-center font-semibold h-8 px-2.5 py-1 border rounded-lg">
             {recipient.name}
+            <Button onClick={() => setRecipient(null)} size="icon-xs">
+              <XIcon />
+            </Button>
           </div>
         ) : (
           <Input
@@ -57,9 +84,18 @@ export const HandBuyStars = () => {
         />
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={handleCheckRecipient}>
-          Проверить получателя
-        </Button>
+        {recipient === null ? (
+          <Button className="w-full" onClick={handleCheckRecipient}>
+            Проверить получателя
+          </Button>
+        ) : (
+          <HandBuyStarsDialog
+            username={username}
+            recipient={recipient}
+            quantity={quantity}
+            onClick={handleBuy}
+          />
+        )}
       </CardFooter>
     </Card>
   )
