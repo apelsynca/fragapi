@@ -41,9 +41,9 @@ class TonConnect:
         connect_data = self.get_connect_data(ton_proof_payload=ton_proof_payload)
 
         return {
-            "account": json.dumps(connect_data.account),  # separators
-            "device": json.dumps(connect_data.device),
-            "proof": json.dumps(connect_data.proof),
+            "account": json.dumps(connect_data.account, separators=(",", ":")),
+            "device": json.dumps(connect_data.device, separators=(",", ":")),
+            "proof": json.dumps(connect_data.proof, separators=(",", ":")),
         }
 
     def get_connect_data(self, ton_proof_payload: str) -> TonConnectData:

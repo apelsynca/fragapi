@@ -46,13 +46,7 @@ class FragmentRestClient:
         self._ton_connect = ton_connect
         self.last_session_check: float = 0
 
-    async def api_request(
-        self,
-        method: str,
-        data: dict[str, str],
-        *,
-        headers: dict[str, str] | None = None,
-    ) -> Any:
+    async def api_request(self, method: str, data: dict[str, str]) -> Any:
         if data.get("method", None) is not None:
             raise ValueError("Cannot include key method in api_request.data")
         data["method"] = method
@@ -67,15 +61,11 @@ class FragmentRestClient:
         ):
             await self.ensure_authorized()
 
-        if headers is None:
-            headers = {}
-        headers["X-Requested-With"] = "XMLHttpRequest"
-
         status_code, content = await self._client.do_request(
             url=f"https://fragment.com/api?hash={self.session_storage.session.hash}",
             method="POST",
             form_data=data,
-            headers=headers,
+            headers={"X-Requested-With": "XMLHttpRequest"},
         )
 
         if status_code != 200:
@@ -168,11 +158,6 @@ class FragmentRestClient:
         response_data = await self.api_request(
             method="checkTonProofAuth",
             data=data,
-            headers={
-                "Origin": "https://fragment.com",
-                "Referer": "https://fragment.com/",
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            },
         )
 
         return response_data["verified"]

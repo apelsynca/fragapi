@@ -19,7 +19,7 @@ def fragment_rest_client(
     client.session_storage.session = FragmentSession(
         hash="SessionHash", ton_proof_payload="SessionPayload", cookies={}
     )
-    client._request = AsyncMock(spec=BaseClient)
+    client._client = AsyncMock(spec=BaseClient)
 
     return client
 

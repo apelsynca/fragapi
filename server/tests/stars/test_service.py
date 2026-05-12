@@ -3,8 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.exceptions import BadRequest
-from src.fragment_rest.rest import FragmentRest
-from src.fragment_rest.types import BuyLink, BuyRequest
+from src.fragment.types import BuyLink, BuyRequest
 from src.stars.schemas import StarsRecipient
 from src.stars.service import stars as stars_service
 from tests.fixtures.random_objects import get_valid_transaction
@@ -36,7 +35,7 @@ async def test_get_buy_transaction(fragment_rest: MagicMock) -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize("quantity", [49, 1, -200, 10_000_001])
 async def test_get_buy_trans_raises_on_invalid_quantity(
-    fragment_rest: FragmentRest, quantity: int
+    fragment_rest: MagicMock, quantity: int
 ) -> None:
     # i know here maybe FragRequestValidationError is better
     with pytest.raises(BadRequest):

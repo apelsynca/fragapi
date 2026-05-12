@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from httpx import AsyncClient
 
-from src.fragment_rest.types import BuyLink, FoundRecipientData, RecipientData
+from src.fragment.types import BuyLink, FoundRecipientData, RecipientData
 from src.models import User
 from tests.fixtures.random_objects import get_valid_transaction
 

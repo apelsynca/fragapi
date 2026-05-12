@@ -1,8 +1,7 @@
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.fragment_rest import get_fragment_rest
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment, get_fragment
 from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session
@@ -26,14 +25,14 @@ async def buy_stars(
     auth_subject: auth.StarsBuy,
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
-    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    fragment: Fragment = Depends(get_fragment),
     wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
     return await stars_service.buy(
         session=session,
         user=auth_subject.subject,
         data=data,
-        fragment_rest=fragment_rest,
+        fragment=fragment,
         wallet_manager=wallet_manager,
     )
 
@@ -42,7 +41,7 @@ async def buy_stars(
 async def get_recipient(
     auth_subject: auth.StarsBuy,
     username: str,
-    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    fragment: Fragment = Depends(get_fragment),
     quantity: int | None = Query(default=None),
 ) -> StarsRecipient:
     log.info(
@@ -53,7 +52,7 @@ async def get_recipient(
     )
 
     return await stars_service.get_recipient(
-        fragment_rest=fragment_rest,
+        fragment=fragment,
         username=username,
         quantity=quantity,
     )

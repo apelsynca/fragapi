@@ -3,8 +3,8 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import BadRequest, ResourceNotFound
-from src.fragment_rest.exceptions import FragmentAPIUsersNotFound
-from src.fragment_rest.rest import FragmentRest
+from src.fragment import Fragment
+from src.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import get_logger
 from src.models import TransactionReason, User
 from src.payments.service import payment as payment_service
@@ -21,7 +21,7 @@ class StarsService:
         session: AsyncSession,
         user: User,
         data: BuyStars,
-        fragment_rest: FragmentRest,
+        fragment: Fragment,
         wallet_manager: WalletManager,
     ) -> BuyStarsResponse:
         log.info("Buy stars request", quantity=data.quantity, username=data.username)
@@ -62,7 +62,7 @@ class StarsService:
         return BuyStarsResponse(message_hash=message_hash)
 
     async def get_tc_transaction(
-        self, fragment_rest: FragmentRest, recipient_data: StarsRecipient, quantity: int
+        self, fragment: Fragment, recipient_data: StarsRecipient, quantity: int
     ) -> TonConnectTransaction:
         if quantity < 50 or quantity > 10_000_000:
             raise BadRequest("Invalid quantity")
@@ -78,7 +78,7 @@ class StarsService:
         return buy_link.transaction
 
     async def get_recipient(
-        self, fragment_rest: FragmentRest, username: str, *, quantity: int | None = None
+        self, fragment: Fragment, username: str, *, quantity: int | None = None
     ) -> StarsRecipient:
         try:
             recipient = await fragment_rest.search_stars_recipient(

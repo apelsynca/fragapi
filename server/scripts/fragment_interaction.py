@@ -1,6 +1,6 @@
 import asyncio
 
-from src.fragment.main import Fragment
+from src.fragment import Fragment
 from src.fragment.rest_client import FragmentRestClient
 from src.kit.ton_connect import TonConnect
 from src.wallet.ton import create_wallet

@@ -15,6 +15,7 @@ class ThermosService:
         self.api = ThermosProxyAPI()
 
         # TODO: remove unnecessary collections search (map short_name)
+        # YES.
 
     async def find_collection_model(self, short_name: str, model: str) -> GiftModel:
         collection = await self.find_collection(short_name)

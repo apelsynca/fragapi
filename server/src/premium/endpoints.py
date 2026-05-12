@@ -29,7 +29,7 @@ async def buy_premium(
         session=session,
         user=auth_subject.subject,
         data=data,
-        fragment_rest=fragment_rest,
+        fragment=fragment,
         wallet_manager=wallet_manager,
     )
 
@@ -38,7 +38,7 @@ async def buy_premium(
 async def get_recipient(
     username: str,
     auth_subject: AuthorizeAPIUser,
-    fragment_rest: FragmentRest = Depends(get_fragment_rest),
+    fragment: Fragment = Depends(get_fragment),
 ) -> PremiumRecipient:
     log.info(
         "Get recipient request from",
@@ -47,6 +47,4 @@ async def get_recipient(
         recipient_username=username,
     )
 
-    return await premium_service.get_recipient(
-        fragment_rest=fragment_rest, username=username
-    )
+    return await premium_service.get_recipient(fragment=fragment, username=username)

@@ -8,13 +8,17 @@ from src.kit.ton_connect import TonConnect
 
 @pytest.fixture
 def ton_connect() -> MagicMock:
-    return MagicMock(spec=TonConnect)
+    ton_connect = MagicMock(spec=TonConnect)
+
+    ton_connect.tc_domain = "fragment.com"
+
+    return ton_connect
 
 
 @pytest.fixture(autouse=True)
-def storage_load_session_mock(mocker: MockerFixture) -> MagicMock:
+def session_storage_load_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.fragment.rest_client.SessionStorage.load_session", return_value=None
+        "src.fragment.rest_client.SessionStorage.load", return_value=None
     )
 
 

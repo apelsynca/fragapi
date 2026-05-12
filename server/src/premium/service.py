@@ -26,11 +26,11 @@ class PremiumService:
         log.info("Buying premium", months=data.months, username=data.username)
 
         recipient_data = await self.get_recipient(
-            fragment_rest, username=data.username, months=data.months
+            fragment, username=data.username, months=data.months
         )
 
         transaction = await self.get_buy_tc_transaction(
-            fragment_rest=fragment_rest,
+            fragment=fragment,
             recipient_data=recipient_data,
             months=data.months,
         )
@@ -65,26 +65,26 @@ class PremiumService:
 
     async def get_buy_tc_transaction(
         self,
-        fragment_rest: FragmentRest,
+        fragment: Fragment,
         recipient_data: PremiumRecipient,
         months: PremiumMonths,
     ) -> TonConnectTransaction:
-        buy_request = await fragment_rest.init_gift_premium_request(
+        buy_request = await fragment.init_gift_premium_request(
             recipient=recipient_data.recipient, months=months.value
         )
-        buy_link = await fragment_rest.get_gift_premium_link(req_id=buy_request.req_id)
+        buy_link = await fragment.get_gift_premium_link(req_id=buy_request.req_id)
 
         return buy_link.transaction
 
     async def get_recipient(
         self,
-        fragment_rest: FragmentRest,
+        fragment: Fragment,
         username: str,
         *,
         months: PremiumMonths = PremiumMonths.YEAR,
     ) -> PremiumRecipient:
         try:
-            recipient = await fragment_rest.search_premium_gift_recipient(
+            recipient = await fragment.search_premium_gift_recipient(
                 query=username, months=months.value
             )
         except FragmentAPIUsersNotFound:
