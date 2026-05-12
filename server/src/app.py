@@ -56,6 +56,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),
         session_key="anyfornow",
     )
+    await fragment_rest_client.ensure_authorized()
     fragment = Fragment(clients=[fragment_rest_client])
 
     bot_application = get_bot_application()
