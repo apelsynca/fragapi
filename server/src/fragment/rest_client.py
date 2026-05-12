@@ -1,6 +1,7 @@
 import json
 import re
 from time import time
+from typing import Any
 
 from src.fragment.exceptions import (
     FragmentAPIAccessDenied,
@@ -28,7 +29,9 @@ class FragmentRestClient:
         self._ton_connect = ton_connect
         self.last_session_check: float = 0
 
-    async def api_request(self, method: str, data: dict[str, str]) -> None:
+    async def api_request(
+        self, method: str, data: dict[str, str], *, save_response_cookies: bool = False
+    ) -> Any:
         if data.get("method", None) is not None:
             raise ValueError("Cannot include key method in api_request.data")
         data["method"] = method
@@ -43,10 +46,11 @@ class FragmentRestClient:
         ):
             await self._check_session()
 
-        status_code, content, _ = await self._request.do_request(
+        status_code, content, response_cookies = await self._request.do_request(
             url=f"https://fragment.com/api?hash={self.session_storage.session.hash}",
             method="POST",
             json_data=data,
+            cookies=self.session_storage.session.cookies,  # TEST THAT
         )
 
         if status_code != 200:
@@ -61,16 +65,27 @@ class FragmentRestClient:
                 raise FragmentAPIAccessDenied(response_data["error"])
             raise FragmentAPIError(response_data["error"])
 
+        if save_response_cookies:
+            self.session_storage.save_cookies(response_cookies)
+
         return response_data
 
     async def _check_session(self) -> None:
         if self.session_storage.session is None:
             await self._authorize()
         else:
-            await self._is_correct_session_tokens()
+            is_correct = await self._is_correct_session_tokens()
+            if not is_correct:
+                await self._authorize()
 
     async def _authorize(self) -> None:
-        pass
+        main_page_tokens = await self.get_main_page_tokens()
+        self.session_storage.save_tokens(main_page_tokens)
+
+        await self.check_ton_proof_auth()
+
+        main_page_tokens = await self.get_main_page_tokens()
+        self.session_storage.save_tokens(main_page_tokens)
 
     async def _is_correct_session_tokens(self) -> bool:
         if self.session_storage.session is None:
@@ -121,3 +136,16 @@ class FragmentRestClient:
             ton_proof_payload=session_ton_proof,
             ton_rate=ton_rate_match,
         )
+
+    async def check_ton_proof_auth(self) -> tuple[bool]:
+        if self.session_storage.session is None:
+            raise RuntimeError
+
+        data = self._ton_connect.get_connect_json_data(
+            ton_proof_payload=self.session_storage.session.ton_proof_payload
+        )
+        response_data = await self.api_request(
+            method="checkTonProofAuth", data=data, save_response_cookies=True
+        )
+
+        return response_data["verified"]

@@ -1,6 +1,6 @@
 import random
 from time import time
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 import pytest
 from pytest_mock import MockerFixture
@@ -14,6 +14,8 @@ from src.fragment.rest_client import FragmentRestClient
 from src.fragment.rest_request import BaseRequest
 from src.fragment.session_storage import FragmentSession
 from src.fragment.types import MainPageTokens
+from src.kit.ton_connect import TonConnect
+from tests.fixtures.random_objects import rstr
 from tests.fragment.conftest import generate_fake_main_page_text
 from tests.fragment.helpers import MockRequest
 
@@ -97,7 +99,10 @@ async def test_request_right_call_data(
 
     hash = rest_client.session_storage.session.hash
     spy.assert_called_once_with(
-        url=f"https://fragment.com/api?hash={hash}", method="POST", json_data=data
+        url=f"https://fragment.com/api?hash={hash}",
+        method="POST",
+        json_data=data,
+        cookies=valid_frag_session.cookies,
     )
 
 
@@ -292,3 +297,103 @@ async def test_is_correct_session_bad(
 
     main_page_mock.assert_called_once()
     assert is_correct is False
+
+
+@pytest.mark.asyncio
+async def test_authorize(
+    rest_client: FragmentRestClient, mocker: MockerFixture, ton_connect: MagicMock
+) -> None:
+    get_mp_tokens_mock = mocker.patch.object(
+        rest_client,
+        "get_main_page_tokens",
+        side_effect=[
+            MainPageTokens(
+                hash="bcedFirstHash",
+                ton_proof_payload="payload1",
+                ton_rate=random.randint(1, 500) / 100,
+            ),
+            MainPageTokens(
+                hash="bcedSecondHash",
+                ton_proof_payload="payload2",
+                ton_rate=random.randint(1, 500) / 100,
+            ),
+        ],
+    )
+    rest_client._request = MockRequest(
+        return_status_code=200,
+        return_json={"verified": True},
+        return_cookies={"stel_ssid": "SomeStelSSID"},
+    )
+
+    rest_client._ton_connect = ton_connect
+    tc_raw_data = {
+        "proof": "{'somejsondump':'bce'}",
+        "account": "{someaccount}",
+        "device": "{somedevicedump}",
+    }
+    rest_client._ton_connect.get_connect_json_data.return_value = tc_raw_data
+
+    rest_client.session_storage.session = None
+
+    await rest_client._authorize()
+
+    assert rest_client.session_storage.session == FragmentSession(
+        hash="bcedSecondHash",
+        ton_proof_payload="payload2",
+        cookies={"stel_ssid": "SomeStelSSID"},
+    )
+    get_mp_tokens_mock.assert_has_calls([call(), call()])
+
+
+@pytest.mark.asyncio
+async def test_check_session_works(
+    rest_client: FragmentRestClient,
+    mocker: MockerFixture,
+    valid_frag_session: FragmentSession,
+) -> None:
+    rest_client.session_storage.session = valid_frag_session
+    rest_client._ton_connect = MagicMock(spec=TonConnect)
+    tc_raw_data = {
+        "proof": "{'somejsondump':'bce'}",
+        "account": "{someaccount}",
+        "device": "{somedevicedump}",
+    }
+    rest_client._ton_connect.get_connect_json_data.return_value = tc_raw_data
+    sessid = rstr("sessid")
+    rest_client._request = MockRequest(
+        return_status_code=200,
+        return_json={"verified": False},
+        return_cookies={"stel_ssid": sessid},
+    )
+
+    api_request_spy = mocker.spy(rest_client, "api_request")
+
+    verified = await rest_client.check_ton_proof_auth()
+
+    rest_client._ton_connect.get_connect_json_data.assert_called_once_with(
+        ton_proof_payload=rest_client.session_storage.session.ton_proof_payload
+    )
+    api_request_spy.assert_called_once_with(
+        method="checkTonProofAuth", data=tc_raw_data, save_response_cookies=True
+    )
+
+    assert verified is False
+    assert rest_client.session_storage.session.cookies["stel_ssid"] == sessid
+
+
+@pytest.mark.asyncio
+async def test_check_ton_proof_auth_raises_if_no_session(
+    rest_client: FragmentRestClient,
+) -> None:
+    rest_client.session_storage.session = None
+    rest_client._ton_connect = MagicMock(spec=TonConnect)
+
+    with pytest.raises(RuntimeError):
+        await rest_client.check_ton_proof_auth()
+
+    rest_client._ton_connect.get_connect_json_data.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_idk() -> None:
+    pass
