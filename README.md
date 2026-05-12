@@ -1,4 +1,17 @@
-Fragment API implementation.
+Frag API is a Rest API for some [Fragment](https://fragment.com) functionality
 
-PANEL = https://panel.fragapi.ru/
-DOCS = https://docs.fragapi.ru/
+Completely open source.
+
+<div align="center">
+
+<a href="https://fragapi.com">Website</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="https://docs.fragapi.com">Docs</a>
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+<a href="https://docs.fragapi.com/api-reference">API Reference</a>
+
+</div>
+
+## License
+
+Licensed under [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).

@@ -40,8 +40,6 @@ class Fragment:
     async def get_buy_stars_link(
         self, req_id: str, *, transaction: bool = True, show_sender: bool = False
     ) -> BuyLink:
-        client = self.get_client()
-
         return await self.get_buy_link(
             method="getBuyStarsLink",
             req_id=req_id,
