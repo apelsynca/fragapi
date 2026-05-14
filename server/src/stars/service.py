@@ -6,8 +6,7 @@ from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment import Fragment
 from src.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import get_logger
-from src.models import TransactionReason, User
-from src.payments.service import payment as payment_service
+from src.models import User
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
@@ -50,14 +49,15 @@ class StarsService:
         recipient: str,
     ) -> BuyStarsResponse:
         log.debug("Buying stars from TC transaction", user=user)
-        message_hash = await payment_service.from_tc_transaction(
-            session=session,
-            user=user,
-            wallet_manager=wallet_manager,
-            tc_transaction=tc_transaction,
-            reason=TransactionReason.stars,
-            recipient=recipient,
-        )
+        message_hash = ""
+        # message_hash = await wallet_service.from_tc_transaction(
+        #     session=session,
+        #     user=user,
+        #     wallet_manager=wallet_manager,
+        #     tc_transaction=tc_transaction,
+        #     reason=TransactionReason.stars,
+        #     recipient=recipient,
+        # )
 
         return BuyStarsResponse(message_hash=message_hash)
 

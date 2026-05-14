@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragRequestValidationError
 from src.models import Transaction
-from src.models.transactions import TransactionStatus
 from src.transaction.repository import TransactionRepository
 
 
@@ -71,13 +70,23 @@ class TransactionService:
                     }
                 ]
             )
+        if in_msg.source is None:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "in_msg", "source"),
+                        "msg": "TonAPI internal transaction in_msg must have a source",
+                        "input": in_msg.source,
+                    }
+                ]
+            )
 
         transaction = Transaction(
             hash=tonapi_transaction.hash,
             nano_amount=in_msg.value,
-            status=TransactionStatus.completed,
-            from_wallet=in_msg.destination.address,
-            to_wallet=".",
+            from_wallet=in_msg.source.address,
+            to_wallet=in_msg.destination.address,
         )
 
         repository = TransactionRepository.from_session(session)

@@ -8,7 +8,6 @@ from ton_core import Address
 from src.config import settings
 from src.exceptions import FragError
 from src.models import Transaction
-from src.models.transactions import TransactionStatus
 from src.payment.service import PaymentService
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
@@ -124,7 +123,7 @@ async def test_process_valid_makes_right_calls(
     session: AsyncSession,
     transaction_service: MagicMock,
     payment_service: MagicMock,
-    mock_inner_client: MagicMock,
+    tonapi_rest_client_mock: MagicMock,
 ) -> None:
     tonapi_transaction_mock = tonapi_right_valid_good_transaction(hash="theGoodHash")
 
@@ -134,15 +133,16 @@ async def test_process_valid_makes_right_calls(
         lt=0,
         tx_hash=tonapi_transaction_mock.hash,
     )
-    mock_inner_client.blockchain.get_transaction.return_value = tonapi_transaction_mock
+    tonapi_rest_client_mock.blockchain.get_transaction.return_value = (
+        tonapi_transaction_mock
+    )
 
     # fake transaction based on this data
     transaction = Transaction(
         nano_amount=0,
         hash=tonapi_transaction_mock.hash,
-        status=TransactionStatus.completed,
-        from_wallet="...",
-        to_wallet="...",
+        from_wallet="...",  # TODO: here
+        to_wallet="...",  # TODO: here
     )
     transaction_service.create_as_tonapi_internal.return_value = transaction
 

@@ -1,3 +1,5 @@
+import re
+
 from pytonapi.exceptions import TONAPIBadRequestError
 from pytonapi.rest import TonapiRestClient
 from pytonapi.rest.models import Transaction as TonAPITransaction
@@ -13,6 +15,7 @@ from src.transaction.service import transaction as transaction_service
 
 class TonAPIService:
     COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
+    COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
 
     def __init__(self) -> None:
         self.rest_client = TonapiRestClient(api_key=settings.TONAPI_API_KEY)
@@ -41,6 +44,10 @@ class TonAPIService:
         # resolve hash here
         hash = self.resolve_payment_hash(tonapi_transaction)
 
+        if hash is None:
+            # log here
+            return
+
         # log.info  here
 
         await payment_service.complete_ton(
@@ -54,11 +61,15 @@ class TonAPIService:
             return None
         if (
             tonapi_transaction.in_msg.decoded_body is None
-            or tonapi_transaction.in_msg.decoded_op_name != "text-msg..."
+            or tonapi_transaction.in_msg.decoded_op_name != "text_comment"
         ):
             return None
 
-        return tonapi_transaction.in_msg.decoded_body["text"]
+        text: str = tonapi_transaction.in_msg.decoded_body["text"]
+        match = re.match(pattern=self.COMMENT_PATTERN, string=text)
+
+        if match is not None:
+            return match.group(1)
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with self.rest_client as client:

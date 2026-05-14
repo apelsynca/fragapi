@@ -1,7 +1,6 @@
-from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Enum, String
+from sqlalchemy import CheckConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.database.models import RecordModel
@@ -9,12 +8,6 @@ from src.kit.database.models import RecordModel
 if TYPE_CHECKING:
     from .fragment_transactions import FragmentTransaction
     from .payments import Payment
-
-
-class TransactionStatus(StrEnum):
-    pending = "pending"
-    completed = "completed"
-    failed = "failed"
 
 
 class Transaction(RecordModel):
@@ -29,10 +22,6 @@ class Transaction(RecordModel):
     # in theory we could know the message_hash even before sending
     message_hash: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True, unique=True
-    )
-    status: Mapped[TransactionStatus] = mapped_column(
-        Enum(TransactionStatus, native_enum=False),
-        default=TransactionStatus.pending,
     )
 
     from_wallet: Mapped[str] = mapped_column(String(100))  # workchain:init

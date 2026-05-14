@@ -35,9 +35,6 @@ class WalletManager:
         return self.wallet.balance
 
     # async def transfer_from_tc(self, transaction: TonConnectTransaction) -> str:
-    #     if len(transaction.messages) > 1:
-    #         raise ValueError("Multiple messages transfer is not supported")
-    #
     #     message = transaction.messages[0]
     #     address = Address(message.address)
     #     body = None

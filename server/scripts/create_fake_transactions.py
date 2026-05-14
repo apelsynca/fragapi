@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models.transactions import Transaction, TransactionReason, TransactionStatus
+from src.models.transactions import Transaction
 from src.models.user_sessions import UserSession
 from src.postgres import create_async_engine
-from src.transactions.repository import TransactionRepository
+from src.transaction.repository import TransactionRepository
 from src.users.repository import UserRepository
 
 

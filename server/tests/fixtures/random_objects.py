@@ -77,6 +77,7 @@ def create_tonapi_transaction_mock(
     value: int = 0,
     destination_address_raw: str
     | None = "0:69061ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebc9f",
+    source_address_raw: str | None = None,
     out_msgs: list = [],
 ) -> MagicMock:
     tonapi_transaction = MagicMock(spec=TonAPITransaction)
@@ -86,6 +87,7 @@ def create_tonapi_transaction_mock(
     tonapi_transaction_in_msg = MagicMock(spec=TonAPIMessage)
     tonapi_transaction_in_msg.msg_type = in_msg_type  # test that raises
     tonapi_transaction_in_msg.value = value
+
     tonapi_transaction_in_msg.destination = None
     if destination_address_raw is not None:
         tonapi_transaction_in_msg.destination = AccountAddress(
@@ -93,6 +95,13 @@ def create_tonapi_transaction_mock(
             is_scam=False,
             is_wallet=True,
         )
+
+    tonapi_transaction_in_msg.source = None
+    if source_address_raw is not None:
+        tonapi_transaction_in_msg.source = AccountAddress(
+            address=source_address_raw, is_scam=False, is_wallet=True
+        )
+
     tonapi_transaction.in_msg = tonapi_transaction_in_msg
     tonapi_transaction.out_msgs = out_msgs  # test that raises if not len 0
 
