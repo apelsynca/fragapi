@@ -61,6 +61,8 @@ class WalletManager:
 
         await selected_wallet.refresh()
         if to_amount(selected_wallet.balance) <= amount:
-            raise WalletManagerError()
+            raise WalletManagerError(
+                f"There is no wallet with balance for required amount = {amount}"
+            )
 
         return selected_wallet

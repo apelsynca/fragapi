@@ -1,4 +1,7 @@
+from ton_core import Address, Cell, WalletV5Params, to_amount
+
 from src.exceptions import FragRequestValidationError
+from src.kit.ton_connect import TonConnectMessage
 from src.postgres import AsyncSession
 from src.wallet.manager import WalletManager
 from src.wallet.types import TonConnectTransaction
@@ -41,9 +44,30 @@ class WalletService:
                 ]
             )
 
-        wallet = await wallet_manager.get_wallet_for_amount(amount=0)
+        message = tc_transaction.messages[0]
 
-        return ""
+        wallet = await wallet_manager.get_wallet_for_amount(
+            amount=float(to_amount(message.amount))  # NOTE: redo maybe to just amount
+        )
+
+        body = self.extract_body(message=message)
+
+        valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+        ext_msg = await wallet.transfer(
+            destination=Address(message.address),
+            body=body,
+            amount=message.amount,
+            params=WalletV5Params(valid_until=valid_until),
+        )
+
+        return ext_msg.normalized_hash
+
+    def extract_body(self, message: TonConnectMessage) -> Cell:
+        if message.payload is None:
+            raise RuntimeError("Omg shiiit")
+
+        padded_payload = message.payload.ljust(4, "=")
+        return Cell.one_from_boc(padded_payload)
 
 
 wallet = WalletService()
