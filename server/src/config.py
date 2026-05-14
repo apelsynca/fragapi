@@ -74,12 +74,13 @@ class Settings(BaseSettings):
     def redis_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
+    AMQP_HOST: str = "127.0.0.1"
     AMQP_USER: str = "guest"
     AMQP_PWD: str = "guest"
 
     @property
     def amqp_url(self) -> str:
-        return f"amqp://{self.AMQP_USER}:{self.AMQP_PWD}@localhost:5672/"
+        return f"amqp://{self.AMQP_USER}:{self.AMQP_PWD}@{self.AMQP_HOST}:5672/"
 
     def get_postgres_dsn(self, driver: Literal["asyncpg", "psycopg2"]) -> str:
         return str(
