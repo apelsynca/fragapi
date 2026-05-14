@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { fetchMe } from '~/server/user'
 
 export const Route = createFileRoute('/dashboard/')({
@@ -15,8 +16,14 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col gap-1 md:gap-2.5">
-      Hello, world! balance = {user.balance} TON
-      <div>(Секретный ключ: {user.apiKey}) </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Ваш баланс</CardTitle>
+        </CardHeader>
+        <CardContent className="font-semibold text-lg">
+          {parseFloat(user.balance.toFixed(2))} TON
+        </CardContent>
+      </Card>
     </div>
   )
 }

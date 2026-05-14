@@ -22,7 +22,7 @@ async def main() -> None:
 
 async def create_user_session(session: AsyncSession) -> UserSession | None:
     repository = UserRepository.from_session(session)
-    user = await repository.get_by_id(id=7433065810)
+    user = await repository.get_by_id(id=888888)
 
     if user is None:
         print("No user")

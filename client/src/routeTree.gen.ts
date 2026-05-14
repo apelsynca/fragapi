@@ -13,6 +13,7 @@ import { Route as BotLoginRouteImport } from './routes/bot-login'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardApiKeysRouteImport } from './routes/dashboard/api-keys'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
@@ -34,16 +35,23 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardApiKeysRoute = DashboardApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,26 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
+  '/dashboard/api-keys': typeof DashboardApiKeysRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/bot-login' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/bot-login'
+    | '/dashboard/api-keys'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bot-login' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard' | '/bot-login' | '/dashboard/'
+  to: '/' | '/bot-login' | '/dashboard/api-keys' | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/bot-login'
+    | '/dashboard/api-keys'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +117,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/api-keys': {
+      id: '/dashboard/api-keys'
+      path: '/api-keys'
+      fullPath: '/dashboard/api-keys'
+      preLoaderRoute: typeof DashboardApiKeysRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
 interface DashboardRouteRouteChildren {
+  DashboardApiKeysRoute: typeof DashboardApiKeysRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardApiKeysRoute: DashboardApiKeysRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 

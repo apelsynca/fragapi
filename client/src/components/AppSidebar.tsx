@@ -34,8 +34,10 @@ function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <HomeIcon /> {t('sidebar.main')}
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard">
+                    <HomeIcon /> {t('sidebar.main')}
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -44,8 +46,10 @@ function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <KeySquareIcon /> {t('sidebar.api_keys')}
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/api-keys">
+                    <KeySquareIcon /> {t('sidebar.api_keys')}
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -66,10 +70,8 @@ function AppSidebar() {
           <SidebarGroupLabel>{t('sidebar.other')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link to="/dashboard/hand">
-                  <JoystickIcon /> {t('sidebar.hand_send')}
-                </Link>
+              <SidebarMenuButton>
+                <JoystickIcon /> {t('sidebar.hand_send')}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarGroupContent>

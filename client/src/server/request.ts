@@ -1,3 +1,5 @@
+import { logoutFn } from './auth-manager'
+
 const ENDPOINT = process.env.BACKEND_ENDPOINT
 
 interface ApiRequest {
@@ -24,6 +26,12 @@ export const apiRequest = async <T>(data: ApiRequest) => {
     console.log(response.status, json)
     const errorName = json?.error ?? 'Some unknown error'
     const detail = json?.detail ?? ''
+
+    if (data.token && errorName === 'Unauthorized') {
+      console.log(data.token)
+      await logoutFn()
+    }
+
     throw new Error(`${errorName} ${detail}`)
   }
 
