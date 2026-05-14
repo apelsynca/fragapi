@@ -1,9 +1,9 @@
 services:
   rabbitmq:
-    image: rabbitmq:3.13          # no management UI
+    image: rabbitmq:3.13
     restart: always
     expose:
-      - "5672"               # only AMQP port (optional if only internal access needed)
+      - "5672"
     environment:
       RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
       RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
@@ -48,6 +48,8 @@ services:
     depends_on:
       - db
       - rabbitmq
+    networks:
+      - dokploy-network
     env_file:
       - .env
 
