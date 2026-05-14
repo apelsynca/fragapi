@@ -1,0 +1,88 @@
+from pytonapi.rest.models import Transaction as TonAPITransaction
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.exceptions import FragRequestValidationError
+from src.models import Transaction
+from src.models.transactions import TransactionStatus
+from src.transaction.repository import TransactionRepository
+
+
+class TransactionService:
+    async def create_as_tonapi_internal(
+        self, session: AsyncSession, tonapi_transaction: TonAPITransaction
+    ) -> Transaction:
+        if not tonapi_transaction.success:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "success"),
+                        "msg": "TonAPI internal transaction must be successfull",
+                        "input": tonapi_transaction.success,
+                    }
+                ]
+            )
+
+        if tonapi_transaction.in_msg is None:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "in_msg"),
+                        "msg": "TonAPI internal transaction must have the internal message",
+                        "input": tonapi_transaction.in_msg,
+                    }
+                ]
+            )
+
+        in_msg = tonapi_transaction.in_msg
+        if in_msg.msg_type != "int_msg":
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "in_msg", "msg_type"),
+                        "msg": "TonAPI internal transaction in_msg type must be internal",
+                        "input": in_msg.msg_type,
+                    }
+                ]
+            )
+
+        if len(tonapi_transaction.out_msgs) != 0:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "out_msgs"),
+                        "msg": "TonAPI internal transaction must have zero out msgs",
+                        "input": tonapi_transaction.out_msgs,
+                    }
+                ]
+            )
+
+        if in_msg.destination is None:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "in_msg", "destination"),
+                        "msg": "TonAPI internal transaction in_msg must have a destination",
+                        "input": in_msg.destination,
+                    }
+                ]
+            )
+
+        transaction = Transaction(
+            hash=tonapi_transaction.hash,
+            nano_amount=in_msg.value,
+            status=TransactionStatus.completed,
+            from_wallet=in_msg.destination.address,
+            to_wallet=".",
+        )
+
+        repository = TransactionRepository.from_session(session)
+
+        return await repository.create(transaction, flush=True)
+
+
+transaction = TransactionService()

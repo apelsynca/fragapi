@@ -7,7 +7,7 @@ import pytest_asyncio
 from ton_core import to_nano
 
 from src.kit.ton_connect import TonConnectMessage
-from src.models import Payment, Transaction, TransactionReason, TransactionStatus, User
+from src.models import Payment, User
 from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
@@ -36,27 +36,7 @@ async def create_user(save_fixture: SaveFixture) -> User:
     return user
 
 
-async def create_transaction(
-    save_fixture: SaveFixture,
-    user: User,
-    *,
-    reason: TransactionReason = TransactionReason.STARS,
-    status: TransactionStatus = TransactionStatus.PENDING,
-    amount: float | None = None,
-    recipient: str | None = None,
-) -> Transaction:
-    transaction = Transaction(
-        amount=random.randint(1, 10000) / 100 if amount is None else amount,
-        reason=reason,
-        status=status,
-        recipient=rstr("recipient") if recipient is None else recipient,
-        user=user,
-    )
-    await save_fixture(transaction)
-    return transaction
-
-
-def get_valid_transaction(amount: float) -> TonConnectTransaction:
+def get_valid_tc_transaction(amount: float) -> TonConnectTransaction:
     return get_tc_transaction(
         messages=[
             TonConnectMessage(

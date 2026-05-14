@@ -17,11 +17,11 @@ class TransactionRepository(
         stmt = select(
             # Количество покупок звезд (count вместо sum)
             func.count()
-            .filter(Transaction.reason == TransactionReason.STARS)
+            .filter(Transaction.reason == TransactionReason.stars)
             .label("stars_purchases_count"),
             # Количество покупок премиума
             func.count()
-            .filter(Transaction.reason == TransactionReason.PREMIUM)
+            .filter(Transaction.reason == TransactionReason.premium)
             .label("premium_count"),
             # Общая сумма потраченных средств
             func.coalesce(func.sum(Transaction.amount), 0).label("total_spent"),
@@ -39,10 +39,10 @@ class TransactionRepository(
         return select(
             func.sum(Transaction.amount).label("monthly_spend"),
             func.sum(Transaction.amount)
-            .filter(Transaction.reason == TransactionReason.STARS)
+            .filter(Transaction.reason == TransactionReason.stars)
             .label("stars_monthly_spend"),
             func.sum(Transaction.amount)
-            .filter(Transaction.reason == TransactionReason.PREMIUM)
+            .filter(Transaction.reason == TransactionReason.premium)
             .label("premium_monthly_spend"),
         ).where(Transaction.created_at >= start_of_the_month, Transaction.user == user)
 
@@ -55,7 +55,7 @@ class TransactionRepository(
             )
             .where(
                 Transaction.user == user,
-                Transaction.status == TransactionStatus.COMPLETED,
+                Transaction.status == TransactionStatus.completed,
                 func.date(Transaction.created_at) >= start_date,
             )
             .group_by(func.date(Transaction.created_at))

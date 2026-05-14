@@ -58,7 +58,7 @@ class PremiumService:
             wallet_manager=wallet_manager,
             tc_transaction=tc_transaction,
             recipient=recipient,
-            reason=TransactionReason.PREMIUM,
+            reason=TransactionReason.premium,
         )
 
         return BuyPremiumResponse(message_hash=message_hash)

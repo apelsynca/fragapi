@@ -6,12 +6,12 @@ from src.exceptions import BadRequest
 from src.fragment.types import BuyLink, BuyRequest
 from src.stars.schemas import StarsRecipient
 from src.stars.service import stars as stars_service
-from tests.fixtures.random_objects import get_valid_transaction
+from tests.fixtures.random_objects import get_valid_tc_transaction
 
 
 @pytest.mark.asyncio
 async def test_get_buy_transaction(fragment: MagicMock) -> None:
-    transaction = get_valid_transaction(amount=2.2)
+    transaction = get_valid_tc_transaction(amount=2.2)
     fragment.init_buy_stars_request.return_value = BuyRequest(
         req_id="", myself=False, amount=0
     )

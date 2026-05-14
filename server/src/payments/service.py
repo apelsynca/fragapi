@@ -15,7 +15,7 @@ from src.exceptions import (
 from src.fee import TON_FEE, after_fee, after_ton_network_fee
 from src.logging import get_logger
 from src.models import Payment, User
-from src.models.transactions import TransactionReason
+from src.models.fragment_transactions import FragmentTransactionReason
 from src.payments.repository import PaymentRepository
 from src.payments.schemas import PaymentTonRequestMessage
 from src.transactions.service import transaction as transaction_service
@@ -77,7 +77,7 @@ class PaymentService:
         wallet_manager: WalletManager,
         tc_transaction: TonConnectTransaction,
         recipient: str,
-        reason: TransactionReason,
+        reason: FragmentTransactionReason,
     ) -> str:
         if len(tc_transaction.messages) != 1:
             raise FragRequestValidationError(

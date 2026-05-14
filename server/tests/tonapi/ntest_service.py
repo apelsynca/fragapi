@@ -14,6 +14,19 @@ from src.tonapi.service import tonapi as tonapi_service
 from tests.fixtures.random_objects import rstr
 
 
+def tonapi_transactions_mock(tx_hash: str, ref_hash: str) -> MagicMock:
+    transa_mock = MagicMock(spec=Transaction)
+    transa_mock.hash = tx_hash
+    transa_mock.lt = 0
+    transa_mock.success = True
+    trans_message_mock = MagicMock(spec=Message)
+    trans_message_mock.decoded_op_name = "text_comment"
+    trans_message_mock.decoded_body = {"text": f"FragAPI Top-up\n\nRef#{ref_hash}"}
+    transa_mock.in_msg = trans_message_mock
+
+    return transa_mock
+
+
 @pytest.fixture(autouse=True)
 def payment_service(mocker: MockerFixture):
     return mocker.patch("src.tonapi.service.payment_service", spec=PaymentService)
@@ -80,19 +93,13 @@ async def test_raises_bad_request_if_fails_to_find_by_tx_hash(
 @pytest.mark.asyncio
 async def test_calls_process_ton_payment(
     payment_service: MagicMock, rest_client: MagicMock, session: AsyncSession
-):
+) -> None:
     message = TonAPIWebhookMessage(
         event_type="account_tx", account_id="any", lt=0, tx_hash="my_tx_hash"
     )
-    transa_mock = MagicMock(spec=Transaction)
-    transa_mock.hash = "my_tx_hash"
-    transa_mock.lt = 0
-    transa_mock.success = True
-    trans_message_mock = MagicMock(spec=Message)
-    trans_message_mock.decoded_op_name = "text_comment"
-    trans_message_mock.decoded_body = {"text": "FragAPI Top-up\n\nRef#ThisIsTherefhash"}
-    transa_mock.in_msg = trans_message_mock
-    rest_client.blockchain.get_transaction.return_value = transa_mock
+    rest_client.blockchain.get_transaction.return_value = tonapi_transactions_mock(
+        tx_hash="my_tx_hash", ref_hash="ThisIsTherefhash"
+    )
 
     await tonapi_service.process_webhook_account_tx_message(
         session=session, message=message
@@ -101,3 +108,71 @@ async def test_calls_process_ton_payment(
     payment_service.process_ton_payment.assert_called_once_with(
         session=session, hash="ThisIsTherefhash"
     )
+
+
+# @pytest.mark.asyncio
+# async def test_process_same_transaction_twice_raises(
+#     session: AsyncSession, rest_client: MagicMock, payment_service: MagicMock
+# ) -> None:
+#     message = TonAPIWebhookMessage(
+#         event_type="account_tx", account_id="any", lt=0, tx_hash="somehardtxhash"
+#     )
+#     rest_client.blockchain.get_transaction.return_value = tonapi_transactions_mock(
+#         tx_hash="my_tx_hash", ref_hash="ThisIsTherefhash"
+#     )
+#
+#     await tonapi_service.process_webhook_account_tx_message(
+#         session=session, message=message
+#     )
+#
+#     with pytest.raises(FragError):
+#         await tonapi_service.process_webhook_account_tx_message(
+#             session=session, message=message
+#         )
+#
+#
+# @pytest.mark.asyncio
+# async def test_process_webhook_to_the_wrong_wallet_raises(
+#     session: AsyncSession, rest_client: MagicMock
+# ) -> None:
+#     message = TonAPIWebhookMessage(
+#         event_type="account_tx", account_id="somewrongone", lt=0, tx_hash="my_tx_hash"
+#     )
+#     rest_client.blockchain.get_transaction.return_value = tonapi_transactions_mock(
+#         tx_hash="my_tx_hash", ref_hash="ThisIsTherefhash"
+#     )
+#
+#     with pytest.raises(FragError):
+#         await tonapi_service.process_webhook_account_tx_message(
+#             session=session, message=message
+#         )
+#
+#
+# @pytest.mark.asyncio
+# async def test_saves_wallet_address_in_payment(
+#     session: AsyncSession, rest_client: MagicMock
+# ) -> None:
+#     pass
+#
+#
+# @pytest.mark.asyncio
+# async def test_abc_raises(
+#     payment_service: MagicMock, rest_client: MagicMock, session: AsyncSession
+# ) -> None:
+#     message = TonAPIWebhookMessage(
+#         event_type="account_tx", account_id="any", lt=0, tx_hash="sometxhash"
+#     )
+#     transa_mock = MagicMock(spec=Transaction)
+#     transa_mock.hash = "differenttxhash"
+#     transa_mock.lt = 0
+#     transa_mock.success = True
+#     trans_message_mock = MagicMock(spec=Message)
+#     trans_message_mock.decoded_op_name = "text_comment"
+#     trans_message_mock.decoded_body = {"text": "FragAPI Top-up\n\nRef#ThisIsTherefhash"}
+#     transa_mock.in_msg = trans_message_mock
+#     rest_client.blockchain.get_transaction.return_value = transa_mock
+#
+#     with pytest.raises(Exception):
+#         await tonapi_service.process_webhook_account_tx_message(
+#             session=session, message=message
+#         )

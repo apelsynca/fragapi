@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.transactions.repository import TransactionRepository
 from ton_core import to_nano
 
 from src.config import settings
@@ -10,10 +11,9 @@ from src.fee import TON_FEE, after_fee, after_ton_network_fee
 from src.kit.ton_connect import TonConnectMessage
 from src.models import TransactionReason, User
 from src.payments.service import payment as payment_service
-from src.transactions.repository import TransactionRepository
 from tests.fixtures.random_objects import (
     get_tc_transaction,
-    get_valid_transaction,
+    get_valid_tc_transaction,
     rstr,
 )
 
@@ -23,7 +23,7 @@ async def test_from_transaction_calls_wallet_manager_right(
     session: AsyncSession, user: User, wallet_manager: MagicMock
 ) -> None:
     user.balance = 100
-    tc_transaction = get_valid_transaction(1)
+    tc_transaction = get_valid_tc_transaction(1)
     wallet_manager.get_balance.return_value = 100
     wallet_manager.transfer_from_tc.return_value = "WHATTHEHELLY"
 
@@ -33,7 +33,7 @@ async def test_from_transaction_calls_wallet_manager_right(
         wallet_manager=wallet_manager,
         tc_transaction=tc_transaction,
         recipient="somerecipient",
-        reason=TransactionReason.STARS,
+        reason=TransactionReason.stars,
     )
 
     wallet_manager.transfer_from_tc.assert_called_once_with(transaction=tc_transaction)
@@ -46,7 +46,7 @@ async def test_from_transaction_raises_if_insufficient_funds(
 ) -> None:
     assert user.balance == 0
     wallet_manager.get_balance.return_value = 50
-    tc_transaction = get_valid_transaction(1.1)
+    tc_transaction = get_valid_tc_transaction(1.1)
 
     with pytest.raises(InsuficcientFunds):
         await payment_service.from_tc_transaction(
@@ -55,7 +55,7 @@ async def test_from_transaction_raises_if_insufficient_funds(
             wallet_manager=wallet_manager,
             tc_transaction=tc_transaction,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
@@ -69,7 +69,7 @@ async def test_from_transaction_raises_if_wallet_balance_lower(
 ) -> None:
     user.balance = 1000.251
     wallet_manager.get_balance.return_value = 5.25
-    transaction = get_valid_transaction(amount=25.25)
+    transaction = get_valid_tc_transaction(amount=25.25)
 
     with pytest.raises(FragError):
         await payment_service.from_tc_transaction(
@@ -78,7 +78,7 @@ async def test_from_transaction_raises_if_wallet_balance_lower(
             wallet_manager=wallet_manager,
             tc_transaction=transaction,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
@@ -98,7 +98,7 @@ async def test_from_transaction_raises_if_no_message(
             wallet_manager=wallet_manager,
             tc_transaction=transa,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
@@ -128,7 +128,7 @@ async def test_from_transaction_raises_if_more_than_one_message(
             wallet_manager=wallet_manager,
             tc_transaction=transa,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
@@ -153,7 +153,7 @@ async def test_from_transaction_raises_if_payload_is_none(
             wallet_manager=wallet_manager,
             tc_transaction=transa,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     assert len(exc_info.value.errors())
@@ -168,7 +168,7 @@ async def test_subtracts_with_fee_from_users_balance(
     wallet_manager: MagicMock,
 ) -> None:
     user.balance = 10.25
-    transaction = get_valid_transaction(amount=2.5)
+    transaction = get_valid_tc_transaction(amount=2.5)
     wallet_manager.get_balance.return_value = 1000
 
     await payment_service.from_tc_transaction(
@@ -177,7 +177,7 @@ async def test_subtracts_with_fee_from_users_balance(
         wallet_manager=wallet_manager,
         tc_transaction=transaction,
         recipient="somerecipient",
-        reason=TransactionReason.STARS,
+        reason=TransactionReason.stars,
     )
 
     price_on_network = 2.5 + TON_FEE
@@ -195,7 +195,7 @@ async def test_buy_raises_frag_error_if_wallet_balance_plus_fee(
     settings.API_PRICE_MARKUP = 0
 
     user.balance = 500
-    transaction = get_valid_transaction(amount=102.25)
+    transaction = get_valid_tc_transaction(amount=102.25)
 
     wallet_manager.get_balance.return_value = 102.25 + TON_FEE
     with pytest.raises(FragError):
@@ -205,7 +205,7 @@ async def test_buy_raises_frag_error_if_wallet_balance_plus_fee(
             wallet_manager=wallet_manager,
             tc_transaction=transaction,
             recipient="somerecipient",
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
         )
 
     wallet_manager.transfer_from_tc.assert_not_called()
@@ -217,7 +217,7 @@ async def test_creates_transaction(
 ) -> None:
     user.balance = 100
     wallet_manager.get_balance.return_value = 100
-    tc_transaction = get_valid_transaction(3.25)
+    tc_transaction = get_valid_tc_transaction(3.25)
 
     repository = TransactionRepository.from_session(session)
     transactions = await repository.get_all(stmt=repository.get_base_stmt())
@@ -229,7 +229,7 @@ async def test_creates_transaction(
         wallet_manager=wallet_manager,
         tc_transaction=tc_transaction,
         recipient="MySuperCoolFakeRecipient",
-        reason=TransactionReason.PREMIUM,
+        reason=TransactionReason.premium,
     )
 
     transactions = await repository.get_all(stmt=repository.get_base_stmt())
@@ -237,5 +237,5 @@ async def test_creates_transaction(
 
     assert transactions[0].user == user
     assert transactions[0].amount == after_fee(after_ton_network_fee(3.25))
-    assert transactions[0].reason == TransactionReason.PREMIUM
+    assert transactions[0].reason == TransactionReason.premium
     assert transactions[0].recipient == "MySuperCoolFakeRecipient"

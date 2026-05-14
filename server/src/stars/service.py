@@ -55,7 +55,7 @@ class StarsService:
             user=user,
             wallet_manager=wallet_manager,
             tc_transaction=tc_transaction,
-            reason=TransactionReason.STARS,
+            reason=TransactionReason.stars,
             recipient=recipient,
         )
 

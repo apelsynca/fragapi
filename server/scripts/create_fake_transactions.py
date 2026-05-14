@@ -43,10 +43,10 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
             Transaction(
                 amount=float(input(f"Amount for [{offset}]: ")),
                 user=user,
-                reason=TransactionReason.STARS,
+                reason=TransactionReason.stars,
                 recipient=token_urlsafe(24),
                 message_hash=None,
-                status=TransactionStatus.COMPLETED,
+                status=TransactionStatus.completed,
                 created_at=utc_now() - timedelta(days=offset),
             )
         )

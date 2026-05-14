@@ -18,7 +18,7 @@ class TransactionService:
         user: User,
         recipient: str,
         message_hash: str | None = None,
-        status: TransactionStatus = TransactionStatus.PENDING,
+        status: TransactionStatus = TransactionStatus.pending,
     ) -> Transaction:
         repository = TransactionRepository.from_session(session)
         return await repository.create(

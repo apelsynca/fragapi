@@ -4,33 +4,39 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.kit.utils import utc_now
-from src.models import User
-from src.models.transactions import Transaction, TransactionReason, TransactionStatus
-from src.transactions.repository import TransactionRepository
+from src.models import FragmentTransaction, Transaction, User
+from src.models.fragment_transactions import FragmentTransactionReason
+from src.models.transactions import TransactionStatus
 from src.transactions.schemas import TransactionChartPoint
 from src.transactions.service import transaction as transaction_service
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_transaction, rstr
 
 
-async def _create_transaction(
+async def _create_frag_transaction(
     save_fixture: SaveFixture,
     amount: float,
     user: User,
-    reason: TransactionReason = TransactionReason.STARS,
-    status: TransactionStatus = TransactionStatus.PENDING,
+    reason: FragmentTransactionReason = FragmentTransactionReason.stars,
     days_from_now: int = 0,
-) -> Transaction:
+) -> FragmentTransaction:
     transaction = Transaction(
-        amount=amount,
+        amount=amount - 0.05,
+        status=TransactionStatus.pending,
+        from_wallet="",
+        to_wallet="",
+    )
+
+    frag_transaction = FragmentTransaction(
         user=user,
+        amount=amount,
         reason=reason,
-        status=status,
         recipient=rstr("mockrecipient"),
         created_at=utc_now() - timedelta(days=days_from_now),
+        transaction=transaction,
     )
-    await save_fixture(transaction)
-    return transaction
+    await save_fixture(frag_transaction)
+    return frag_transaction
 
 
 def empty_chart_stats() -> list[TransactionChartPoint]:
@@ -55,7 +61,7 @@ def empty_chart_stats() -> list[TransactionChartPoint]:
 async def test_get_stats_for_right_user(
     session: AsyncSession, user: User, user_second: User, save_fixture: SaveFixture
 ) -> None:
-    repository = TransactionRepository.from_session(session)
+    repository = FragmentTransactionRepository.from_session(session)
     stmt = repository.get_base_stmt()
 
     transactions_count = await repository.count(stmt=stmt)
@@ -63,7 +69,7 @@ async def test_get_stats_for_right_user(
 
     for _ in range(5):
         await create_transaction(
-            save_fixture, user=user, reason=TransactionReason.STARS
+            save_fixture, user=user, reason=FragmentTransactionReason.stars
         )
 
     for _ in range(3):
@@ -73,7 +79,7 @@ async def test_get_stats_for_right_user(
 
     assert stats.stars_purchases_count == 5
 
-    stmt = repository.get_base_stmt().where(Transaction.user == user)
+    stmt = repository.get_base_stmt().where(FragmentTransaction.user == user)
     transactions_count = await repository.count(stmt=stmt)
     assert transactions_count == 5
 
@@ -82,7 +88,7 @@ async def test_get_stats_for_right_user(
 async def test_get_stats_correct_purchases_count(
     session: AsyncSession, user: User, save_fixture: SaveFixture
 ) -> None:
-    repository = TransactionRepository.from_session(session)
+    repository = FragmentTransactionRepository.from_session(session)
     stmt = repository.get_base_stmt()
 
     transactions_count = await repository.count(stmt=stmt)
@@ -90,7 +96,7 @@ async def test_get_stats_correct_purchases_count(
 
     for _ in range(5):
         await create_transaction(
-            save_fixture, user=user, reason=TransactionReason.STARS
+            save_fixture, user=user, reason=FragmentTransactionReason.stars
         )
 
     stats = await transaction_service.get_stats(session, user)
@@ -106,27 +112,27 @@ async def test_get_chart_stats_ignores_over_90days(
     session: AsyncSession, user: User, save_fixture: SaveFixture
 ) -> None:
     await save_fixture(
-        Transaction(
+        FragmentTransaction(
             amount=100,
             user=user,
-            reason=TransactionReason.PREMIUM,
-            status=TransactionStatus.COMPLETED,
+            reason=FragmentTransactionReason.premium,
+            status=FragmentTransactionStatus.completed,
             recipient=rstr("abc"),
             created_at=utc_now() - timedelta(days=120),
         )
     )
     await save_fixture(
-        Transaction(
+        FragmentTransaction(
             amount=225,
             user=user,
-            reason=TransactionReason.STARS,
-            status=TransactionStatus.COMPLETED,
+            reason=FragmentTransactionReason.stars,
+            status=FragmentTransactionStatus.completed,
             recipient=rstr("abc"),
         )
     )
 
     expected = empty_chart_stats()
-    expected[-1] = TransactionChartPoint(
+    expected[-1] = FragmentTransactionChartPoint(
         date=utc_now().date(), ton_amount=225, transactions_count=1
     )
 
@@ -142,34 +148,34 @@ async def test_get_chart_stats_only_include_completed(
 ) -> None:
     today = utc_now().date()
 
-    await _create_transaction(
+    await _create_frag_transaction(
         save_fixture,
         amount=4.12,
         user=user,
-        reason=TransactionReason.PREMIUM,
-        status=TransactionStatus.COMPLETED,
+        reason=TransactionReason.premium,
+        status=TransactionStatus.completed,
         days_from_now=1,
     )
-    await _create_transaction(
+    await _create_frag_transaction(
         save_fixture,
         amount=3.12,
         user=user,
-        reason=TransactionReason.STARS,
-        status=TransactionStatus.COMPLETED,
+        reason=TransactionReason.stars,
+        status=TransactionStatus.completed,
         days_from_now=1,
     )
-    await _create_transaction(
+    await _create_frag_transaction(
         save_fixture,
         amount=4,
         user=user,
         days_from_now=1,
     )
-    await _create_transaction(
+    await _create_frag_transaction(
         save_fixture,
         amount=4,
         user=user,
         days_from_now=1,
-        status=TransactionStatus.FAILED,
+        status=TransactionStatus.failed,
     )
 
     chart_stats = await transaction_service.get_chart_stats(session, user)
@@ -195,36 +201,32 @@ async def test_get_chart_stats_gives_90_empty_items(
 async def test_get_chart_stats_all_spend_monthly(
     session: AsyncSession, user: User, save_fixture: SaveFixture
 ) -> None:
-    transaction = Transaction(
+    transaction = FragmentTransaction(
         amount=10,
-        reason=TransactionReason.STARS,
-        status=TransactionStatus.PENDING,
+        reason=TransactionReason.stars,
         recipient=rstr("reci"),
         user=user,
         created_at=utc_now() - timedelta(days=33),
     )
     await save_fixture(transaction)
-    transaction = Transaction(
+    transaction = FragmentTransaction(
         amount=10,
-        reason=TransactionReason.STARS,
-        status=TransactionStatus.PENDING,
+        reason=TransactionReason.stars,
         recipient=rstr("reci"),
         user=user,
     )
     await save_fixture(transaction)
-    transaction = Transaction(
+    transaction = FragmentTransaction(
         amount=3,
-        reason=TransactionReason.PREMIUM,
-        status=TransactionStatus.PENDING,
+        reason=TransactionReason.premium,
         recipient=rstr("reci"),
         user=user,
         created_at=utc_now() - timedelta(days=3),
     )
     await save_fixture(transaction)
-    transaction = Transaction(
+    transaction = FragmentTransaction(
         amount=2.52,
-        reason=TransactionReason.PREMIUM,
-        status=TransactionStatus.COMPLETED,
+        reason=TransactionReason.premium,
         recipient=rstr("reci"),
         user=user,
     )
