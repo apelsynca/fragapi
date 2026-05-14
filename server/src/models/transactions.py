@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, String
+from sqlalchemy import BigInteger, CheckConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.database.models import RecordModel
@@ -14,7 +14,7 @@ class Transaction(RecordModel):
     __tablename__ = "transactions"
 
     # nano tons transaction amount
-    nano_amount: Mapped[int]
+    nano_amount: Mapped[int] = mapped_column(BigInteger)
 
     hash: Mapped[str] = mapped_column(
         String(64), nullable=True, index=True, unique=True
@@ -24,8 +24,8 @@ class Transaction(RecordModel):
         String(64), nullable=True, index=True, unique=True
     )
 
-    from_wallet: Mapped[str] = mapped_column(String(100))  # workchain:init
-    to_wallet: Mapped[str] = mapped_column(String(100))  # workchain:init
+    from_address: Mapped[str] = mapped_column(String(100))  # workchain:init
+    to_address: Mapped[str] = mapped_column(String(100))  # workchain:init
 
     payment: Mapped["Payment | None"] = relationship(
         back_populates="transaction", uselist=False, lazy="raise"

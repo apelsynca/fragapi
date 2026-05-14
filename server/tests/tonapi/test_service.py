@@ -141,8 +141,8 @@ async def test_process_valid_makes_right_calls(
     transaction = Transaction(
         nano_amount=0,
         hash=tonapi_transaction_mock.hash,
-        from_wallet="...",  # TODO: here
-        to_wallet="...",  # TODO: here
+        from_address="...",  # TODO: here
+        to_address="...",  # TODO: here
     )
     transaction_service.create_as_tonapi_internal.return_value = transaction
 

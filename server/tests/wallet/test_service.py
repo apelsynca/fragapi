@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
-from ton_core import to_nano
+from ton_core import ExternalMessage, to_nano
 
 from src.exceptions import FragRequestValidationError
 from src.kit.ton_connect import TonConnectMessage
@@ -51,6 +51,9 @@ async def test_creates_transaction_after_transfer_with_right_message_hash(
     session: AsyncSession, wallet_manager: WalletManager, wallet: MagicMock
 ) -> None:
     wallet.balance = to_nano(10)
+    mm = MagicMock(spec=ExternalMessage)
+    mm.normalized_hash = "mymsghash"
+    wallet.transfer.return_value = mm
 
     tc_transaction = TonConnectTransaction(
         valid_until=datetime.now() + timedelta(minutes=3),
@@ -64,15 +67,8 @@ async def test_creates_transaction_after_transfer_with_right_message_hash(
         ],
     )
 
-    message_hash = await wallet_service.send_from_tc_transaction(
+    transaction = await wallet_service.send_from_tc_transaction(
         session=session, wallet_manager=wallet_manager, tc_transaction=tc_transaction
     )
 
-    # maybe build here the msg myself
-    assert message_hash is not None  # TODO: and that way to calculate msg hash
-
-
-# kinda a wallet manager thing
-# @pytest.mark.asyncio
-# async def test_what_if_balance_is_low() -> None:
-#     pass
+    assert transaction.message_hash == "mymsghash"

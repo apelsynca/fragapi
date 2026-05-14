@@ -7,6 +7,26 @@ from src.transaction.repository import TransactionRepository
 
 
 class TransactionService:
+    async def create_as_tc(
+        self,
+        session: AsyncSession,
+        nano_amount: int,
+        message_hash: str,
+        from_address: str,
+        to_address: str,
+    ) -> Transaction:
+        repository = TransactionRepository.from_session(session)
+
+        transaction = Transaction(
+            nano_amount=nano_amount,
+            message_hash=message_hash,
+            from_address=from_address,
+            to_address=to_address,
+        )
+
+        # NOTE: flush idk
+        return await repository.create(transaction, flush=True)
+
     async def create_as_tonapi_internal(
         self, session: AsyncSession, tonapi_transaction: TonAPITransaction
     ) -> Transaction:
@@ -85,8 +105,8 @@ class TransactionService:
         transaction = Transaction(
             hash=tonapi_transaction.hash,
             nano_amount=in_msg.value,
-            from_wallet=in_msg.source.address,
-            to_wallet=in_msg.destination.address,
+            from_address=in_msg.source.address,
+            to_address=in_msg.destination.address,
         )
 
         repository = TransactionRepository.from_session(session)

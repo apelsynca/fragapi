@@ -22,11 +22,11 @@ async def test_creates_as_tonapi_internal(session: AsyncSession) -> None:
 
     assert transaction.nano_amount == 425750000
     assert (
-        transaction.to_wallet
+        transaction.to_address
         == "0:69061ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebc9f"
     )
     assert (
-        transaction.from_wallet
+        transaction.from_address
         == "0:11111ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebxxx"
     )
 
@@ -82,7 +82,7 @@ async def test_tonapi_must_have_destination(session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_raises_wrong_dests_right_to_wallet_and_from_wallet(
+async def test_raises_wrong_dests_if_source_is_none(
     session: AsyncSession,
 ) -> None:
     tonapi_transaction = create_tonapi_transaction_mock(source_address_raw=None)
