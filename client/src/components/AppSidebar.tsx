@@ -34,24 +34,18 @@ function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard">
-                    <HomeIcon /> {t('sidebar.main')}
-                  </Link>
+                <SidebarMenuButton>
+                  <HomeIcon /> {t('sidebar.main')}
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/transactions">
-                    <ListIcon /> {t('sidebar.transactions')}
-                  </Link>
+                <SidebarMenuButton>
+                  <ListIcon /> {t('sidebar.transactions')}
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard/api-keys">
-                    <KeySquareIcon /> {t('sidebar.api_keys')}
-                  </Link>
+                <SidebarMenuButton>
+                  <KeySquareIcon /> {t('sidebar.api_keys')}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

@@ -16,6 +16,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-1 md:gap-2.5">
       Hello, world! balance = {user.balance} TON
+      <div>(Секретный ключ: {user.apiKey}) </div>
     </div>
   )
 }
