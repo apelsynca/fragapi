@@ -12,6 +12,7 @@ from src.fragment_transaction.service import (
 )
 from src.logging import get_logger
 from src.models import User
+from src.models.fragment_transactions import FragmentTransactionReason
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.users.repository import UserRepository
 from src.wallet.manager import WalletManager, WalletManagerError
@@ -95,13 +96,14 @@ class StarsService:
         except WalletManagerError:  # bad
             raise FragError("We dont have money")
 
-        await fragment_transaction_service.create_stars(
+        await fragment_transaction_service.create(
             session=session,
             user=user,
             amount=0,
             recipient=recipient,
             username=username,
             transaction=transaction,
+            reason=FragmentTransactionReason.stars,
         )
 
         assert transaction.message_hash

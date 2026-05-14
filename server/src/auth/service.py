@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import LoginResponse
+from src.exceptions import Forbidden
 from src.kit.utils import utc_now
 from src.logging import get_logger
 from src.models import User, UserSession
@@ -18,7 +19,7 @@ class AuthService:
         user_session = await session.scalar(stmt)
 
         if user_session is None:
-            raise
+            raise Forbidden()
 
         return LoginResponse(token=user_session.token, success=True)
 
