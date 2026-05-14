@@ -45,7 +45,7 @@ class TonAPIService:
         hash = self.resolve_payment_hash(tonapi_transaction)
 
         if hash is None:
-            # log here
+            # log.warn("Transaction with hash") # TODO: log here
             return
 
         # log.info  here

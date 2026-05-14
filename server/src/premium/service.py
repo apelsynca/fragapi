@@ -13,7 +13,6 @@ from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
-from src.users.repository import UserRepository
 from src.wallet.manager import WalletManager, WalletManagerError
 from src.wallet.service import wallet as wallet_service
 from src.wallet.types import TonConnectTransaction
@@ -62,8 +61,7 @@ class PremiumService:
     ) -> BuyPremiumResponse:
         log.debug("Buying premium from TC transaction", user=user)
 
-        user_repository = UserRepository.from_session(session)
-        await user_repository.get_by_id_for_update(id=user.id)
+        await session.refresh(user, with_for_update=True)
 
         amount_from_transaction = float(to_amount(tc_transaction.messages[0].amount))
         with_fee_amount = after_fee(after_ton_network_fee(amount_from_transaction))
@@ -72,6 +70,8 @@ class PremiumService:
             raise InsuficcientFunds()
 
         user.balance -= with_fee_amount
+
+        await session.commit()
 
         try:
             transaction = await wallet_service.send_from_tc_transaction(
