@@ -6,7 +6,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram import User as TGUser
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-from src.bot.utils import with_session
+from src.bot.utils.decorators import with_session
 from src.config import settings
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token

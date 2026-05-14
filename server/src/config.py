@@ -6,6 +6,8 @@ from typing import Literal
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from src.enums import TelegramLogSender
+
 
 class Environment(StrEnum):
     development = "development"
@@ -52,6 +54,10 @@ class Settings(BaseSettings):
     API_PRICE_MARKUP: float = Field(gt=0, default=0.01)  # 1%
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_DEPOSIT_AMOUNT: float = 0.25
+    MIN_NON_SILENT_AMOUNT: float = 3
+
+    TELEGRAM_LOG_SENDER: TelegramLogSender = TelegramLogSender.logger
+    TELEGRAM_LOGS_CHAT_ID: int | str = ""
 
     DOCS_URL: str = "https://docs.fragapi.com"
     API_URL: str = "https://api.fragapi.com"
@@ -67,6 +73,13 @@ class Settings(BaseSettings):
     @property
     def redis_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+    AMQP_USER: str = "guest"
+    AMQP_PWD: str = "guest"
+
+    @property
+    def amqp_url(self) -> str:
+        return f"amqp://{self.AMQP_USER}:{self.AMQP_PWD}@localhost:5672/"
 
     def get_postgres_dsn(self, driver: Literal["asyncpg", "psycopg2"]) -> str:
         return str(

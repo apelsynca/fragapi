@@ -28,6 +28,8 @@ dependencies = [
   "typer>=0.25.1",
   "asgi-ratelimit>=0.10.0",
   "redis>=7.4.0",
+  "taskiq>=0.12.4",
+  "taskiq-aio-pika>=0.6.0",
 ]
 
 [dependency-groups]
@@ -46,6 +48,7 @@ dev = [
 
 [tool.taskipy.tasks]
 api = { cmd = "uvicorn src.app:app --reload --workers 1 --host 0.0.0.0 --port 8000", help = "Run api service" }
+worker = { cmd = "taskiq worker -w 1 src.worker.run:broker && taskiq scheduler src.worker.run:scheduler", help = "Run worker" }
 test = { cmd = "FRAG_ENV=testing python -m pytest --cov src/ --cov-report=term-missing", help = "run all tests" }
 test_fast = { cmd = "FRAG_ENV=testing python -m pytest -n auto -p no:sugar --no-cov", help = "run all tests, but fast" }
 db_migrate = { cmd = "python -m scripts.db upgrade", help = "run alembic upgrade" }

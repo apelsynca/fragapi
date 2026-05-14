@@ -38,3 +38,6 @@ class FragmentTransaction(RecordModel):
     reason: Mapped[FragmentTransactionReason] = mapped_column(
         Enum(FragmentTransactionReason, native_enum=False)
     )
+
+    star_amount: Mapped[int | None]
+    premium_months: Mapped[int | None]

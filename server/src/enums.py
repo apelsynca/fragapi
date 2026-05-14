@@ -17,3 +17,8 @@ class RateLimitGroup(StrEnum):
     restricted = "restricted"
     default = "default"
     elevated = "elevated"
+
+
+class TelegramLogSender(StrEnum):
+    logger = "logger"
+    chat = "chat"

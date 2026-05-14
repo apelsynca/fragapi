@@ -10,7 +10,7 @@ from src.routing import APIRouter
 
 from .schemas import PanelUserRead, RevokeTokenResponse, UserRead
 
-router = APIRouter(prefix="/users", tags=["Users", APITag.public])
+router = APIRouter(prefix="/users", tags=["users", APITag.public])
 
 
 @router.get("/me", response_model=UserRead)
@@ -18,7 +18,7 @@ async def get_api_user_me(auth_subject: AuthorizeAPIUser) -> User:
     return auth_subject.subject
 
 
-panel_router = APIRouter(prefix="/panel/users", tags=["Users", "Panel", APITag.private])
+panel_router = APIRouter(prefix="/panel/users", tags=["users", "panel", APITag.private])
 
 
 @panel_router.get("/me", response_model=PanelUserRead)

@@ -5,7 +5,7 @@ from src.kit.schemas import Schema
 from src.openapi import APITag
 from src.routing import APIRouter
 
-router = APIRouter(prefix="/ton", tags=["Ton", APITag.public])
+router = APIRouter(prefix="/ton", tags=["ton", APITag.public])
 
 
 class TonRate(Schema):

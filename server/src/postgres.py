@@ -12,7 +12,7 @@ from src.kit.database.postgres import (
 )
 from src.kit.database.postgres import create_async_engine as _create_async_engine
 
-type ProcessName = Literal["app", "bot", "script"]
+type ProcessName = Literal["app", "worker", "bot", "script"]
 
 
 def create_async_engine(

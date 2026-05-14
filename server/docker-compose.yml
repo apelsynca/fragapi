@@ -1,4 +1,17 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.13          # no management UI
+    restart: always
+    expose:
+      - "5672"               # only AMQP port (optional if only internal access needed)
+    environment:
+      RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
+      RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - dokploy-network
+
   db:
     image: postgres:17
     restart: always
@@ -16,6 +29,7 @@ services:
 
   app:
     build: .
+    command: uv run uvicorn src.app:app --host 0.0.0.0 --port 8000
     restart: always
     depends_on:
       - db
@@ -28,8 +42,19 @@ services:
     env_file:
       - .env
 
+    worker:
+      build: .
+      command: uv run taskiq worker -w 1 src.worker.run:broker
+      depends_on:
+        - db
+        # - rabbitmq or smth
+      env_file:
+        - .env
+
+
 volumes:
   db_data:
+  rabbitmq_data:
 
 networks:
   dokploy-network:

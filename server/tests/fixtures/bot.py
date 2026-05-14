@@ -7,7 +7,7 @@ from telegram.ext import Application, ExtBot
 
 @pytest.fixture(autouse=True)
 def bot_application(mocker: MockerFixture) -> MagicMock:
-    mock = mocker.patch("src.bot.app.get_bot_application", spec=Application)
+    mock = mocker.patch("src.bot.get_bot_application", spec=Application)
     mock.bot = MagicMock(spec=ExtBot)
 
     return mock

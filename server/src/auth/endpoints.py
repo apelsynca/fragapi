@@ -7,7 +7,7 @@ from src.openapi import APITag
 from src.postgres import get_db_session
 from src.routing import APIRouter
 
-router = APIRouter(prefix="/auth", tags=["Auth", APITag.private])
+router = APIRouter(prefix="/auth", tags=["auth", APITag.private])
 
 
 @router.post("/tgbot")

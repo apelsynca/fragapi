@@ -8,9 +8,8 @@ from telegram.ext import Application as BotApplication
 
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
-from src.bot.app import get_bot_application
+from src.bot import get_bot_application, setup_bot
 from src.bot.endpoints import router as bot_router
-from src.bot.setup import setup_bot
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
 from src.health.endpoints import router as health_router
@@ -30,6 +29,7 @@ from src.postgres import AsyncSessionMiddleware, create_async_engine
 from src.wallet.manager import WalletManager
 from src.wallet.ton import create_wallet
 from src.wallet.ton import toncenter as toncenter_client
+from src.worker import broker
 
 log = get_logger()
 
@@ -65,6 +65,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         await bot_application.initialize()
         await bot_application.start()
 
+    await broker.startup()
+
     log.info("Fragment API started")
 
     async with toncenter_client:
@@ -75,6 +77,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             fragment=fragment,
             wallet_manager=wallet_manager,
         )
+
+    await broker.shutdown()
 
     if settings.is_production():
         await bot_application.stop()

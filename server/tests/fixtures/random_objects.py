@@ -12,6 +12,10 @@ from ton_core import to_nano
 
 from src.kit.ton_connect import TonConnectMessage
 from src.models import Payment, Transaction, User
+from src.models.fragment_transactions import (
+    FragmentTransaction,
+    FragmentTransactionReason,
+)
 from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
@@ -128,3 +132,34 @@ async def create_transaction(
     )
     await save_fixture(transaction)
     return transaction
+
+
+@pytest_asyncio.fixture
+async def fragment_transaction(
+    save_fixture: SaveFixture, user: User, transaction: Transaction
+) -> FragmentTransaction:
+    return await create_fragment_transaction(
+        save_fixture, user=user, transaction=transaction
+    )
+
+
+async def create_fragment_transaction(
+    save_fixture: SaveFixture,
+    user: User,
+    transaction: Transaction,
+    amount: float | None = None,
+    star_amount: int | None = None,
+    premium_months: int | None = None,
+) -> FragmentTransaction:
+    ftrans = FragmentTransaction(
+        user=user,
+        recipient=rstr("recipient"),
+        username=rstr("username"),
+        amount=amount if amount is not None else random.randint(1, 250) / 100,
+        transaction=transaction,
+        reason=FragmentTransactionReason.stars,
+        star_amount=star_amount,
+        premium_months=premium_months,
+    )
+    await save_fixture(ftrans)
+    return ftrans
