@@ -1,14 +1,20 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from ton_core import to_amount
 
 from src.enums import PremiumMonths
-from src.exceptions import ResourceNotFound
+from src.exceptions import FragError, InsuficcientFunds, ResourceNotFound
+from src.fee import after_fee, after_ton_network_fee
 from src.fragment import Fragment
 from src.fragment.exceptions import FragmentAPIUsersNotFound
+from src.fragment_transaction.service import (
+    fragment_transaction as fragment_transaction_service,
+)
 from src.logging import get_logger
-from src.models import TransactionReason, User
-from src.payments.service import payment as payment_service
+from src.models import User
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
-from src.wallet.manager import WalletManager
+from src.users.repository import UserRepository
+from src.wallet.manager import WalletManager, WalletManagerError
+from src.wallet.service import wallet as wallet_service
 from src.wallet.types import TonConnectTransaction
 
 log = get_logger()
@@ -41,6 +47,7 @@ class PremiumService:
             wallet_manager=wallet_manager,
             tc_transaction=transaction,
             recipient=recipient_data.recipient,
+            username=data.username,
         )
 
     async def gift_from_tc_transaction(
@@ -50,18 +57,42 @@ class PremiumService:
         wallet_manager: WalletManager,
         tc_transaction: TonConnectTransaction,
         recipient: str,
+        username: str,
     ) -> BuyPremiumResponse:
         log.debug("Buying premium from TC transaction", user=user)
-        message_hash = await payment_service.from_tc_transaction(
+
+        user_repository = UserRepository.from_session(session)
+        await user_repository.get_by_id_for_update(id=user.id)
+
+        amount_from_transaction = float(to_amount(tc_transaction.messages[0].amount))
+        with_fee_amount = after_fee(after_ton_network_fee(amount_from_transaction))
+
+        if with_fee_amount >= user.balance:
+            raise InsuficcientFunds()
+
+        user.balance -= with_fee_amount
+
+        try:
+            transaction = await wallet_service.send_from_tc_transaction(
+                session=session,
+                wallet_manager=wallet_manager,
+                tc_transaction=tc_transaction,
+            )
+        except WalletManagerError:  # bad
+            raise FragError("We dont have money")
+
+        await fragment_transaction_service.create_premium(
             session=session,
             user=user,
-            wallet_manager=wallet_manager,
-            tc_transaction=tc_transaction,
+            amount=with_fee_amount,
             recipient=recipient,
-            reason=TransactionReason.premium,
+            username=username,
+            transaction=transaction,
         )
 
-        return BuyPremiumResponse(message_hash=message_hash)
+        assert transaction.message_hash
+
+        return BuyPremiumResponse(message_hash=transaction.message_hash)
 
     async def get_buy_tc_transaction(
         self,

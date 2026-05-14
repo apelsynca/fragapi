@@ -13,4 +13,5 @@ _TransactionsRead = Authenticator(
 )
 
 
+# FRAG
 TransactionsRead = Annotated[AuthSubject[User], Depends(_TransactionsRead)]

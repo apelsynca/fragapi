@@ -11,7 +11,7 @@ from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import to_nano
 
 from src.kit.ton_connect import TonConnectMessage
-from src.models import Payment, User
+from src.models import Payment, Transaction, User
 from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
@@ -106,3 +106,25 @@ def create_tonapi_transaction_mock(
     tonapi_transaction.out_msgs = out_msgs  # test that raises if not len 0
 
     return tonapi_transaction
+
+
+@pytest_asyncio.fixture
+async def transaction(save_fixture: SaveFixture) -> Transaction:
+    return await create_transaction(save_fixture)
+
+
+async def create_transaction(
+    save_fixture: SaveFixture,
+    *,
+    amount: float | None = None,
+    message_hash: str | None = None,
+) -> Transaction:
+    transaction = Transaction(
+        nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
+        hash="",
+        message_hash=message_hash,
+        from_address=rstr("someaddress"),
+        to_address=rstr("someaddress"),
+    )
+    await save_fixture(transaction)
+    return transaction

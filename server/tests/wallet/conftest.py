@@ -11,9 +11,7 @@ from src.wallet.manager import WalletManager
 def wallet() -> MagicMock:
     wallet = MagicMock(spec=WalletV5R1)
     wallet.balance = to_nano(0)
-    wallet.address = Address(
-        address=Address("UQAYDwZmrOOI0kOh0cd4emo7NxlDPqKiDvAVwR-Gom2xJvPQ")
-    )
+    wallet.address = Address("UQAYDwZmrOOI0kOh0cd4emo7NxlDPqKiDvAVwR-Gom2xJvPQ")
 
     return wallet
 

@@ -50,7 +50,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     async_sessionmaker = create_async_sessionmaker(async_engine)
 
     wallet = create_wallet()
-    wallet_manager = WalletManager(wallet)
+    wallet_manager = WalletManager(ton_wallets=[wallet])
 
     fragment_rest_client = FragmentRestClient(
         ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),

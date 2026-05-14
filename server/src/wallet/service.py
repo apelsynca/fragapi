@@ -75,7 +75,7 @@ class WalletService:
         if message.payload is None:
             raise RuntimeError("Omg shiiit")
 
-        padded_payload = message.payload.ljust(4, "=")
+        padded_payload = message.payload + "=" * (-len(message.payload) % 4)
         return Cell.one_from_boc(padded_payload)
 
 

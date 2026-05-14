@@ -25,6 +25,8 @@ class FragmentTransaction(RecordModel):
 
     # amount with fee
     amount: Mapped[float]
+    recipient: Mapped[str]  # later can be nullable
+    username: Mapped[str]  # later can be nullable
 
     transaction_id: Mapped[UUID] = mapped_column(
         ForeignKey("transactions.id"), unique=True
