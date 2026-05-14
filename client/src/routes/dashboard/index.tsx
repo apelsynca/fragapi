@@ -1,22 +1,28 @@
-import { Suspense } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import DashboardStats from '~/components/DashboardStats'
-import DashboardChart from '~/components/DashboardChart'
-import { useTranslation } from 'react-i18next'
+import { fetchMe } from '~/server/user'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
+  loader: async () => {
+    return {
+      user: await fetchMe(),
+    }
+  },
 })
 
 function RouteComponent() {
+  const { user } = Route.useLoaderData()
+
   return (
     <div className="flex flex-col gap-1 md:gap-2.5">
-      <Suspense fallback={<div>FALLBACK STATS</div>}>
-        <DashboardStats />
-      </Suspense>
-      <Suspense fallback={<div>FALLBACK CHART</div>}>
-        <DashboardChart />
-      </Suspense>
+      Hello, world! balance = {user.balance} TON
     </div>
   )
 }
+
+// <Suspense fallback={<div>FALLBACK STATS</div>}>
+//   <DashboardStats />
+// </Suspense>
+// <Suspense fallback={<div>FALLBACK CHART</div>}>
+//   <DashboardChart />
+// </Suspense>
