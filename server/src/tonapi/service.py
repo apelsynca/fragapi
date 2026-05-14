@@ -1,63 +1,66 @@
-import re
-
 from pytonapi.exceptions import TONAPIBadRequestError
 from pytonapi.rest import TonapiRestClient
-from pytonapi.rest.models import Transaction
+from pytonapi.rest.models import Transaction as TonAPITransaction
 from sqlalchemy.ext.asyncio import AsyncSession
+from ton_core import Address
 
 from src.config import settings
-from src.exceptions import BadRequest, FragError, ResourceNotFound
-from src.logging import get_logger
-from src.payments.service import payment as payment_service
+from src.exceptions import FragError
+from src.payment.service import payment as payment_service
 from src.tonapi.schemas import TonAPIWebhookMessage
-
-log = get_logger()
+from src.transaction.service import transaction as transaction_service
 
 
 class TonAPIService:
+    COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
+
     def __init__(self) -> None:
         self.rest_client = TonapiRestClient(api_key=settings.TONAPI_API_KEY)
 
-    async def process_webhook_account_tx_message(
-        self, session: AsyncSession, message: TonAPIWebhookMessage
+    async def process_webhook_acc_tx(
+        self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
-        if message.event_type != "account_tx":
-            raise FragError("Need only account_tx messages")
+        if webhook_message.event_type != "account_tx":
+            raise FragError("Wrong event type")
 
-        transaction = await self.get_blockchain_transaction(tx_hash=message.tx_hash)
+        # for now)
+        account_ids = [Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)]
 
-        if transaction.in_msg is None:
-            log.warn("No transaction out_msgs")
-            return
+        # TODO: test that this should raise after creating the blockchain transaction
+        if webhook_message.account_id not in account_ids:
+            raise FragError("Wrong account id")
 
-        in_msg = transaction.in_msg
+        tonapi_transaction = await self.get_blockchain_transaction(
+            tx_hash=webhook_message.tx_hash
+        )
 
-        if in_msg.decoded_op_name != "text_comment":
-            return
-        if in_msg.decoded_body is None:
-            return
-        comment_text = in_msg.decoded_body["text"]
+        transaction = await transaction_service.create_as_tonapi_internal(
+            session=session, tonapi_transaction=tonapi_transaction
+        )
 
-        payment_hash = self.get_hash_from_comment_text(comment_text)
+        # resolve hash here
+        hash = self.resolve_payment_hash(tonapi_transaction)
 
-        if payment_hash is None:
-            log.warn(
-                "Transaction in the wallet with wrong comment",
-                comment_text=comment_text,
-            )
-            return
+        # log.info  here
 
-        try:
-            await payment_service.process_ton_payment(
-                session=session, hash=payment_hash
-            )
-        except ResourceNotFound:
-            log.warn(
-                "Transaction in the wallet with right comment, but not found",
-                comment_text=comment_text,
-            )
+        await payment_service.complete_ton(
+            session=session, transaction=transaction, hash=hash
+        )
 
-    async def get_blockchain_transaction(self, tx_hash: str) -> Transaction:
+        # send notification task here
+
+    def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
+        if tonapi_transaction.in_msg is None:
+            return None
+        if (
+            tonapi_transaction.in_msg.decoded_body is None
+            or tonapi_transaction.in_msg.decoded_op_name != "text-msg..."
+        ):
+            return None
+
+        return tonapi_transaction.in_msg.decoded_body["text"]
+
+    async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with self.rest_client as client:
             try:
                 transaction = await client.blockchain.get_transaction(
@@ -65,13 +68,7 @@ class TonAPIService:
                 )
                 return transaction
             except TONAPIBadRequestError:
-                raise BadRequest("Transaction with that hash is not found")
-
-    def get_hash_from_comment_text(self, comment_text: str) -> str | None:
-        # CAREFULL
-        match = re.match(pattern=r"[\w\-\ ]+\n\nRef#(.+)", string=comment_text)
-        if match is not None:
-            return match.group(1)
+                raise FragError("Transaction with that hash is not found")
 
 
 tonapi = TonAPIService()

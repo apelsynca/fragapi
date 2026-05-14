@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from uuid import UUID
 
 from sqlalchemy import Select, func, select
 
@@ -9,7 +10,7 @@ from src.models.transactions import TransactionStatus
 
 
 class TransactionRepository(
-    BaseRepository[Transaction], IDRepositoryMixin[Transaction, int]
+    BaseRepository[Transaction], IDRepositoryMixin[Transaction, UUID]
 ):
     model = Transaction
 
