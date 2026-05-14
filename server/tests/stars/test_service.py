@@ -6,12 +6,12 @@ from src.exceptions import BadRequest
 from src.fragment.types import BuyLink, BuyRequest
 from src.stars.schemas import StarsRecipient
 from src.stars.service import stars as stars_service
-from tests.fixtures.random_objects import get_valid_transaction
+from tests.fixtures.random_objects import get_valid_tc_transaction
 
 
 @pytest.mark.asyncio
 async def test_get_buy_transaction(fragment: MagicMock) -> None:
-    transaction = get_valid_transaction(amount=2.2)
+    transaction = get_valid_tc_transaction(amount=2.2)
     fragment.init_buy_stars_request.return_value = BuyRequest(
         req_id="", myself=False, amount=0
     )
@@ -20,7 +20,7 @@ async def test_get_buy_transaction(fragment: MagicMock) -> None:
         transaction=transaction,
     )
 
-    ton_connect_transaction = await stars_service.get_tc_transaction(
+    ton_connect_transaction = await stars_service._get_tc_transaction(
         fragment=fragment,
         recipient_data=StarsRecipient(recipient="abc", photo="", name=""),
         quantity=50,
@@ -39,8 +39,23 @@ async def test_get_buy_trans_raises_on_invalid_quantity(
 ) -> None:
     # i know here maybe FragRequestValidationError is better
     with pytest.raises(BadRequest):
-        await stars_service.get_tc_transaction(
+        await stars_service._get_tc_transaction(
             fragment=fragment,
             recipient_data=StarsRecipient(recipient="somerecipient", photo="", name=""),
             quantity=quantity,
         )
+
+
+# @pytest.mark.asyncio
+# async def test_buy_right_calls_1_but_2(
+#     fragment: MagicMock, session: AsyncSession, user: User, wallet_manager: MagicMock
+# ):
+#     buy_stars_resp = await stars_service.buy(
+#         session=session,
+#         user=user,
+#         data=BuyStars(username="someusername", quantity=52),
+#         fragment=fragment,
+#         wallet_manager=wallet_manager,
+#     )
+#
+#     assert buy_stars_resp.message_hash == "msghash"

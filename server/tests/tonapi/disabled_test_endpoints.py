@@ -30,7 +30,7 @@ async def test_tonapi_webhook_silent(
     )
     assert response.status_code == 200
 
-    tonapi_service.process_webhook_account_tx_message.assert_not_called()
+    tonapi_service.process_webhook_acc_tx.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -48,9 +48,9 @@ async def test_tonapi_webhook_good(
     )
     assert response.status_code == 200
 
-    tonapi_service.process_webhook_account_tx_message.assert_called_once_with(
+    tonapi_service.process_webhook_acc_tx.assert_called_once_with(
         session=session,
-        message=TonAPIWebhookMessage(
+        webhook_message=TonAPIWebhookMessage(
             event_type="account_tx",
             account_id="0:ssssuperaccid",
             lt=52020202,

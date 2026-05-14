@@ -1,6 +1,7 @@
 # from fastapi import Depends
 # from sqlalchemy.ext.asyncio import AsyncSession
 #
+# from src.exceptions import FragError
 # from src.logging import get_logger
 # from src.openapi import APITag
 # from src.postgres import get_db_session
@@ -21,8 +22,10 @@
 #
 #     if message.event_type == "account_tx":
 #         try:
-#             await tonapi_service.process_webhook_account_tx_message(
-#                 session=session, message=message
+#             await tonapi_service.process_webhook_acc_tx(
+#                 session=session, webhook_message=message
 #             )
+#         except FragError as exc:
+#             log.warn("TonAPI webhook internal error", error=str(exc))
 #         except Exception as exc:
-#             log.error("Deposit error", error=str(exc))
+#             log.error("TonAPI webhook unknown error", error=str(exc))

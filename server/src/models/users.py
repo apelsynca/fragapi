@@ -4,14 +4,16 @@ from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.enums import UserRole
-from src.kit.database.models import RecordModel
+from src.kit.database.models import TimestampedModel
 from src.kit.utils import generate_api_key
 
 if TYPE_CHECKING:
-    from .transactions import Transaction
+    from .fragment_transactions import FragmentTransaction
 
 
-class User(RecordModel):
+class User(TimestampedModel):
+    __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     first_name: Mapped[str]
@@ -24,6 +26,6 @@ class User(RecordModel):
 
     api_key: Mapped[str] = mapped_column(unique=True, default=generate_api_key)
 
-    transactions: Mapped[list["Transaction"]] = relationship(
-        "Transaction", back_populates="user"
+    fragment_transactions: Mapped[list["FragmentTransaction"]] = relationship(
+        "FragmentTransaction", back_populates="user"
     )

@@ -45,9 +45,9 @@ class InsuficcientFunds(BadRequest):
 
 
 class ValidationError(TypedDict):
+    type: LiteralString
     loc: tuple[int | str, ...]
     msg: LiteralString
-    type: LiteralString
     input: Any
     ctx: NotRequired[dict[str, Any]]
     url: NotRequired[str]

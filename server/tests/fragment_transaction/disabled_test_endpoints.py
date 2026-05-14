@@ -1,10 +1,10 @@
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.fragment_transactions.repository import TransactionRepository
 
 from src.auth.scope import Scope
-from src.models import Transaction, User
-from src.transactions.repository import TransactionRepository
+from src.models import FragmentTransaction, User
 from tests.fixtures.auth import AuthSubjectFixture
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_transaction
@@ -26,7 +26,7 @@ async def test_gets_all_transactions(
 ) -> None:
     repository = TransactionRepository.from_session(session)
 
-    stmt = repository.get_base_stmt().where(Transaction.user == user)
+    stmt = repository.get_base_stmt().where(FragmentTransaction.user == user)
     trans_count = await repository.count(stmt=stmt)
     assert trans_count == 0
 

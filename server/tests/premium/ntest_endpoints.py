@@ -5,7 +5,7 @@ from httpx import AsyncClient
 
 from src.fragment.types import BuyLink, FoundRecipientData, RecipientData
 from src.models import User
-from tests.fixtures.random_objects import get_valid_transaction
+from tests.fixtures.random_objects import get_valid_tc_transaction
 
 
 @pytest.mark.asyncio
@@ -28,7 +28,7 @@ async def test_buy_or_smth(
         found=FoundRecipientData(myself=False, recipient="ogurchik", photo="", name=""),
     )
     fragment.get_gift_premium_link.return_value = BuyLink(
-        ok=True, transaction=get_valid_transaction(amount=5)
+        ok=True, transaction=get_valid_tc_transaction(amount=5)
     )
 
     response = await client.post(

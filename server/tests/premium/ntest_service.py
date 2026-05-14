@@ -8,14 +8,12 @@ from src.fragment.exceptions import FragmentAPIUsersNotFound
 from src.fragment.types import BuyLink, BuyRequest
 from src.premium.schemas import PremiumRecipient
 from src.premium.service import premium as premium_service
-from tests.fixtures.random_objects import (
-    get_valid_transaction,
-)
+from tests.fixtures.random_objects import get_valid_tc_transaction
 
 
 @pytest.mark.asyncio
 async def test_gets_right_transaction(fragment: MagicMock) -> None:
-    transaction = get_valid_transaction(amount=20)
+    transaction = get_valid_tc_transaction(amount=20)
     fragment.init_gift_premium_request.return_value = BuyRequest(
         req_id="", myself=False, amount=0
     )

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import User
 from src.stars.schemas import BuyStarsResponse, StarsRecipient
-from tests.fixtures.random_objects import get_valid_transaction
+from tests.fixtures.random_objects import get_valid_tc_transaction
 
 
 @pytest.mark.asyncio
@@ -22,7 +22,7 @@ async def test_buy_makes_right_callls_buy_from_tc(
     client: AsyncClient, mocker: MockerFixture, session: AsyncSession, user: User
 ) -> None:
     # i know its bad
-    tc_transaction = get_valid_transaction(amount=2.225)
+    tc_transaction = get_valid_tc_transaction(amount=2.225)
     mocker.patch(
         "src.stars.endpoints.stars_service.get_recipient",
         return_value=StarsRecipient(recipient="abobus", photo="", name=""),

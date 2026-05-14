@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models.transactions import Transaction, TransactionReason, TransactionStatus
+from src.models.transactions import Transaction
 from src.models.user_sessions import UserSession
 from src.postgres import create_async_engine
-from src.transactions.repository import TransactionRepository
+from src.transaction.repository import TransactionRepository
 from src.users.repository import UserRepository
 
 
@@ -43,10 +43,10 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
             Transaction(
                 amount=float(input(f"Amount for [{offset}]: ")),
                 user=user,
-                reason=TransactionReason.STARS,
+                reason=TransactionReason.stars,
                 recipient=token_urlsafe(24),
                 message_hash=None,
-                status=TransactionStatus.COMPLETED,
+                status=TransactionStatus.completed,
                 created_at=utc_now() - timedelta(days=offset),
             )
         )
