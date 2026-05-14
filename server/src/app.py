@@ -13,9 +13,9 @@ from src.bot.endpoints import router as bot_router
 from src.bot.setup import setup_bot
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
-from src.fragment import Fragment
-from src.fragment.rest_client import FragmentRestClient
 from src.health.endpoints import router as health_router
+from src.integrations.fragment import Fragment
+from src.integrations.fragment.rest_client import FragmentRestClient
 from src.kit.database.postgres import (
     AsyncEngine,
     AsyncSessionMaker,

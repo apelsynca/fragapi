@@ -1,4 +1,4 @@
-from src.fragment.session_storage import FragmentSession, SessionStorage
+from src.integrations.fragment.session_storage import FragmentSession, SessionStorage
 
 
 def test_save_cookies():
@@ -21,3 +21,7 @@ def test_save_cookies():
 
 
 # TODO: tests for the saving
+
+
+# def test_save_tokens():
+#     pass

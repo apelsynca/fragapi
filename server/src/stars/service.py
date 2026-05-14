@@ -5,11 +5,11 @@ from ton_core import to_amount
 
 from src.exceptions import BadRequest, FragError, InsuficcientFunds, ResourceNotFound
 from src.fee import after_fee, after_ton_network_fee
-from src.fragment import Fragment
-from src.fragment.exceptions import FragmentAPIUsersNotFound
 from src.fragment_transaction.service import (
     fragment_transaction as fragment_transaction_service,
 )
+from src.integrations.fragment import Fragment
+from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
@@ -99,7 +99,7 @@ class StarsService:
         await fragment_transaction_service.create(
             session=session,
             user=user,
-            amount=0,
+            amount=with_fee_amount,
             recipient=recipient,
             username=username,
             transaction=transaction,

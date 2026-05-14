@@ -2,8 +2,8 @@ import json
 from time import time
 from typing import Literal
 
-from src.fragment.rest_client import FragmentRestClient
-from src.fragment.types import BuyLink, BuyRequest, RecipientData
+from src.integrations.fragment.rest_client import FragmentRestClient
+from src.integrations.fragment.types import BuyLink, BuyRequest, RecipientData
 
 type MonthsAmount = Literal["3", "6", "12"]
 

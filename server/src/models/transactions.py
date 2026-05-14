@@ -16,7 +16,7 @@ class Transaction(RecordModel):
     # nano tons transaction amount
     nano_amount: Mapped[int] = mapped_column(BigInteger)
 
-    hash: Mapped[str] = mapped_column(
+    hash: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True, unique=True
     )
     # in theory we could know the message_hash even before sending

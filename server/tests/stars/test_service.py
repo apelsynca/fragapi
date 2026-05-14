@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.exceptions import BadRequest
-from src.fragment.types import BuyLink, BuyRequest
+from src.integrations.fragment.types import BuyLink, BuyRequest
 from src.stars.schemas import StarsRecipient
 from src.stars.service import stars as stars_service
 from tests.fixtures.random_objects import get_valid_tc_transaction
@@ -44,18 +44,3 @@ async def test_get_buy_trans_raises_on_invalid_quantity(
             recipient_data=StarsRecipient(recipient="somerecipient", photo="", name=""),
             quantity=quantity,
         )
-
-
-# @pytest.mark.asyncio
-# async def test_buy_right_calls_1_but_2(
-#     fragment: MagicMock, session: AsyncSession, user: User, wallet_manager: MagicMock
-# ):
-#     buy_stars_resp = await stars_service.buy(
-#         session=session,
-#         user=user,
-#         data=BuyStars(username="someusername", quantity=52),
-#         fragment=fragment,
-#         wallet_manager=wallet_manager,
-#     )
-#
-#     assert buy_stars_resp.message_hash == "msghash"

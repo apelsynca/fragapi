@@ -3,7 +3,7 @@ import json
 from pydantic import BaseModel, ValidationError
 
 from src.config import settings
-from src.fragment.models import MainPageTokens
+from src.integrations.fragment.models import MainPageTokens
 from src.logging import get_logger
 
 log = get_logger()

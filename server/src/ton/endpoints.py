@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from src.fragment import Fragment, get_fragment
+from src.integrations.fragment import Fragment, get_fragment
 from src.kit.schemas import Schema
 from src.openapi import APITag
 from src.routing import APIRouter

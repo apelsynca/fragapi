@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from src.fragment.rest_request import BaseClient, FragCookies
+from src.integrations.fragment.rest_request import BaseClient, FragCookies
 
 
 class MockClient(BaseClient):

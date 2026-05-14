@@ -4,10 +4,10 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from src.fragment.models import MainPageTokens
-from src.fragment.rest_client import FragmentRestClient
-from src.fragment.rest_request import BaseClient
-from src.fragment.session_storage import FragmentSession
+from src.integrations.fragment.models import MainPageTokens
+from src.integrations.fragment.rest_client import FragmentRestClient
+from src.integrations.fragment.rest_request import BaseClient
+from src.integrations.fragment.session_storage import FragmentSession
 from src.kit.ton_connect import TonConnect
 
 
@@ -23,7 +23,7 @@ def ton_connect() -> MagicMock:
 @pytest.fixture(autouse=True)
 def session_storage_load_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.fragment.rest_client.SessionStorage.load", return_value=None
+        "src.integrations.fragment.rest_client.SessionStorage.load", return_value=None
     )
 
 

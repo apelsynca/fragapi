@@ -3,14 +3,14 @@ from time import time
 import pytest
 from pytest_mock import MockerFixture
 
-from src.fragment.exceptions import (
+from src.integrations.fragment.exceptions import (
     FragmentAPIError,
     FragmentAPIUsersNotFound,
     FragmentError,
 )
-from src.fragment.rest_client import FragmentRestClient
-from src.fragment.session_storage import FragmentSession
-from tests.fragment.helpers import MockClient
+from src.integrations.fragment.rest_client import FragmentRestClient
+from src.integrations.fragment.session_storage import FragmentSession
+from tests.integrations.fragment.helpers import MockClient
 
 
 @pytest.mark.asyncio

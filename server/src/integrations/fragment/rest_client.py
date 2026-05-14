@@ -4,15 +4,15 @@ from asyncio import sleep
 from time import time
 from typing import Any
 
-from src.fragment.exceptions import (
+from src.integrations.fragment.exceptions import (
     FragmentAPIAccessDenied,
     FragmentAPIError,
     FragmentAPIUsersNotFound,
     FragmentError,
 )
-from src.fragment.models import MainPageTokens
-from src.fragment.rest_request import BaseClient, HttpxClient
-from src.fragment.session_storage import SessionStorage
+from src.integrations.fragment.models import MainPageTokens
+from src.integrations.fragment.rest_request import BaseClient, HttpxClient
+from src.integrations.fragment.session_storage import SessionStorage
 from src.kit.ton_connect import TonConnect
 
 

@@ -1,8 +1,6 @@
 from fastapi import Request
 
-from src.fragment.main import Fragment
-
-# Dont threat this as an endpoint
+from .main import Fragment
 
 
 def get_fragment(request: Request) -> Fragment:

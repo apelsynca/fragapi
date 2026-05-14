@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.fragment import Fragment
+from src.integrations.fragment import Fragment
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.fragment import Fragment, get_fragment
+from src.integrations.fragment import Fragment, get_fragment
 from src.logging import get_logger
 from src.openapi import APITag
 from src.postgres import get_db_session

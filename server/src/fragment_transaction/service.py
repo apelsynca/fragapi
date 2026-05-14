@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.fragment_transaction.repository import (
+    FragmentTransactionRepository,
+)
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
 

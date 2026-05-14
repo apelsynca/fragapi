@@ -3,10 +3,10 @@ from time import time
 import pytest
 from pytest_mock import MockerFixture
 
-from src.fragment.main import Fragment
-from src.fragment.models import MainPageTokens
-from src.fragment.rest_client import FragmentRestClient
-from src.fragment.types import FoundRecipientData, RecipientData
+from src.integrations.fragment.main import Fragment
+from src.integrations.fragment.models import MainPageTokens
+from src.integrations.fragment.rest_client import FragmentRestClient
+from src.integrations.fragment.types import FoundRecipientData, RecipientData
 from tests.fixtures.random_objects import rstr
 
 

@@ -24,7 +24,6 @@ class TransactionService:
             to_address=to_address,
         )
 
-        # NOTE: flush idk
         return await repository.create(transaction, flush=True)
 
     async def create_as_tonapi_internal(
