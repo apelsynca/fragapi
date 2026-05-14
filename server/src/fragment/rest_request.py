@@ -41,4 +41,8 @@ class HttpxClient(BaseClient):
         return response.status_code, response.content
 
     def extract_cookies(self) -> FragCookies:
-        return dict(self._client.cookies.items())
+        cookies = {}
+        for cookie in self._client.cookies.jar:
+            cookies[cookie.name] = cookie.value
+
+        return cookies
