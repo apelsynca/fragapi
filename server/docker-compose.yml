@@ -27,20 +27,20 @@ services:
     networks:
       - dokploy-network
 
-  # app:
-  #   build: .
-  #   command: uv run uvicorn src.app:app --host 0.0.0.0 --port 8000
-  #   restart: always
-  #   depends_on:
-  #     - db
-  #   expose:
-  #     - "8000"
-  #   volumes:
-  #     - ${FRAG_SESSION_PATH}:/app/${FRAG_FRAGMENT_SESSION_PATH}
-  #   networks:
-  #     - dokploy-network
-  #   env_file:
-  #     - .env
+  app:
+    build: .
+    command: uv run uvicorn src.app:app --host 0.0.0.0 --port 8000
+    restart: always
+    depends_on:
+      - db
+    expose:
+      - "8000"
+    volumes:
+      - ${FRAG_SESSION_PATH}:/app/${FRAG_FRAGMENT_SESSION_PATH}
+    networks:
+      - dokploy-network
+    env_file:
+      - .env
   #
   # worker:
   #   build: .
