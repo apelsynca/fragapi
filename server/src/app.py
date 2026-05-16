@@ -26,8 +26,7 @@ from src.logging import get_logger
 from src.middlewares import LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
-from src.wallet.manager import WalletManager
-from src.wallet.ton import create_wallet
+from src.wallet.manager import wallet
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker
 
@@ -39,7 +38,6 @@ class State(TypedDict):
     async_sessionmaker: AsyncSessionMaker
     bot_application: BotApplication
     fragment: Fragment
-    wallet_manager: WalletManager
 
 
 @asynccontextmanager
@@ -48,9 +46,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     async_engine = create_async_engine("app")
     async_sessionmaker = create_async_sessionmaker(async_engine)
-
-    wallet = create_wallet()
-    wallet_manager = WalletManager(ton_wallets=[wallet])
 
     fragment_rest_client = FragmentRestClient(
         ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),
@@ -75,7 +70,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             async_sessionmaker=async_sessionmaker,
             bot_application=bot_application,
             fragment=fragment,
-            wallet_manager=wallet_manager,
         )
 
     await broker.shutdown()

@@ -136,7 +136,7 @@ async def create_transaction(
     transaction = Transaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
         hash="",
-        message_hash=message_hash,
+        message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
         from_address=rstr("someaddress"),
         to_address=rstr("someaddress"),
     )

@@ -24,19 +24,6 @@ def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch("src.fragment_transaction.service.enqueue_task")
 
 
-@pytest.fixture
-def tc_transaction() -> TonConnectTransaction:
-    return get_tc_transaction(
-        messages=[
-            TonConnectMessage(
-                address=random.choice(RANDOM_TON_ADDRESSES),
-                amount=to_nano(5.25),
-                payload="te6ccgEBAQEAJwAASgAAAAA1MCBUZWxlZ3JhbSBTdGFycyAKClJlZiN4Z01NbTM3bVY",
-            )
-        ]
-    )
-
-
 @pytest.mark.asyncio
 async def test_creates_from_tc_with_valid_data(
     session: AsyncSession, tc_transaction: TonConnectTransaction, user: User
@@ -156,6 +143,7 @@ async def test_removes_money_from_user_with_fee(
 
     assert user.balance < 125 - after_fee(after_ton_network_fee(10))
 
+    assert frag_trans.id is not None
     enqueue_task_mock.assert_called_once_with(
-        process_fragment_transaction, frag_trans, tc_transaction
+        process_fragment_transaction, frag_trans.id, tc_transaction
     )

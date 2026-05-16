@@ -79,7 +79,7 @@ class FragmentTransactionService:
 
         user.balance -= frag_transaction.amount
 
-        enqueue_task(process_fragment_transaction, frag_transaction, tc_transaction)
+        enqueue_task(process_fragment_transaction, frag_transaction.id, tc_transaction)
 
         return frag_transaction
 

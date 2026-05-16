@@ -1,15 +1,19 @@
-from uuid import UUID
+import uuid
 
 from sqlalchemy.orm import selectinload
+from ton_core import Address, ExternalMessage
 
 from src.bot.logs_sender import telegram_log_sender
 from src.config import settings
-from src.exceptions import ResourceNotFound
+from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.kit.ton_connect import TonConnectTransaction
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
+from src.wallet.manager import wallet_manager
+from src.wallet.service import wallet as wallet_service
 from src.worker import broker
 from src.worker._sqlalchemy import AsyncSessionMaker
 
@@ -27,12 +31,41 @@ NOTIFICATION_TEXT = (
 
 
 @broker.task
-async def process_fragment_transaction() -> None:
-    pass
+async def process_fragment_transaction(
+    fragment_transaction_id: uuid.UUID, tc_transaction: TonConnectTransaction
+) -> None:
+    if len(tc_transaction.messages) != 1:
+        raise BadRequest
+
+    async with AsyncSessionMaker() as session:
+        repository = FragmentTransactionRepository.from_session(session)
+        fragment_transaction = await repository.get_by_id(
+            id=fragment_transaction_id, options=[selectinload(FragmentTransaction.user)]
+        )
+
+        if fragment_transaction is None:
+            raise ResourceNotFound()
+
+        tc_msg = tc_transaction.messages[0]
+
+        ext_msg = ExternalMessage(
+            dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
+        )
+
+        if fragment_transaction.transaction.message_hash != ext_msg.normalized_hash:
+            raise BadRequest()
+
+        raise
+
+        await wallet_service.send_from_tc_transaction(
+            session=session,
+            wallet_manager=wallet_manager,
+            tc_transaction=tc_transaction,
+        )
 
 
 @broker.task
-async def send_telegram_log(fragment_transaction_id: UUID) -> None:
+async def send_telegram_log(fragment_transaction_id: uuid.UUID) -> None:
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
         fragment_transaction = await repository.get_by_id(

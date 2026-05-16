@@ -3,6 +3,7 @@ from tonutils.contracts import WalletV5R1
 
 from src.config import settings
 from src.kit.ton_connect import TonConnect
+from src.wallet.ton import create_wallet
 
 if settings.is_production():
     env_network_id = NetworkGlobalID.MAINNET
@@ -66,3 +67,7 @@ class WalletManager:
             )
 
         return selected_wallet
+
+
+wallet = create_wallet()
+wallet_manager = WalletManager(ton_wallets=[wallet])
