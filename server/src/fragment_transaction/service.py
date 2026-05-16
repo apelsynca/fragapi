@@ -6,9 +6,11 @@ from ton_core import Address, ExternalMessage, to_nano
 from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
+from src.worker import enqueue_task
 
 
 class FragmentTransactionService:
@@ -64,7 +66,7 @@ class FragmentTransactionService:
         reason: FragmentTransactionReason,
         metadata: FTMetadata,
     ) -> FragmentTransaction:
-        transaction = await self._create_from_tc(
+        frag_transaction = await self._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -75,9 +77,11 @@ class FragmentTransactionService:
         # WARN: maybe there is something better. for now = ideal.
         await session.refresh(user, with_for_update=True)
 
-        user.balance -= transaction.amount
+        user.balance -= frag_transaction.amount
 
-        return transaction
+        enqueue_task(process_fragment_transaction, frag_transaction, tc_transaction)
+
+        return frag_transaction
 
     async def _create_from_tc(
         self,

@@ -1,6 +1,8 @@
 import random
+from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
@@ -10,10 +12,16 @@ from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.service import (
     fragment_transaction as fragment_transaction_service,
 )
+from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from tests.fixtures.random_objects import RANDOM_TON_ADDRESSES, get_tc_transaction
+
+
+@pytest.fixture
+def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch("src.fragment_transaction.service.enqueue_task")
 
 
 @pytest.fixture
@@ -117,14 +125,15 @@ async def test_creates_in_db(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("amount", [10, 1.032, 0.39258, 862])
 async def test_removes_money_from_user_with_fee(
-    session: AsyncSession, user: User
+    session: AsyncSession, user: User, amount: float, enqueue_task_mock: MagicMock
 ) -> None:
     tc_transaction = get_tc_transaction(
         messages=[
             TonConnectMessage(
                 address=random.choice(RANDOM_TON_ADDRESSES),
-                amount=to_nano(10),
+                amount=to_nano(amount),
                 payload="te6ccgEBAQEAJwAASgAAAAA1MCBUZWxlZ3JhbSBTdGFycyAKClJlZiN4Z01NbTM3bVY",
             )
         ]
@@ -132,7 +141,7 @@ async def test_removes_money_from_user_with_fee(
 
     user.balance = 125
 
-    await fragment_transaction_service.from_tc(
+    frag_trans = await fragment_transaction_service.from_tc(
         session=session,
         tc_transaction=tc_transaction,
         user=user,
@@ -143,5 +152,10 @@ async def test_removes_money_from_user_with_fee(
             stars_amount=52,
         ),
     )
+    assert frag_trans is not None
 
     assert user.balance < 125 - after_fee(after_ton_network_fee(10))
+
+    enqueue_task_mock.assert_called_once_with(
+        process_fragment_transaction, frag_trans, tc_transaction
+    )

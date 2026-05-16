@@ -27,6 +27,11 @@ NOTIFICATION_TEXT = (
 
 
 @broker.task
+async def process_fragment_transaction() -> None:
+    pass
+
+
+@broker.task
 async def send_telegram_log(fragment_transaction_id: UUID) -> None:
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
