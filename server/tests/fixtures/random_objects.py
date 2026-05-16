@@ -1,6 +1,6 @@
 import random
 import string
-from datetime import datetime
+from datetime import timedelta
 from secrets import token_urlsafe
 from unittest.mock import MagicMock
 
@@ -8,15 +8,15 @@ import pytest_asyncio
 from pytonapi.rest.models import AccountAddress
 from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
-from ton_core import to_nano
+from ton_core import Address, to_nano
 
-from src.kit.ton_connect import TonConnectMessage
+from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
+from src.kit.utils import utc_now
 from src.models import Payment, Transaction, User
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
-from src.wallet.types import TonConnectTransaction
 from tests.fixtures.database import SaveFixture
 
 
@@ -56,10 +56,20 @@ def get_valid_tc_transaction(amount: float) -> TonConnectTransaction:
     )
 
 
+RANDOM_TON_ADDRESSES = [
+    "EQCKmuA92vaaZzt2kKQKpPT3TWV7LsakJqCYFl2jqHQZ6R6_",
+    "UQANtyTiJuWgo5cTdrVlzpTzhYD3Heg3ssPoeAW2dM2v6nR1",
+    "UQDljKm7IVGJ8BhR50rnCEJ9nu7QPyJkX_MzF9u1PKSn2U9f",
+    "UQDm89iCT0ax77q5r8aEeTQoxV_tabRqFaSb5popvEnlMO6e",
+]
+
+
 def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTransaction:
     return TonConnectTransaction(
-        valid_until=datetime(year=2000, month=3, day=1),
-        from_address="EQxxx",
+        valid_until=utc_now() + timedelta(seconds=10),
+        from_address=Address(random.choice(RANDOM_TON_ADDRESSES)).to_str(
+            is_user_friendly=True
+        ),
         messages=messages,
     )
 
@@ -148,17 +158,17 @@ async def create_fragment_transaction(
     user: User,
     transaction: Transaction,
     amount: float | None = None,
-    star_amount: int | None = None,
+    stars_amount: int | None = None,
     premium_months: int | None = None,
 ) -> FragmentTransaction:
     ftrans = FragmentTransaction(
         user=user,
         recipient=rstr("recipient"),
-        username=rstr("username"),
+        recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
         transaction=transaction,
         reason=FragmentTransactionReason.stars,
-        star_amount=star_amount,
+        stars_amount=stars_amount,
         premium_months=premium_months,
     )
     await save_fixture(ftrans)

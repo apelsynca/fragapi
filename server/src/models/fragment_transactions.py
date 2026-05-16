@@ -23,10 +23,9 @@ class FragmentTransaction(RecordModel):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", back_populates="fragment_transactions")
 
-    # amount with fee
-    amount: Mapped[float]
+    amount: Mapped[float]  # amount in TON with fee
     recipient: Mapped[str]  # later can be nullable
-    username: Mapped[str]  # later can be nullable
+    recipient_username: Mapped[str]  # later can be nullable
 
     transaction_id: Mapped[UUID] = mapped_column(
         ForeignKey("transactions.id"), unique=True
@@ -39,5 +38,5 @@ class FragmentTransaction(RecordModel):
         Enum(FragmentTransactionReason, native_enum=False)
     )
 
-    star_amount: Mapped[int | None]
+    stars_amount: Mapped[int | None]
     premium_months: Mapped[int | None]

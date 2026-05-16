@@ -1,12 +1,11 @@
 from ton_core import Address, Cell, WalletV5Params, to_amount
 
 from src.exceptions import FragRequestValidationError
-from src.kit.ton_connect import TonConnectMessage
+from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import Transaction  # maybe bad decision
 from src.postgres import AsyncSession
 from src.transaction.service import transaction as transaction_service
 from src.wallet.manager import WalletManager
-from src.wallet.types import TonConnectTransaction
 
 
 class WalletService:

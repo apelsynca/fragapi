@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.wallet.types import TonConnectTransaction
+from src.kit.ton_connect import TonConnectTransaction
 
 
 class FragmentAPIObject(BaseModel):

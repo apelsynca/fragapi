@@ -45,8 +45,8 @@ async def send_telegram_log(fragment_transaction_id: UUID) -> None:
         value_str = "❌ No value"
         if fragment_transaction.premium_months:
             value_str = f"{fragment_transaction.premium_months} months"
-        elif fragment_transaction.star_amount:
-            value_str = f"{fragment_transaction.star_amount} stars"
+        elif fragment_transaction.stars_amount:
+            value_str = f"{fragment_transaction.stars_amount} stars"
         text = NOTIFICATION_TEXT.format(
             head_emoji=head_emoji,
             user_id=fragment_transaction.user_id,
@@ -54,7 +54,7 @@ async def send_telegram_log(fragment_transaction_id: UUID) -> None:
             amount=fragment_transaction.amount,
             before_fee_amount=fragment_transaction.amount,
             reason=fragment_transaction.reason,
-            username=fragment_transaction.username,
+            username=fragment_transaction.recipient_username,
             value_str=value_str,
         )
 

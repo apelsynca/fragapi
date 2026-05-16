@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, String
+from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.database.models import RecordModel
@@ -19,8 +19,7 @@ class Transaction(RecordModel):
     hash: Mapped[str | None] = mapped_column(
         String(64), nullable=True, index=True, unique=True
     )
-    # in theory we could know the message_hash even before sending
-    message_hash: Mapped[str | None] = mapped_column(
+    message_hash: Mapped[str] = mapped_column(
         String(64), nullable=True, index=True, unique=True
     )
 
@@ -32,10 +31,4 @@ class Transaction(RecordModel):
     )
     fragment_transaction: Mapped["FragmentTransaction | None"] = relationship(
         back_populates="transaction", uselist=False, lazy="raise"
-    )
-
-    __table_args__ = (
-        CheckConstraint(
-            "(hash IS NOT NULL) OR (message_hash IS NOT NULL)", name="not_both_null"
-        ),
     )

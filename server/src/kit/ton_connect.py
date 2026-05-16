@@ -1,13 +1,16 @@
 import json
 from base64 import b64encode
+from datetime import datetime
 from hashlib import sha256
 from time import time
+from typing import Annotated
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
+from ton_core import Cell
 from tonutils.contracts import BaseWallet
 
 
@@ -18,9 +21,24 @@ class TonConnectData(BaseModel):
 
 
 class TonConnectMessage(BaseModel):
-    address: str
+    address: str  # user friendly
     amount: int
     payload: str | None = None
+
+    def get_payload_cell(self) -> Cell:
+        if self.payload is None:
+            raise ValueError("TonConnectMessage has no payload.")
+
+        padded_payload = self.payload + "=" * (-len(self.payload) % 4)
+        return Cell.one_from_boc(padded_payload)
+
+
+class TonConnectTransaction(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    valid_until: Annotated[datetime, Field(alias="validUntil")]
+    from_address: Annotated[str, Field(alias="from")]  # NOT user friendly
+    messages: list[TonConnectMessage]
 
 
 class TonConnect:

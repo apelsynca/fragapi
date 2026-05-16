@@ -6,10 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import ExternalMessage, to_nano
 
 from src.exceptions import FragRequestValidationError
-from src.kit.ton_connect import TonConnectMessage
+from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.wallet.manager import WalletManager
 from src.wallet.service import wallet as wallet_service
-from src.wallet.types import TonConnectTransaction
 
 
 @pytest.mark.asyncio

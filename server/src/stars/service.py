@@ -10,13 +10,13 @@ from src.fragment_transaction.service import (
 )
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.kit.ton_connect import TonConnectTransaction
 from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.wallet.manager import WalletManager, WalletManagerError
 from src.wallet.service import wallet as wallet_service
-from src.wallet.types import TonConnectTransaction
 
 log = get_logger()
 
@@ -35,15 +35,19 @@ class StarsService:
         recipient_data = await self.get_recipient(
             fragment=fragment, username=data.username, quantity=data.quantity
         )
-        transaction = await self._get_tc_transaction(
+        tc_transaction = await self._get_tc_transaction(
             fragment, recipient_data=recipient_data, quantity=data.quantity
         )
+
+        # need to based on tc_transaction pre-create it,
+        # and remove money from users balance
+        # and then send to worker to act on transaction from wallet + tc_data
 
         return await self.buy_from_tc_transaction(
             session=session,
             user=user,
             wallet_manager=wallet_manager,
-            tc_transaction=transaction,
+            tc_transaction=tc_transaction,
             recipient=recipient_data.recipient,
             username=data.username,
         )
