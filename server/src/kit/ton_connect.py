@@ -3,14 +3,14 @@ from base64 import b64encode
 from datetime import datetime
 from hashlib import sha256
 from time import time
-from typing import Annotated
+from typing import Annotated, Self
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
 from pydantic import BaseModel, ConfigDict, Field
-from ton_core import Cell
+from ton_core import Address, Cell, PrivateKey, PublicKey, StateInit
 from tonutils.contracts import BaseWallet
 
 
@@ -42,19 +42,35 @@ class TonConnectTransaction(BaseModel):
 
 
 class TonConnect:
-    def __init__(self, wallet: BaseWallet, tc_domain: str) -> None:
-        assert wallet.state_init is not None
-        assert wallet.public_key is not None
-        assert wallet.private_key is not None
-
-        self.state_init = wallet.state_init
-        self.public_key = wallet.public_key
-        self.private_key = wallet.private_key
-        self.wallet_address = wallet.address
+    def __init__(
+        self,
+        tc_domain: str,
+        state_init: StateInit,
+        public_key: PublicKey,
+        private_key: PrivateKey,
+        address: Address,
+    ) -> None:
+        self.state_init = state_init
+        self.public_key = public_key
+        self.private_key = private_key
+        self.wallet_address = address
 
         self.tc_domain = tc_domain
 
-    # TEST THAT
+    @classmethod
+    def from_wallet(cls, wallet: BaseWallet, tc_domain: str) -> Self:
+        assert wallet.state_init
+        assert wallet.public_key
+        assert wallet.private_key
+
+        return cls(
+            tc_domain=tc_domain,
+            state_init=wallet.state_init,
+            public_key=wallet.public_key,
+            private_key=wallet.private_key,
+            address=wallet.address,
+        )
+
     def get_connect_json_data(self, ton_proof_payload: str) -> dict[str, str]:
         connect_data = self.get_connect_data(ton_proof_payload=ton_proof_payload)
 

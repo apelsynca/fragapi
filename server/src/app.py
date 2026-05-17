@@ -23,10 +23,10 @@ from src.kit.database.postgres import (
 from src.kit.ton_connect import TonConnect
 from src.logging import configure as configure_logging
 from src.logging import get_logger
-from src.middlewares import LogCorrelationIdMiddleware
+from src.middlewares import KiqEnqueuedWorkerTasksMiddleware, LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
-from src.wallet.manager import wallet
+from src.wallet.ton import create_wallet
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker
 
@@ -47,8 +47,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     async_engine = create_async_engine("app")
     async_sessionmaker = create_async_sessionmaker(async_engine)
 
+    ton_connect = TonConnect.from_wallet(
+        wallet=create_wallet(), tc_domain="fragment.com"
+    )
     fragment_rest_client = FragmentRestClient(
-        ton_connect=TonConnect(wallet=wallet, tc_domain="fragment.com"),
+        ton_connect=ton_connect,
         session_key="anyfornow",
     )
     await fragment_rest_client.ensure_authorized()
@@ -89,10 +92,9 @@ def create_app() -> FastAPI:
     )
 
     if not settings.is_testing():
-        # i disable rate limiting for now, since requests from the web come from the server
-        # app.add_middleware(rate_limit.get_middleware)
         app.add_middleware(AuthSubjectMiddleware)
         app.add_middleware(AsyncSessionMiddleware)
+        app.add_middleware(KiqEnqueuedWorkerTasksMiddleware)
     app.add_middleware(LogCorrelationIdMiddleware)
 
     add_exception_handlers(app)

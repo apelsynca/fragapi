@@ -1,26 +1,17 @@
-from ton_core import Address, Cell, WalletV5Params, to_amount
+from ton_core import Address, Cell, WalletV5Params
+from tonutils.contracts import ExternalMessage
 
 from src.exceptions import FragRequestValidationError
+from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
-from src.models import Transaction  # maybe bad decision
-from src.postgres import AsyncSession
-from src.transaction.service import transaction as transaction_service
-from src.wallet.manager import WalletManager
 
 
 class WalletService:
     async def send_from_tc_transaction(
         self,
-        session: AsyncSession,
         wallet_manager: WalletManager,
         tc_transaction: TonConnectTransaction,
-    ) -> Transaction:
-        """
-        Validate that message is right
-        Create pending transaction in db
-
-        """
-
+    ) -> ExternalMessage:
         if len(tc_transaction.messages) != 1:
             raise FragRequestValidationError(
                 [
@@ -46,28 +37,16 @@ class WalletService:
             )
 
         message = tc_transaction.messages[0]
-
-        wallet = await wallet_manager.get_wallet_for_amount(
-            amount=float(to_amount(message.amount))  # NOTE: redo maybe to just amount
-        )
+        wallet = await wallet_manager.get_wallet_for_amount(amount=message.amount)
 
         body = self.extract_body(message=message)
-
         valid_until = int(tc_transaction.valid_until.timestamp()) + 10
-        ext_msg = await wallet.transfer(
+
+        return await wallet.transfer(
             destination=Address(message.address),
             body=body,
             amount=message.amount,
             params=WalletV5Params(valid_until=valid_until),
-        )
-        message_hash = ext_msg.normalized_hash
-
-        return await transaction_service.create_as_tc(
-            session=session,
-            nano_amount=message.amount,
-            message_hash=message_hash,
-            from_address=wallet.address.to_str(is_user_friendly=False),
-            to_address=message.address,
         )
 
     def extract_body(self, message: TonConnectMessage) -> Cell:

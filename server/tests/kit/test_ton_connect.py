@@ -6,7 +6,7 @@ from src.kit.ton_connect import TonConnect, TonConnectData
 
 
 def test_return_request_data(mocker: MockerFixture):
-    ton_connect = TonConnect(wallet=MagicMock(), tc_domain="somedomain.com")
+    ton_connect = TonConnect.from_wallet(wallet=MagicMock(), tc_domain="somedomain.com")
 
     mocker.patch.object(ton_connect, "get_account", return_value={"accountInfo": "abc"})
     mocker.patch.object(ton_connect, "get_device", return_value={"deviceInfo": "def"})

@@ -10,13 +10,12 @@ from src.fragment_transaction.service import (
 )
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.integrations.ton_wallet.manager import WalletManager, WalletManagerError
 from src.kit.ton_connect import TonConnectTransaction
 from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
-from src.wallet.manager import WalletManager, WalletManagerError
-from src.wallet.service import wallet as wallet_service
 
 log = get_logger()
 

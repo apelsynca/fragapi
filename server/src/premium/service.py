@@ -15,7 +15,6 @@ from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 from src.wallet.manager import WalletManager, WalletManagerError
-from src.wallet.service import wallet as wallet_service
 
 log = get_logger()
 

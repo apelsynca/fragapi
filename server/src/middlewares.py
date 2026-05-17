@@ -2,6 +2,7 @@ import structlog
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from src.logging import generate_correlation_id
+from src.worker._enqueue import TaskQueueManager
 
 
 class LogCorrelationIdMiddleware:
@@ -21,3 +22,16 @@ class LogCorrelationIdMiddleware:
         await self.app(scope, receive, send)
 
         structlog.contextvars.unbind_contextvars("correlation_id", "method", "path")
+
+
+class KiqEnqueuedWorkerTasksMiddleware:
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        async with TaskQueueManager.open():
+            await self.app(scope, receive, send)
