@@ -14,7 +14,6 @@ from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
-from src.wallet.manager import WalletManager, WalletManagerError
 
 log = get_logger()
 
@@ -26,7 +25,6 @@ class PremiumService:
         user: User,
         data: BuyPremium,
         fragment: Fragment,
-        wallet_manager: WalletManager,
     ) -> BuyPremiumResponse:
         log.info("Buying premium", months=data.months, username=data.username)
 
@@ -43,7 +41,6 @@ class PremiumService:
         return await self.gift_from_tc_transaction(
             session=session,
             user=user,
-            wallet_manager=wallet_manager,
             tc_transaction=transaction,
             recipient=recipient_data.recipient,
             username=data.username,

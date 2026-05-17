@@ -4,6 +4,7 @@ from taskiq_aio_pika import AioPikaBroker
 
 from src.config import settings
 from src.worker._sqlalchemy import SQLAlchemyMiddleware
+from src.worker._wallet_manager import WalletManagerMiddleware
 
 
 def get_scheduler(broker: AsyncBroker):
@@ -13,6 +14,6 @@ def get_scheduler(broker: AsyncBroker):
 def get_broker() -> AsyncBroker:
     broker = AioPikaBroker(url=settings.amqp_url)
 
-    broker.add_middlewares(SQLAlchemyMiddleware())
+    broker.add_middlewares(SQLAlchemyMiddleware(), WalletManagerMiddleware())
 
     return broker

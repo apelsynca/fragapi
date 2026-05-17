@@ -12,7 +12,6 @@ from src.fragment_transaction.tasks import (
     process_fragment_transaction,
     send_telegram_log,
 )
-from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import Transaction, User
 from src.wallet.service import WalletService
@@ -23,15 +22,6 @@ from tests.fixtures.random_objects import (
     get_tc_transaction,
     rstr,
 )
-
-
-@pytest.fixture(autouse=True)
-def wallet_manager_mock(mocker: MockerFixture) -> MagicMock:
-    m = mocker.patch(
-        "src.fragment_transaction.tasks.wallet_manager", MagicMock(spec=WalletManager)
-    )
-
-    return m
 
 
 @pytest.fixture(autouse=True)

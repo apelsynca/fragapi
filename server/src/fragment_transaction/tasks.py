@@ -7,7 +7,6 @@ from src.bot.logs_sender import telegram_log_sender
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository
-from src.integrations.ton_wallet.main import wallet_manager
 from src.kit.ton_connect import TonConnectTransaction
 from src.models.fragment_transactions import (
     FragmentTransaction,
@@ -16,6 +15,7 @@ from src.models.fragment_transactions import (
 from src.wallet.service import wallet as wallet_service
 from src.worker import broker
 from src.worker._sqlalchemy import AsyncSessionMaker
+from src.worker._wallet_manager import WalletManagerMiddleware
 
 STAR_EMOJI = "⭐️"
 GIFT_EMOJI = "🎁"
@@ -34,7 +34,6 @@ NOTIFICATION_TEXT = (
 async def process_fragment_transaction(
     fragment_transaction_id: uuid.UUID, tc_transaction: TonConnectTransaction
 ) -> None:
-
     if len(tc_transaction.messages) != 1:
         raise BadRequest("Messages lenght should be at least one")
 
@@ -56,10 +55,12 @@ async def process_fragment_transaction(
         if fragment_transaction.transaction.message_hash != ext_msg.normalized_hash:
             raise BadRequest("Hash is bad")
 
-        await wallet_service.send_from_tc_transaction(
-            wallet_manager=wallet_manager,
+        ext_msg = await wallet_service.send_from_tc_transaction(
+            wallet_manager=WalletManagerMiddleware.get(),
             tc_transaction=tc_transaction,
         )
+
+        # set probably models smth and smth
 
 
 @broker.task

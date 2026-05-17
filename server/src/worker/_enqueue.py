@@ -21,7 +21,7 @@ class TaskQueueManager:
 
     @classmethod
     @contextlib.asynccontextmanager
-    async def open(cls):  # -> context
+    async def open(cls):
         task_queue_manager = cls()
         _task_queue_manager.set(task_queue_manager)
         try:
@@ -38,9 +38,9 @@ class TaskQueueManager:
     def reset(self) -> None:
         self._enqueued_tasks = []
 
-    def enqueue(self, taskiq_job: AsyncTaskiqDecoratedTask, *args, **kwargs) -> None:
-        self._enqueued_tasks.append((taskiq_job, args, kwargs))
-        log.debug("app.worker.job_enqueued", job=taskiq_job.task_name)
+    def enqueue(self, taskiq_task: AsyncTaskiqDecoratedTask, *args, **kwargs) -> None:
+        self._enqueued_tasks.append((taskiq_task, args, kwargs))
+        log.debug("app.worker.task_enqueued", job=taskiq_task.task_name)
 
     @classmethod
     def get(cls) -> "TaskQueueManager":

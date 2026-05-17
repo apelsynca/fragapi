@@ -145,5 +145,7 @@ async def test_removes_money_from_user_with_fee(
 
     assert frag_trans.id is not None
     enqueue_task_mock.assert_called_once_with(
-        process_fragment_transaction, frag_trans.id, tc_transaction
+        process_fragment_transaction,
+        frag_trans.id,
+        tc_transaction,
     )
