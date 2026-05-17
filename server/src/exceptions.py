@@ -40,8 +40,15 @@ class Forbidden(BadRequest):
 
 
 class InsuficcientFunds(BadRequest):
-    def __init__(self, message: str = "Insuficcient funds", status_code: int = 400):
-        super().__init__(message, status_code)
+    def __init__(
+        self,
+        message: str = "Insuficcient funds",
+        status_code: int = 400,
+        amount: float | None = None,
+    ):
+        super().__init__(
+            message if amount is None else f"{message} have: {amount}", status_code
+        )
 
 
 class ValidationError(TypedDict):

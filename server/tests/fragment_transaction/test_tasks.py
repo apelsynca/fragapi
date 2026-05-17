@@ -71,7 +71,7 @@ async def test_process_raises_if_tc_msg_len_diff(
         TonConnectMessage(address="", amount=0, payload="")
     )
 
-    with pytest.raises(BadRequest):
+    with pytest.raises(FragRequestValidationError):
         await process_fragment_transaction(
             fragment_transaction_id=valid_frag_trans.id,
             tc_transaction=valid_tc_transaction,

@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ton_core import Address, ExternalMessage, to_nano
+from ton_core import Address, ExternalMessage, to_amount
 
+from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
@@ -31,6 +32,9 @@ class FragmentTransactionService:
 
         # WARN: maybe there is something better. for now = ideal.
         await session.refresh(user, with_for_update=True)
+
+        if user.balance <= frag_transaction.amount:
+            raise InsuficcientFunds(amount=user.balance)
 
         user.balance -= frag_transaction.amount
 
@@ -66,7 +70,8 @@ class FragmentTransactionService:
             to_address=Address(tc_msg.address).to_str(is_user_friendly=False),
         )
 
-        without_fee_f_amount = to_nano(tc_msg.amount)
+        # NOTE: jumper.
+        without_fee_f_amount = float(to_amount(tc_msg.amount))
         f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
 
         repository = FragmentTransactionRepository.from_session(session)

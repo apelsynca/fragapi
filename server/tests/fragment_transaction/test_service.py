@@ -1,4 +1,3 @@
-import random
 from unittest.mock import MagicMock
 
 import pytest
@@ -17,7 +16,7 @@ from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
-from tests.fixtures.random_objects import RANDOM_TON_ADDRESSES, get_tc_transaction
+from tests.fixtures.random_objects import get_tc_transaction
 from tests.fixtures.ton_connect import get_valid_tc_msg
 
 
@@ -78,7 +77,9 @@ async def test_creates_from_tc_with_valid_data(
     )
 
     assert fragment_transaction.user == user
-    assert fragment_transaction.amount >= float(to_amount(tc_msg.amount))
+    assert fragment_transaction.amount == after_fee(
+        after_ton_network_fee(float(to_amount(tc_msg.amount)))
+    )
     assert fragment_transaction.recipient == "recipientXrecipient"
     assert fragment_transaction.recipient_username == "homocitrus"
     assert fragment_transaction.stars_amount == 52
@@ -160,14 +161,15 @@ async def test_removes_money_from_user_with_fee(
     tc_transaction = get_tc_transaction(
         messages=[
             TonConnectMessage(
-                address=random.choice(RANDOM_TON_ADDRESSES),
+                address="UQDm89iCT0ax77q5r8aEeTQoxV_tabRqFaSb5popvEnlMO6e",
                 amount=to_nano(amount),
                 payload="te6ccgEBAQEAJwAASgAAAAA1MCBUZWxlZ3JhbSBTdGFycyAKClJlZiN4Z01NbTM3bVY",
             )
         ]
     )
 
-    user.balance = 125
+    user.balance = amount + 100
+    await session.flush()
 
     frag_trans = await fragment_transaction_service.send_from_tc(
         session=session,
@@ -182,7 +184,8 @@ async def test_removes_money_from_user_with_fee(
     )
     assert frag_trans is not None
 
-    assert user.balance < 125 - after_fee(after_ton_network_fee(10))
+    expect = amount + 100 - after_fee(after_ton_network_fee(amount))
+    assert user.balance == expect
 
     assert frag_trans.id is not None
     enqueue_task_mock.assert_called_once_with(

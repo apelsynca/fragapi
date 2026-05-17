@@ -22,8 +22,7 @@ from src.worker._wallet_manager import WalletManagerMiddleware
 async def process_fragment_transaction(
     fragment_transaction_id: uuid.UUID, tc_transaction: TonConnectTransaction
 ) -> None:
-    if len(tc_transaction.messages) != 1:
-        raise BadRequest("Messages lenght should be at least one")
+    validate_tc_transaction(tc_transaction=tc_transaction)
 
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
@@ -47,8 +46,6 @@ async def process_fragment_transaction(
 
         body = tc_msg.get_payload_cell()
         valid_until = int(tc_transaction.valid_until.timestamp()) + 10
-
-        validate_tc_transaction(tc_transaction=tc_transaction)
 
         ext_msg = await wallet.transfer(
             destination=Address(tc_msg.address),
