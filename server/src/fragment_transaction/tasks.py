@@ -1,33 +1,21 @@
 import uuid
 
 from sqlalchemy.orm import selectinload
-from ton_core import Address, ExternalMessage
+from ton_core import Address, ExternalMessage, WalletV5Params
 
 from src.bot.logs_sender import telegram_log_sender
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
-from src.wallet.service import wallet as wallet_service
 from src.worker import broker
 from src.worker._sqlalchemy import AsyncSessionMaker
 from src.worker._wallet_manager import WalletManagerMiddleware
-
-STAR_EMOJI = "⭐️"
-GIFT_EMOJI = "🎁"
-
-NOTIFICATION_TEXT = (
-    "{head_emoji} <b>New transaction</b>\n\n"
-    "User: <a href='tg://user?id={user_id}'>{first_name}</a>\n"
-    "Amount: {amount} TON (+{before_fee_amount} TON)\n"
-    "Type: {reason}\n\n"
-    "R-Username: {username}"
-    "R-Value: {value_str}"
-)
 
 
 @broker.task
@@ -55,12 +43,34 @@ async def process_fragment_transaction(
         if fragment_transaction.transaction.message_hash != ext_msg.normalized_hash:
             raise BadRequest("Hash is bad")
 
-        ext_msg = await wallet_service.send_from_tc_transaction(
-            wallet_manager=WalletManagerMiddleware.get(),
-            tc_transaction=tc_transaction,
+        wallet_manager = WalletManagerMiddleware.get()
+        wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+
+        body = tc_msg.get_payload_cell()
+        valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+
+        ext_msg = await wallet.transfer(
+            destination=Address(tc_msg.address),
+            body=body,
+            amount=tc_msg.amount,
+            params=WalletV5Params(valid_until=valid_until),
         )
 
-        # set probably models smth and smth
+        fragment_transaction.transaction.hash = ""
+        validate_tc_transaction(tc_transaction=tc_transaction)
+
+
+STAR_EMOJI = "⭐️"
+GIFT_EMOJI = "🎁"
+
+NOTIFICATION_TEXT = (
+    "{head_emoji} <b>New transaction</b>\n\n"
+    "User: <a href='tg://user?id={user_id}'>{first_name}</a>\n"
+    "Amount: {amount} TON (+{before_fee_amount} TON)\n"
+    "Type: {reason}\n\n"
+    "R-Username: {username}"
+    "R-Value: {value_str}"
+)
 
 
 @broker.task

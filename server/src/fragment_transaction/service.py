@@ -14,8 +14,6 @@ from src.worker import enqueue_task
 
 
 class FragmentTransactionService:
-    """ """
-
     async def buy_stars(
         self,
         session: AsyncSession,

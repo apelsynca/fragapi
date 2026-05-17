@@ -135,7 +135,7 @@ async def create_transaction(
 ) -> Transaction:
     transaction = Transaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
-        hash="",
+        hash=None,
         message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
         from_address=rstr("someaddress"),
         to_address=rstr("someaddress"),
@@ -161,7 +161,7 @@ async def create_fragment_transaction(
     stars_amount: int | None = None,
     premium_months: int | None = None,
 ) -> FragmentTransaction:
-    ftrans = FragmentTransaction(
+    frag_trans = FragmentTransaction(
         user=user,
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
@@ -171,5 +171,5 @@ async def create_fragment_transaction(
         stars_amount=stars_amount,
         premium_months=premium_months,
     )
-    await save_fixture(ftrans)
-    return ftrans
+    await save_fixture(frag_trans)
+    return frag_trans

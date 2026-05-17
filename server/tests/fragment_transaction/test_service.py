@@ -26,14 +26,14 @@ def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
 
 @pytest.mark.asyncio
 async def test_creates_from_tc_with_valid_data(
-    session: AsyncSession, tc_transaction: TonConnectTransaction, user: User
+    session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
 ) -> None:
-    tc_msg = tc_transaction.messages[0]
+    tc_msg = valid_tc_transaction.messages[0]
     assert tc_msg.payload
 
     fragment_transaction = await fragment_transaction_service._create_from_tc(
         session=session,
-        tc_transaction=tc_transaction,
+        tc_transaction=valid_tc_transaction,
         user=user,
         reason=FragmentTransactionReason.stars,
         metadata=FTMetadata(
@@ -54,15 +54,22 @@ async def test_creates_from_tc_with_valid_data(
     assert btransa.nano_amount == tc_msg.amount
     assert btransa.hash is None
     assert btransa.message_hash is not None
-    assert btransa.from_address == tc_transaction.from_address
+    assert btransa.from_address == valid_tc_transaction.from_address
     assert btransa.to_address == Address(tc_msg.address).to_str(is_user_friendly=False)
 
 
 @pytest.mark.asyncio
-async def test_creates_from_tc_with_right_message_hash(
-    session: AsyncSession, tc_transaction: TonConnectTransaction, user: User
+async def test_cr_from_tc_raises_invalid_tc_transaction(
+    session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
 ) -> None:
-    tc_msg = tc_transaction.messages[0]
+    pass
+
+
+@pytest.mark.asyncio
+async def test_creates_from_tc_with_right_message_hash(
+    session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
+) -> None:
+    tc_msg = valid_tc_transaction.messages[0]
     assert tc_msg.payload
 
     padded_payload = tc_msg.payload + "=" * (-len(tc_msg.payload) % 4)
@@ -71,7 +78,7 @@ async def test_creates_from_tc_with_right_message_hash(
 
     fragment_transaction = await fragment_transaction_service._create_from_tc(
         session=session,
-        tc_transaction=tc_transaction,
+        tc_transaction=valid_tc_transaction,
         user=user,
         reason=FragmentTransactionReason.premium,
         metadata=FTMetadata(
@@ -89,11 +96,11 @@ async def test_creates_from_tc_with_right_message_hash(
 
 @pytest.mark.asyncio
 async def test_creates_in_db(
-    session: AsyncSession, tc_transaction: TonConnectTransaction, user: User
+    session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
 ) -> None:
     await fragment_transaction_service._create_from_tc(
         session=session,
-        tc_transaction=tc_transaction,
+        tc_transaction=valid_tc_transaction,
         user=user,
         reason=FragmentTransactionReason.premium,
         metadata=FTMetadata(

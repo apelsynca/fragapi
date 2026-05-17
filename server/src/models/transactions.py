@@ -17,7 +17,7 @@ class Transaction(RecordModel):
     nano_amount: Mapped[int] = mapped_column(BigInteger)
 
     hash: Mapped[str | None] = mapped_column(
-        String(64), nullable=True, index=True, unique=True
+        String(64), nullable=True, index=True, unique=True, default=None
     )
     message_hash: Mapped[str] = mapped_column(
         String(64), nullable=True, index=True, unique=True

@@ -9,8 +9,6 @@ from src.routing import APIRouter
 from src.stars import auth
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.stars.service import stars as stars_service
-from src.wallet.dependencies import get_wallet_manager
-from src.wallet.manager import WalletManager
 
 router = APIRouter(
     prefix="/stars",
