@@ -54,7 +54,7 @@ class StarsService:
             req_id=buy_request.req_id, show_sender=False
         )
 
-        if buy_link.ok is False:
+        if not buy_link.ok:
             raise FragError("Buy link that we recieved is invalid")
 
         tc_transaction = buy_link.transaction

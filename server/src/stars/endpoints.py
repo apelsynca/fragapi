@@ -45,12 +45,10 @@ async def buy_stars(
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
     fragment: Fragment = Depends(get_fragment),
-    wallet_manager: WalletManager = Depends(get_wallet_manager),
 ) -> BuyStarsResponse:
     return await stars_service.buy(
         session=session,
         user=auth_subject.subject,
         data=data,
         fragment=fragment,
-        wallet_manager=wallet_manager,
     )
