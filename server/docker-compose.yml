@@ -29,7 +29,7 @@ services:
 
   app:
     build: .
-    command: uv run uvicorn src.app:app --host 0.0.0.0 --port 8000
+    command: sh -c "uv run task pre_deploy && exec uv run uvicorn src.app:app --host 0.0.0.0 --port 8000"
     restart: always
     depends_on:
       - db
