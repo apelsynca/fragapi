@@ -41,17 +41,17 @@ services:
       - dokploy-network
     env_file:
       - .env
-  #
-  # worker:
-  #   build: .
-  #   command: uv run taskiq worker -w 1 src.worker.run:broker
-  #   depends_on:
-  #     - db
-  #     - rabbitmq
-  #   networks:
-  #     - dokploy-network
-  #   env_file:
-  #     - .env
+  
+  worker:
+    build: .
+    command: uv run taskiq worker -w 1 src.worker.run:broker
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - dokploy-network
+    env_file:
+      - .env
 
 
 volumes:
