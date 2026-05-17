@@ -35,7 +35,6 @@ async def process_fragment_transaction(
             raise ResourceNotFound()
 
         tc_msg = tc_transaction.messages[0]
-
         ext_msg = ExternalMessage(
             dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
@@ -59,6 +58,8 @@ async def process_fragment_transaction(
         )
 
         fragment_transaction.transaction.hash = ext_msg.normalized_hash
+
+        await send_telegram_log.kiq(fragment_transaction_id=fragment_transaction.id)
 
 
 STAR_EMOJI = "⭐️"

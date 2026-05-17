@@ -8,7 +8,9 @@ from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
-from src.fragment_transaction.tasks import process_fragment_transaction
+from src.fragment_transaction.tasks import (
+    process_fragment_transaction,
+)
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
 from tests.fixtures.database import SaveFixture
@@ -143,8 +145,8 @@ async def test_process_sets_hash(
     # TODO: ext_msg.normalized_hash replace with tonapi
 
     m = MagicMock(spec=WalletV5R1)
-    hs = rstr("somehash")
-    m.normalized_hash = hs
+    hash_string = rstr("somehash")
+    m.normalized_hash = hash_string
     wallet_manager.wallet.transfer.return_value = m
 
     # Given
@@ -158,20 +160,4 @@ async def test_process_sets_hash(
 
     # Then
     # return mock value
-    assert valid_frag_trans.transaction.hash == hs
-
-
-@pytest.mark.asyncio
-async def test_process_calls_log(
-    valid_tc_transaction: TonConnectTransaction,
-    valid_frag_trans: FragmentTransaction,
-) -> None:
-    # NOTE: logggggg
-
-    # Given
-
-    # When
-
-    # Then
-    # send_telegram_log.assert_called_once(valid_frag_trans.id)
-    pass
+    assert valid_frag_trans.transaction.hash == hash_string

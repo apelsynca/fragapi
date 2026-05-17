@@ -1,4 +1,4 @@
-from taskiq import AsyncBroker, TaskiqScheduler
+from taskiq import AsyncBroker, InMemoryBroker, TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_aio_pika import AioPikaBroker
 
@@ -12,7 +12,10 @@ def get_scheduler(broker: AsyncBroker):
 
 
 def get_broker() -> AsyncBroker:
-    broker = AioPikaBroker(url=settings.amqp_url)
+    if settings.is_testing():
+        broker = InMemoryBroker(await_inplace=True)
+    else:
+        broker = AioPikaBroker(url=settings.amqp_url)
 
     broker.add_middlewares(SQLAlchemyMiddleware(), WalletManagerMiddleware())
 

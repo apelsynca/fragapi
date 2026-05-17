@@ -1,17 +1,15 @@
 import random
+from asyncio import sleep
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from ton_core import to_amount
 
-from src.exceptions import BadRequest, FragError, InsuficcientFunds, ResourceNotFound
-from src.fee import after_fee, after_ton_network_fee
+from src.exceptions import FragError, FragRequestValidationError, ResourceNotFound
+from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.service import (
     fragment_transaction as fragment_transaction_service,
 )
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
-from src.integrations.ton_wallet.manager import WalletManager, WalletManagerError
-from src.kit.ton_connect import TonConnectTransaction
 from src.logging import get_logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
@@ -27,91 +25,59 @@ class StarsService:
         user: User,
         data: BuyStars,
         fragment: Fragment,
-        wallet_manager: WalletManager,
     ) -> BuyStarsResponse:
         log.info("Buy stars request", quantity=data.quantity, username=data.username)
 
         recipient_data = await self.get_recipient(
             fragment=fragment, username=data.username, quantity=data.quantity
         )
-        tc_transaction = await self._get_tc_transaction(
-            fragment, recipient_data=recipient_data, quantity=data.quantity
-        )
+        await sleep(0.05)
 
-        # need to based on tc_transaction pre-create it,
-        # and remove money from users balance
-        # and then send to worker to act on transaction from wallet + tc_data
-
-        return await self.buy_from_tc_transaction(
-            session=session,
-            user=user,
-            wallet_manager=wallet_manager,
-            tc_transaction=tc_transaction,
-            recipient=recipient_data.recipient,
-            username=data.username,
-        )
-
-    async def _get_tc_transaction(
-        self, fragment: Fragment, recipient_data: StarsRecipient, quantity: int
-    ) -> TonConnectTransaction:
-        if quantity < 50 or quantity > 10_000_000:
-            raise BadRequest("Invalid quantity")
+        if len(data.username) < 3:
+            raise FragRequestValidationError(
+                [
+                    {
+                        "type": "value_error",
+                        "loc": ("body", "username"),
+                        "msg": "stars buy request must have a username with lenght bigger than 3",
+                        "input": data.username,
+                    }
+                ]
+            )
 
         buy_request = await fragment.init_buy_stars_request(
-            recipient=recipient_data.recipient, quantity=quantity
+            recipient=recipient_data.recipient, quantity=data.quantity
         )
+        await sleep(0.05)
 
         buy_link = await fragment.get_buy_stars_link(
             req_id=buy_request.req_id, show_sender=False
         )
 
-        return buy_link.transaction
+        if buy_link.ok is False:
+            raise FragError("Buy link that we recieved is invalid")
 
-    async def buy_from_tc_transaction(
-        self,
-        session: AsyncSession,
-        user: User,
-        wallet_manager: WalletManager,
-        tc_transaction: TonConnectTransaction,
-        recipient: str,
-        username: str,
-    ) -> BuyStarsResponse:
-        log.debug("Buying stars from TC transaction", user=user)
+        tc_transaction = buy_link.transaction
 
-        await session.refresh(user, with_for_update=True)
-
-        amount_from_transaction = float(to_amount(tc_transaction.messages[0].amount))
-        with_fee_amount = after_fee(after_ton_network_fee(amount_from_transaction))
-
-        if with_fee_amount >= user.balance:
-            raise InsuficcientFunds()
-
-        user.balance -= with_fee_amount
-
-        await session.commit()
-
-        try:
-            transaction = await wallet_service.send_from_tc_transaction(
-                session=session,
-                wallet_manager=wallet_manager,
-                tc_transaction=tc_transaction,
-            )
-        except WalletManagerError:  # bad
-            raise FragError("We dont have money")
-
-        await fragment_transaction_service.create(
+        fragment_transaction = await fragment_transaction_service.send_from_tc(
             session=session,
+            tc_transaction=tc_transaction,
             user=user,
-            amount=with_fee_amount,
-            recipient=recipient,
-            username=username,
-            transaction=transaction,
             reason=FragmentTransactionReason.stars,
+            metadata=FTMetadata(
+                recipient=recipient_data.recipient,
+                recipient_username=data.username,
+                stars_amount=data.quantity,
+            ),
         )
 
-        assert transaction.message_hash
-
-        return BuyStarsResponse(message_hash=transaction.message_hash)
+        return BuyStarsResponse(
+            message_hash=fragment_transaction.transaction.message_hash,
+            transaction_id=fragment_transaction.id,
+            photo=recipient_data.photo,
+            name=recipient_data.name,
+            amount=fragment_transaction.amount,
+        )
 
     async def get_recipient(
         self, fragment: Fragment, username: str, *, quantity: int | None = None

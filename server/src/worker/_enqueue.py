@@ -34,6 +34,7 @@ class TaskQueueManager:
     async def process_queue(self) -> None:
         for taskiq_job, args, kwargs in self._enqueued_tasks:
             await taskiq_job.kiq(*args, **kwargs)
+        self.reset()
 
     def reset(self) -> None:
         self._enqueued_tasks = []

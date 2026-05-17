@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
+from src.exceptions import FragRequestValidationError
 from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
@@ -17,11 +18,44 @@ from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from tests.fixtures.random_objects import RANDOM_TON_ADDRESSES, get_tc_transaction
+from tests.fixtures.ton_connect import get_valid_tc_msg
 
 
 @pytest.fixture
 def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch("src.fragment_transaction.service.enqueue_task")
+
+
+@pytest.mark.asyncio
+async def test_create_from_tc_raises_validation_if_no_msgs(
+    session: AsyncSession, user: User
+) -> None:
+    tc_transaction = get_tc_transaction(messages=[])
+    with pytest.raises(FragRequestValidationError):
+        await fragment_transaction_service._create_from_tc(
+            session=session,
+            tc_transaction=tc_transaction,
+            user=user,
+            reason=FragmentTransactionReason.stars,
+            metadata=FTMetadata(recipient="", recipient_username=""),
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_from_tc_raises_validation_if_2_msgs(
+    session: AsyncSession, user: User
+) -> None:
+    tc_transaction = get_tc_transaction(
+        messages=[get_valid_tc_msg(amount=19.2), get_valid_tc_msg(amount=5.12)]
+    )
+    with pytest.raises(FragRequestValidationError):
+        await fragment_transaction_service._create_from_tc(
+            session=session,
+            tc_transaction=tc_transaction,
+            user=user,
+            reason=FragmentTransactionReason.stars,
+            metadata=FTMetadata(recipient="", recipient_username=""),
+        )
 
 
 @pytest.mark.asyncio
@@ -135,7 +169,7 @@ async def test_removes_money_from_user_with_fee(
 
     user.balance = 125
 
-    frag_trans = await fragment_transaction_service.from_tc(
+    frag_trans = await fragment_transaction_service.send_from_tc(
         session=session,
         tc_transaction=tc_transaction,
         user=user,

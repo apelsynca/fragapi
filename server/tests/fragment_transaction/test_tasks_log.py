@@ -1,21 +1,12 @@
 from unittest.mock import ANY, MagicMock
 
 import pytest
-from pytest_mock import MockerFixture
 
-from src.bot.logs_sender import TelegramLogSender
 from src.config import settings
 from src.fragment_transaction.tasks import send_telegram_log
 from src.models import Transaction, User
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_fragment_transaction
-
-
-@pytest.fixture
-def telegram_log_sender(mocker: MockerFixture) -> MagicMock:
-    return mocker.patch(
-        "src.fragment_transaction.tasks.telegram_log_sender", spec=TelegramLogSender
-    )
 
 
 @pytest.mark.asyncio

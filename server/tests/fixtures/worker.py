@@ -22,7 +22,6 @@ class FakeWalletManager(WalletManager):
         self.balance = 0
 
         wmock = MagicMock(spec=WalletV5R1)
-
         self.wallet = wmock
 
         self.amounts_log = []

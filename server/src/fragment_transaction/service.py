@@ -1,5 +1,3 @@
-from typing import Literal
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, ExternalMessage, to_nano
 
@@ -7,6 +5,7 @@ from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.tasks import process_fragment_transaction
+from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
@@ -14,49 +13,7 @@ from src.worker import enqueue_task
 
 
 class FragmentTransactionService:
-    async def buy_stars(
-        self,
-        session: AsyncSession,
-        tc_transaction: TonConnectTransaction,
-        user: User,
-        recipient: str,
-        recipient_username: str,
-        stars_amount: int,
-    ) -> FragmentTransaction:
-        return await self.from_tc(
-            session=session,
-            tc_transaction=tc_transaction,
-            user=user,
-            reason=FragmentTransactionReason.stars,
-            metadata=FTMetadata(
-                recipient=recipient,
-                recipient_username=recipient_username,
-                stars_amount=stars_amount,
-            ),
-        )
-
-    async def gift_premium(
-        self,
-        session: AsyncSession,
-        tc_transaction: TonConnectTransaction,
-        user: User,
-        recipient: str,
-        recipient_username: str,
-        premium_months: Literal[3, 6, 12],
-    ) -> FragmentTransaction:
-        return await self.from_tc(
-            session=session,
-            tc_transaction=tc_transaction,
-            user=user,
-            reason=FragmentTransactionReason.premium,
-            metadata=FTMetadata(
-                recipient=recipient,
-                recipient_username=recipient_username,
-                premium_months=premium_months,
-            ),
-        )
-
-    async def from_tc(
+    async def send_from_tc(
         self,
         session: AsyncSession,
         tc_transaction: TonConnectTransaction,
@@ -93,8 +50,9 @@ class FragmentTransactionService:
         reason: FragmentTransactionReason,
         metadata: FTMetadata,
     ) -> FragmentTransaction:
-        tc_msg = tc_transaction.messages[0]
+        validate_tc_transaction(tc_transaction)
 
+        tc_msg = tc_transaction.messages[0]
         ext_msg = ExternalMessage(
             dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
