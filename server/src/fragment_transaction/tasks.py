@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy.orm import selectinload
+from structlog import get_logger
 from ton_core import Address, ExternalMessage, WalletV5Params
 
 from src.bot.logs_sender import telegram_log_sender
@@ -17,6 +18,8 @@ from src.worker import broker
 from src.worker._sqlalchemy import AsyncSessionMaker
 from src.worker._wallet_manager import WalletManagerMiddleware
 
+log = get_logger()
+
 
 @broker.task
 async def process_fragment_transaction(
@@ -24,14 +27,37 @@ async def process_fragment_transaction(
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)
 
+    log.info(
+        "Processing new fragment transaction",
+        fragment_transaction_id=fragment_transaction_id,
+    )
+    log.debug(
+        "TC Transaction",
+        fragment_transaction_id=fragment_transaction_id,
+        tc_transaction=tc_transaction,
+    )
+
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
         fragment_transaction = await repository.get_by_id(
-            id=fragment_transaction_id, options=[selectinload(FragmentTransaction.user)]
+            id=fragment_transaction_id,
+            options=[
+                selectinload(FragmentTransaction.user),
+                selectinload(FragmentTransaction.transaction),
+            ],
         )
 
         if fragment_transaction is None:
             raise ResourceNotFound()
+
+        log.info(
+            "Processing transaction",
+            user=fragment_transaction.user,
+            amount=fragment_transaction.amount,
+            recipient_username=fragment_transaction.recipient_username,
+            stars_amount=fragment_transaction.stars_amount,
+            premium_months=fragment_transaction.premium_months,
+        )
 
         tc_msg = tc_transaction.messages[0]
         ext_msg = ExternalMessage(
