@@ -2,11 +2,15 @@ from ton_core import NetworkGlobalID
 from tonutils.contracts import WalletV5R1
 
 from src.config import settings
+from src.logging import get_logger
+from src.wallet.ton import toncenter as toncenter_client
 
 if settings.is_production():
     env_network_id = NetworkGlobalID.MAINNET
 else:
     env_network_id = NetworkGlobalID.TESTNET
+
+log = get_logger()
 
 
 class WalletManagerError(Exception):
@@ -30,11 +34,17 @@ class WalletManager:
 
     async def get_wallet_for_amount(self, amount: int) -> WalletV5R1:
         selected_wallet = self.wallet
-
         await selected_wallet.refresh()
+
         if selected_wallet.balance <= amount:
             raise WalletManagerError(
                 f"There is no wallet with balance for required amount = {amount}"
             )
 
         return selected_wallet
+
+    async def __aenter__(self):
+        await toncenter_client.__aenter__()
+
+    async def __aexit__(self, *args, **kwargs):
+        await toncenter_client.__aexit__(*args, **kwargs)

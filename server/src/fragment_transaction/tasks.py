@@ -68,17 +68,19 @@ async def process_fragment_transaction(
             raise BadRequest("Hash is bad")
 
         wallet_manager = WalletManagerMiddleware.get()
-        wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
 
-        body = tc_msg.get_payload_cell()
-        valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+        async with wallet_manager:
+            wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
 
-        ext_msg = await wallet.transfer(
-            destination=Address(tc_msg.address),
-            body=body,
-            amount=tc_msg.amount,
-            params=WalletV5Params(valid_until=valid_until),
-        )
+            body = tc_msg.get_payload_cell()
+            valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+
+            ext_msg = await wallet.transfer(
+                destination=Address(tc_msg.address),
+                body=body,
+                amount=tc_msg.amount,
+                params=WalletV5Params(valid_until=valid_until),
+            )
 
         fragment_transaction.transaction.hash = ext_msg.normalized_hash
 
@@ -91,7 +93,7 @@ GIFT_EMOJI = "🎁"
 NOTIFICATION_TEXT = (
     "{head_emoji} <b>New transaction</b>\n\n"
     "User: <a href='tg://user?id={user_id}'>{first_name}</a>\n"
-    "Amount: {amount} TON (+{before_fee_amount} TON)\n"
+    "Amount: <b>{amount} TON</b> (+{before_fee_amount} TON)\n"
     "Type: {reason}\n\n"
     "R-Username: {username}"
     "R-Value: {value_str}"

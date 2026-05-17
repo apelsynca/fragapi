@@ -41,7 +41,7 @@ class StructlogMiddleware(TaskiqMiddleware):
             exc_info=exception,
         )
         # Re‑raise if you want the broker to still handle it (e.g., retry)
-        raise exception
+        # raise exception
 
 
 def get_broker() -> AsyncBroker:
