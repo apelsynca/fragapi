@@ -1,11 +1,13 @@
 import uuid
+from unittest.mock import MagicMock
 
 import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
 from ton_core import Address, Cell, WalletV5Params, to_nano
+from tonutils.contracts import WalletV5R1
 
-from src.exceptions import BadRequest, ResourceNotFound
+from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
 from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
@@ -75,7 +77,7 @@ async def test_process_raises_if_tc_msg_len_diff(
 
 
 @pytest.mark.asyncio
-async def test_process_calls_wallet_service_if_valid(
+async def test_process_calls_transfer(
     wallet_manager: FakeWalletManager,
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
@@ -85,6 +87,9 @@ async def test_process_calls_wallet_service_if_valid(
     assert tc_msg.payload is not None
 
     wallet_manager.balance = to_nano(25.2)
+    mma = MagicMock()
+    mma.normalized_hash = "anyhash"
+    wallet_manager.wallet.transfer.return_value = mma
 
     # When
     await process_fragment_transaction(
@@ -97,7 +102,7 @@ async def test_process_calls_wallet_service_if_valid(
     body = Cell.one_from_boc(padded_payload)
 
     assert wallet_manager.amounts_log == [tc_msg.amount]
-    wallet_manager.return_wallet.transfer.assert_called_once_with(
+    wallet_manager.wallet.transfer.assert_called_once_with(
         destination=Address(tc_msg.address),
         body=body,
         amount=tc_msg.amount,
@@ -112,25 +117,38 @@ async def test_process_calls_validate_transaction(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
     mocker: MockerFixture,
+    wallet_manager: FakeWalletManager,
 ) -> None:
-    mock = mocker.patch("src.fragment_transaction.tasks.validate_tc_transaction")
-
-    await process_fragment_transaction(
-        fragment_transaction_id=valid_frag_trans.id,
-        tc_transaction=valid_tc_transaction,
+    mock = mocker.patch(
+        "src.fragment_transaction.tasks.validate_tc_transaction",
+        side_effect=FragRequestValidationError([]),
     )
 
+    with pytest.raises(FragRequestValidationError):
+        await process_fragment_transaction(
+            fragment_transaction_id=valid_frag_trans.id,
+            tc_transaction=valid_tc_transaction,
+        )
+
     mock.assert_called_once_with(tc_transaction=valid_tc_transaction)
+    wallet_manager.wallet.transfer.assert_not_called()
 
 
 @pytest.mark.asyncio
 async def test_process_sets_hash(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
+    wallet_manager: FakeWalletManager,
 ) -> None:
+    # TODO: ext_msg.normalized_hash replace with tonapi
+
+    m = MagicMock(spec=WalletV5R1)
+    hs = rstr("somehash")
+    m.normalized_hash = hs
+    wallet_manager.wallet.transfer.return_value = m
+
     # Given
     assert valid_frag_trans.transaction.hash is None
-    # TODO: mock tonapi response?
 
     # When
     await process_fragment_transaction(
@@ -140,7 +158,7 @@ async def test_process_sets_hash(
 
     # Then
     # return mock value
-    assert valid_frag_trans.transaction.hash is not None
+    assert valid_frag_trans.transaction.hash == hs
 
 
 @pytest.mark.asyncio

@@ -49,6 +49,8 @@ async def process_fragment_transaction(
         body = tc_msg.get_payload_cell()
         valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
+        validate_tc_transaction(tc_transaction=tc_transaction)
+
         ext_msg = await wallet.transfer(
             destination=Address(tc_msg.address),
             body=body,
@@ -56,8 +58,7 @@ async def process_fragment_transaction(
             params=WalletV5Params(valid_until=valid_until),
         )
 
-        fragment_transaction.transaction.hash = ""
-        validate_tc_transaction(tc_transaction=tc_transaction)
+        fragment_transaction.transaction.hash = ext_msg.normalized_hash
 
 
 STAR_EMOJI = "⭐️"

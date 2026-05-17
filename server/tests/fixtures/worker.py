@@ -20,7 +20,10 @@ def set_job_queue_manager_context() -> None:
 class FakeWalletManager(WalletManager):
     def __init__(self) -> None:
         self.balance = 0
-        self.return_wallet = MagicMock(spec=WalletV5R1)
+
+        wmock = MagicMock(spec=WalletV5R1)
+
+        self.wallet = wmock
 
         self.amounts_log = []
 
@@ -29,7 +32,7 @@ class FakeWalletManager(WalletManager):
 
     async def get_wallet_for_amount(self, amount: int) -> WalletV5R1:
         self.amounts_log.append(amount)
-        return self.return_wallet
+        return self.wallet
 
 
 @pytest.fixture
