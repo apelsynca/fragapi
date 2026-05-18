@@ -1,11 +1,24 @@
 from fastapi import Depends
 
+from src.auth.dependencies import Authenticator
+from src.auth.scope import Scope
 from src.integrations.fragment import Fragment, get_fragment
 from src.kit.schemas import Schema
+from src.models import User
 from src.openapi import APITag
 from src.routing import APIRouter
 
-router = APIRouter(prefix="/ton", tags=["ton", APITag.public])
+router = APIRouter(
+    prefix="/ton",
+    tags=["ton", APITag.public],
+    dependencies=[
+        Depends(
+            Authenticator(
+                required_scopes={Scope.ton_rate_read}, allowed_subjects={User}
+            )
+        )
+    ],
+)
 
 
 class TonRate(Schema):

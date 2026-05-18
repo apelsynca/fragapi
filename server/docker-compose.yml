@@ -1,17 +1,4 @@
 services:
-  rabbitmq:
-    image: rabbitmq:3.13
-    restart: always
-    expose:
-      - "5672"
-    environment:
-      RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
-      RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - dokploy-network
-
   db:
     image: postgres:17
     restart: always
@@ -26,6 +13,27 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - dokploy-network
+
+  rabbitmq:
+    image: rabbitmq:3.13
+    restart: always
+    expose:
+      - "5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
+      RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - dokploy-network
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    expose:
+      - "${FRAG_REDIS_PORT}"
+    volumes:
+      - redis_data:/data
 
   app:
     build: .
@@ -57,6 +65,7 @@ services:
 volumes:
   db_data:
   rabbitmq_data:
+  redis_data:
 
 networks:
   dokploy-network:

@@ -25,12 +25,17 @@ async def _authenticate(scope: Scope) -> tuple[str, RateLimitGroup]:
     return auth_subject.rate_limit_key
 
 
+_BASE_RULES: dict[str, Sequence[Rule]] = {
+    "^/v1/stars/buy": [Rule(minute=60, block_time=300, zone="buy")],
+    "^/v1/premium/buy": [Rule(minute=60, block_time=300, zone="buy")],
+    "^/v1/ton/rate": [Rule(minute=30)],
+}
+
 _PRODUCTION_RULES: dict[str, Sequence[Rule]] = {
+    **_BASE_RULES,
     "^/v1": [
-        Rule(group=RateLimitGroup.restricted, minute=60, zone="api"),
         Rule(group=RateLimitGroup.default, minute=500, zone="api"),
         Rule(group=RateLimitGroup.web, second=100, zone="api"),
-        Rule(group=RateLimitGroup.elevated, second=100, zone="api"),
     ],
 }
 
@@ -41,6 +46,7 @@ def get_middleware(app: ASGIApp) -> RateLimitMiddleware:
             rules = _PRODUCTION_RULES
         case _:
             rules = {}
+
     return RateLimitMiddleware(
         app, _authenticate, RedisBackend(create_redis("rate-limit")), rules
     )

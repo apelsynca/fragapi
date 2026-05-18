@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from telegram.ext import Application as BotApplication
 
+from src import rate_limit
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
 from src.bot import get_bot_application, setup_bot
@@ -92,6 +93,7 @@ def create_app() -> FastAPI:
     )
 
     if not settings.is_testing():
+        app.add_middleware(rate_limit.get_middleware)
         app.add_middleware(AuthSubjectMiddleware)
         app.add_middleware(AsyncSessionMiddleware)
         app.add_middleware(KiqEnqueuedWorkerTasksMiddleware)
