@@ -2,12 +2,11 @@ import uuid
 
 from sqlalchemy.orm import selectinload
 from structlog import get_logger
-from ton_core import Address, ExternalMessage, WalletV5Params
+from ton_core import Address, ExternalMessage, WalletV5Params, to_amount
 
 from src.bot.logs_sender import telegram_log_sender
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
-from src.fee import TON_FEE
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
@@ -96,7 +95,7 @@ NOTIFICATION_TEXT = (
     "User: {user_field}\n"
     "Amount: <b>{amount:.4f} TON</b> (<i>+{fee_amount:.4f} TON</i>)\n"
     "Type: {reason}\n\n"
-    "R-Username: {username}"
+    "R-Username: {username}\n"
     "R-Value: {value_str}"
 )
 
@@ -106,7 +105,11 @@ async def send_telegram_log(fragment_transaction_id: uuid.UUID) -> None:
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
         fragment_transaction = await repository.get_by_id(
-            id=fragment_transaction_id, options=[selectinload(FragmentTransaction.user)]
+            id=fragment_transaction_id,
+            options=[
+                selectinload(FragmentTransaction.user),
+                selectinload(FragmentTransaction.transaction),
+            ],
         )
 
         if fragment_transaction is None:
@@ -123,14 +126,14 @@ async def send_telegram_log(fragment_transaction_id: uuid.UUID) -> None:
         elif fragment_transaction.stars_amount:
             value_str = f"{fragment_transaction.stars_amount} stars"
 
-        fee_amount = (
-            fragment_transaction.amount / (1 + settings.API_PRICE_MARKUP)
-        ) - TON_FEE
+        fee_amount = fragment_transaction.amount - float(
+            to_amount(fragment_transaction.transaction.nano_amount)
+        )
 
         user_field = (
             f"<a href='tg://resolve?domain={fragment_transaction.user.username}'>{fragment_transaction.user.first_name}</a>"
             if fragment_transaction.user.username
-            else f"<a href='tg://resolve?domain={fragment_transaction.user_id}'>{fragment_transaction.user.first_name}</a>"
+            else f"<a href='tg://user?id={fragment_transaction.user_id}'>{fragment_transaction.user.first_name}</a>"
         )
 
         text = NOTIFICATION_TEXT.format(
