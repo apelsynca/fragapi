@@ -7,6 +7,7 @@ from ton_core import Address, ExternalMessage, WalletV5Params
 from src.bot.logs_sender import telegram_log_sender
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
+from src.fee import TON_FEE
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
@@ -92,8 +93,8 @@ GIFT_EMOJI = "🎁"
 
 NOTIFICATION_TEXT = (
     "{head_emoji} <b>New transaction</b>\n\n"
-    "User: <a href='tg://user?id={user_id}'>{first_name}</a>\n"
-    "Amount: <b>{amount} TON</b> (+{before_fee_amount} TON)\n"
+    "User: {user_field}\n"
+    "Amount: <b>{amount:.4f} TON</b> (<i>+{fee_amount:.4f} TON</i>)\n"
     "Type: {reason}\n\n"
     "R-Username: {username}"
     "R-Value: {value_str}"
@@ -121,14 +122,24 @@ async def send_telegram_log(fragment_transaction_id: uuid.UUID) -> None:
             value_str = f"{fragment_transaction.premium_months} months"
         elif fragment_transaction.stars_amount:
             value_str = f"{fragment_transaction.stars_amount} stars"
+
+        fee_amount = (
+            fragment_transaction.amount / (1 + settings.API_PRICE_MARKUP)
+        ) - TON_FEE
+
+        user_field = (
+            f"<a href='tg://resolve?domain={fragment_transaction.user.username}'>{fragment_transaction.user.first_name}</a>"
+            if fragment_transaction.user.username
+            else f"<a href='tg://resolve?domain={fragment_transaction.user_id}'>{fragment_transaction.user.first_name}</a>"
+        )
+
         text = NOTIFICATION_TEXT.format(
             head_emoji=head_emoji,
-            user_id=fragment_transaction.user_id,
-            first_name=fragment_transaction.user.first_name,
+            user_field=user_field,
             amount=fragment_transaction.amount,
-            before_fee_amount=fragment_transaction.amount,
+            fee_amount=fee_amount,
             reason=fragment_transaction.reason,
-            username=fragment_transaction.recipient_username,
+            username=f"@{fragment_transaction.recipient_username}",
             value_str=value_str,
         )
 

@@ -94,13 +94,6 @@ async def test_creates_from_tc_with_valid_data(
 
 
 @pytest.mark.asyncio
-async def test_cr_from_tc_raises_invalid_tc_transaction(
-    session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
-) -> None:
-    pass
-
-
-@pytest.mark.asyncio
 async def test_creates_from_tc_with_right_message_hash(
     session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
 ) -> None:
