@@ -11,6 +11,8 @@ from src.models import Payment, Transaction, User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
 from src.payment.schemas import PaymentTonRequestMessage
+from src.payment.tasks import deposit_send_telegram_log
+from src.worker import enqueue_task
 
 
 class PaymentService:
@@ -73,6 +75,8 @@ class PaymentService:
         payment.status = PaymentStatus.completed
 
         payment.user.balance += transaction_amount
+
+        enqueue_task(deposit_send_telegram_log, payment_id=payment.id)
 
 
 payment = PaymentService()

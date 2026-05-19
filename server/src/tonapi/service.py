@@ -61,15 +61,15 @@ class TonAPIService:
         transaction = await transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
-        await session.commit()  # bad
 
-        # TODO: test that after concurrency
         hash = self.resolve_payment_hash(tonapi_transaction)
         if hash is None:
             log.warn("Transaction without hash", hash=hash, account_id="0")
             return
 
-        log.info("Info TODO info")
+        log.info(
+            "New valid tonapi transaction", hash=hash, tx_hash=webhook_message.tx_hash
+        )
 
         await payment_service.complete_ton(
             session=session, transaction=transaction, hash=hash
