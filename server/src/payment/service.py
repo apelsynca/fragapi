@@ -34,7 +34,7 @@ class PaymentService:
             raise FragError("Status is wrong")
 
         if payment.transaction is not None:
-            raise FragError("Payment already has a transaction")
+            raise FragError("Payment already has transaction")
 
         transaction_amount = float(to_amount(transaction.nano_amount))
         if payment.amount != transaction_amount:

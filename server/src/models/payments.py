@@ -40,3 +40,5 @@ class Payment(RecordModel):
     status: Mapped[PaymentStatus] = mapped_column(
         Enum(PaymentStatus, native_enum=False), default=PaymentStatus.pending
     )
+
+    # can add paid_at here
