@@ -33,6 +33,7 @@ class TonAPIService:
             raise FragError("Wrong account id")
 
         try:
+            # NOTE: here check maybe?
             tonapi_transaction = await self.get_blockchain_transaction(
                 tx_hash=webhook_message.tx_hash
             )
@@ -55,7 +56,7 @@ class TonAPIService:
             session=session, tonapi_transaction=tonapi_transaction
         )
 
-        # resolve hash here
+        # TODO: test that after concurrency
         hash = self.resolve_payment_hash(tonapi_transaction)
         if hash is None:
             log.warn("Transaction without hash", hash=hash, account_id="0")
@@ -70,6 +71,9 @@ class TonAPIService:
     def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
         if tonapi_transaction.in_msg is None:
             return None
+
+        # here test the message type
+
         if (
             tonapi_transaction.in_msg.decoded_body is None
             or tonapi_transaction.in_msg.decoded_op_name != "text_comment"
