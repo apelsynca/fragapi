@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import to_amount
 
 from src.config import settings
-from src.exceptions import BadRequest, FragError
+from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.models import User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
@@ -16,7 +16,11 @@ from tests.fixtures.random_objects import create_payment, create_transaction, rs
 
 @pytest.mark.asyncio
 async def test_creates_right(session: AsyncSession, user: User) -> None:
-    payment = await payment_service.create(session=session, user=user, amount=0.123)
+    payment = await payment_service.create(
+        session=session,
+        user=user,
+        amount=settings.MIN_TON_DEPOSIT_AMOUNT + random.randint(1, 10),
+    )
 
     repository = PaymentRepository.from_session(session)
     found_pay = await repository.get_by_id(id=payment.id)
@@ -25,18 +29,47 @@ async def test_creates_right(session: AsyncSession, user: User) -> None:
     assert found_pay.user == user
 
 
+@pytest.mark.asyncio
+async def test_raises_if_less_than_min_dep_amount(
+    session: AsyncSession, user: User
+) -> None:
+    with pytest.raises(BadRequest):
+        await payment_service.create(
+            session=session, user=user, amount=settings.MIN_TON_DEPOSIT_AMOUNT - 0.05
+        )
+
+
+@pytest.mark.asyncio
+async def test_raises_not_found_if_not_found(
+    save_fixture: SaveFixture, session: AsyncSession
+) -> None:
+    transaction = await create_transaction(
+        save_fixture, amount=0.1, message_hash=rstr("any")
+    )
+
+    with pytest.raises(ResourceNotFound):
+        await payment_service.complete_ton(
+            session=session, transaction=transaction, hash=rstr("some")
+        )
+
+
 # might do with initial balance set, idk why
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("amount", [0.1, 2, 52.25, 102.2125, 999.9, 10000])
+async def test_abc():
+    pass
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("amount", [0.25, 0.5, 2, 52.25, 102.2125, 999.9, 10000])
 async def test_increases_users_balance(
     save_fixture: SaveFixture, session: AsyncSession, user: User, amount: float
 ) -> None:
     assert user.balance == 0
 
     if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
-        raise RuntimeError("Skipped since too low")
+        raise RuntimeError("Skipped since too low")  # lol :)
 
     payment_amount = amount
 
@@ -88,10 +121,3 @@ async def test_raises_bad_different_amounts(
         )
 
     assert user.balance == 0
-
-
-@pytest.mark.asyncio
-async def test_raises_if_less_than_minimal_deposit_amount(
-    save_fixture: SaveFixture, session: AsyncSession, user: User
-) -> None:
-    pass

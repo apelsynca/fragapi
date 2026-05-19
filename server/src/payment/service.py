@@ -3,6 +3,7 @@ from secrets import token_urlsafe
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import to_amount
 
+from src.config import settings
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.models import Payment, Transaction, User
 from src.models.payments import PaymentStatus
@@ -16,6 +17,11 @@ class PaymentService:
         user: User,
         amount: float,
     ) -> Payment:
+        if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
+            raise BadRequest(
+                f"Minimal deposit amount is {settings.MIN_TON_DEPOSIT_AMOUNT}"
+            )
+
         repository = PaymentRepository.from_session(session)
         payment = Payment(user=user, amount=amount, hash=token_urlsafe(14))
 

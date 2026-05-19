@@ -1,15 +1,15 @@
 import re
 
-from pytonapi.exceptions import TONAPIBadRequestError
-from pytonapi.rest import TonapiRestClient
+from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
-from src.exceptions import FragError
+from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import get_logger
 from src.payment.service import payment as payment_service
+from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.transaction.service import transaction as transaction_service
 
@@ -23,9 +23,6 @@ class TonAPIService:
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]
 
-    def __init__(self) -> None:
-        self.rest_client = TonapiRestClient(api_key=settings.TONAPI_API_KEY)
-
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
@@ -35,9 +32,24 @@ class TonAPIService:
         if webhook_message.account_id not in self.ACCOUNT_RAW_ADDRESSES:
             raise FragError("Wrong account id")
 
-        tonapi_transaction = await self.get_blockchain_transaction(
-            tx_hash=webhook_message.tx_hash
-        )
+        try:
+            tonapi_transaction = await self.get_blockchain_transaction(
+                tx_hash=webhook_message.tx_hash
+            )
+        except ResourceNotFound:
+            log.warn(
+                "tonapi.process_webhook_acc_tx transaction is not found",
+                tx_hash=webhook_message.tx_hash,
+            )
+            return
+        except BadRequest:
+            log.warn("tonapi.process_webhook_acc_tx transaction bad request")
+            return
+        except Exception as exc:
+            log.error(
+                "tonapi.process_webhook_acc_tx unknown exception", str_exc=str(exc)
+            )
+            return
 
         transaction = await transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
@@ -45,7 +57,6 @@ class TonAPIService:
 
         # resolve hash here
         hash = self.resolve_payment_hash(tonapi_transaction)
-
         if hash is None:
             log.warn("Transaction without hash", hash=hash, account_id="0")
             return
@@ -72,7 +83,7 @@ class TonAPIService:
             return match.group(1)
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
-        async with self.rest_client as client:
+        async with rest_client as client:
             try:
                 transaction = await client.blockchain.get_transaction(
                     transaction_id=tx_hash
@@ -80,6 +91,8 @@ class TonAPIService:
                 return transaction
             except TONAPIBadRequestError:
                 raise FragError("Transaction with that hash is not found")
+            except TONAPINotFoundError:
+                raise ResourceNotFound("Transaction with that hash is not found")
 
 
 tonapi = TonAPIService()

@@ -19,6 +19,8 @@ from src.models.fragment_transactions import FragmentTransactionReason
 from tests.fixtures.random_objects import get_tc_transaction
 from tests.fixtures.ton_connect import get_valid_tc_msg
 
+# maybe more tests here
+
 
 @pytest.fixture
 def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
