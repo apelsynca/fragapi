@@ -127,8 +127,6 @@ async def test_raises_bad_different_amounts(
 
 
 # creating stuff
-
-
 @pytest.mark.asyncio
 async def test_create_ton_right_payload(
     session: AsyncSession, user: User, mocker: MockerFixture, save_fixture: SaveFixture

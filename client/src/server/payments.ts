@@ -9,7 +9,7 @@ export const requestTonPayment = createServerFn({ method: 'POST' })
     const token = await verifySession()
 
     return await apiRequest<TonConnectMessage>({
-      method: 'GET',
+      method: 'POST',
       endpoint: `/payments/ton?amount=${data}`,
       token,
     })
