@@ -103,7 +103,7 @@ async def test_get_bc_trans_raises_bad_request_on_tonapi_bad_request(
 
 
 @pytest.mark.asyncio
-async def test_logs_on_get_tx_bad_request_and_does_not_call(
+async def test_logs_on_get_tx_not_found_and_does_not_call(
     payment_service: MagicMock,
     session: AsyncSession,
     mocker: MockerFixture,
@@ -114,14 +114,11 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
         event_type="account_tx",
         account_id=payment_service.ACCOUNT_RAW_ADDRESSES[0],
         lt=random.randint(1, 9999999),
-        tx_hash="xxxx",
+        tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
     )
     rest_bc.blockchain.get_transaction.side_effect = TONAPINotFoundError(
-        status=404, message="Bad request"
+        status=404, message="Not found or smth"
     )
-    # rest_bc.blockchain.get_transaction.side_effect = TONAPIBadRequestError(
-    #     status=400, message="Bad request"
-    # )
 
     # When
     await tonapi_service.process_webhook_acc_tx(
@@ -131,7 +128,39 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
     payment_service.complete_ton.assert_not_called()
     log_mock.warn.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction is not found",
-        tx_hash="xxxx",
+        tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
+    )
+
+
+@pytest.mark.asyncio
+async def test_logs_on_get_tx_bad_request_and_does_not_call(
+    payment_service: MagicMock,
+    session: AsyncSession,
+    mocker: MockerFixture,
+    rest_bc: MagicMock,
+) -> None:
+    tx_hash = rstr("txhash")
+
+    log_mock = mocker.patch("src.tonapi.service.log")
+    webhook_message = TonAPIWebhookMessage(
+        event_type="account_tx",
+        account_id=payment_service.ACCOUNT_RAW_ADDRESSES[0],
+        lt=random.randint(1, 9999999),
+        tx_hash=tx_hash,
+    )
+    rest_bc.blockchain.get_transaction.side_effect = TONAPIBadRequestError(
+        status=400, message="Bad request"
+    )
+
+    # When
+    await tonapi_service.process_webhook_acc_tx(
+        session=session, webhook_message=webhook_message
+    )
+
+    payment_service.complete_ton.assert_not_called()
+    log_mock.warn.assert_called_once_with(
+        "tonapi.process_webhook_acc_tx transaction bad request",
+        tx_hash=tx_hash,
     )
 
 

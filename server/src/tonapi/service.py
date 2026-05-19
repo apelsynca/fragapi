@@ -44,7 +44,10 @@ class TonAPIService:
             )
             return
         except BadRequest:
-            log.warn("tonapi.process_webhook_acc_tx transaction bad request")
+            log.warn(
+                "tonapi.process_webhook_acc_tx transaction bad request",
+                tx_hash=webhook_message.tx_hash,
+            )
             return
         except Exception as exc:
             log.error(
@@ -94,7 +97,7 @@ class TonAPIService:
                 )
                 return transaction
             except TONAPIBadRequestError:
-                raise FragError("Transaction with that hash is not found")
+                raise BadRequest("Transaction with that hash is not found")
             except TONAPINotFoundError:
                 raise ResourceNotFound("Transaction with that hash is not found")
 
