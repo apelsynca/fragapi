@@ -10,7 +10,7 @@ from src.routing import APIRouter
 router = APIRouter(prefix="/payments")
 
 
-@router.get("/ton")
+@router.post("/ton")
 async def request_ton_payment(
     auth_subject: AuthorizeWebUser,
     amount: float = Query(...),

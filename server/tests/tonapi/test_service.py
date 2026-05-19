@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
+from src.consts import TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.payment.service import PaymentService
 from src.tonapi.schemas import TonAPIWebhookMessage
@@ -210,9 +211,7 @@ async def test_all_good_calls(
 
     tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
     in_msg_mock = MagicMock(spec=TonAPIMessage, autouse=True)
-    in_msg_mock.decoded_body = {
-        "text": tonapi_service.COMMENT_TEMPLATE.format(ref_hash)
-    }
+    in_msg_mock.decoded_body = {"text": TON_COMMENT_TEMPLATE.format(ref_hash)}
     in_msg_mock.decoded_op_name = "text_comment"  # test does not find different or smth
     tonapi_tx_mock.in_msg = in_msg_mock
 

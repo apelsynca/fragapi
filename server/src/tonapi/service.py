@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
+from src.consts import TON_COMMENT_PATTERN
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import get_logger
 from src.payment.service import payment as payment_service
@@ -17,8 +18,6 @@ log = get_logger()
 
 
 class TonAPIService:
-    COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
-    COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
     ACCOUNT_RAW_ADDRESSES = [
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]
@@ -84,7 +83,7 @@ class TonAPIService:
             return None
 
         text: str = tonapi_transaction.in_msg.decoded_body["text"]
-        match = re.match(pattern=self.COMMENT_PATTERN, string=text)
+        match = re.match(pattern=TON_COMMENT_PATTERN, string=text)
 
         if match is not None:
             return match.group(1)
