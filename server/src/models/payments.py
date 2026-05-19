@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 class PaymentStatus(StrEnum):
     pending = "pending"
     completed = "completed"
+    # failed maybe via task to create default failed.
 
 
 class Payment(RecordModel):

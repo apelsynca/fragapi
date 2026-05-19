@@ -15,10 +15,6 @@ from src.worker._sqlalchemy import SQLAlchemyMiddleware
 from src.worker._wallet_manager import WalletManagerMiddleware
 
 
-def get_scheduler(broker: AsyncBroker):
-    return TaskiqScheduler(broker=broker, sources=[LabelScheduleSource(broker)])
-
-
 class StructlogMiddleware(TaskiqMiddleware):
     def pre_execute(
         self,
@@ -55,3 +51,7 @@ def get_broker() -> AsyncBroker:
     )
 
     return broker
+
+
+def get_scheduler(broker: AsyncBroker) -> TaskiqScheduler:
+    return TaskiqScheduler(broker=broker, sources=[LabelScheduleSource(broker)])

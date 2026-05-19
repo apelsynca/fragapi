@@ -12,16 +12,3 @@ __all__ = (
     "enqueue_task",
     "scheduler",
 )
-
-
-# def actor(actor_name: str | None = None, **options):
-#     def decorator(fn):
-#         broker.task(fn, **options)
-#         return fn
-#
-#     return decorator
-#
-#
-# @actor(actor_name="someone")
-# def abc():
-#     pass

@@ -8,14 +8,20 @@ from ton_core import Address
 
 from src.config import settings
 from src.exceptions import FragError
+from src.logging import get_logger
 from src.payment.service import payment as payment_service
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.transaction.service import transaction as transaction_service
+
+log = get_logger()
 
 
 class TonAPIService:
     COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
     COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
+    ACCOUNT_RAW_ADDRESSES = [
+        Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
+    ]
 
     def __init__(self) -> None:
         self.rest_client = TonapiRestClient(api_key=settings.TONAPI_API_KEY)
@@ -26,11 +32,7 @@ class TonAPIService:
         if webhook_message.event_type != "account_tx":
             raise FragError("Wrong event type")
 
-        # for now)
-        account_ids = [Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)]
-
-        # TODO: test that this should raise after creating the blockchain transaction
-        if webhook_message.account_id not in account_ids:
+        if webhook_message.account_id not in self.ACCOUNT_RAW_ADDRESSES:
             raise FragError("Wrong account id")
 
         tonapi_transaction = await self.get_blockchain_transaction(
@@ -45,16 +47,14 @@ class TonAPIService:
         hash = self.resolve_payment_hash(tonapi_transaction)
 
         if hash is None:
-            # log.warn("Transaction with hash") # TODO: log here
+            log.warn("Transaction without hash", hash=hash, account_id="0")
             return
 
-        # log.info  here
+        log.info("Info TODO info")
 
         await payment_service.complete_ton(
             session=session, transaction=transaction, hash=hash
         )
-
-        # send notification task here
 
     def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
         if tonapi_transaction.in_msg is None:

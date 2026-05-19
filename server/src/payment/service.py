@@ -1,8 +1,9 @@
 from secrets import token_urlsafe
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from ton_core import to_amount
 
-from src.exceptions import FragError, ResourceNotFound
+from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.models import Payment, Transaction, User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
@@ -33,11 +34,16 @@ class PaymentService:
             raise FragError("Status is wrong")
 
         if payment.transaction is not None:
-            raise FragError("Transaction is wrong")
+            raise FragError("Payment already has a transaction")
+
+        transaction_amount = float(to_amount(transaction.nano_amount))
+        if payment.amount != transaction_amount:
+            raise BadRequest("Payment amount and transaction amount is different")
 
         payment.transaction = transaction
+        payment.status = PaymentStatus.completed
 
-        # here increase the users balance
+        payment.user.balance += transaction_amount
 
 
 payment = PaymentService()
