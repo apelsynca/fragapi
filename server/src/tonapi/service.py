@@ -25,6 +25,10 @@ class TonAPIService:
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
+        if webhook_message.lt < 78055940000000:
+            log.info("Skipppp")
+            return
+
         if webhook_message.event_type != "account_tx":
             raise FragError("Wrong event type")
 
