@@ -57,6 +57,7 @@ class TonAPIService:
         transaction = await transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
+        await session.commit()  # bad
 
         # TODO: test that after concurrency
         hash = self.resolve_payment_hash(tonapi_transaction)
