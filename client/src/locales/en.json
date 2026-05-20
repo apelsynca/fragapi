@@ -28,7 +28,8 @@
     "premium_spend": "Spend on Premium",
     "last_30days": "In the last 30 days",
     "transaction_stats": "Transactions stats",
-    "90days_chart": "Showing stats for the last 90 days"
+    "90days_chart": "Showing stats for the last 90 days",
+    "all_time": "All time"
   },
   "hand": {
     "stars_title": "Hand buy stars",
