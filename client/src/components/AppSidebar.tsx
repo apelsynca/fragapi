@@ -41,8 +41,10 @@ function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <ListIcon /> {t('sidebar.transactions')}
+                <SidebarMenuButton asChild>
+                  <Link to="/dashboard/transactions">
+                    <ListIcon /> {t('sidebar.transactions')}
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

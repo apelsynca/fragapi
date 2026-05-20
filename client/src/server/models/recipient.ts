@@ -1,5 +1,5 @@
-export interface BaseRecipient {
-  recipient: string
-  photo: string
-  name: string
-}
+// export interface BaseRecipient {
+//   recipient: string
+//   photo: string
+//   name: string
+// }

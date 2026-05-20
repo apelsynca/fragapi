@@ -1,79 +1,50 @@
-import { MoreHorizontalIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { Transaction } from '~/server/models/transactions'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { Button } from '../ui/button'
-import { TonIcon } from '../icons/TonIcon'
+import { MoonIcon, StarIcon } from 'lucide-react'
+import type { FragmentTransaction } from '~/models/transactions'
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<FragmentTransaction>[] = [
+  {
+    header: 'Amount',
+    cell: ({ row }) => `${parseFloat(row.original.amount.toFixed(2))} TON`,
+  },
   {
     accessorKey: 'reason',
-    header: 'Тип',
-    cell: ({ row }) =>
-      row.original.reason.toLowerCase() === 'stars' ? (
-        <p className="text-yellow-800 dark:text-yellow-200">Звезды</p>
-      ) : (
-        <p className="text-blue-800 dark:text-blue-200">Премиум</p>
-      ),
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Дата создания',
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
-  },
-  {
-    accessorKey: 'recipient',
-    header: 'Получатель',
-    accessorFn: (transaction) =>
-      `${transaction.recipient.slice(0, 8)}...${transaction.recipient.slice(-8, -1)}`,
-  },
-  {
-    accessorKey: 'amount',
-    header: 'Amount',
-    cell: ({ row }) => (
-      <span className="flex items-center gap-1">
-        {parseFloat(row.original.amount.toFixed(2))} <TonIcon size={16} />
-      </span>
-    ),
-  },
-  {
-    id: 'actions',
+    header: 'Reason',
     cell: ({ row }) => {
-      const transaction = row.original
-
+      const reason = row.original.reason
+      if (reason === 'stars') {
+        return (
+          <span className="text-yellow-600 dark:text-yellow-300 font-medium">
+            Stars
+          </span>
+        )
+      }
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
-              <span className="sr-only">Открыть меню</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Действия</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(transaction.message_hash!)
-              }
-            >
-              Скопировать хэш
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(transaction.recipient)
-              }
-            >
-              Скопировать хэш получателя
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span className="text-purple-600 dark:text-purple-300 font-medium">
+          Premium
+        </span>
       )
     },
+  },
+  {
+    accessorKey: 'recipientUsername',
+    header: 'Username',
+    cell: ({ row }) => `@${row.original.recipientUsername}`,
+  },
+  {
+    header: 'Value',
+    cell: ({ row }) => (
+      <span className="font-semibold flex items-center gap-0.5">
+        {row.original.premiumMonths ? (
+          <>
+            {row.original.premiumMonths} <MoonIcon className="w-4 h-4" />
+          </>
+        ) : (
+          <>
+            {row.original.starsAmount} <StarIcon className="w-4 h-4" />
+          </>
+        )}
+      </span>
+    ),
   },
 ]
