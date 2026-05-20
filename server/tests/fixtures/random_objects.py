@@ -167,7 +167,9 @@ async def create_fragment_transaction(
         recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
         transaction=transaction,
-        reason=FragmentTransactionReason.stars,
+        reason=FragmentTransactionReason.premium
+        if premium_months
+        else FragmentTransactionReason.stars,
         stars_amount=stars_amount,
         premium_months=premium_months,
     )

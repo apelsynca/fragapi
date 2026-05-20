@@ -228,10 +228,31 @@ async def test_lists_transactions_right_user(
     assert count == len(items)
 
 
-# @pytest.mark.asyncio
-# async def test_gets_stats(session: AsyncSession, user: User) -> None:
-#     stats = await fragment_transaction_service.get_stats()
-#
-#     assert stats.total_spend == 0
-#     assert stats.total_stars_spend == 0
-#     # etc...
+@pytest.mark.asyncio
+async def test_get_stats_empty(session: AsyncSession, user: User) -> None:
+    stats = await fragment_transaction_service.get_stats(session=session, user=user)
+
+    assert stats.total_spend == 0
+    assert stats.stars_total_spend == 0
+    assert stats.premium_total_spend == 0
+
+
+@pytest.mark.asyncio
+async def test_gets_stats_right_amount(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    transaction1 = await create_transaction(save_fixture, amount=5.252)
+    await create_fragment_transaction(
+        save_fixture, user=user, transaction=transaction1, amount=4.25
+    )
+
+    transaction2 = await create_transaction(save_fixture, amount=5.252)
+    await create_fragment_transaction(
+        save_fixture, user=user, transaction=transaction2, amount=2.1, premium_months=3
+    )
+
+    stats = await fragment_transaction_service.get_stats(session=session, user=user)
+
+    assert stats.total_spend == 6.35
+    assert stats.stars_total_spend == 4.25
+    assert stats.premium_total_spend == 2.1

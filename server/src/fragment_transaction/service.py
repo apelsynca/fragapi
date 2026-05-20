@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, ExternalMessage, to_amount
 
@@ -8,6 +9,7 @@ from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction import sorting
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.fragment_transaction.schemas import FragmentTransactionsStats
 from src.fragment_transaction.tasks import process_fragment_transaction
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.pagination import PaginationParams
@@ -18,6 +20,39 @@ from src.worker import enqueue_task
 
 
 class FragmentTransactionService:
+    async def get_stats(
+        self, session: AsyncSession, user: User
+    ) -> FragmentTransactionsStats:
+        stmt = select(
+            func.sum(FragmentTransaction.amount).label("total_amount"),
+            func.sum(
+                case(
+                    (
+                        FragmentTransaction.reason == FragmentTransactionReason.stars,
+                        FragmentTransaction.amount,
+                    ),
+                    else_=0,
+                )
+            ).label("stars_total_amount"),
+            func.sum(
+                case(
+                    (
+                        FragmentTransaction.reason == FragmentTransactionReason.premium,
+                        FragmentTransaction.amount,
+                    ),
+                    else_=0,
+                )
+            ).label("premium_total_amount"),
+        ).where(FragmentTransaction.user == user)
+        result = await session.execute(stmt)
+        row = result.one()
+
+        return FragmentTransactionsStats(
+            total_spend=row.total_amount or 0,
+            stars_total_spend=row.stars_total_amount or 0,
+            premium_total_spend=row.premium_total_amount or 0,
+        )
+
     async def fetch_list(
         self,
         session: AsyncSession,
