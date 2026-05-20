@@ -1,8 +1,8 @@
-from src.kit.repository import BaseRepository, IDRepositoryMixin, Options
+from src.kit.repository import BaseRepository, Options, RepositoryIDMixin
 from src.models import User
 
 
-class UserRepository(BaseRepository[User], IDRepositoryMixin[User, int]):
+class UserRepository(RepositoryIDMixin[User, int], BaseRepository[User]):
     model = User
 
     async def get_by_api_key(self, api_key: str) -> User | None:

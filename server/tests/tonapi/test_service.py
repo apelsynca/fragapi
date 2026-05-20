@@ -1,4 +1,3 @@
-import random
 from secrets import token_urlsafe
 from unittest.mock import AsyncMock, MagicMock
 
@@ -12,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
-from src.consts import TON_COMMENT_TEMPLATE
+from src.consts import BADLY_HARD_CODED_LAST_LT, TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.payment.service import PaymentService
 from src.tonapi.schemas import TonAPIWebhookMessage
@@ -52,7 +51,7 @@ async def test_raises_wrong_event_type(session: AsyncSession) -> None:
     webhook_message = TonAPIWebhookMessage(
         event_type=rstr("wrong_event"),
         account_id=rstr("canbeany"),
-        lt=0,
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash=rstr("canbeany"),
     )
 
@@ -67,7 +66,7 @@ async def test_raises_wrong_account_id(session: AsyncSession) -> None:
     webhook_message = TonAPIWebhookMessage(
         event_type="account_tx",
         account_id=rstr("canbeany"),
-        lt=0,
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash=rstr("canbeany"),
     )
 
@@ -114,7 +113,7 @@ async def test_logs_on_get_tx_not_found_and_does_not_call(
     webhook_message = TonAPIWebhookMessage(
         event_type="account_tx",
         account_id=payment_service.ACCOUNT_RAW_ADDRESSES[0],
-        lt=random.randint(1, 9999999),
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
     )
     rest_bc.blockchain.get_transaction.side_effect = TONAPINotFoundError(
@@ -146,7 +145,7 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
     webhook_message = TonAPIWebhookMessage(
         event_type="account_tx",
         account_id=payment_service.ACCOUNT_RAW_ADDRESSES[0],
-        lt=random.randint(1, 9999999),
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash=tx_hash,
     )
     rest_bc.blockchain.get_transaction.side_effect = TONAPIBadRequestError(
@@ -176,7 +175,7 @@ async def test_logs_on_get_tx_any_error_and_does_not_call(
     webhook_message = TonAPIWebhookMessage(
         event_type="account_tx",
         account_id=payment_service.ACCOUNT_RAW_ADDRESSES[0],
-        lt=random.randint(1, 9999999),
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash="xxxx",
     )
     exc = Exception("Random exception")
@@ -220,7 +219,7 @@ async def test_all_good_calls(
     webhook_message = TonAPIWebhookMessage(
         event_type="account_tx",
         account_id=tonapi_service.ACCOUNT_RAW_ADDRESSES[0],
-        lt=random.randint(299, 350),
+        lt=BADLY_HARD_CODED_LAST_LT,
         tx_hash="my_tx_hash",
     )
 

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
-from src.consts import TON_COMMENT_PATTERN
+from src.consts import BADLY_HARD_CODED_LAST_LT, TON_COMMENT_PATTERN
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import get_logger
 from src.payment.service import payment as payment_service
@@ -25,8 +25,8 @@ class TonAPIService:
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
-        if webhook_message.lt < 78055940000000:
-            log.info("Skipppp")
+        if webhook_message.lt < BADLY_HARD_CODED_LAST_LT:
+            log.info("Skipping by lt", lt=webhook_message.lt)
             return
 
         if webhook_message.event_type != "account_tx":

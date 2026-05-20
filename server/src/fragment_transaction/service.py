@@ -1,12 +1,16 @@
+from collections.abc import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, ExternalMessage, to_amount
 
 from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
+from src.fragment_transaction import sorting
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.tasks import process_fragment_transaction
 from src.fragment_transaction.utils import validate_tc_transaction
+from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
@@ -14,6 +18,22 @@ from src.worker import enqueue_task
 
 
 class FragmentTransactionService:
+    async def fetch_list(
+        self,
+        session: AsyncSession,
+        user: User,
+        pagination: PaginationParams,
+        sorting: sorting.ListSorting,
+    ) -> tuple[Sequence[FragmentTransaction], int]:
+        repository = FragmentTransactionRepository.from_session(session)
+
+        stmt = repository.get_base_stmt().where(FragmentTransaction.user == user)
+        stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
+
+        return await repository.paginate(
+            stmt=stmt, limit=pagination.limit, page=pagination.page
+        )
+
     async def send_from_tc(
         self,
         session: AsyncSession,

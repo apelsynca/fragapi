@@ -1,3 +1,4 @@
+import random
 from unittest.mock import MagicMock
 
 import pytest
@@ -12,11 +13,19 @@ from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.service import (
     fragment_transaction as fragment_transaction_service,
 )
+from src.fragment_transaction.sorting import FragTransactionSortProperty
 from src.fragment_transaction.tasks import process_fragment_transaction
+from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
-from tests.fixtures.random_objects import get_tc_transaction
+from tests.fixtures.database import SaveFixture
+from tests.fixtures.random_objects import (
+    create_fragment_transaction,
+    create_transaction,
+    create_user,
+    get_tc_transaction,
+)
 from tests.fixtures.ton_connect import get_valid_tc_msg
 
 # maybe more tests here
@@ -188,3 +197,41 @@ async def test_removes_money_from_user_with_fee(
         frag_trans.id,
         tc_transaction,
     )
+
+
+@pytest.mark.asyncio
+async def test_lists_transactions_right_user(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    for _ in range(3):
+        transaction = await create_transaction(
+            save_fixture, amount=random.randint(1, 100)
+        )
+        await create_fragment_transaction(
+            save_fixture, user=user, transaction=transaction
+        )
+
+    user_second = await create_user(save_fixture)
+    transactiond = await create_transaction(save_fixture, amount=random.randint(1, 100))
+    await create_fragment_transaction(
+        save_fixture, user=user_second, transaction=transactiond
+    )
+
+    sorting = [(FragTransactionSortProperty.created_at, True)]
+
+    pagination = PaginationParams(page=1, limit=100)
+    items, count = await fragment_transaction_service.fetch_list(
+        session=session, user=user, pagination=pagination, sorting=sorting
+    )
+
+    assert len(items) == 3
+    assert count == len(items)
+
+
+# @pytest.mark.asyncio
+# async def test_gets_stats(session: AsyncSession, user: User) -> None:
+#     stats = await fragment_transaction_service.get_stats()
+#
+#     assert stats.total_spend == 0
+#     assert stats.total_stars_spend == 0
+#     # etc...

@@ -1,9 +1,11 @@
 from collections.abc import Sequence
 from typing import Any, Self
 
-from sqlalchemy import Select, func, over, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
+
+from src.kit.pagination import count_subquery
 
 type Options = Sequence[ExecutableOption]
 
@@ -52,18 +54,15 @@ class BaseRepository[M]:
         self, stmt: Select[tuple[M]], limit: int, page: int
     ) -> tuple[list[M], int]:
         offset = (page - 1) * limit
-        pagination_stmt: Select[tuple[M, int]] = (
-            stmt.add_columns(over(func.count())).limit(limit).offset(offset)
-        )
-        results = await self.session.stream(pagination_stmt)
 
-        items: list[M] = []
-        count = 0
+        count_statement = select(func.count()).select_from(count_subquery(stmt))
+        count_result = await self.session.execute(count_statement)
+        count = count_result.scalar_one()
 
-        async for result in results.unique():
-            item, count = result._tuple()
-            items.append(item)
-
+        paginated_statement = stmt.limit(limit).offset(offset)
+        # Streaming can't be applied here, since we need to call ORM's unique()
+        results = await self.session.execute(paginated_statement)
+        items = list(results.unique().scalars().all())
         return items, count
 
     async def count(self, stmt: Select[tuple[M]]) -> int:

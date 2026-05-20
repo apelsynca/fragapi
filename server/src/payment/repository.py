@@ -2,11 +2,11 @@ from uuid import UUID
 
 from src.kit.repository import Options
 from src.kit.repository.main import BaseRepository
-from src.kit.repository.mixins import IDRepositoryMixin
+from src.kit.repository.mixins import RepositoryIDMixin
 from src.models import Payment
 
 
-class PaymentRepository(BaseRepository[Payment], IDRepositoryMixin[Payment, UUID]):
+class PaymentRepository(RepositoryIDMixin[Payment, UUID], BaseRepository[Payment]):
     model = Payment
 
     async def get_by_hash(self, hash: str, *, options: Options = ()):

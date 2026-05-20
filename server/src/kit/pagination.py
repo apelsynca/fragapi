@@ -1,9 +1,10 @@
 import math
 from collections.abc import Sequence
-from typing import Annotated, NamedTuple, Self
+from typing import Annotated, Any, NamedTuple, Self
 
 from fastapi import Depends, Query
 from pydantic import BaseModel
+from sqlalchemy import Select, Subquery, literal
 
 from src.config import settings
 from src.kit.schemas import Schema
@@ -12,6 +13,17 @@ from src.kit.schemas import Schema
 class PaginationParams(NamedTuple):
     page: int
     limit: int
+
+
+def count_subquery(statement: Select[Any]) -> Subquery:
+    """Build a count-safe subquery from a Select.
+
+    `.subquery()` materializes every mapped column of the underlying entity,
+    including those marked `deferred=True`. For count queries we only need
+    row cardinality, so project a literal to avoid referencing (or loading)
+    unused columns.
+    """
+    return statement.with_only_columns(literal(1)).order_by(None).subquery()
 
 
 def get_pagination_params(

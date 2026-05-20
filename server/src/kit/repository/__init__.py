@@ -1,4 +1,4 @@
 from .main import BaseRepository, Options
-from .mixins import IDRepositoryMixin
+from .mixins import RepositoryIDMixin, RepositorySortingMixin
 
-__all__ = ["BaseRepository", "IDRepositoryMixin", "Options"]
+__all__ = ["BaseRepository", "Options", "RepositoryIDMixin", "RepositorySortingMixin"]
