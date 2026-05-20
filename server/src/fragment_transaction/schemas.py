@@ -1,4 +1,4 @@
-from src.kit.schemas import Schema
+from src.kit.schemas import Schema, TimestampedSchema
 
 
 class FragmentTransactionsStats(Schema):
@@ -7,7 +7,7 @@ class FragmentTransactionsStats(Schema):
     premium_total_spend: float
 
 
-class FragmentTransaction(Schema):
+class FragmentTransaction(TimestampedSchema):
     amount: float
     reason: str
     recipient: str

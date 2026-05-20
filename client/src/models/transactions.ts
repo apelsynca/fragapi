@@ -8,4 +8,12 @@ export interface FragmentTransaction {
 
   starsAmount: number | null
   premiumMonths: number | null
+
+  createdAt: string
+}
+
+export interface TransactionsStats {
+  totalSpend: number
+  starsTotalSpend: number
+  premiumTotalSpend: number
 }

@@ -47,4 +47,11 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
       </span>
     ),
   },
+  {
+    accessorKey: 'createdAt',
+    header: 'Date',
+    cell: ({ row }) => (
+      <span>{new Date(row.original.createdAt).toLocaleString()}</span>
+    ),
+  },
 ]

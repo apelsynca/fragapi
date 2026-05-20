@@ -2,7 +2,10 @@ import { createServerFn } from '@tanstack/react-start'
 import { verifySession } from '~/lib/auth'
 import { apiRequest } from './request'
 import type { ListResource } from './models/misc'
-import type { FragmentTransaction } from '~/models/transactions'
+import type {
+  FragmentTransaction,
+  TransactionsStats,
+} from '~/models/transactions'
 
 export const fetchTransactionsPage = createServerFn()
   .inputValidator((data: { page: number; sorting: string }) => data)
@@ -20,12 +23,6 @@ export const fetchTransactionsPage = createServerFn()
 
     return resp
   })
-
-interface TransactionsStats {
-  totalSpend: number
-  starsTotalSpend: number
-  premiumTotalSpend: number
-}
 
 export const fetchTransactionsStats = createServerFn().handler(async () => {
   const token = await verifySession()
