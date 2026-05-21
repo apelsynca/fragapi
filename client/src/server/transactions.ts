@@ -13,15 +13,11 @@ export const fetchTransactionsPage = createServerFn()
     const token = await verifySession()
     console.log('fetching', page, sorting)
 
-    const resp = await apiRequest<ListResource<FragmentTransaction>>({
+    return await apiRequest<ListResource<FragmentTransaction>>({
       method: 'GET',
       endpoint: `/transactions?page=${page}&sorting=${sorting}`,
       token,
     })
-
-    console.log(resp)
-
-    return resp
   })
 
 export const fetchTransactionsStats = createServerFn().handler(async () => {

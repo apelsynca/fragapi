@@ -8,11 +8,11 @@ from src.models import Payment
 from src.payment.repository import PaymentRepository
 from src.worker import AsyncSessionMaker, broker
 
-TXT_TEMP = (
+NEW_DEPOSIT_NOTIFICATION_TEXT = (
     "<b>New deposit</b>\n\n"
-    "Amount: <b>{amount:.4f} TON</b>\n"
-    "UserID: {user_id}\n\n"
-    "{status}"
+    "User: {user_field}\n"
+    "Amount: <b>{amount:.4f} TON</b>\n\n"
+    "Hash: <code>{hash}</code>"
 )
 
 
@@ -27,11 +27,15 @@ async def deposit_send_telegram_log(payment_id: uuid.UUID) -> None:
         if payment is None:
             raise ResourceNotFound()
 
+        user_field = (
+            f"<a href='tg://resolve?domain={payment.user.username}'>{payment.user.first_name}</a>"
+            if payment.user.username
+            else f"<a href='tg://user?id={payment.user_id}'>{payment.user.first_name}</a>"
+        )
+
         await telegram_log_sender.send(
-            text=TXT_TEMP.format(
-                amount=payment.amount,
-                user_id=payment.user_id,
-                status=str(payment.status),
+            text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
+                amount=payment.amount, user_field=user_field, hash=payment.hash
             ),
             with_notification=True,
         )

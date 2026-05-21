@@ -74,16 +74,6 @@ def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTran
     )
 
 
-async def create_payment(
-    save_fixture: SaveFixture, user: User, amount: float, hash: str | None = None
-) -> Payment:
-    payment = Payment(
-        user=user, amount=amount, hash=hash if hash is not None else token_urlsafe(32)
-    )
-    await save_fixture(payment)
-    return payment
-
-
 def create_tonapi_transaction_mock(
     hash: str = "xxxxxxe0b494f5a8f7c94f8ab37816e98be1a4a95b97c8daeba262e04975cb6c",
     success: bool = True,
@@ -175,3 +165,18 @@ async def create_fragment_transaction(
     )
     await save_fixture(frag_trans)
     return frag_trans
+
+
+@pytest_asyncio.fixture
+async def payment(save_fixture: SaveFixture, user: User) -> Payment:
+    return await create_payment(save_fixture, user, amount=3.252, hash=rstr("phash"))
+
+
+async def create_payment(
+    save_fixture: SaveFixture, user: User, amount: float, hash: str | None = None
+) -> Payment:
+    payment = Payment(
+        user=user, amount=amount, hash=hash if hash is not None else token_urlsafe(32)
+    )
+    await save_fixture(payment)
+    return payment
