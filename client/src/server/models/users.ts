@@ -6,3 +6,8 @@ export interface User {
   balance: number
   apiKey: string
 }
+
+export interface RevokeTokenResponse {
+  success: boolean
+  apiKey: string
+}

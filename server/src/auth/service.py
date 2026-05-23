@@ -3,9 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import LoginResponse
 from src.exceptions import Forbidden
+from src.kit.crypto import generate_token
 from src.kit.utils import utc_now
 from src.logging import get_logger
 from src.models import User, UserSession
+from src.models.user_sessions import USER_SESSION_PREFIX
 from src.users.repository import UserRepository
 
 log = get_logger()
@@ -21,7 +23,16 @@ class AuthService:
         if user_session is None:
             raise Forbidden()
 
-        return LoginResponse(token=user_session.token, success=True)
+        new_us = UserSession(
+            user=user_session.user,
+            user_agent="here from req",
+            token=generate_token(prefix=USER_SESSION_PREFIX),
+        )
+        session.add(new_us)
+        await session.flush()
+        await session.delete(user_session)
+
+        return LoginResponse(token=new_us.token, success=True)
 
     async def authenticate(
         self, session: AsyncSession, session_token: str
