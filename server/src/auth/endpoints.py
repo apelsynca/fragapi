@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import LoginResponse, TelegramBotAuthData
@@ -12,6 +12,10 @@ router = APIRouter(prefix="/auth", tags=["auth", APITag.private])
 
 @router.post("/tgbot")
 async def telegram_bot_auth(
-    data: TelegramBotAuthData, session: AsyncSession = Depends(get_db_session)
+    data: TelegramBotAuthData,
+    request: Request,
+    session: AsyncSession = Depends(get_db_session),
 ) -> LoginResponse:
-    return await auth_service.login_by_bot_hash(session, bot_hash=data.hash)
+    return await auth_service.login_by_bot_hash(
+        session, bot_hash=data.hash, request=request
+    )

@@ -1,3 +1,4 @@
+from fastapi import Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +16,7 @@ log = get_logger()
 
 class AuthService:
     async def login_by_bot_hash(
-        self, session: AsyncSession, bot_hash: str
+        self, session: AsyncSession, bot_hash: str, *, request: Request | None = None
     ) -> LoginResponse:
         stmt = select(UserSession).where(UserSession.bot_hash == bot_hash)
         user_session = await session.scalar(stmt)
@@ -23,9 +24,13 @@ class AuthService:
         if user_session is None:
             raise Forbidden()
 
+        user_agent = None
+        if request is not None:
+            user_agent = request.headers.get("user-agent")
+
         new_us = UserSession(
             user=user_session.user,
-            user_agent="here from req",
+            user_agent=user_agent,
             token=generate_token(prefix=USER_SESSION_PREFIX),
         )
         session.add(new_us)
