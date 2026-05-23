@@ -13,7 +13,7 @@ export const fetchMe = createServerFn().handler(async () => {
   })
 })
 
-export const revokeApiToken = createServerFn({ method: 'POST' }).handler(
+export const revokeApiTokenFn = createServerFn({ method: 'POST' }).handler(
   async () => {
     const token = await verifySession()
 
