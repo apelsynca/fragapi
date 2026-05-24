@@ -16,7 +16,6 @@ import {
   ChartTooltipContent,
 } from '~/components/ui/chart'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { transactionChartOptions } from '~/lib/queries'
 import { useTranslation } from 'react-i18next'
 
 export const description = 'An interactive area chart'
@@ -37,7 +36,8 @@ const chartConfig = {
 
 export default function DashboardChart() {
   const { t, i18n } = useTranslation()
-  const { data: chartData } = useSuspenseQuery(transactionChartOptions())
+  // const { data: chartData } = useSuspenseQuery(transactionChartOptions())
+  const chartData = undefined
 
   return (
     <Card className="pt-0">

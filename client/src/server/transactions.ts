@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { verifySession } from '~/lib/auth'
 import { apiRequest } from './request'
-import type { ListResource } from './models/misc'
+import type { ListResource } from '~/models/misc'
 import type {
   FragmentTransaction,
   TransactionsStats,

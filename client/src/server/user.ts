@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { User, RevokeTokenResponse } from './models/users'
+import type { User, RevokeTokenResponse } from '../models/users'
 import { apiRequest } from './request'
 import { verifySession } from '../lib/auth'
 
