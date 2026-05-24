@@ -1,3 +1,5 @@
+from datetime import date
+
 from src.kit.schemas import Schema, TimestampedSchema
 
 
@@ -15,3 +17,9 @@ class FragmentTransaction(TimestampedSchema):
 
     stars_amount: int | None
     premium_months: int | None
+
+
+class ChartPoint(Schema):
+    date: date
+    ton_amount: float
+    transactions_count: int

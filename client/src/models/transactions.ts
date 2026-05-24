@@ -17,3 +17,9 @@ export interface TransactionsStats {
   starsTotalSpend: number
   premiumTotalSpend: number
 }
+
+export interface TransactionChartPoint {
+  date: string
+  tonAmount: number
+  transactionsCount: number
+}

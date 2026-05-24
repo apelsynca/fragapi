@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.fragment_transaction import auth, sorting
 from src.fragment_transaction.schemas import (
+    ChartPoint,
     FragmentTransaction,
     FragmentTransactionsStats,
 )
@@ -44,5 +45,14 @@ async def get_transactions_stats(
     session: AsyncSession = Depends(get_db_session),
 ) -> FragmentTransactionsStats:
     return await fragment_transaction_service.get_stats(
+        session=session, user=auth_subject.subject
+    )
+
+
+@router.get("/chart", description="Get fragment transactions chart data")
+async def get_chart_data(
+    auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
+) -> list[ChartPoint]:
+    return await fragment_transaction_service.get_chart_data(
         session=session, user=auth_subject.subject
     )

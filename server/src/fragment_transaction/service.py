@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from datetime import timedelta
 
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,11 +10,12 @@ from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction import sorting
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
-from src.fragment_transaction.schemas import FragmentTransactionsStats
+from src.fragment_transaction.schemas import ChartPoint, FragmentTransactionsStats
 from src.fragment_transaction.tasks import process_fragment_transaction
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectTransaction
+from src.kit.utils import utc_now
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.worker import enqueue_task
@@ -144,6 +146,44 @@ class FragmentTransactionService:
         )
 
         return transaction
+
+    async def get_chart_data(
+        self, session: AsyncSession, user: User
+    ) -> list[ChartPoint]:
+        days_count = 90
+
+        today = utc_now().date()
+        start_date = today - timedelta(days=days_count - 1)
+
+        stmt = (
+            select(
+                func.date(FragmentTransaction.created_at).label("date"),
+                func.sum(FragmentTransaction.amount).label("ton_amount"),
+                func.count().label("transactions_count"),
+            )
+            .where(FragmentTransaction.user == user)
+            .group_by(func.date(FragmentTransaction.created_at))
+        )
+
+        result = await session.execute(stmt)
+        rows = result.all()
+
+        existing = {row.date: row for row in rows}
+
+        result = []
+
+        for i in range(days_count):
+            day = start_date + timedelta(days=i)
+            row = existing.get(day)
+            result.append(
+                ChartPoint(
+                    date=day,
+                    ton_amount=row.ton_amount if row else 0,
+                    transactions_count=row.transactions_count if row else 0,
+                )
+            )
+
+        return result
 
 
 fragment_transaction = FragmentTransactionService()

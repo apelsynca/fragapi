@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-
+import { useSuspenseQuery } from '@tanstack/react-query'
 import {
   Card,
   CardContent,
@@ -15,10 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '~/components/ui/chart'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
-
-export const description = 'An interactive area chart'
+import { transactionChartOptions } from '~/lib/queries'
 
 const chartConfig = {
   visitors: {
@@ -36,8 +34,7 @@ const chartConfig = {
 
 export default function DashboardChart() {
   const { t, i18n } = useTranslation()
-  // const { data: chartData } = useSuspenseQuery(transactionChartOptions())
-  const chartData = undefined
+  const { data: chartData } = useSuspenseQuery(transactionChartOptions())
 
   return (
     <Card className="pt-0">

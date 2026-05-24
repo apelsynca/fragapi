@@ -4,6 +4,7 @@ import { apiRequest } from './request'
 import type { ListResource } from '~/models/misc'
 import type {
   FragmentTransaction,
+  TransactionChartPoint,
   TransactionsStats,
 } from '~/models/transactions'
 
@@ -26,6 +27,16 @@ export const fetchTransactionsStats = createServerFn().handler(async () => {
   return await apiRequest<TransactionsStats>({
     method: 'GET',
     endpoint: '/transactions/stats',
+    token,
+  })
+})
+
+export const fetchTransactionsChart = createServerFn().handler(async () => {
+  const token = await verifySession()
+
+  return await apiRequest<TransactionChartPoint[]>({
+    method: 'GET',
+    endpoint: '/transactions/chart',
     token,
   })
 })

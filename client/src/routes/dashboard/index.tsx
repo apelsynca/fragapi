@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
+import DashboardChart from '~/components/DashboardChart'
 import DashboardStats from '~/components/DashboardStats'
 
 export const Route = createFileRoute('/dashboard/')({
@@ -12,13 +13,9 @@ function RouteComponent() {
       <Suspense fallback={<p>Loading..</p>}>
         <DashboardStats />
       </Suspense>
+      <Suspense fallback={<p>Loading...</p>}>
+        <DashboardChart />
+      </Suspense>
     </div>
   )
 }
-
-// <Suspense fallback={<div>FALLBACK STATS</div>}>
-//   <DashboardStats />
-// </Suspense>
-// <Suspense fallback={<div>FALLBACK CHART</div>}>
-//   <DashboardChart />
-// </Suspense>

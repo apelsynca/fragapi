@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { fetchMe } from '~/server/user'
 import { fetchTonRate } from '~/server/ton'
 import {
+  fetchTransactionsChart,
   fetchTransactionsPage,
   fetchTransactionsStats,
 } from '~/server/transactions'
@@ -29,4 +30,10 @@ export const transactionsStatsQueryOptions = () =>
   queryOptions({
     queryKey: ['transactions', 'stats'],
     queryFn: () => fetchTransactionsStats(),
+  })
+
+export const transactionChartOptions = () =>
+  queryOptions({
+    queryKey: ['transactions', 'chart'],
+    queryFn: () => fetchTransactionsChart(),
   })
