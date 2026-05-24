@@ -20,6 +20,6 @@ async def bot_webhook(request: Request) -> Response:
         ) from e
 
     update = Update.de_json(data=await request.json(), bot=application.bot)
-    await application.update_queue.put(update)
+    await application.process_update(update)
 
     return Response(status_code=200)

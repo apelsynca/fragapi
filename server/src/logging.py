@@ -147,9 +147,5 @@ def configure() -> None:
         ProductionRenderer.configure()
 
 
-def get_logger() -> Logger:
-    return structlog.get_logger()
-
-
 def generate_correlation_id() -> str:
     return str(uuid.uuid4())

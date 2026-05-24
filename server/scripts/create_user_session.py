@@ -17,23 +17,26 @@ async def main() -> None:
     async with sessionmaker() as session:
         user_session = await create_user_session(session)
         await session.commit()
-        print(user_session)
+
+        if user_session is None:
+            print("Somehow user session is None idk why...")
+            return
+
+        print("Created user session")
+        print("Bot hash:", user_session.bot_hash)
+        print("Object", user_session)
 
 
 async def create_user_session(session: AsyncSession) -> UserSession | None:
     repository = UserRepository.from_session(session)
 
-    # await repository.create(
-    #     User(
-    #         id=99999,
-    #         first_name="ME",
-    #         username="fakehomocitrus",
-    #         api_key=generate_api_key(),
-    #     )
-    # )
-    # await session.commit()
+    user_id_input = input("Enter user_id, or default [99999]: ")
+    if not user_id_input:
+        user_id = 99999
+    else:
+        user_id = int(user_id_input)
 
-    user = await repository.get_by_id(id=99999)
+    user = await repository.get_by_id(id=user_id)
 
     if user is None:
         print("No user")

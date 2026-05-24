@@ -1,8 +1,9 @@
+import structlog
 from ton_core import NetworkGlobalID
 from tonutils.contracts import WalletV5R1
 
 from src.config import settings
-from src.logging import get_logger
+from src.logging import Logger
 from src.wallet.ton import toncenter as toncenter_client
 
 if settings.is_production():
@@ -10,7 +11,7 @@ if settings.is_production():
 else:
     env_network_id = NetworkGlobalID.TESTNET
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class WalletManagerError(Exception):

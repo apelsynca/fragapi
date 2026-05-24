@@ -1,10 +1,11 @@
+import structlog
 from taskiq import TaskiqMiddleware
 
 from src.integrations.ton_wallet.manager import WalletManager
-from src.logging import get_logger
+from src.logging import Logger
 from src.wallet.ton import create_wallet
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 _wallet_manager: WalletManager | None = None
 

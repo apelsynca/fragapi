@@ -1,8 +1,9 @@
+import structlog
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.integrations.fragment import Fragment, get_fragment
-from src.logging import get_logger
+from src.logging import Logger
 from src.openapi import APITag
 from src.postgres import get_db_session
 from src.premium import auth
@@ -12,7 +13,7 @@ from src.routing import APIRouter
 
 router = APIRouter(prefix="/premium", tags=["premium", APITag.public])
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 @router.get("/recipient/{username}", description="Get premium recipient")

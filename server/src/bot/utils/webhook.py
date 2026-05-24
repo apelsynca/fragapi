@@ -2,13 +2,14 @@ import os
 from collections.abc import Sequence
 from typing import cast
 
+import structlog
 from telegram import Bot, Update, WebhookInfo
 from telegram.error import NetworkError
 
 from src.config import settings
-from src.logging import get_logger
+from src.logging import Logger
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 async def setup_bot_webhook(bot: Bot) -> None:

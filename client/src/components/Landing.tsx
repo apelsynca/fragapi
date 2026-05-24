@@ -21,7 +21,9 @@ export default function Landing({ toPanel = false }: { toPanel?: boolean }) {
             </Button>
           ) : (
             <Button asChild>
-              <a href="https://t.me/fragauthbot?start=login">
+              <a
+                href={`https://t.me/${import.meta.env.VITE_BOT_USERNAME}?start=login`}
+              >
                 {t('land.bot_login')}
               </a>
             </Button>

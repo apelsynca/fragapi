@@ -1,3 +1,4 @@
+import structlog
 from fastapi import Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,12 +7,12 @@ from src.auth.schemas import LoginResponse
 from src.exceptions import Forbidden
 from src.kit.crypto import generate_token
 from src.kit.utils import utc_now
-from src.logging import get_logger
+from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
 from src.users.repository import UserRepository
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class AuthService:

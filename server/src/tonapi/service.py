@@ -1,5 +1,6 @@
 import re
 
+import structlog
 from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,13 +9,13 @@ from ton_core import Address
 from src.config import settings
 from src.consts import BADLY_HARD_CODED_LAST_LT, TON_COMMENT_PATTERN
 from src.exceptions import BadRequest, FragError, ResourceNotFound
-from src.logging import get_logger
+from src.logging import Logger
 from src.payment.service import payment as payment_service
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.transaction.service import transaction as transaction_service
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class TonAPIService:

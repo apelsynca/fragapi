@@ -1,14 +1,15 @@
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import ResourceNotFound
 from src.kit.utils import generate_api_key
-from src.logging import get_logger
+from src.logging import Logger
 from src.models import User
 from src.users.schemas import UserCreate
 
 from .repository import UserRepository
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class UserService:

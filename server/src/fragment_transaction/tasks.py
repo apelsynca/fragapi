@@ -1,7 +1,7 @@
 import uuid
 
+import structlog
 from sqlalchemy.orm import selectinload
-from structlog import get_logger
 from ton_core import Address, ExternalMessage, WalletV5Params, to_amount
 
 from src.bot.logs_sender import telegram_log_sender
@@ -10,6 +10,7 @@ from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
+from src.logging import Logger
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
@@ -18,7 +19,7 @@ from src.worker import broker
 from src.worker._sqlalchemy import AsyncSessionMaker
 from src.worker._wallet_manager import WalletManagerMiddleware
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 @broker.task

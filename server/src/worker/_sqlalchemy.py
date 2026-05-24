@@ -1,14 +1,15 @@
 import contextlib
 from collections.abc import AsyncGenerator
 
+import structlog
 from taskiq import TaskiqMiddleware
 
 from src.kit.database.postgres import AsyncSessionMaker as AsyncSessionMakerType
 from src.kit.database.postgres import create_async_sessionmaker
-from src.logging import get_logger
+from src.logging import Logger
 from src.postgres import AsyncEngine, AsyncSession, create_async_engine
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 _sqlalchemy_engine: AsyncEngine | None = None
 _sqlalchemy_async_sessionmaker: AsyncSessionMakerType | None = None

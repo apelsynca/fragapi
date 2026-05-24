@@ -2,11 +2,12 @@ import contextlib
 import contextvars
 from typing import Any
 
+import structlog
 from taskiq import AsyncTaskiqDecoratedTask
 
-from src.logging import get_logger
+from src.logging import Logger
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 _task_queue_manager: contextvars.ContextVar["TaskQueueManager | None"] = (
     contextvars.ContextVar("app.task_queue_manager")

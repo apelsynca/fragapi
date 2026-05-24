@@ -1,3 +1,4 @@
+import structlog
 from fastapi import Request
 from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,10 +8,10 @@ from starlette.types import Scope as ASGIScope
 from src.auth.models import Anonymous, AuthSubject, Subject
 from src.auth.scope import Scope
 from src.auth.service import auth as auth_service
-from src.logging import get_logger
+from src.logging import Logger
 from src.models.user_sessions import USER_SESSION_PREFIX
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 def get_bearer_token(request: Request) -> str | None:

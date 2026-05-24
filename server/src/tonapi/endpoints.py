@@ -1,8 +1,9 @@
+import structlog
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragError
-from src.logging import get_logger
+from src.logging import Logger
 from src.openapi import APITag
 from src.postgres import get_db_session
 from src.routing import APIRouter
@@ -11,7 +12,7 @@ from src.tonapi.service import tonapi as tonapi_service
 
 router = APIRouter(prefix="/tonapi", tags=[APITag.private])
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 @router.post("/webhook")

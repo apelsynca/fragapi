@@ -1,3 +1,4 @@
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.enums import PremiumMonths
@@ -8,12 +9,12 @@ from src.fragment_transaction.service import (
 )
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
-from src.logging import get_logger
+from src.logging import Logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class PremiumService:

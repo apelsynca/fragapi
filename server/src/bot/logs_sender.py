@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 
+import structlog
 from telegram.constants import ParseMode
 from telegram.ext import ExtBot
 
 from src.config import settings
 from src.enums import TelegramLogSender as TelegramLogSenderType
-from src.logging import get_logger
+from src.logging import Logger
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class TelegramLogSender(ABC):

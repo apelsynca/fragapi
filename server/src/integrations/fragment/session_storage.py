@@ -1,12 +1,13 @@
 import json
 
+import structlog
 from pydantic import BaseModel, ValidationError
 
 from src.config import settings
 from src.integrations.fragment.models import MainPageTokens
-from src.logging import get_logger
+from src.logging import Logger
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class FragmentSession(BaseModel):

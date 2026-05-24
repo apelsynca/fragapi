@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
 
+import structlog
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from telegram.ext import Application as BotApplication
@@ -22,8 +23,8 @@ from src.kit.database.postgres import (
     create_async_sessionmaker,
 )
 from src.kit.ton_connect import TonConnect
+from src.logging import Logger
 from src.logging import configure as configure_logging
-from src.logging import get_logger
 from src.middlewares import KiqEnqueuedWorkerTasksMiddleware, LogCorrelationIdMiddleware
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
@@ -31,7 +32,7 @@ from src.wallet.ton import create_wallet
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker
 
-log = get_logger()
+log: Logger = structlog.get_logger()
 
 
 class State(TypedDict):
@@ -59,6 +60,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     fragment = Fragment(clients=[fragment_rest_client])
 
     bot_application = get_bot_application()
+    # better in russia
     if settings.is_production():
         await setup_bot(bot_application)
         await bot_application.initialize()
@@ -78,6 +80,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
+    # better in russia
     if settings.is_production():
         await bot_application.stop()
         await bot_application.shutdown()
