@@ -1,4 +1,5 @@
 import base64
+from collections.abc import Sequence
 from secrets import token_urlsafe
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,15 +8,38 @@ from ton_core import begin_cell, to_amount, to_nano
 from src.config import settings
 from src.consts import TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
+from src.kit.pagination import PaginationParams
+from src.kit.sorting import Sorting
 from src.models import Payment, Transaction, User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
 from src.payment.schemas import PaymentTonRequestMessage
+from src.payment.sorting import PaymentSortProperty
 from src.payment.tasks import deposit_send_telegram_log
 from src.worker import enqueue_task
 
 
 class PaymentService:
+    async def fetch_list(
+        self,
+        session: AsyncSession,
+        user: User,
+        pagination: PaginationParams,
+        sorting: list[Sorting[PaymentSortProperty]] = [
+            (PaymentSortProperty.created_at, True)
+        ],
+    ) -> tuple[Sequence[Payment], int]:
+        repository = PaymentRepository.from_session(session)
+
+        stmt = repository.get_base_stmt().where(
+            Payment.user == user, Payment.status == PaymentStatus.completed
+        )
+        stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
+
+        return await repository.paginate(
+            stmt=stmt, limit=pagination.limit, page=pagination.page
+        )
+
     async def create_ton(
         self, session: AsyncSession, user: User, amount: float
     ) -> PaymentTonRequestMessage:

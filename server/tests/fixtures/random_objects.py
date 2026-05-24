@@ -17,6 +17,7 @@ from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
+from src.models.payments import PaymentStatus
 from tests.fixtures.database import SaveFixture
 
 
@@ -173,10 +174,17 @@ async def payment(save_fixture: SaveFixture, user: User) -> Payment:
 
 
 async def create_payment(
-    save_fixture: SaveFixture, user: User, amount: float, hash: str | None = None
+    save_fixture: SaveFixture,
+    user: User,
+    amount: float,
+    hash: str | None = None,
+    completed: bool = False,
 ) -> Payment:
     payment = Payment(
-        user=user, amount=amount, hash=hash if hash is not None else token_urlsafe(32)
+        user=user,
+        amount=amount,
+        hash=hash if hash is not None else token_urlsafe(32),
+        status=PaymentStatus.completed if completed else PaymentStatus.pending,
     )
     await save_fixture(payment)
     return payment

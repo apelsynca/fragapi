@@ -9,6 +9,7 @@ from ton_core import begin_cell, to_amount
 from src.config import settings
 from src.consts import TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
+from src.kit.pagination import PaginationParams
 from src.models import User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
@@ -151,3 +152,26 @@ async def test_create_ton_right_payload(
     )
 
     assert payment_req_msg.payload == same_payload
+
+
+@pytest.mark.asyncio
+async def test_fetch_list_gets_only_completed(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    await create_payment(
+        save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=True
+    )
+    await create_payment(
+        save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=True
+    )
+    await create_payment(
+        save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=False
+    )
+
+    pagination = PaginationParams(page=1, limit=100)
+    payments, count = await payment_service.fetch_list(
+        session=session, user=user, pagination=pagination
+    )
+
+    assert len(payments) == 2
+    assert count == len(payments)

@@ -7,13 +7,14 @@ from ton_core import Address, ExternalMessage, to_amount
 
 from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
-from src.fragment_transaction import sorting
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.schemas import ChartPoint, FragmentTransactionsStats
+from src.fragment_transaction.sorting import FragTransactionSortProperty
 from src.fragment_transaction.tasks import process_fragment_transaction
 from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.pagination import PaginationParams
+from src.kit.sorting import Sorting
 from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
 from src.models import FragmentTransaction, Transaction, User
@@ -60,7 +61,9 @@ class FragmentTransactionService:
         session: AsyncSession,
         user: User,
         pagination: PaginationParams,
-        sorting: sorting.ListSorting,
+        sorting: list[Sorting[FragTransactionSortProperty]] = [
+            (FragTransactionSortProperty.created_at, True)
+        ],
     ) -> tuple[Sequence[FragmentTransaction], int]:
         repository = FragmentTransactionRepository.from_session(session)
 

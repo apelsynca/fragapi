@@ -17,3 +17,15 @@ async def test_ton_payment_right_data(client: AsyncClient, amount: float) -> Non
     assert json["amount"] == str(to_nano(amount))
     assert json["address"] == settings.TON_ADDRESS
     assert "payload" in json
+
+
+@pytest.mark.asyncio
+@pytest.mark.auth
+async def test_list_payments(client: AsyncClient) -> None:
+    response = await client.get("/v1/payments/")
+    assert response.status_code == 200
+
+    json = response.json()
+
+    assert "items" in json
+    assert "pagination" in json

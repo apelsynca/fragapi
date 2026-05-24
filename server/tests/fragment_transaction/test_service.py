@@ -218,8 +218,8 @@ async def test_lists_transactions_right_user(
     )
 
     sorting = [(FragTransactionSortProperty.created_at, True)]
-
     pagination = PaginationParams(page=1, limit=100)
+
     items, count = await fragment_transaction_service.fetch_list(
         session=session, user=user, pagination=pagination, sorting=sorting
     )
