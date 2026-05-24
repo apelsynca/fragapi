@@ -67,17 +67,6 @@ function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('sidebar.other')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <JoystickIcon /> {t('sidebar.hand_send')}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
