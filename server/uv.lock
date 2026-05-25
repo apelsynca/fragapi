@@ -607,6 +607,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "greenlet" },
     { name = "httpx", extra = ["http2"] },
+    { name = "logtide-sdk", extra = ["fastapi"] },
     { name = "makefun" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
@@ -650,6 +651,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.135.3" },
     { name = "greenlet", specifier = ">=3.2.4" },
     { name = "httpx", extras = ["http2"], specifier = ">=0.28.1" },
+    { name = "logtide-sdk", extras = ["fastapi"], specifier = ">=0.8.5" },
     { name = "makefun", specifier = ">=1.16.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
     { name = "pydantic", specifier = ">=2.12.5" },
@@ -882,6 +884,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
+]
+
+[[package]]
+name = "logtide-sdk"
+version = "0.8.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9d/cd/20849920c0556b41629f62a17d0db38dcd13e32373697b08d03120b26a1a/logtide_sdk-0.8.5.tar.gz", hash = "sha256:ee59b3937f1ed9f265fde4d1c7a9d69df0f82eb2136c951b9e49d0f8cead0acc", size = 30806, upload-time = "2026-04-05T22:16:51.649Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1b/e2/67c55520f067e3bc16916061e772800b0edad5082389d1ef227902792c4d/logtide_sdk-0.8.5-py3-none-any.whl", hash = "sha256:ddfb3a714078d89504f98adcd17fa30b33688fad7109dd02a341840cb61876ba", size = 29111, upload-time = "2026-04-05T22:16:50.205Z" },
+]
+
+[package.optional-dependencies]
+fastapi = [
+    { name = "fastapi" },
+    { name = "starlette" },
 ]
 
 [[package]]

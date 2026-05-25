@@ -5,6 +5,8 @@ from typing import Any
 import structlog
 
 from src.config import settings
+from src.logtide import LogtideService, logtide_client
+from src.logtide_structlog import LogTideProcessor
 
 Logger = structlog.stdlib.BoundLogger
 
@@ -23,24 +25,25 @@ class Logging[RendererType]:
         return settings.LOG_LEVEL
 
     @classmethod
-    def include_timestamper(cls) -> bool:
-        return True
-
-    @classmethod
-    def get_processors(cls) -> list[Any]:
+    def get_processors(
+        cls, *, logtide_service: LogtideService | None = None
+    ) -> list[Any]:
         processors = [
             structlog.contextvars.merge_contextvars,
             structlog.stdlib.add_log_level,
             structlog.stdlib.add_logger_name,
             structlog.stdlib.PositionalArgumentsFormatter(),
+            cls.timestamper,
             structlog.processors.UnicodeDecoder(),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
+            *(
+                [LogTideProcessor(client=logtide_client, service=logtide_service)]
+                if logtide_service
+                else []
+            ),
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ]
-
-        if cls.include_timestamper():
-            processors.insert(4, cls.timestamper)
 
         return processors
 
@@ -49,7 +52,7 @@ class Logging[RendererType]:
         raise NotImplementedError()
 
     @classmethod
-    def configure_stdlib(cls) -> None:
+    def configure_stdlib(cls, *, logtide_service: LogtideService | None = None) -> None:
         level = cls.get_level()
         logging.config.dictConfig(
             {
@@ -71,6 +74,15 @@ class Logging[RendererType]:
                             cls.timestamper,
                             structlog.processors.UnicodeDecoder(),
                             structlog.processors.StackInfoRenderer(),
+                            *(
+                                [
+                                    LogTideProcessor(
+                                        client=logtide_client, service=logtide_service
+                                    )
+                                ]
+                                if logtide_service
+                                else []
+                            ),
                             structlog.processors.format_exc_info,
                         ],
                     },
@@ -94,57 +106,48 @@ class Logging[RendererType]:
                             "handlers": [],
                             "propagate": True,
                         }
-                        for logger in [
-                            "sqlalchemy",
-                            "uvicorn",
-                        ]
-                    },
-                    **{
-                        logger: {"handlers": [], "level": "INFO", "propagate": False}
-                        for logger in ["hpack"]
+                        for logger in ["sqlalchemy", "uvicorn", "logtide"]
                     },
                 },
             }
         )
 
     @classmethod
-    def configure_structlog(cls) -> None:
+    def configure_structlog(
+        cls, *, logtide_service: LogtideService | None = None
+    ) -> None:
         structlog.configure_once(
-            processors=cls.get_processors(),
+            processors=cls.get_processors(logtide_service=logtide_service),
             logger_factory=structlog.stdlib.LoggerFactory(),
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
         )
 
     @classmethod
-    def configure(cls) -> None:
-        cls.configure_stdlib()
-        cls.configure_structlog()
+    def configure(cls, *, logtide_service: LogtideService | None) -> None:
+        cls.configure_stdlib(logtide_service=logtide_service)
+        cls.configure_structlog(logtide_service=logtide_service)
 
 
-class DevelopmentRenderer(Logging[structlog.dev.ConsoleRenderer]):
+class Development(Logging[structlog.dev.ConsoleRenderer]):
     @classmethod
     def get_renderer(cls) -> structlog.dev.ConsoleRenderer:
         return structlog.dev.ConsoleRenderer(colors=True)
 
 
-# could be the JSON renderer, but since i host on dokploy,
-# i dont need it (and timestamper aswell)
-class ProductionRenderer(Logging[structlog.dev.ConsoleRenderer]):
-    @classmethod
-    def include_timestamper(cls) -> bool:
-        return False
-
+class Production(Logging[structlog.dev.ConsoleRenderer]):
     @classmethod
     def get_renderer(cls) -> structlog.dev.ConsoleRenderer:
         return structlog.dev.ConsoleRenderer(colors=True)
 
 
-def configure() -> None:
+def configure(*, logtide_service: LogtideService | None = None) -> None:
+    if settings.is_testing():
+        Development.configure(logtide_service=None)
     if settings.is_development():
-        DevelopmentRenderer.configure()
+        Development.configure(logtide_service=logtide_service)
     else:
-        ProductionRenderer.configure()
+        Production.configure(logtide_service=logtide_service)
 
 
 def generate_correlation_id() -> str:

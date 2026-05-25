@@ -30,6 +30,7 @@ dependencies = [
   "redis>=7.4.0",
   "taskiq>=0.12.4",
   "taskiq-aio-pika>=0.6.0",
+  "logtide-sdk[fastapi]>=0.8.5",
 ]
 
 [dependency-groups]

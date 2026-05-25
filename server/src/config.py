@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     BOT_WEBHOOK_PATH: str = "/bot/webhook"
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
 
+    # LogTide
+    LOGTIDE_TOKEN: str | None = None
+
     # Application behaviours
     API_PRICE_MARKUP: float = Field(gt=0, default=0.01)  # 1%
     API_PAGINATION_MAX_LIMIT: int = 100

@@ -116,7 +116,7 @@ def generate_unique_openapi_id(route: APIRoute) -> str:
     return ":".join(parts)
 
 
-configure_logging()
+configure_logging(logtide_service="server")
 
 app = create_app()
 set_openapi_generator(app)
