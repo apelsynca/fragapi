@@ -36,7 +36,10 @@ class ThermosService:
             image_url=f"https://storage.portal-market.com/portals-market/gifts/{short_name}/models/png/{model}.png",
         )
 
-    async def get_collection_models(self, short_name: str) -> list[GiftModel]:
+    async def get_collection_models(
+        self,
+        short_name: str,
+    ) -> list[GiftModel]:
         collection = await self.find_collection(short_name)
         collection_data = await self.api.get_collection(collection_name=collection.name)
 

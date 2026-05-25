@@ -2,6 +2,7 @@ from fastapi import Depends
 
 from src.auth.dependencies import Authenticator
 from src.auth.scope import Scope
+from src.gifts import sorting
 from src.gifts.service import gift as gift_service
 from src.models.users import User
 from src.openapi import APITag
@@ -27,8 +28,16 @@ async def get_gift_models_short_names(short_name: str) -> list[str]:
 
 
 @router.get("/{short_name}/models", description="Get gift collection models")
-async def get_collection_models(short_name: str) -> list[GiftModel]:
-    return await thermos_service.get_collection_models(short_name)
+async def get_collection_models(
+    short_name: str, sorting: sorting.ListSorting
+) -> list[GiftModel]:
+    data = await thermos_service.get_collection_models(short_name)
+
+    # yeah i know, redo later ofc.
+    if len(sorting) > 1:
+        data = sorted(data, key=lambda p: p.floor, reverse=sorting[0][1])
+
+    return data
 
 
 @router.get("/{short_name}/models/{name}", description="Get gift collection model")
