@@ -10,7 +10,7 @@ from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
-from src.users.repository import UserRepository
+from src.user.repository import UserRepository
 
 log: Logger = structlog.get_logger()
 

@@ -14,8 +14,8 @@ from src.kit.crypto import generate_token
 from src.logging import Logger
 from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.models.users import User
-from src.users.schemas import UserCreate
-from src.users.service import user as user_service
+from src.user.schemas import UserCreate
+from src.user.service import user as user_service
 
 LOGIN_ARG = "login"
 

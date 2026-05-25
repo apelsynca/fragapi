@@ -10,7 +10,7 @@ from src.models.transactions import Transaction
 from src.models.user_sessions import UserSession
 from src.postgres import create_async_engine
 from src.transaction.repository import TransactionRepository
-from src.users.repository import UserRepository
+from src.user.repository import UserRepository
 
 
 async def main() -> None:

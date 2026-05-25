@@ -12,3 +12,5 @@ class Scope(StrEnum):
     # for now global stars and premium, also can be stars:buy, premium:gift
     stars = "stars"
     premium = "premium"
+
+    read_api_keys = "read_api_keys"

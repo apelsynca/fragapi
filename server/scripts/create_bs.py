@@ -10,7 +10,7 @@ from src.kit.database.postgres import create_async_sessionmaker
 from src.models import FragmentTransaction, Transaction
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import create_async_engine
-from src.users.repository import UserRepository
+from src.user.repository import UserRepository
 
 
 async def main() -> None:

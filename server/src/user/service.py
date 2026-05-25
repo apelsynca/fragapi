@@ -5,9 +5,8 @@ from src.exceptions import ResourceNotFound
 from src.kit.utils import generate_api_key
 from src.logging import Logger
 from src.models import User
-from src.users.schemas import UserCreate
-
-from .repository import UserRepository
+from src.user.repository import UserRepository
+from src.user.schemas import UserCreate
 
 log: Logger = structlog.get_logger()
 
