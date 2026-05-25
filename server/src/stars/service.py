@@ -1,5 +1,5 @@
+import asyncio
 import random
-from asyncio import sleep
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,7 +32,7 @@ class StarsService:
         recipient_data = await self.get_recipient(
             fragment=fragment, username=data.username, quantity=data.quantity
         )
-        await sleep(0.05)
+        await asyncio.sleep(0.05)
 
         if len(data.username) < 3:
             raise FragRequestValidationError(
@@ -49,7 +49,7 @@ class StarsService:
         buy_request = await fragment.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=data.quantity
         )
-        await sleep(0.05)
+        await asyncio.sleep(0.05)
 
         buy_link = await fragment.get_buy_stars_link(
             req_id=buy_request.req_id, show_sender=False

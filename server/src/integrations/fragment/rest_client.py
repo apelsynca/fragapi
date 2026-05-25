@@ -1,6 +1,6 @@
+import asyncio
 import json
 import re
-from asyncio import sleep
 from time import time
 from typing import Any
 
@@ -98,7 +98,7 @@ class FragmentRestClient:
         main_page_tokens = await self.get_main_page_tokens()
         self.session_storage.save_tokens(main_page_tokens)
 
-        await sleep(0.5)
+        await asyncio.sleep(0.5)
         await self.check_ton_proof_auth()
 
         self.session_storage.save_cookies(self._client.extract_cookies())

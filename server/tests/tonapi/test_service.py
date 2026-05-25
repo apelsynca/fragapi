@@ -32,6 +32,11 @@ def payment_service(mocker: MockerFixture) -> MagicMock:
 
 
 @pytest.fixture(autouse=True)
+def sleep_mock(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch("src.tonapi.service.asyncio.sleep", new_callable=AsyncMock)
+
+
+@pytest.fixture(autouse=True)
 def rest_bc(mocker: MockerFixture) -> MagicMock:
     mock_client = AsyncMock()
     mock_client.blockchain.get_transaction.side_effect = TONAPINotFoundError(
