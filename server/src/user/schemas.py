@@ -1,26 +1,20 @@
-from src.kit.schemas import IDSchema, Schema
+from typing import Annotated
+
+from pydantic import Field
+
+from src.kit.schemas import Schema
 
 
 class BaseUser(Schema):
+    id: Annotated[int, Field(description="The Telegram ID of the user.")]
     first_name: str
     last_name: str | None
     username: str | None
 
 
-class UserCreate(IDSchema, BaseUser):
+class UserCreate(BaseUser):
     is_premium: bool = False
 
 
 class UserRead(BaseUser):
     balance: float
-
-
-class PanelUserRead(BaseUser):
-    id: int
-    balance: float
-    api_key: str
-
-
-class RevokeTokenResponse(Schema):
-    success: bool
-    api_key: str

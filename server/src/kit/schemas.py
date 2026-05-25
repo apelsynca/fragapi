@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import UUID4, BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 
@@ -12,7 +12,7 @@ class Schema(BaseModel):
 
 
 class IDSchema(Schema):
-    id: Annotated[int, Field(description="The ID of the object.")]
+    id: Annotated[UUID4, Field(description="The ID of the object.")]
 
 
 class TimestampedSchema(Schema):

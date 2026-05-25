@@ -7,13 +7,11 @@ from src.routing import APIRouter
 from src.stars.endpoints import router as stars_router
 from src.ton.endpoints import router as ton_router
 from src.tonapi.endpoints import router as tonapi_router
-from src.user.endpoints import panel_router as users_panel_router
 from src.user.endpoints import router as users_router
 
 router = APIRouter(prefix="/v1")
 
 router.include_router(users_router)
-router.include_router(users_panel_router)
 router.include_router(auth_router)
 router.include_router(stars_router)
 router.include_router(premium_router)
