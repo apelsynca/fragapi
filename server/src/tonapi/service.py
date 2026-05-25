@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 import structlog
@@ -27,7 +28,9 @@ class TonAPIService:
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
         if webhook_message.lt < BADLY_HARD_CODED_LAST_LT:
-            log.info("Skipping by lt", lt=webhook_message.lt)
+            log.info(
+                "tonapi.process_webhook_acc_tx skipping by lt", lt=webhook_message.lt
+            )
             return
 
         if webhook_message.event_type != "account_tx":
@@ -37,6 +40,7 @@ class TonAPIService:
             raise FragError("Wrong account id")
 
         try:
+            await asyncio.sleep(0.5)  # to make sure transaction exists on tonapi side.
             # NOTE: here check maybe?
             tonapi_transaction = await self.get_blockchain_transaction(
                 tx_hash=webhook_message.tx_hash
