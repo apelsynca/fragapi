@@ -3,7 +3,6 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
 import {
   ChevronsUpDownIcon,
-  LanguagesIcon,
   LogOutIcon,
   PlugZapIcon,
   UnplugIcon,
