@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
-import { fetchApiKey, fetchMe } from '~/server/user'
+import { fetchApiKey } from '~/server/user'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   ClipboardCopyIcon,

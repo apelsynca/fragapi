@@ -41,6 +41,7 @@ async def get_auth_subject(
                         Scope.web,
                         Scope.transactions_read,
                         Scope.ton_rate_read,
+                        Scope.api,
                     },
                     user_session,
                 )
