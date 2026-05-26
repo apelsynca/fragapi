@@ -19,7 +19,13 @@ log: Logger = structlog.get_logger()
 async def tonapi_webhook(
     message: TonAPIWebhookMessage, session: AsyncSession = Depends(get_db_session)
 ) -> None:
-    log.info("Tonapi webhook message", message=message)
+    log.info(
+        "Tonapi webhook message",
+        event_type=message.event_type,
+        account_id=message.account_id,
+        lt=message.lt,
+        tx_hash=message.tx_hash,
+    )
 
     if message.event_type == "account_tx":
         try:
