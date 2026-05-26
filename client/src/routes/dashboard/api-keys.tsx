@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card'
-import { fetchMe, revokeApiTokenFn } from '~/server/user'
+import { fetchApiKey, fetchMe } from '~/server/user'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   ClipboardCopyIcon,
@@ -63,18 +63,23 @@ const RegenerateKeyDialog: React.FC<{ onClick?: () => void }> = ({
 export const Route = createFileRoute('/dashboard/api-keys')({
   component: RouteComponent,
   loader: async () => {
-    return await fetchMe()
+    return {
+      apiKey: await fetchApiKey(),
+    }
   },
 })
 
 function RouteComponent() {
-  const user = Route.useLoaderData()
+  const { apiKey } = Route.useLoaderData()
 
   const router = useRouter()
   const queryClient = useQueryClient()
 
   const revokeApiToken = useMutation({
-    mutationFn: () => revokeApiTokenFn(),
+    mutationFn: async () => {
+      console.log('Sry.')
+      return null
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
       toast.success('API Ключ был регенерирован')
@@ -97,12 +102,12 @@ function RouteComponent() {
           <div
             className="max-w-full flex items-center rounded-lg bg-muted pl-1 gap-1"
             onClick={() => {
-              navigator.clipboard.writeText(user.apiKey)
+              navigator.clipboard.writeText(apiKey)
               toast.success('Апи ключ скопирован')
             }}
           >
             <code className="relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap">
-              {user.apiKey}
+              {apiKey}
             </code>
             <Button size="icon">
               <ClipboardCopyIcon />

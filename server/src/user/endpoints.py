@@ -14,5 +14,5 @@ async def get_api_user_me(auth_subject: AuthorizeAPIUser) -> User:
 
 
 @router.get("/api-keys")
-async def get_api_keys(auth_subject: auth.ReadApiKeys) -> list:
-    return []
+async def get_api_keys(auth_subject: auth.ReadApiKeys) -> str:
+    return auth_subject.subject.api_key
