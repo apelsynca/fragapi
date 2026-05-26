@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import begin_cell, to_amount
 
 from src.config import settings
-from src.consts import TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
@@ -142,7 +141,7 @@ async def test_create_ton_right_payload(
     same_payload_cell = (
         begin_cell()
         .store_uint(0, 32)
-        .store_snake_string(TON_COMMENT_TEMPLATE.format(payment_hash))
+        .store_snake_string(payment_service.TON_COMMENT_TEMPLATE.format(payment_hash))
         .end_cell()
     )
     same_payload = base64.b64encode(same_payload_cell.to_boc()).decode("utf-8")

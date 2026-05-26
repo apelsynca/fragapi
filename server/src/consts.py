@@ -1,3 +1,1 @@
-TON_COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
-TON_COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
 BADLY_HARD_CODED_LAST_LT = 78055940000000

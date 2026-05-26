@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import begin_cell, to_amount, to_nano
 
 from src.config import settings
-from src.consts import TON_COMMENT_TEMPLATE
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
@@ -20,6 +19,8 @@ from src.worker import enqueue_task
 
 
 class PaymentService:
+    TON_COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
+
     async def fetch_list(
         self,
         session: AsyncSession,
@@ -48,7 +49,7 @@ class PaymentService:
         payload_cell = (
             begin_cell()
             .store_uint(0, 32)
-            .store_snake_string(TON_COMMENT_TEMPLATE.format(payment.hash))
+            .store_snake_string(self.TON_COMMENT_TEMPLATE.format(payment.hash))
             .end_cell()
         )
         payload_boc = payload_cell.to_boc()

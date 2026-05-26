@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
-from src.consts import BADLY_HARD_CODED_LAST_LT, TON_COMMENT_PATTERN
+from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.payment.service import payment as payment_service
@@ -20,6 +20,7 @@ log: Logger = structlog.get_logger()
 
 
 class TonAPIService:
+    TON_COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
     ACCOUNT_RAW_ADDRESSES = [
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]
@@ -93,7 +94,7 @@ class TonAPIService:
             return None
 
         text: str = tonapi_transaction.in_msg.decoded_body["text"]
-        match = re.match(pattern=TON_COMMENT_PATTERN, string=text)
+        match = re.match(pattern=self.TON_COMMENT_PATTERN, string=text)
 
         if match is not None:
             return match.group(1)

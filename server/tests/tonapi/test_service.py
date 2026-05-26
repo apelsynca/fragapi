@@ -11,9 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
-from src.consts import BADLY_HARD_CODED_LAST_LT, TON_COMMENT_TEMPLATE
+from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.payment.service import PaymentService
+from src.payment.service import payment as real_payment_service
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
 from src.transaction.service import TransactionService
@@ -205,7 +206,7 @@ async def test_all_good_calls(
     mocker: MockerFixture,
     rest_bc: MagicMock,
 ) -> None:
-    ref_hash = token_urlsafe(12)
+    ref_hash = token_urlsafe(12)  # Random hashik
 
     transaction_service_mock = mocker.patch(
         "src.tonapi.service.transaction_service", spec=TransactionService
@@ -214,11 +215,6 @@ async def test_all_good_calls(
     transaction_service_mock.create_as_tonapi_internal.return_value = wtransaction
 
     tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
-    in_msg_mock = MagicMock(spec=TonAPIMessage, autouse=True)
-    in_msg_mock.decoded_body = {"text": TON_COMMENT_TEMPLATE.format(ref_hash)}
-    in_msg_mock.decoded_op_name = "text_comment"  # test does not find different or smth
-    tonapi_tx_mock.in_msg = in_msg_mock
-
     rest_bc.blockchain.get_transaction.side_effect = None  # remove raise
     rest_bc.blockchain.get_transaction.return_value = tonapi_tx_mock
     webhook_message = TonAPIWebhookMessage(
@@ -228,6 +224,9 @@ async def test_all_good_calls(
         tx_hash="my_tx_hash",
     )
 
+    mocker.patch.object(tonapi_service, "resolve_payment_hash", return_value=ref_hash)
+
+    # Doing shi
     await tonapi_service.process_webhook_acc_tx(
         session=session, webhook_message=webhook_message
     )
@@ -241,3 +240,17 @@ async def test_all_good_calls(
     payment_service.complete_ton.assert_called_once_with(
         session=session, transaction=wtransaction, hash=ref_hash
     )
+
+
+def test_resolves_hash() -> None:
+    tonapi_transaction = MagicMock(spec=TonAPITransaction)
+    in_msg = MagicMock(spec=TonAPIMessage)
+    in_msg.decoded_body = {
+        "text": real_payment_service.TON_COMMENT_TEMPLATE.format("needed_hash")
+    }
+    in_msg.decoded_op_name = "text_comment"
+    tonapi_transaction.in_msg = in_msg
+
+    hash = tonapi_service.resolve_payment_hash(tonapi_transaction=tonapi_transaction)
+
+    assert hash == "needed_hash"
