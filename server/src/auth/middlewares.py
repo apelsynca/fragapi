@@ -42,6 +42,7 @@ async def get_auth_subject(
                         Scope.transactions_read,
                         Scope.ton_rate_read,
                         Scope.read_api_keys,
+                        Scope.read_user,
                     },
                     user_session,
                 )
@@ -55,6 +56,7 @@ async def get_auth_subject(
                     Scope.stars,
                     Scope.premium,
                     Scope.ton_rate_read,
+                    Scope.read_user,
                 },
                 None,
             )

@@ -6,6 +6,8 @@ class Scope(StrEnum):
     api = "api"
     admin = "admin"
 
+    read_user = "user:read"
+
     ton_rate_read = "ton_rate:read"
     transactions_read = "transactions:read"
 
