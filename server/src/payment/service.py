@@ -2,6 +2,7 @@ import base64
 from collections.abc import Sequence
 from secrets import token_urlsafe
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import begin_cell, to_amount, to_nano
 
@@ -9,6 +10,7 @@ from src.config import settings
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
+from src.logging import Logger
 from src.models import Payment, Transaction, User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
@@ -16,6 +18,8 @@ from src.payment.schemas import PaymentTonRequestMessage
 from src.payment.sorting import PaymentSortProperty
 from src.payment.tasks import deposit_send_telegram_log
 from src.worker import enqueue_task
+
+log: Logger = structlog.get_logger()
 
 
 class PaymentService:
@@ -75,7 +79,16 @@ class PaymentService:
         repository = PaymentRepository.from_session(session)
         payment = Payment(user=user, amount=amount, hash=token_urlsafe(14))
 
-        return await repository.create(payment, flush=True)
+        payment = await repository.create(payment, flush=True)
+
+        log.info(
+            "payment.created",
+            amount=payment.amount,
+            hash=payment.hash,
+            user_id=payment.user_id,
+        )
+
+        return payment
 
     async def complete_ton(
         self, session: AsyncSession, transaction: Transaction, hash: str
@@ -100,6 +113,13 @@ class PaymentService:
         payment.status = PaymentStatus.completed
 
         payment.user.balance += transaction_amount
+
+        log.info(
+            "payment.completed",
+            user_id=payment.user_id,
+            hash=payment.hash,
+            transaction_amount=transaction_amount,
+        )
 
         enqueue_task(deposit_send_telegram_log, payment_id=payment.id)
 

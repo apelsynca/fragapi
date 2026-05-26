@@ -26,7 +26,7 @@ async def get_recipient(
     fragment: Fragment = Depends(get_fragment),
     quantity: int | None = Query(default=None),
 ) -> StarsRecipient:
-    log.info(
+    log.debug(
         "Get recipient request from",
         user=auth_subject.subject,
         username=auth_subject.subject.username,

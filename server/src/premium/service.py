@@ -1,3 +1,5 @@
+import asyncio
+
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +27,7 @@ class PremiumService:
         data: BuyPremium,
         fragment: Fragment,
     ) -> BuyPremiumResponse:
-        log.info("Buying premium", months=data.months, username=data.username)
+        log.debug("premium.buy called", months=data.months, username=data.username)
 
         recipient_data = await self.get_recipient(
             fragment, username=data.username, months=data.months
@@ -34,6 +36,8 @@ class PremiumService:
         buy_request = await fragment.init_gift_premium_request(
             recipient=recipient_data.recipient, months=data.months.value
         )
+        await asyncio.sleep(0.05)
+
         buy_link = await fragment.get_gift_premium_link(req_id=buy_request.req_id)
 
         if not buy_link.ok:

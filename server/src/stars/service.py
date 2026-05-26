@@ -27,7 +27,7 @@ class StarsService:
         data: BuyStars,
         fragment: Fragment,
     ) -> BuyStarsResponse:
-        log.info("Buy stars request", quantity=data.quantity, username=data.username)
+        log.debug("stars.buy", quantity=data.quantity, username=data.username)
 
         recipient_data = await self.get_recipient(
             fragment=fragment, username=data.username, quantity=data.quantity

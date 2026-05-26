@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from datetime import timedelta
 
+import structlog
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, ExternalMessage, to_amount
@@ -17,9 +18,12 @@ from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
+from src.logging import Logger
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.worker import enqueue_task
+
+log: Logger = structlog.get_logger()
 
 
 class FragmentTransactionService:
@@ -82,7 +86,7 @@ class FragmentTransactionService:
         reason: FragmentTransactionReason,
         metadata: FTMetadata,
     ) -> FragmentTransaction:
-        frag_transaction = await self._create_from_tc(
+        fragment_transaction = await self._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -93,18 +97,23 @@ class FragmentTransactionService:
         # WARN: maybe there is something better. for now = ideal.
         await session.refresh(user, with_for_update=True)
 
-        if user.balance <= frag_transaction.amount:
+        if user.balance <= fragment_transaction.amount:
             raise InsuficcientFunds(amount=user.balance)
 
-        user.balance -= frag_transaction.amount
+        user.balance -= fragment_transaction.amount
+
+        log.info(
+            "fragment_transaction.send_from_tc",
+            fragment_transaction_id=fragment_transaction.id,
+        )
 
         enqueue_task(
             process_fragment_transaction,
-            frag_transaction.id,
+            fragment_transaction.id,
             tc_transaction,
         )
 
-        return frag_transaction
+        return fragment_transaction
 
     async def _create_from_tc(
         self,

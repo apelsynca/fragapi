@@ -28,16 +28,6 @@ async def process_fragment_transaction(
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)
 
-    log.info(
-        "Processing new fragment transaction",
-        fragment_transaction_id=fragment_transaction_id,
-    )
-    log.debug(
-        "TC Transaction",
-        fragment_transaction_id=fragment_transaction_id,
-        tc_transaction=tc_transaction,
-    )
-
     async with AsyncSessionMaker() as session:
         repository = FragmentTransactionRepository.from_session(session)
         fragment_transaction = await repository.get_by_id(
@@ -49,10 +39,14 @@ async def process_fragment_transaction(
         )
 
         if fragment_transaction is None:
+            log.warning(
+                "process_fragment_transaction.not_found",
+                fragment_transaction_id=fragment_transaction_id,
+            )
             raise ResourceNotFound()
 
-        log.info(
-            "Processing transaction",
+        log.debug(
+            "process_fragment_transaction.start",
             user=fragment_transaction.user,
             amount=fragment_transaction.amount,
             recipient_username=fragment_transaction.recipient_username,
@@ -66,6 +60,9 @@ async def process_fragment_transaction(
         )
 
         if fragment_transaction.transaction.message_hash != ext_msg.normalized_hash:
+            log.warning(
+                "process_fragment_transaction Different transaction message hash and ext_msg hash"
+            )
             raise BadRequest("Hash is bad")
 
         wallet_manager = WalletManagerMiddleware.get()
