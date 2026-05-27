@@ -27,11 +27,11 @@ import { useTranslation } from 'react-i18next'
 export default function AppSidebarBottom() {
   const { t } = useTranslation()
 
-  const queryClient = useQueryClient()
   const logout = useServerFn(logoutFn)
+  const queryClient = useQueryClient()
+  const { data: user } = useSuspenseQuery(userMeQueryOptions())
 
   const { isMobile } = useSidebar()
-  const { data: user } = useSuspenseQuery(userMeQueryOptions())
 
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()
