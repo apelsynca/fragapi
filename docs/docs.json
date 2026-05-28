@@ -48,8 +48,8 @@
         "href": "https://t.me/fragapi"
       },
       {
-        "label": "GitLab",
-        "href": "https://gitlab.com/apelsynca/fragment-api/"
+        "label": "GitHub",
+        "href": "https://github.com/apelsynca/fragapi/"
       }
     ],
     "primary": {
@@ -60,8 +60,8 @@
   },
   "footer": {
     "socials": {
-      "telegram": "https://t.me/homocitrus",
-      "github": "https://gitlab.com/apelsynca/fragment-api"
+      "telegram": "https://t.me/fragapichat",
+      "github": "https://github.com/apelsynca/fragapi"
     }
   }
 }
