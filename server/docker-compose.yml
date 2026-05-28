@@ -41,6 +41,8 @@ services:
     restart: always
     depends_on:
       - db
+      - redis
+      - rabbitmq
     expose:
       - "8000"
     volumes:
@@ -56,6 +58,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      # - redis 
     networks:
       - dokploy-network
     env_file:
