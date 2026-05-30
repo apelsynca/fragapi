@@ -54,6 +54,7 @@ class StarsService:
         buy_link = await fragment.get_buy_stars_link(
             req_id=buy_request.req_id, show_sender=False
         )
+        log.debug("stars.buy got link", buy_link=buy_link)
 
         if not buy_link.ok:
             raise FragError("Buy link that we recieved is invalid")

@@ -54,13 +54,12 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     )
     fragment_rest_client = FragmentRestClient(
         ton_connect=ton_connect,
-        session_key="anyfornow",
+        session_key="CANBEANYTHING",
     )
     await fragment_rest_client.ensure_authorized()
     fragment = Fragment(clients=[fragment_rest_client])
 
     bot_application = get_bot_application()
-    # better in russia
     if settings.is_production():
         await setup_bot(bot_application)
         await bot_application.initialize()
@@ -80,7 +79,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
-    # better in russia
+    # better for when in russia
     if settings.is_production():
         await bot_application.stop()
         await bot_application.shutdown()

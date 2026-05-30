@@ -2,10 +2,10 @@ import asyncio
 
 import httpx
 
-HASH = "ce7de406bde4540cfc"
-STEL_SSID = "xxx"
-STEL_TOKEN = "xxx"
-STEL_TON_TOKEN = "xxx"
+HASH = input("Hash: ")
+STEL_SSID = input("SSID: ")
+STEL_TOKEN = input("TOKEN: ")
+STEL_TON_TOKEN = input("TON TOKEN: ")
 
 
 async def main():
@@ -27,7 +27,7 @@ async def main():
             url=f"https://fragment.com/api?hash={HASH}",
             data={
                 "query": "homocitrus",
-                "quantity": "",
+                "quantity": "52",
                 "method": "searchStarsRecipient",
             },
             cookies={
@@ -42,7 +42,38 @@ async def main():
                 "X-Requested-With": "XMLHttpRequest",
             },
         )
-        print(response.status_code, response.content)
+        json = response.json()
+
+        if response.status_code != 200:
+            print(response.status_code, json)
+
+        recipient = json["found"]["recipient"]
+        print(recipient)
+
+        response = await client.post(
+            url=f"https://fragment.com/api?hash={HASH}",
+            data={
+                "recipient": recipient,
+                "quantity": "52",
+                "payment_method": "ton",
+                "method": "initBuyStarsRequest",
+            },
+            cookies={
+                "stel_dt": "-180",
+                "stel_ssid": STEL_SSID,
+                "stel_token": STEL_TOKEN,
+                "stel_ton_token": STEL_TON_TOKEN,
+            },
+            headers={
+                "Host": "fragment.com",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        )
+
+        print(response.status_code, "Status for Buy")
+        json = response.json()
+
+        print(json)
 
 
 if __name__ == "__main__":

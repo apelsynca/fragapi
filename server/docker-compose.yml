@@ -15,7 +15,7 @@ services:
       - dokploy-network
 
   rabbitmq:
-    image: rabbitmq:3.13
+    image: rabbitmq:4.3.1
     restart: always
     expose:
       - "5672"
@@ -55,10 +55,10 @@ services:
   worker:
     build: .
     command: uv run taskiq worker -w 1 src.worker.run:broker
+    restart: always
     depends_on:
       - db
       - rabbitmq
-      # - redis 
     networks:
       - dokploy-network
     env_file:

@@ -1,4 +1,3 @@
-import json
 from time import time
 from typing import Literal
 
@@ -47,12 +46,18 @@ class Fragment:
         )
         return RecipientData.model_validate(data)
 
-    async def init_buy_stars_request(self, recipient: str, quantity: int) -> BuyRequest:
+    async def init_buy_stars_request(
+        self, recipient: str, quantity: int, *, payment_method: Literal["ton"] = "ton"
+    ) -> BuyRequest:
         client = self.get_client()
 
         data = await client.api_request(
             method="initBuyStarsRequest",
-            data={"recipient": recipient, "quantity": str(quantity)},
+            data={
+                "recipient": recipient,
+                "quantity": str(quantity),
+                "payment_method": payment_method,
+            },
         )
         return BuyRequest.model_validate(data)
 
@@ -108,17 +113,13 @@ class Fragment:
     ) -> BuyLink:
         client = self.get_client()
 
-        # need account and device here (no proof)
-        account = json.dumps(client._ton_connect.get_account(), separators=(",", ":"))
-        device = json.dumps(client._ton_connect.get_device(), separators=(",", ":"))
+        # sometimes bad text -> "Session expired"
 
         data = await client.api_request(
             method=method,
             data={
-                "account": account,
-                "device": device,
-                "transaction": str(int(transaction)),
                 "id": req_id,
+                "transaction": str(int(transaction)),
                 "show_sender": str(int(show_sender)),
             },
         )

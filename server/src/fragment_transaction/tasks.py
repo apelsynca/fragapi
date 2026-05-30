@@ -73,12 +73,21 @@ async def process_fragment_transaction(
             body = tc_msg.get_payload_cell()
             valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
-            ext_msg = await wallet.transfer(
-                destination=Address(tc_msg.address),
-                body=body,
-                amount=tc_msg.amount,
-                params=WalletV5Params(valid_until=valid_until),
-            )
+            if settings.is_production():
+                ext_msg = await wallet.transfer(
+                    destination=Address(tc_msg.address),
+                    body=body,
+                    amount=tc_msg.amount,
+                    params=WalletV5Params(valid_until=valid_until),
+                )
+            else:
+                log.info(
+                    "fake wallet.transfer",
+                    destination=Address(tc_msg.address),
+                    body=body,
+                    amount=tc_msg.amount,
+                    params=WalletV5Params(valid_until=valid_until),
+                )
 
         fragment_transaction.transaction.hash = ext_msg.normalized_hash
 
