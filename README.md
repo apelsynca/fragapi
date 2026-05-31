@@ -24,6 +24,14 @@ Buy telegram stars automatically, Buy telegram premium automatically.
 
 Our [`DEVELOPMENT.md`](./DEVELOPMENT.md) file contains everything you need to know to configure your development environment.
 
+TODOs: (_contributions are welcome_)
+
+- [ ] Return in response recipient photo as url (avatar_url)
+- [ ] Update user info on any interaction with bot, relogin included.
+- [ ] API Keys (multiple, diff model)
+- [ ] Payments view on the client.
+- [ ] Redis storage of recipient data for like 5 minutes
+
 ### Contributors
 
 <a href="https://github.com/apelsynca/fragapi/graphs/contributors">

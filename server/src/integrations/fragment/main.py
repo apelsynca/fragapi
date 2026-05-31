@@ -83,13 +83,21 @@ class Fragment:
         return RecipientData.model_validate(data)
 
     async def init_gift_premium_request(
-        self, recipient: str, months: MonthsAmount
+        self,
+        recipient: str,
+        months: MonthsAmount,
+        *,
+        payment_method: Literal["ton"] = "ton",
     ) -> BuyRequest:
         client = self.get_client()
 
         data = await client.api_request(
             method="initGiftPremiumRequest",
-            data={"recipient": recipient, "months": months},
+            data={
+                "recipient": recipient,
+                "months": months,
+                "payment_method": payment_method,
+            },
         )
         return BuyRequest.model_validate(data)
 
