@@ -16,3 +16,4 @@ class Scope(StrEnum):
     premium = "premium"
 
     read_api_keys = "read_api_keys"
+    api_tokens_read = "api_tokens:read"

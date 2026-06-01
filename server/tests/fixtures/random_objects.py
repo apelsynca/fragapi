@@ -1,6 +1,6 @@
 import random
 import string
-from datetime import timedelta
+from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from unittest.mock import MagicMock
 
@@ -12,7 +12,7 @@ from ton_core import Address, to_nano
 
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import Payment, Transaction, User
+from src.models import ApiToken, Payment, Transaction, User
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
@@ -188,3 +188,21 @@ async def create_payment(
     )
     await save_fixture(payment)
     return payment
+
+
+async def create_api_token(
+    save_fixture: SaveFixture,
+    user: User,
+    *,
+    name: str | None = None,
+    last_used_at: datetime | None = None,
+    expires_at: datetime | None = None,
+) -> ApiToken:
+    token = ApiToken(
+        name=name or rstr("TokenName"),
+        user=user,
+        last_used_at=last_used_at,
+        expires_at=expires_at,
+    )
+    await save_fixture(token)
+    return token

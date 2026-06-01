@@ -2,7 +2,7 @@ import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import ResourceNotFound
-from src.kit.utils import generate_api_key
+from src.kit.utils import generate_api_token
 from src.logging import Logger
 from src.models import User
 from src.user.repository import UserRepository
@@ -37,7 +37,7 @@ class UserService:
                 last_name=user.last_name,
                 username=user.username,
                 is_premium=user.is_premium,
-                api_key=generate_api_key(),
+                api_key=generate_api_token(),
             )
         )
 

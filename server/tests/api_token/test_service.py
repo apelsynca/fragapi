@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from sqlalchemy import select
@@ -11,47 +11,21 @@ from src.exceptions import BadRequest, ResourceNotFound
 from src.kit.utils import utc_now
 from src.models import ApiToken, User
 from tests.fixtures.database import SaveFixture
+from tests.fixtures.random_objects import create_api_token
 
 
 @pytest.mark.asyncio
-async def test_get_by_user(
-    save_fixture: SaveFixture, session: AsyncSession, user: User
-) -> None:
-    api_token = ApiToken(
-        name="Development",
-        user=user,
-        token="SomeTokenValue",
-        last_used_at=datetime(year=2026, month=5, day=20),
-    )
-    await save_fixture(api_token)
-
-    api_tokens = await api_token_service.get_by_user(session=session, user=user)
-
-    assert isinstance(api_tokens, Sequence)
-    assert len(api_tokens) == 1
-
-
-@pytest.mark.asyncio
-async def test_get_by_user_right_user(
+async def test_get_all_by_user_ignores_other_user(
     save_fixture: SaveFixture, session: AsyncSession, user: User, user_second: User
 ) -> None:
-    wrong_api_token = ApiToken(
-        name="Development",
-        user=user_second,
-        token="SomeTokenValue",
-    )
-    await save_fixture(wrong_api_token)
-    api_token = ApiToken(
-        name="Development",
-        user=user,
-        token="SomeTokenValue",
-    )
-    await save_fixture(api_token)
+    api_token = await create_api_token(save_fixture, user=user)
+    await create_api_token(save_fixture, user=user_second)
 
-    api_tokens = await api_token_service.get_by_user(session=session, user=user)
+    api_tokens = await api_token_service.get_all_by_user(session=session, user=user)
 
     assert isinstance(api_tokens, Sequence)
     assert len(api_tokens) == 1
+    assert api_tokens[0] == api_token
 
 
 @pytest.mark.asyncio
@@ -65,7 +39,9 @@ async def test_create_for_user(session: AsyncSession, user: User) -> None:
     )
 
     assert api_token.name == "Development"
+    assert api_token.token is not None
     assert api_token.expires_at == exp_at
+    assert api_token.last_used_at is None
 
 
 @pytest.mark.asyncio
@@ -84,32 +60,21 @@ async def test_cannot_create_already_expired(session: AsyncSession, user: User) 
 async def test_delete_api_key(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
-    api_token = ApiToken(
-        name="Development",
-        user=user,
-        token="SomeTokenValue",
-    )
-    await save_fixture(api_token)
+    api_token = await create_api_token(save_fixture, user=user)
 
     await api_token_service.delete(session=session, user=user, id=api_token.id)
 
     found_api_token = await session.scalar(
         select(ApiToken).where(ApiToken.id == api_token.id)
     )
-
     assert found_api_token is None
 
 
 @pytest.mark.asyncio
 async def test_raises_not_found_if_tries_to_delete_wrong_api_key(
-    save_fixture, session, user, user_second
+    save_fixture: SaveFixture, session: AsyncSession, user: User, user_second: User
 ) -> None:
-    api_token = ApiToken(
-        name="Development",
-        user=user,
-        token="SomeTokenValue",
-    )
-    await save_fixture(api_token)
+    api_token = await create_api_token(save_fixture, user=user)
 
     with pytest.raises(ResourceNotFound):
         await api_token_service.delete(

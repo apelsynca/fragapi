@@ -1,3 +1,4 @@
+from src.api_token.endpoints import router as api_token_router
 from src.auth.endpoints import router as auth_router
 from src.fragment_transaction.endpoints import router as fragment_transactions_router
 from src.gifts.endpoints import router as gifts_router
@@ -11,6 +12,7 @@ from src.user.endpoints import router as users_router
 
 router = APIRouter(prefix="/v1")
 
+router.include_router(api_token_router)
 router.include_router(users_router)
 router.include_router(auth_router)
 router.include_router(stars_router)
