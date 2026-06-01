@@ -11,6 +11,16 @@ class BaseRecipient(Schema):
     photo: str
     name: str
 
+    @property
+    def avatar_url(self) -> str:
+        match = re.search(r'src\s*=\s*"(.+?)"', self.photo)
+
+        if match:
+            return match.group(1)
+
+        # NOTE: if i add validator for photo, this could be removed
+        return self.photo  # should not happen, fallback
+
 
 class BaseBuyResponse(Schema):
     message_hash: str
