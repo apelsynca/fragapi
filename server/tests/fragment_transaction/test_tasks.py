@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import ANY, MagicMock
 
 import pytest
 import pytest_asyncio
@@ -8,12 +8,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
+from src.config import settings
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
 from src.fragment_transaction.tasks import (
     process_fragment_transaction,
+    send_telegram_log,
 )
+from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
+from src.models.transactions import Transaction
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,
@@ -38,13 +42,16 @@ async def valid_frag_trans(
 
 @pytest.mark.asyncio
 async def test_process_transaction_raises_if_not_found(
-    valid_tc_transaction: TonConnectTransaction, session: AsyncSession
+    valid_tc_transaction: TonConnectTransaction,
+    session: AsyncSession,
+    wallet_manager: WalletManager,
 ) -> None:
     with pytest.raises(ResourceNotFound):
         await process_fragment_transaction(
             fragment_transaction_id=uuid.uuid4(),
             tc_transaction=valid_tc_transaction,
             session=session,
+            wallet_manager=wallet_manager,
         )
 
 
@@ -54,6 +61,7 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
     valid_tc_transaction: TonConnectTransaction,
     user: User,
     session: AsyncSession,
+    wallet_manager: WalletManager,
 ) -> None:
     transaction = await create_transaction(
         save_fixture, message_hash=rstr("completely-wrong-hash")
@@ -67,6 +75,7 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
             fragment_transaction_id=frag_trans.id,
             tc_transaction=valid_tc_transaction,
             session=session,
+            wallet_manager=wallet_manager,
         )
 
 
@@ -75,6 +84,7 @@ async def test_process_raises_if_tc_msg_len_diff(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
     session: AsyncSession,
+    wallet_manager: WalletManager,
 ) -> None:
     valid_tc_transaction.messages.append(
         TonConnectMessage(address="", amount=0, payload="")
@@ -85,16 +95,18 @@ async def test_process_raises_if_tc_msg_len_diff(
             fragment_transaction_id=valid_frag_trans.id,
             tc_transaction=valid_tc_transaction,
             session=session,
+            wallet_manager=wallet_manager,
         )
 
 
 @pytest.mark.asyncio
 async def test_process_calls_transfer(
-    wallet_manager: FakeWalletManager,
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
     session: AsyncSession,
 ) -> None:
+    wallet_manager = FakeWalletManager()
+
     # Given
     tc_msg = valid_tc_transaction.messages[0]
     assert tc_msg.payload is not None
@@ -109,6 +121,7 @@ async def test_process_calls_transfer(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
         session=session,
+        wallet_manager=wallet_manager,
     )
 
     # Then
@@ -131,9 +144,9 @@ async def test_process_calls_validate_transaction(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
     mocker: MockerFixture,
-    wallet_manager: FakeWalletManager,
     session: AsyncSession,
 ) -> None:
+    wallet_manager = FakeWalletManager()
     mock = mocker.patch(
         "src.fragment_transaction.tasks.validate_tc_transaction",
         side_effect=FragRequestValidationError([]),
@@ -144,6 +157,7 @@ async def test_process_calls_validate_transaction(
             fragment_transaction_id=valid_frag_trans.id,
             tc_transaction=valid_tc_transaction,
             session=session,
+            wallet_manager=wallet_manager,
         )
 
     mock.assert_called_once_with(tc_transaction=valid_tc_transaction)
@@ -154,20 +168,66 @@ async def test_process_calls_validate_transaction(
 async def test_process_sets_hash(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
-    wallet_manager: FakeWalletManager,
     session: AsyncSession,
 ) -> None:
+    wallet_manager = FakeWalletManager()
+
     assert valid_frag_trans.transaction.hash is None
 
-    m = MagicMock(spec=WalletV5R1)
+    wallet_mock = MagicMock(spec=WalletV5R1)
     hash_string = rstr("somehash")
-    m.normalized_hash = hash_string
-    wallet_manager.wallet.transfer.return_value = m
+    wallet_mock.normalized_hash = hash_string
+    wallet_manager.wallet.transfer.return_value = wallet_mock
 
     await process_fragment_transaction(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
         session=session,
+        wallet_manager=wallet_manager,
     )
 
     assert valid_frag_trans.transaction.hash == hash_string
+
+
+@pytest.mark.asyncio
+async def test_sends_with_notification_if_more_than_cfgval_ton(
+    save_fixture: SaveFixture,
+    user: User,
+    transaction: Transaction,
+    telegram_log_sender: MagicMock,
+    session: AsyncSession,
+) -> None:
+    frag_transaction = await create_fragment_transaction(
+        save_fixture,
+        user=user,
+        transaction=transaction,
+        amount=settings.MIN_NON_SILENT_AMOUNT + 0.1,
+    )
+
+    await send_telegram_log(
+        fragment_transaction_id=frag_transaction.id, session=session
+    )
+
+    telegram_log_sender.send.assert_called_once_with(text=ANY, with_notification=True)
+
+
+@pytest.mark.asyncio
+async def test_sends_without_notification_if_less_than_cfgval_ton(
+    save_fixture: SaveFixture,
+    user: User,
+    transaction: Transaction,
+    telegram_log_sender: MagicMock,
+    session: AsyncSession,
+) -> None:
+    frag_transaction = await create_fragment_transaction(
+        save_fixture,
+        user=user,
+        transaction=transaction,
+        amount=settings.MIN_NON_SILENT_AMOUNT - 0.1,
+    )
+
+    await send_telegram_log(
+        fragment_transaction_id=frag_transaction.id, session=session
+    )
+
+    telegram_log_sender.send.assert_called_once_with(text=ANY, with_notification=False)

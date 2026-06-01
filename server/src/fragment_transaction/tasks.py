@@ -1,7 +1,9 @@
 import uuid
+from typing import Annotated
 
 import structlog
 from sqlalchemy.orm import selectinload
+from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params, to_amount
 
 from src.bot.logs_sender import telegram_log_sender
@@ -9,24 +11,26 @@ from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.fragment_transaction.utils import validate_tc_transaction
+from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectTransaction
 from src.logging import Logger
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
-from src.worker import broker
-from src.worker._wallet_manager import WalletManagerMiddleware
+from src.worker import enqueue_task, worker_task
 from src.worker.sqlalchemy import WorkerAsyncSessionDependency
+from src.worker.wallet_manager import get_wallet_manager
 
 log: Logger = structlog.get_logger()
 
 
-@broker.task
+@worker_task()
 async def process_fragment_transaction(
     fragment_transaction_id: uuid.UUID,
     tc_transaction: TonConnectTransaction,
     session: WorkerAsyncSessionDependency,
+    wallet_manager: Annotated[WalletManager, TaskiqDepends(get_wallet_manager)],
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)
 
@@ -66,24 +70,21 @@ async def process_fragment_transaction(
         )
         raise BadRequest("Hash is bad")
 
-    wallet_manager = WalletManagerMiddleware.get()
+    wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
 
-    async with wallet_manager:
-        wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+    body = tc_msg.get_payload_cell()
+    valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
-        body = tc_msg.get_payload_cell()
-        valid_until = int(tc_transaction.valid_until.timestamp()) + 10
-
-        ext_msg = await wallet.transfer(
-            destination=Address(tc_msg.address),
-            body=body,
-            amount=tc_msg.amount,
-            params=WalletV5Params(valid_until=valid_until),
-        )
+    ext_msg = await wallet.transfer(
+        destination=Address(tc_msg.address),
+        body=body,
+        amount=tc_msg.amount,
+        params=WalletV5Params(valid_until=valid_until),
+    )
 
     fragment_transaction.transaction.hash = ext_msg.normalized_hash
 
-    await send_telegram_log.kiq(fragment_transaction_id=fragment_transaction.id)  # pyright: ignore
+    enqueue_task(send_telegram_log, fragment_transaction_id=fragment_transaction.id)
 
 
 STAR_EMOJI = "⭐️"
@@ -99,7 +100,7 @@ NOTIFICATION_TEXT = (
 )
 
 
-@broker.task
+@worker_task()
 async def send_telegram_log(
     fragment_transaction_id: uuid.UUID, session: WorkerAsyncSessionDependency
 ) -> None:

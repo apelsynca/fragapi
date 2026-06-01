@@ -1,14 +1,12 @@
 from unittest.mock import MagicMock
 
 import pytest
-from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 from tonutils.contracts import WalletV5R1
 
 from src.integrations.ton_wallet.manager import WalletManager
 from src.worker import TaskQueueManager, broker
 from src.worker._enqueue import _task_queue_manager
-from src.worker._wallet_manager import WalletManagerMiddleware
 
 
 @pytest.fixture(autouse=True)
@@ -39,9 +37,11 @@ def wallet_manager() -> WalletManager:
 
 
 @pytest.fixture(autouse=True)
-def patch_middlewares(
-    mocker: MockerFixture, wallet_manager: MagicMock, session: AsyncSession
-) -> None:
-    broker.add_dependency_context({AsyncSession: session})
+def patch_worker_dependencies(wallet_manager: MagicMock, session: AsyncSession):
+    broker.add_dependency_context(
+        {AsyncSession: session, WalletManager: wallet_manager}
+    )
 
-    mocker.patch.object(WalletManagerMiddleware, "get", return_value=wallet_manager)
+    yield
+
+    broker.custom_dependency_context = {}

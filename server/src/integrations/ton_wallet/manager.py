@@ -4,7 +4,6 @@ from tonutils.contracts import WalletV5R1
 
 from src.config import settings
 from src.logging import Logger
-from src.wallet.ton import toncenter as toncenter_client
 
 if settings.is_production():
     env_network_id = NetworkGlobalID.MAINNET
@@ -18,6 +17,8 @@ class WalletManagerError(Exception):
     pass
 
 
+# why is that an integration? WalletManager is not an integration, the WalletV5R1 is (to an extent).
+# thus -> TODO: move it somewhere outta here (probably in worker, or where is best)
 class WalletManager:
     """
     Service of a global FragAPI wallet
@@ -43,9 +44,3 @@ class WalletManager:
             )
 
         return selected_wallet
-
-    async def __aenter__(self):
-        await toncenter_client.__aenter__()
-
-    async def __aexit__(self, *args, **kwargs):
-        await toncenter_client.__aexit__(*args, **kwargs)

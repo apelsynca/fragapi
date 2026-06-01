@@ -14,7 +14,7 @@ log: Logger = structlog.get_logger()
 class TelegramLogSender(ABC):
     @abstractmethod
     async def send(self, text: str, with_notification: bool = False) -> None:
-        raise NotImplementedError
+        pass
 
 
 class ChatTelegramLogSender(TelegramLogSender):
@@ -22,12 +22,15 @@ class ChatTelegramLogSender(TelegramLogSender):
         self.bot = ExtBot(token=settings.BOT_TOKEN)
 
     async def send(self, text: str, with_notification: bool = False) -> None:
-        await self.bot.send_message(
-            chat_id=settings.TELEGRAM_LOGS_CHAT_ID,
-            text=text,
-            parse_mode=ParseMode.HTML,
-            disable_notification=not with_notification,
-        )
+        try:
+            await self.bot.send_message(
+                chat_id=settings.TELEGRAM_LOGS_CHAT_ID,
+                text=text,
+                parse_mode=ParseMode.HTML,
+                disable_notification=not with_notification,
+            )
+        except Exception:
+            log.error("Error sending Telegram chat log")
 
 
 class LoggingTelegramLogSender(TelegramLogSender):
