@@ -11,7 +11,6 @@ from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_aio_pika import AioPikaBroker
 
 from src.config import settings
-from src.worker._sqlalchemy import SQLAlchemyMiddleware
 from src.worker._wallet_manager import WalletManagerMiddleware
 
 
@@ -46,9 +45,7 @@ def get_broker() -> AsyncBroker:
     else:
         broker = AioPikaBroker(url=settings.amqp_url)
 
-    broker.add_middlewares(
-        StructlogMiddleware(), SQLAlchemyMiddleware(), WalletManagerMiddleware()
-    )
+    broker.add_middlewares(StructlogMiddleware(), WalletManagerMiddleware())
 
     return broker
 

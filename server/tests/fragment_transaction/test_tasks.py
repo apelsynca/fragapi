@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
+from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
@@ -37,17 +38,22 @@ async def valid_frag_trans(
 
 @pytest.mark.asyncio
 async def test_process_transaction_raises_if_not_found(
-    valid_tc_transaction: TonConnectTransaction,
+    valid_tc_transaction: TonConnectTransaction, session: AsyncSession
 ) -> None:
     with pytest.raises(ResourceNotFound):
         await process_fragment_transaction(
-            fragment_transaction_id=uuid.uuid4(), tc_transaction=valid_tc_transaction
+            fragment_transaction_id=uuid.uuid4(),
+            tc_transaction=valid_tc_transaction,
+            session=session,
         )
 
 
 @pytest.mark.asyncio
 async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction(
-    save_fixture: SaveFixture, valid_tc_transaction: TonConnectTransaction, user: User
+    save_fixture: SaveFixture,
+    valid_tc_transaction: TonConnectTransaction,
+    user: User,
+    session: AsyncSession,
 ) -> None:
     transaction = await create_transaction(
         save_fixture, message_hash=rstr("completely-wrong-hash")
@@ -58,7 +64,9 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
 
     with pytest.raises(BadRequest):
         await process_fragment_transaction(
-            fragment_transaction_id=frag_trans.id, tc_transaction=valid_tc_transaction
+            fragment_transaction_id=frag_trans.id,
+            tc_transaction=valid_tc_transaction,
+            session=session,
         )
 
 
@@ -66,6 +74,7 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
 async def test_process_raises_if_tc_msg_len_diff(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
+    session: AsyncSession,
 ) -> None:
     valid_tc_transaction.messages.append(
         TonConnectMessage(address="", amount=0, payload="")
@@ -75,6 +84,7 @@ async def test_process_raises_if_tc_msg_len_diff(
         await process_fragment_transaction(
             fragment_transaction_id=valid_frag_trans.id,
             tc_transaction=valid_tc_transaction,
+            session=session,
         )
 
 
@@ -83,6 +93,7 @@ async def test_process_calls_transfer(
     wallet_manager: FakeWalletManager,
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
+    session: AsyncSession,
 ) -> None:
     # Given
     tc_msg = valid_tc_transaction.messages[0]
@@ -97,6 +108,7 @@ async def test_process_calls_transfer(
     await process_fragment_transaction(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
+        session=session,
     )
 
     # Then
@@ -120,6 +132,7 @@ async def test_process_calls_validate_transaction(
     valid_frag_trans: FragmentTransaction,
     mocker: MockerFixture,
     wallet_manager: FakeWalletManager,
+    session: AsyncSession,
 ) -> None:
     mock = mocker.patch(
         "src.fragment_transaction.tasks.validate_tc_transaction",
@@ -130,6 +143,7 @@ async def test_process_calls_validate_transaction(
         await process_fragment_transaction(
             fragment_transaction_id=valid_frag_trans.id,
             tc_transaction=valid_tc_transaction,
+            session=session,
         )
 
     mock.assert_called_once_with(tc_transaction=valid_tc_transaction)
@@ -141,6 +155,7 @@ async def test_process_sets_hash(
     valid_tc_transaction: TonConnectTransaction,
     valid_frag_trans: FragmentTransaction,
     wallet_manager: FakeWalletManager,
+    session: AsyncSession,
 ) -> None:
     assert valid_frag_trans.transaction.hash is None
 
@@ -152,6 +167,7 @@ async def test_process_sets_hash(
     await process_fragment_transaction(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
+        session=session,
     )
 
     assert valid_frag_trans.transaction.hash == hash_string

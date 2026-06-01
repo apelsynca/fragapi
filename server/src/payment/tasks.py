@@ -6,7 +6,8 @@ from src.bot.logs_sender import telegram_log_sender
 from src.exceptions import ResourceNotFound
 from src.models import Payment
 from src.payment.repository import PaymentRepository
-from src.worker import AsyncSessionMaker, broker
+from src.worker import broker
+from src.worker.sqlalchemy import WorkerAsyncSessionDependency
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
     "<b>New deposit</b>\n\n"
@@ -17,25 +18,26 @@ NEW_DEPOSIT_NOTIFICATION_TEXT = (
 
 
 @broker.task
-async def deposit_send_telegram_log(payment_id: uuid.UUID) -> None:
-    async with AsyncSessionMaker() as session:
-        repository = PaymentRepository.from_session(session)
-        payment = await repository.get_by_id(
-            id=payment_id, options=[selectinload(Payment.user)]
-        )
+async def deposit_send_telegram_log(
+    payment_id: uuid.UUID, session: WorkerAsyncSessionDependency
+) -> None:
+    repository = PaymentRepository.from_session(session)
+    payment = await repository.get_by_id(
+        id=payment_id, options=[selectinload(Payment.user)]
+    )
 
-        if payment is None:
-            raise ResourceNotFound()
+    if payment is None:
+        raise ResourceNotFound()
 
-        user_field = (
-            f"<a href='tg://resolve?domain={payment.user.username}'>{payment.user.first_name}</a>"
-            if payment.user.username
-            else f"<a href='tg://user?id={payment.user_id}'>{payment.user.first_name}</a>"
-        )
+    user_field = (
+        f"<a href='tg://resolve?domain={payment.user.username}'>{payment.user.first_name}</a>"
+        if payment.user.username
+        else f"<a href='tg://user?id={payment.user_id}'>{payment.user.first_name}</a>"
+    )
 
-        await telegram_log_sender.send(
-            text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
-                amount=payment.amount, user_field=user_field, hash=payment.hash
-            ),
-            with_notification=True,
-        )
+    await telegram_log_sender.send(
+        text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
+            amount=payment.amount, user_field=user_field, hash=payment.hash
+        ),
+        with_notification=True,
+    )

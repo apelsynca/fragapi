@@ -6,9 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tonutils.contracts import WalletV5R1
 
 from src.integrations.ton_wallet.manager import WalletManager
-from src.worker import TaskQueueManager
+from src.worker import TaskQueueManager, broker
 from src.worker._enqueue import _task_queue_manager
-from src.worker._sqlalchemy import SQLAlchemyMiddleware
 from src.worker._wallet_manager import WalletManagerMiddleware
 
 
@@ -43,5 +42,6 @@ def wallet_manager() -> WalletManager:
 def patch_middlewares(
     mocker: MockerFixture, wallet_manager: MagicMock, session: AsyncSession
 ) -> None:
-    mocker.patch.object(SQLAlchemyMiddleware, "get_async_session", return_value=session)
+    broker.add_dependency_context({AsyncSession: session})
+
     mocker.patch.object(WalletManagerMiddleware, "get", return_value=wallet_manager)

@@ -2,14 +2,13 @@ import asyncio
 import random
 from secrets import token_urlsafe
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import to_nano
 
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.kit.database.postgres import create_async_sessionmaker
 from src.models import FragmentTransaction, Transaction
 from src.models.fragment_transactions import FragmentTransactionReason
-from src.postgres import create_async_engine
+from src.postgres import AsyncSession, create_async_engine
 from src.user.repository import UserRepository
 
 
