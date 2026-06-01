@@ -1,3 +1,4 @@
+import random
 from time import time
 from typing import Literal
 
@@ -12,7 +13,7 @@ class Fragment:
 
     def __init__(self, clients: list[FragmentRestClient]) -> None:
         if len(clients) == 0:
-            raise RuntimeError("Fragment needs at least 1 client")
+            raise RuntimeError("Fragment requires at least 1 client")
 
         self.clients = clients
 
@@ -135,5 +136,4 @@ class Fragment:
         return BuyLink.model_validate(data)
 
     def get_client(self) -> FragmentRestClient:
-        # TODO: normal random piper algorithm or whatever it called
-        return self.clients[0]
+        return random.choice(self.clients)

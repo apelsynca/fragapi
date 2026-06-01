@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     LOGTIDE_TOKEN: str | None = None
 
     # Application behaviours
-    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)  # 1%
+    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
     MIN_NON_SILENT_AMOUNT: float = 3

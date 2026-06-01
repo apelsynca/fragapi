@@ -142,22 +142,16 @@ async def test_process_sets_hash(
     valid_frag_trans: FragmentTransaction,
     wallet_manager: FakeWalletManager,
 ) -> None:
-    # TODO: ext_msg.normalized_hash replace with tonapi
+    assert valid_frag_trans.transaction.hash is None
 
     m = MagicMock(spec=WalletV5R1)
     hash_string = rstr("somehash")
     m.normalized_hash = hash_string
     wallet_manager.wallet.transfer.return_value = m
 
-    # Given
-    assert valid_frag_trans.transaction.hash is None
-
-    # When
     await process_fragment_transaction(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
     )
 
-    # Then
-    # return mock value
     assert valid_frag_trans.transaction.hash == hash_string

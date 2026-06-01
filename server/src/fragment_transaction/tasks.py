@@ -55,11 +55,14 @@ async def process_fragment_transaction(
         )
 
         tc_msg = tc_transaction.messages[0]
-        ext_msg = ExternalMessage(
+        built_ext_msg = ExternalMessage(
             dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
 
-        if fragment_transaction.transaction.message_hash != ext_msg.normalized_hash:
+        if (
+            fragment_transaction.transaction.message_hash
+            != built_ext_msg.normalized_hash
+        ):
             log.warning(
                 "process_fragment_transaction Different transaction message hash and ext_msg hash"
             )
@@ -73,21 +76,12 @@ async def process_fragment_transaction(
             body = tc_msg.get_payload_cell()
             valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
-            if settings.is_production():
-                ext_msg = await wallet.transfer(
-                    destination=Address(tc_msg.address),
-                    body=body,
-                    amount=tc_msg.amount,
-                    params=WalletV5Params(valid_until=valid_until),
-                )
-            else:
-                log.info(
-                    "fake wallet.transfer",
-                    destination=Address(tc_msg.address),
-                    body=body,
-                    amount=tc_msg.amount,
-                    params=WalletV5Params(valid_until=valid_until),
-                )
+            ext_msg = await wallet.transfer(
+                destination=Address(tc_msg.address),
+                body=body,
+                amount=tc_msg.amount,
+                params=WalletV5Params(valid_until=valid_until),
+            )
 
         fragment_transaction.transaction.hash = ext_msg.normalized_hash
 

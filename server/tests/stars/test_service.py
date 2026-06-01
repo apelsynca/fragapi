@@ -119,7 +119,10 @@ async def test_buy_returns_good(
     fragment.search_stars_recipient.return_value = RecipientData(
         ok=True,
         found=FoundRecipientData(
-            myself=True, recipient="SomeMtDataXx", photo="the photo", name="TheName"
+            myself=True,
+            recipient="SomeMtDataXx",
+            photo='<img src="https://cdn.somestorage.com/somewhere/image.jpg" />',
+            name="TheName",
         ),
     )
     fragment.get_buy_stars_link.return_value = BuyLink(
@@ -136,7 +139,6 @@ async def test_buy_returns_good(
 
     fragment_transaction_service.send_from_tc.return_value = frag_trans
 
-    # AAA
     stars_buy_response = await stars_service.buy(
         session=session,
         user=user,
@@ -146,6 +148,9 @@ async def test_buy_returns_good(
 
     assert stars_buy_response.message_hash == "myhash"
     assert stars_buy_response.transaction_id == frag_trans.id
-    assert stars_buy_response.photo == "the photo"
+    assert (
+        stars_buy_response.avatar_url
+        == "https://cdn.somestorage.com/somewhere/image.jpg"
+    )
     assert stars_buy_response.name == "TheName"
     assert stars_buy_response.amount is not None

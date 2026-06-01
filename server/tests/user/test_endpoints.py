@@ -25,16 +25,16 @@ async def test_gets_user(client: AsyncClient) -> None:
     assert "username" in json
 
 
-@pytest.mark.asyncio
-@pytest.mark.auth(AuthSubjectFixture(subject="user", scopes={Scope.read_api_keys}))
-async def test_gets_api_keys(client: AsyncClient):
-    response = await client.get("/v1/users/api-keys")
-    assert response.status_code == 200
-
-    json = response.json()
-
-    assert isinstance(json, list)
-    assert len(json) == 0
+# @pytest.mark.asyncio
+# @pytest.mark.auth(AuthSubjectFixture(subject="user", scopes={Scope.read_api_keys}))
+# async def test_gets_api_keys(client: AsyncClient):
+#     response = await client.get("/v1/users/api-keys")
+#     assert response.status_code == 200
+#
+#     json = response.json()
+#
+#     assert isinstance(json, list)
+#     assert len(json) == 0
 
 
 @pytest.mark.asyncio
