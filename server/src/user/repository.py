@@ -5,11 +5,6 @@ from src.models import User
 class UserRepository(RepositoryIDMixin[User, int], BaseRepository[User]):
     model = User
 
-    async def get_by_api_key(self, api_key: str) -> User | None:
-        return await self.get_one_or_none(
-            self.get_base_stmt().where(User.api_key == api_key)
-        )
-
     async def get_by_id_for_update(
         self, id: int, *, nowait: bool = True, options: Options = ()
     ):

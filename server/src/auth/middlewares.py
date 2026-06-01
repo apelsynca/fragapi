@@ -47,7 +47,7 @@ async def get_auth_subject(
                     },
                     user_session,
                 )
-        user = await auth_service.authenticate_by_api_token(session, api_key=token)
+        user = await auth_service.authenticate_by_api_token(session, token=token)
         if user is not None:
             return AuthSubject(
                 user,

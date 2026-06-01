@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.enums import UserRole
 from src.kit.database.models import TimestampedModel
-from src.kit.utils import generate_api_token
 
 if TYPE_CHECKING:
     from .fragment_transactions import FragmentTransaction
@@ -23,9 +22,6 @@ class User(TimestampedModel):
 
     balance: Mapped[float] = mapped_column(default=0)
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
-
-    # WARN: remove, TODO: remove
-    api_key: Mapped[str] = mapped_column(unique=True, default=generate_api_token)
 
     fragment_transactions: Mapped[list["FragmentTransaction"]] = relationship(
         "FragmentTransaction", back_populates="user"

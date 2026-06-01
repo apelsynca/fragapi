@@ -7,7 +7,7 @@ from src.exceptions import Forbidden
 from src.models import User
 from src.models.user_sessions import UserSession
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import rstr
+from tests.fixtures.random_objects import create_api_token, rstr
 
 
 @pytest.mark.asyncio
@@ -42,3 +42,15 @@ async def test_login_by_bot_hash_deletes_old_and_creates_new_us(
 
     assert new_user_session is not None
     assert new_user_session.token == login_response.token
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_api_token_gets_user(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    api_token = await create_api_token(save_fixture, user=user)
+    returned_user = await auth_service.authenticate_by_api_token(
+        session=session, token=api_token.token
+    )
+
+    assert returned_user == user
