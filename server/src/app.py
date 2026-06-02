@@ -107,6 +107,8 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(bot_router)
 
+    set_openapi_generator(app)
+
     return app
 
 
@@ -118,4 +120,3 @@ def generate_unique_openapi_id(route: APIRoute) -> str:
 configure_logging(logtide_service="server")
 
 app = create_app()
-set_openapi_generator(app)

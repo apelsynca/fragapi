@@ -33,6 +33,6 @@ async def tonapi_webhook(
                 session=session, webhook_message=message
             )
         except FragError as exc:
-            log.warn("TonAPI webhook internal error", error=str(exc))
+            log.warning("TonAPI webhook internal error", error=str(exc))
         except Exception as exc:
             log.error("TonAPI webhook unknown error", error=str(exc))

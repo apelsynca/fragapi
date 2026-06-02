@@ -47,13 +47,13 @@ class TonAPIService:
                 tx_hash=webhook_message.tx_hash
             )
         except ResourceNotFound:
-            log.warn(
+            log.warning(
                 "tonapi.process_webhook_acc_tx transaction is not found",
                 tx_hash=webhook_message.tx_hash,
             )
             return
         except BadRequest:
-            log.warn(
+            log.warning(
                 "tonapi.process_webhook_acc_tx transaction bad request",
                 tx_hash=webhook_message.tx_hash,
             )
@@ -70,7 +70,7 @@ class TonAPIService:
 
         hash = self.resolve_payment_hash(tonapi_transaction)
         if hash is None:
-            log.warn("Transaction without hash", hash=hash, account_id="0")
+            log.warning("Transaction without hash", hash=hash, account_id="0")
             return
 
         log.info(

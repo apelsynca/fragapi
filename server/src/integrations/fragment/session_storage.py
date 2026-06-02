@@ -33,7 +33,7 @@ class SessionStorage:
             )
             raise exc
         except ValidationError as e:
-            log.warn("Session file validation error", error=str(e))
+            log.warning("Session file validation error", error=str(e))
 
     def save(self) -> None:
         if self.session is None:
