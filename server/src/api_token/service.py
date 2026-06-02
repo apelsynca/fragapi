@@ -3,13 +3,13 @@ from uuid import UUID
 
 import structlog
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_token.schemas import ApiTokenCreate
 from src.exceptions import BadRequest, ResourceNotFound
 from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import ApiToken, User
+from src.postgres import AsyncSession
 
 log: Logger = structlog.get_logger()
 

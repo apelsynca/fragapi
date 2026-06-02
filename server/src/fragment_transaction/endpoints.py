@@ -1,5 +1,4 @@
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.fragment_transaction import auth, sorting
 from src.fragment_transaction.schemas import (
@@ -12,7 +11,7 @@ from src.fragment_transaction.service import (
 )
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.kit.routing import APITag
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
 router = APIRouter(prefix="/transactions", tags=["", APITag.public])

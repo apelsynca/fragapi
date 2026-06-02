@@ -2,10 +2,10 @@ from collections.abc import Sequence
 from typing import Any, Self
 
 from sqlalchemy import Select, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
 from src.kit.pagination import count_subquery
+from src.postgres import AsyncSession
 
 type Options = Sequence[ExecutableOption]
 

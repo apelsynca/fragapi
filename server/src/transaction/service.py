@@ -1,8 +1,8 @@
 from pytonapi.rest.models import Transaction as TonAPITransaction
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragRequestValidationError
 from src.models import Transaction
+from src.postgres import AsyncSession
 from src.transaction.repository import TransactionRepository
 
 

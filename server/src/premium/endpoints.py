@@ -1,11 +1,10 @@
 import structlog
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.integrations.fragment import Fragment, get_fragment
 from src.logging import Logger
 from src.openapi import APITag
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.premium import auth
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 from src.premium.service import premium as premium_service

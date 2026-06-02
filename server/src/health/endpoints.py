@@ -1,9 +1,8 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
 router = APIRouter(tags=["health"], include_in_schema=False)

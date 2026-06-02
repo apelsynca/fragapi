@@ -1,10 +1,10 @@
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import ResourceNotFound
 from src.kit.utils import generate_api_token
 from src.logging import Logger
 from src.models import User
+from src.postgres import AsyncSession
 from src.user.repository import UserRepository
 from src.user.schemas import UserCreate
 

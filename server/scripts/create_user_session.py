@@ -1,12 +1,10 @@
 import asyncio
 import secrets
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.kit.crypto import generate_token
 from src.kit.database.postgres import create_async_sessionmaker
 from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
-from src.postgres import create_async_engine
+from src.postgres import AsyncSession, create_async_engine
 from src.user.repository import UserRepository
 
 

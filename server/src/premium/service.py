@@ -1,7 +1,6 @@
 import asyncio
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.enums import PremiumMonths
 from src.exceptions import FragError, ResourceNotFound
@@ -14,6 +13,7 @@ from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import Logger
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
+from src.postgres import AsyncSession
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 
 log: Logger = structlog.get_logger()

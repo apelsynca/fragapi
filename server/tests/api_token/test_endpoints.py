@@ -3,10 +3,10 @@ from datetime import timedelta
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.kit.utils import utc_now
 from src.models import ApiToken, User
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_api_token
 

@@ -1,7 +1,7 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragRequestValidationError
+from src.postgres import AsyncSession
 from src.transaction.service import transaction as transaction_service
 from tests.fixtures.random_objects import create_tonapi_transaction_mock
 

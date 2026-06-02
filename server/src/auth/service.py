@@ -1,7 +1,6 @@
 import structlog
 from fastapi import Request
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.auth.schemas import LoginResponse
@@ -11,6 +10,7 @@ from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import ApiToken, User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
+from src.postgres import AsyncSession
 
 log: Logger = structlog.get_logger()
 

@@ -1,7 +1,6 @@
 import structlog
 from fastapi import Request
 from fastapi.security.utils import get_authorization_scheme_param
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.types import ASGIApp, Receive, Send
 from starlette.types import Scope as ASGIScope
 
@@ -10,6 +9,7 @@ from src.auth.scope import Scope
 from src.auth.service import auth as auth_service
 from src.logging import Logger
 from src.models.user_sessions import USER_SESSION_PREFIX
+from src.postgres import AsyncSession
 
 log: Logger = structlog.get_logger()
 

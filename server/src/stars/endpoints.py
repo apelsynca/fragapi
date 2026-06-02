@@ -1,11 +1,10 @@
 import structlog
 from fastapi import Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.integrations.fragment import Fragment, get_fragment
 from src.logging import Logger
 from src.openapi import APITag
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 from src.stars import auth
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient

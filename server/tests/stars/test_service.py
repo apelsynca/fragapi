@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragError
 from src.fragment_transaction.models import FTMetadata
@@ -17,6 +16,7 @@ from src.models import User
 from src.models.fragment_transactions import (
     FragmentTransactionReason,
 )
+from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars
 from src.stars.service import stars as stars_service
 from tests.fixtures.database import SaveFixture

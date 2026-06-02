@@ -1,10 +1,9 @@
 from fastapi import Depends, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.schemas import LoginResponse, TelegramBotAuthData
 from src.auth.service import auth as auth_service
 from src.openapi import APITag
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
 router = APIRouter(prefix="/auth", tags=["auth", APITag.private])

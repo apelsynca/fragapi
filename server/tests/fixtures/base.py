@@ -4,13 +4,12 @@ from unittest.mock import MagicMock
 
 import httpx
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.applications import Starlette
 
 from src.app import app as frag_app
 from src.auth.dependencies import _auth_subject_factory_cache
 from src.integrations.fragment import get_fragment
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.redis import Redis, get_redis
 from tests.fixtures.auth import AuthSubjectFixture
 

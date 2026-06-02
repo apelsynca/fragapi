@@ -4,7 +4,6 @@ from unittest.mock import ANY, MagicMock
 import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
@@ -18,6 +17,7 @@ from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
 from src.models.transactions import Transaction
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,

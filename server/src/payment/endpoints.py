@@ -1,12 +1,11 @@
 from fastapi import Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.dependencies import AuthorizeWebUser
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.payment import sorting
 from src.payment.schemas import Payment, PaymentTonRequestMessage
 from src.payment.service import payment as payment_service
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
 router = APIRouter(prefix="/payments")

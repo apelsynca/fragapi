@@ -2,12 +2,12 @@ import uuid
 
 import pytest
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.bot.logs_sender import TelegramLogSender
 from src.exceptions import ResourceNotFound
 from src.models.payments import Payment
 from src.payment.tasks import NEW_DEPOSIT_NOTIFICATION_TEXT, deposit_send_telegram_log
+from src.postgres import AsyncSession
 
 
 @pytest.mark.asyncio

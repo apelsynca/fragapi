@@ -3,7 +3,6 @@ from collections.abc import Sequence
 from secrets import token_urlsafe
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import begin_cell, to_amount, to_nano
 
 from src.config import settings
@@ -17,6 +16,7 @@ from src.payment.repository import PaymentRepository
 from src.payment.schemas import PaymentTonRequestMessage
 from src.payment.sorting import PaymentSortProperty
 from src.payment.tasks import deposit_send_telegram_log
+from src.postgres import AsyncSession
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()

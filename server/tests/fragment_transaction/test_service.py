@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
 from src.exceptions import FragRequestValidationError
@@ -19,6 +18,7 @@ from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.models.fragment_transactions import FragmentTransactionReason
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,

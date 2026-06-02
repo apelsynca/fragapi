@@ -3,7 +3,6 @@ import random
 
 import pytest
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import begin_cell, to_amount
 
 from src.config import settings
@@ -13,6 +12,7 @@ from src.models import User
 from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
 from src.payment.service import payment as payment_service
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_payment, create_transaction, rstr
 

@@ -1,11 +1,11 @@
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.service import auth as auth_service
 from src.exceptions import Forbidden
 from src.models import User
 from src.models.user_sessions import UserSession
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_api_token, rstr
 

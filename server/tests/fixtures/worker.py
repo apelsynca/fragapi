@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from tonutils.contracts import WalletV5R1
 
 from src.integrations.ton_wallet.manager import WalletManager
+from src.postgres import AsyncSession
 from src.worker import TaskQueueManager, broker
 from src.worker._enqueue import _task_queue_manager
 

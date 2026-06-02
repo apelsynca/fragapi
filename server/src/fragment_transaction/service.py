@@ -3,7 +3,6 @@ from datetime import timedelta
 
 import structlog
 from sqlalchemy import case, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address, ExternalMessage, to_amount
 
 from src.exceptions import InsuficcientFunds
@@ -21,6 +20,7 @@ from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import FragmentTransaction, Transaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
+from src.postgres import AsyncSession
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()

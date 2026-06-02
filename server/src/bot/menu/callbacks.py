@@ -2,7 +2,6 @@ import secrets
 from typing import cast
 
 import structlog
-from sqlalchemy.ext.asyncio import AsyncSession
 from telegram import CallbackQuery, Message, Update
 from telegram import User as TGUser
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
@@ -14,6 +13,7 @@ from src.kit.crypto import generate_token
 from src.logging import Logger
 from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.models.users import User
+from src.postgres import AsyncSession
 from src.user.schemas import UserCreate
 from src.user.service import user as user_service
 

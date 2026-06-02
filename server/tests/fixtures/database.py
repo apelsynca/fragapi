@@ -3,12 +3,12 @@ from collections.abc import AsyncGenerator, AsyncIterator, Callable, Coroutine
 import pytest
 import pytest_asyncio
 from pydantic_core import Url
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from src.config import settings
 from src.kit.database.models import Model
 from src.kit.database.postgres import create_async_engine
+from src.postgres import AsyncSession
 
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session", autouse=True)

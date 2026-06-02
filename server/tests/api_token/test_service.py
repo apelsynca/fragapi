@@ -3,13 +3,13 @@ from datetime import timedelta
 
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api_token.schemas import ApiTokenCreate
 from src.api_token.service import api_token as api_token_service
 from src.exceptions import BadRequest, ResourceNotFound
 from src.kit.utils import utc_now
 from src.models import ApiToken, User
+from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_api_token
 

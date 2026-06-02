@@ -7,7 +7,6 @@ from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
 from pytonapi.rest import TonapiRestClient
 from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
-from sqlalchemy.ext.asyncio import AsyncSession
 from ton_core import Address
 
 from src.config import settings
@@ -15,6 +14,7 @@ from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.payment.service import PaymentService
 from src.payment.service import payment as real_payment_service
+from src.postgres import AsyncSession
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
 from src.transaction.service import TransactionService

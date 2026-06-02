@@ -1,11 +1,10 @@
 import structlog
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import FragError
 from src.logging import Logger
 from src.openapi import APITag
-from src.postgres import get_db_session
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
