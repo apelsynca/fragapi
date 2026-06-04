@@ -4,11 +4,10 @@ from typing import Any
 
 from taskiq import AsyncTaskiqDecoratedTask
 
-from ._broker import get_broker, get_scheduler
+from ._broker import get_broker
 from ._enqueue import TaskQueueManager, enqueue_task
 
 broker = get_broker()
-scheduler = get_scheduler(broker)
 
 
 def worker_task[**P, R](
@@ -38,5 +37,4 @@ __all__ = (
     "TaskQueueManager",
     "broker",
     "enqueue_task",
-    "scheduler",
 )

@@ -1,6 +1,6 @@
 import structlog
 from fastapi import Request
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from src.auth.schemas import LoginResponse
@@ -59,6 +59,10 @@ class AuthService:
 
         if api_token is not None:
             return api_token.user
+
+    async def delete_expired(self, session: AsyncSession) -> None:
+        statement = delete(UserSession).where(UserSession.expires_at < utc_now())
+        await session.execute(statement)
 
 
 auth = AuthService()
