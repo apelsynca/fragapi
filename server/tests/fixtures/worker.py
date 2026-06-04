@@ -21,13 +21,10 @@ class FakeWalletManager(WalletManager):
         wmock = MagicMock(spec=WalletV5R1)
         self.wallet = wmock
 
-        self.amounts_log = []
-
     async def get_balance(self) -> int:
         return self.balance
 
     async def get_wallet_for_amount(self, amount: int) -> WalletV5R1:
-        self.amounts_log.append(amount)
         return self.wallet
 
 

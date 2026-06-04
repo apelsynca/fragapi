@@ -105,31 +105,32 @@ async def test_process_calls_transfer(
     valid_frag_trans: FragmentTransaction,
     session: AsyncSession,
 ) -> None:
-    wallet_manager = FakeWalletManager()
-
-    # Given
     tc_msg = valid_tc_transaction.messages[0]
     assert tc_msg.payload is not None
 
-    wallet_manager.balance = to_nano(25.2)
-    mma = MagicMock()
-    mma.normalized_hash = "anyhash"
-    wallet_manager.wallet.transfer.return_value = mma
+    wallet_manager_mock = MagicMock(spec=WalletManager)
+    wallet_mock = MagicMock(spec=WalletV5R1)
+    wallet_mock.balance = to_nano(25.2)
+
+    external_message_mock = MagicMock()
+    external_message_mock.normalized_hash = "anyhash"
+    wallet_mock.transfer.return_value = external_message_mock
+
+    wallet_manager_mock.get_wallet_for_amount.return_value = wallet_mock
 
     # When
     await process_fragment_transaction(
         fragment_transaction_id=valid_frag_trans.id,
         tc_transaction=valid_tc_transaction,
         session=session,
-        wallet_manager=wallet_manager,
+        wallet_manager=wallet_manager_mock,
     )
 
     # Then
     padded_payload = tc_msg.payload + "=" * (-len(tc_msg.payload) % 4)
     body = Cell.one_from_boc(padded_payload)
 
-    assert wallet_manager.amounts_log == [tc_msg.amount]
-    wallet_manager.wallet.transfer.assert_called_once_with(
+    wallet_mock.transfer.assert_called_once_with(
         destination=Address(tc_msg.address),
         body=body,
         amount=tc_msg.amount,

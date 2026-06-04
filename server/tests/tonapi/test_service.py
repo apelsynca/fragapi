@@ -132,7 +132,7 @@ async def test_logs_on_get_tx_not_found_and_does_not_call(
     )
 
     payment_service.complete_ton.assert_not_called()
-    log_mock.warn.assert_called_once_with(
+    log_mock.warning.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction is not found",
         tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
     )
@@ -164,7 +164,7 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
     )
 
     payment_service.complete_ton.assert_not_called()
-    log_mock.warn.assert_called_once_with(
+    log_mock.warning.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction bad request",
         tx_hash=tx_hash,
     )
@@ -243,14 +243,16 @@ async def test_all_good_calls(
 
 
 def test_resolves_hash() -> None:
-    tonapi_transaction = MagicMock(spec=TonAPITransaction)
+    tonapi_transaction_mock = MagicMock(spec=TonAPITransaction)
     in_msg = MagicMock(spec=TonAPIMessage)
     in_msg.decoded_body = {
         "text": real_payment_service.TON_COMMENT_TEMPLATE.format("needed_hash")
     }
     in_msg.decoded_op_name = "text_comment"
-    tonapi_transaction.in_msg = in_msg
+    tonapi_transaction_mock.in_msg = in_msg
 
-    hash = tonapi_service.resolve_payment_hash(tonapi_transaction=tonapi_transaction)
+    hash = tonapi_service.resolve_payment_hash(
+        tonapi_transaction=tonapi_transaction_mock
+    )
 
     assert hash == "needed_hash"
