@@ -1,4 +1,6 @@
+import contextvars
 import logging.config
+import typing
 import uuid
 from typing import Any
 
@@ -150,5 +152,21 @@ def configure(*, logtide_service: LogtideService | None = None) -> None:
         Production.configure(logtide_service=logtide_service)
 
 
-def generate_correlation_id() -> str:
-    return str(uuid.uuid4())
+class TraceID:
+    _trace_id: typing.ClassVar[contextvars.ContextVar[str | None]] = (
+        contextvars.ContextVar("app.trace_id", default=None)
+    )
+
+    @classmethod
+    def set(cls) -> str:
+        correlation_id = str(uuid.uuid4())
+        cls._trace_id.set(correlation_id)
+        return correlation_id
+
+    @classmethod
+    def get(cls) -> str | None:
+        return cls._trace_id.get()
+
+    @classmethod
+    def clear(cls) -> None:
+        cls._trace_id.set(None)

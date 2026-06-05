@@ -1,7 +1,7 @@
 import structlog
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from src.logging import generate_correlation_id
+from src.logging import TraceID
 from src.worker._enqueue import TaskQueueManager
 
 
@@ -13,15 +13,17 @@ class LogCorrelationIdMiddleware:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
+        trace_id = TraceID.set()
+
         structlog.contextvars.bind_contextvars(
-            correlation_id=generate_correlation_id(),
+            trace_id=trace_id,
             method=scope["method"],
             path=scope["path"],
         )
 
         await self.app(scope, receive, send)
 
-        structlog.contextvars.unbind_contextvars("correlation_id", "method", "path")
+        structlog.contextvars.unbind_contextvars("trace_id", "method", "path")
 
 
 class KiqEnqueuedWorkerTasksMiddleware:

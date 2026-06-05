@@ -11,6 +11,7 @@ from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_aio_pika import AioPikaBroker
 
 from src.config import settings
+from src.logging import TraceID
 
 
 class StructlogMiddleware(TaskiqMiddleware):
@@ -18,9 +19,14 @@ class StructlogMiddleware(TaskiqMiddleware):
         self,
         message: TaskiqMessage,
     ):
-        # taskiq_task_id=message.task_id,
+        trace_id = TraceID.set()
+        source_trace_id = message.labels.get("source_task_id")
+        print("Labels", message.labels, trace_id, source_trace_id)
+
         structlog.contextvars.clear_contextvars()
-        structlog.contextvars.bind_contextvars(taskiq_task_name=message.task_name)
+        structlog.contextvars.bind_contextvars(
+            taskiq_task_name=message.task_name, trace_id=trace_id
+        )
 
         return message
 
@@ -34,13 +40,11 @@ class StructlogMiddleware(TaskiqMiddleware):
             task_id=message.task_id,
             exc_info=exception,
         )
-        # Re‑raise if you want the broker to still handle it (e.g., retry)
-        # raise exception
 
 
 def get_broker() -> AsyncBroker:
     if settings.is_testing():
-        broker = InMemoryBroker()  # await_inplace=True
+        broker = InMemoryBroker()
     else:
         broker = AioPikaBroker(url=settings.amqp_url)
 

@@ -5,7 +5,7 @@ from typing import Any
 import structlog
 from taskiq import AsyncTaskiqDecoratedTask
 
-from src.logging import Logger
+from src.logging import Logger, TraceID
 
 log: Logger = structlog.get_logger()
 
@@ -33,8 +33,17 @@ class TaskQueueManager:
             _task_queue_manager.set(None)
 
     async def process_queue(self) -> None:
+        trace_id = TraceID.get()
+
         for taskiq_job, args, kwargs in self._enqueued_tasks:
-            await taskiq_job.kiq(*args, **kwargs)
+            print("enqueuing task")
+            await (
+                taskiq_job.kicker()
+                .with_labels(
+                    trace_id=trace_id  # pyright: ignore
+                )
+                .kiq(*args, **kwargs)
+            )
         self.reset()
 
     def reset(self) -> None:
