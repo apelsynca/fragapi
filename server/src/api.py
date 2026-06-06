@@ -1,6 +1,5 @@
 from src.api_token.endpoints import router as api_token_router
 from src.auth.endpoints import router as auth_router
-from src.custom_smth.endpoints import router as custom_smth_router
 from src.fragment_transaction.endpoints import router as fragment_transactions_router
 from src.gifts.endpoints import router as gifts_router
 from src.payment.endpoints import router as payment_router
@@ -23,4 +22,3 @@ router.include_router(gifts_router)
 router.include_router(tonapi_router)
 router.include_router(payment_router)
 router.include_router(fragment_transactions_router)
-router.include_router(custom_smth_router)

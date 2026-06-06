@@ -39,7 +39,7 @@ class TaskQueueManager:
             await (
                 taskiq_job.kicker()
                 .with_labels(
-                    trace_id=trace_id  # pyright: ignore
+                    source_trace_id=trace_id  # pyright: ignore
                 )
                 .kiq(*args, **kwargs)
             )
