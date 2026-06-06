@@ -10,7 +10,7 @@
   "sidebar": {
     "main": "Main",
     "transactions": "Transactions",
-    "api_keys": "API Keys",
+    "api_tokens": "API Tokens",
     "docs": "Docs",
     "other": "Other",
     "theme_dark": "Dark",

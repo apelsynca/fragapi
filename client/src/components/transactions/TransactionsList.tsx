@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { columns } from './columns'
 import { DataTable } from './DataTable'
-import { transactionsListQueryOptions } from '~/lib/queries'
+import { transactionsListOptions } from '~/lib/queries'
 import {
   Pagination,
   PaginationContent,
@@ -13,13 +13,11 @@ import {
 } from '~/components/ui/pagination'
 import { useState } from 'react'
 
-// Helper to generate the page numbers / ellipsis array
 function getPageNumbers(
   current: number,
   total: number,
 ): (number | 'ellipsis')[] {
   if (total <= 7) {
-    // For 7 or fewer pages, show all numbers
     return Array.from({ length: total }, (_, i) => i + 1)
   }
 
@@ -48,7 +46,7 @@ function getPageNumbers(
 export default function TransactionsList() {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
-  const { data } = useSuspenseQuery(transactionsListQueryOptions(currentPage))
+  const { data } = useSuspenseQuery(transactionsListOptions(currentPage))
 
   if (data.pagination.totalCount < 0) {
     return <p>No transactions.</p>

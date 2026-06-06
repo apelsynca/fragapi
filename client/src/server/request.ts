@@ -3,7 +3,7 @@ import { logoutFn } from './auth-manager'
 const ENDPOINT = process.env.BACKEND_ENDPOINT
 
 interface ApiRequest {
-  method: 'GET' | 'POST'
+  method: 'GET' | 'POST' | 'DELETE'
   endpoint: string
   payload?: object | null
   token?: string
@@ -23,7 +23,7 @@ export const apiRequest = async <T>(data: ApiRequest) => {
   const json = await response.json()
 
   if (!response.ok) {
-    const errorName = json?.error ?? 'Some unknown error'
+    const errorName = json?.error ?? 'Non-standard error'
     const detail = json?.detail ?? ''
 
     if (data.token && errorName === 'Unauthorized') {

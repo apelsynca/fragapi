@@ -1,7 +1,6 @@
 import structlog
 
 from src.exceptions import ResourceNotFound
-from src.kit.utils import generate_api_token
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
@@ -21,23 +20,22 @@ class UserService:
 
         return user
 
-    async def create(self, session: AsyncSession, user: UserCreate) -> User:
+    async def create(self, session: AsyncSession, data: UserCreate) -> User:
         repository = UserRepository.from_session(session)
         log.info(
             "Creating user",
-            user_id=user.id,
-            first_name=user.first_name,
-            username=user.username,
+            user_id=data.id,
+            first_name=data.first_name,
+            username=data.username,
         )
 
         return await repository.create(
             User(
-                id=user.id,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                username=user.username,
-                is_premium=user.is_premium,
-                api_key=generate_api_token(),
+                id=data.id,
+                first_name=data.first_name,
+                last_name=data.last_name,
+                username=data.username,
+                is_premium=data.is_premium,
             )
         )
 

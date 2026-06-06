@@ -34,7 +34,7 @@ async def menu(
     except ResourceNotFound:
         user = await user_service.create(
             session=session,
-            user=UserCreate(
+            data=UserCreate(
                 id=e_user.id,
                 first_name=e_user.first_name,
                 last_name=e_user.last_name,

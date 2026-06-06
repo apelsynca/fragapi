@@ -37,9 +37,9 @@ class Settings(BaseSettings):
     # Database
     POSTGRES_USER: str = "frag"
     POSTGRES_PWD: str = "frag"
+    POSTGRES_DATABASE: str = "frag_dev"
     POSTGRES_HOST: str = "127.0.0.1"
     POSTGRES_PORT: int = 5432
-    POSTGRES_DATABASE: str = "frag_dev"
     DATABASE_POOL_SIZE: int = 5
     DATABASE_POOL_RECYCLE_SECONDS: int = 600  # 10 minutes
     DATABASE_COMMAND_TIMEOUT_SECONDS: float = 30.0

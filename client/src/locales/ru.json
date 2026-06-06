@@ -10,7 +10,7 @@
   "sidebar": {
     "main": "Главная",
     "transactions": "Транзакции",
-    "api_keys": "API Ключи",
+    "api_tokens": "API Токены",
     "docs": "Документация",
     "other": "Другое",
     "theme_dark": "Тёмная",

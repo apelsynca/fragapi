@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
 import { logoutFn } from '~/server/auth-manager'
 import ThemeToggle from './ThemeToggle'
-import { userMeQueryOptions } from '~/lib/queries'
+import { userMeOptions } from '~/lib/queries'
 import LanguageToggle from './LanguageToggle'
 import { useTranslation } from 'react-i18next'
 
@@ -29,7 +29,7 @@ export default function AppSidebarBottom() {
 
   const logout = useServerFn(logoutFn)
   const queryClient = useQueryClient()
-  const { data: user } = useSuspenseQuery(userMeQueryOptions())
+  const { data: user } = useSuspenseQuery(userMeOptions())
 
   const { isMobile } = useSidebar()
 

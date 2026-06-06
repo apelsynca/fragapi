@@ -2,19 +2,19 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
 import BalanceTopUp from './BalanceTopUp'
 import {
-  tonRateQueryOptions,
-  transactionsStatsQueryOptions,
-  userMeQueryOptions,
+  tonRateOptions,
+  transactionsStatsOptions,
+  userMeOptions,
 } from '~/lib/queries'
 import { useTranslation } from 'react-i18next'
 
 export default function DashboardStats() {
   const { t } = useTranslation()
 
-  const { data: user } = useSuspenseQuery(userMeQueryOptions())
-  const { data: tonRate } = useSuspenseQuery(tonRateQueryOptions())
+  const { data: user } = useSuspenseQuery(userMeOptions())
+  const { data: tonRate } = useSuspenseQuery(tonRateOptions())
   const { data: transactionStats } = useSuspenseQuery(
-    transactionsStatsQueryOptions(),
+    transactionsStatsOptions(),
   )
 
   return (

@@ -5,12 +5,16 @@ import { TooltipProvider } from '~/components/ui/tooltip'
 import AppSidebar from '~/components/AppSidebar'
 import DashboardProviders from '~/components/DashboardProviders'
 import Landing from '~/components/Landing'
+import { userMeOptions } from '~/lib/queries'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {
     if (!context.token) {
       throw new Error('Not authenticated')
     }
+  },
+  loader: ({ context }) => {
+    context.queryClient.fetchQuery(userMeOptions())
   },
   errorComponent: ({ error }) => {
     if (error.message === 'Not authenticated') {

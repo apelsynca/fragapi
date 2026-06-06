@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.kit.schemas import Schema
+from src.kit.schemas import IDSchema, Schema
 
 
 class ApiTokenCreate(Schema):
@@ -8,7 +8,7 @@ class ApiTokenCreate(Schema):
     expires_at: datetime | None = None
 
 
-class ApiToken(Schema):
+class ApiToken(IDSchema):
     name: str
     token: str
     expires_at: datetime | None

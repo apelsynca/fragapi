@@ -12,13 +12,3 @@ export const fetchMe = createServerFn().handler(async () => {
     token,
   })
 })
-
-export const fetchApiKey = createServerFn().handler(async () => {
-  const token = await verifySession()
-
-  return await apiRequest<string>({
-    method: 'GET',
-    endpoint: '/users/api-keys',
-    token,
-  })
-})

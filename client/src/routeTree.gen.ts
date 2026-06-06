@@ -14,7 +14,7 @@ import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard/transactions'
-import { Route as DashboardApiKeysRouteImport } from './routes/dashboard/api-keys'
+import { Route as DashboardApiTokensRouteImport } from './routes/dashboard/api-tokens'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
@@ -41,9 +41,9 @@ const DashboardTransactionsRoute = DashboardTransactionsRouteImport.update({
   path: '/transactions',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardApiKeysRoute = DashboardApiKeysRouteImport.update({
-  id: '/api-keys',
-  path: '/api-keys',
+const DashboardApiTokensRoute = DashboardApiTokensRouteImport.update({
+  id: '/api-tokens',
+  path: '/api-tokens',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 
@@ -51,14 +51,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -67,7 +67,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/dashboard/api-keys': typeof DashboardApiKeysRoute
+  '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -77,14 +77,14 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/bot-login'
-    | '/dashboard/api-keys'
+    | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/bot-login'
-    | '/dashboard/api-keys'
+    | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard'
   id:
@@ -92,7 +92,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/bot-login'
-    | '/dashboard/api-keys'
+    | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -140,24 +140,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTransactionsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/api-keys': {
-      id: '/dashboard/api-keys'
-      path: '/api-keys'
-      fullPath: '/dashboard/api-keys'
-      preLoaderRoute: typeof DashboardApiKeysRouteImport
+    '/dashboard/api-tokens': {
+      id: '/dashboard/api-tokens'
+      path: '/api-tokens'
+      fullPath: '/dashboard/api-tokens'
+      preLoaderRoute: typeof DashboardApiTokensRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
   }
 }
 
 interface DashboardRouteRouteChildren {
-  DashboardApiKeysRoute: typeof DashboardApiKeysRoute
+  DashboardApiTokensRoute: typeof DashboardApiTokensRoute
   DashboardTransactionsRoute: typeof DashboardTransactionsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
-  DashboardApiKeysRoute: DashboardApiKeysRoute,
+  DashboardApiTokensRoute: DashboardApiTokensRoute,
   DashboardTransactionsRoute: DashboardTransactionsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }

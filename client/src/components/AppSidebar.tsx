@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import {
   ExternalLinkIcon,
   HomeIcon,
-  JoystickIcon,
   KeySquareIcon,
   ListIcon,
 } from 'lucide-react'
@@ -12,7 +11,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -49,8 +47,8 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/dashboard/api-keys">
-                    <KeySquareIcon /> {t('sidebar.api_keys')}
+                  <Link to="/dashboard/api-tokens">
+                    <KeySquareIcon /> {t('sidebar.api_tokens')}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
