@@ -59,7 +59,7 @@ class OpenAPIParameters(TypedDict):
 
 
 OPENAPI_PARAMETERS: OpenAPIParameters = {
-    "title": "Fragment API",
+    "title": "FragAPI",
     "summary": "Unofficial fragment.com API",
     "version": "1.0.0",
     "description": "Read the docs at https://docs.fragapi.com/api-reference",

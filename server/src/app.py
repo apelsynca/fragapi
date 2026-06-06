@@ -44,7 +44,7 @@ class State(TypedDict):
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
-    log.info("Starting Fragment API")
+    log.info("Starting FragAPI")
 
     async_engine = create_async_engine("app")
     async_sessionmaker = create_async_sessionmaker(async_engine)
@@ -67,7 +67,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.startup()
 
-    log.info("Fragment API started")
+    log.info("FragAPI started")
 
     async with toncenter_client:
         yield State(
@@ -79,7 +79,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
-    # better for when in russia
     if settings.is_production():
         await bot_application.stop()
         await bot_application.shutdown()

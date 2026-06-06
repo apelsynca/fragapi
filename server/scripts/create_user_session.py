@@ -22,7 +22,7 @@ async def main() -> None:
 
         print("Created user session")
         print("Bot hash:", user_session.bot_hash)
-        print("Object", user_session)
+        print("Object:", user_session)
 
 
 async def create_user_session(session: AsyncSession) -> UserSession | None:

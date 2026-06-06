@@ -9,5 +9,5 @@ async def test_openapi(client: AsyncClient) -> None:
 
     schema = response.json()
 
-    assert schema["info"]["title"] == "Fragment API"
+    assert schema["info"]["title"] == "FragAPI"
     assert "tags" in schema
