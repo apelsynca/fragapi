@@ -11,7 +11,8 @@ from src.enums import TelegramLogSender
 
 class Environment(StrEnum):
     development = "development"
-    testing = "testing"  # Used for running tests
+    testing = "testing"
+    # sandbox = "sandbox"
     production = "production"
 
 
