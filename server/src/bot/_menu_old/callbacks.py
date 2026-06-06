@@ -2,12 +2,12 @@ import secrets
 from typing import cast
 
 import structlog
+from src.bot.utils.decorators import with_session
 from telegram import CallbackQuery, Message, Update
 from telegram import User as TGUser
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 
 from src.bot.menu.keyboards import get_login_keyboard, get_menu_keyboard
-from src.bot.utils.decorators import with_session
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
 from src.logging import Logger
