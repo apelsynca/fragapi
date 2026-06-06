@@ -5,7 +5,7 @@ from src.logging import TraceID
 from src.worker._enqueue import TaskQueueManager
 
 
-class LogCorrelationIdMiddleware:
+class TraceIDMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -26,7 +26,7 @@ class LogCorrelationIdMiddleware:
         structlog.contextvars.unbind_contextvars("trace_id", "method", "path")
 
 
-class KiqEnqueuedWorkerTasksMiddleware:
+class KiqEnqueuedTasksMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
