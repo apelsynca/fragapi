@@ -36,7 +36,6 @@ class TaskQueueManager:
         trace_id = TraceID.get()
 
         for taskiq_job, args, kwargs in self._enqueued_tasks:
-            print("enqueuing task")
             await (
                 taskiq_job.kicker()
                 .with_labels(
