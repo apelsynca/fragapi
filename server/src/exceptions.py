@@ -44,10 +44,13 @@ class InsuficcientFunds(BadRequest):
         self,
         message: str = "Insuficcient funds",
         status_code: int = 400,
-        amount: float | None = None,
+        required_amount: float | None = None,
     ):
         super().__init__(
-            message if amount is None else f"{message} have: {amount}", status_code
+            message
+            if required_amount is None
+            else f"{message} need: {required_amount}",
+            status_code,
         )
 
 

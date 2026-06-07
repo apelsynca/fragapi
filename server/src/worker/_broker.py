@@ -35,7 +35,7 @@ class StructlogMiddleware(TaskiqMiddleware):
     async def on_error(
         self, message: TaskiqMessage, result: "TaskiqResult", exception: BaseException
     ):
-        log.error(
+        log.exception(
             "app.worker.task_failed",
             task_name=message.task_name,
             task_id=message.task_id,
