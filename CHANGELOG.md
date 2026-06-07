@@ -8,4 +8,5 @@
 - User info sync with telegram
 - [ ] User transaction logs
 - Admin transaction logs
+- Deposits check retry (for when not found sometimes from tonapi)
 - [ ] Landing page rework

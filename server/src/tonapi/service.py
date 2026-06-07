@@ -25,6 +25,9 @@ class TonAPIService:
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]
 
+    RETRY_LIMIT: int = 3
+    SEARCH_RETRY_SLEEP_FOR: float = 2.5
+
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
@@ -41,7 +44,7 @@ class TonAPIService:
             raise FragError("Wrong account id")
 
         try:
-            await asyncio.sleep(0.5)  # to make sure transaction exists on tonapi side.
+            await asyncio.sleep(0.85)  # let tonapi process it
             # NOTE: here check maybe?
             tonapi_transaction = await self.get_blockchain_transaction(
                 tx_hash=webhook_message.tx_hash
@@ -101,15 +104,30 @@ class TonAPIService:
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with rest_client as client:
-            try:
-                transaction = await client.blockchain.get_transaction(
-                    transaction_id=tx_hash
+            return await self._process_bc_trans_with_retry(
+                client=client, tx_hash=tx_hash
+            )
+
+    async def _process_bc_trans_with_retry(
+        self, client, tx_hash: str, *, retry_num: int = 0
+    ) -> TonAPITransaction:
+        if retry_num >= self.RETRY_LIMIT:
+            raise ValueError("Retry limit exceeded")
+
+        try:
+            transaction = await client.blockchain.get_transaction(
+                transaction_id=tx_hash
+            )
+            return transaction
+        except TONAPIBadRequestError:
+            raise BadRequest("Transaction with that hash is not found")
+        except TONAPINotFoundError:
+            if retry_num + 1 < self.RETRY_LIMIT:
+                await asyncio.sleep(self.SEARCH_RETRY_SLEEP_FOR)
+                return await self._process_bc_trans_with_retry(
+                    client=client, tx_hash=tx_hash, retry_num=retry_num + 1
                 )
-                return transaction
-            except TONAPIBadRequestError:
-                raise BadRequest("Transaction with that hash is not found")
-            except TONAPINotFoundError:
-                raise ResourceNotFound("Transaction with that hash is not found")
+            raise ResourceNotFound("Transaction with that hash is not found")
 
 
 tonapi = TonAPIService()
