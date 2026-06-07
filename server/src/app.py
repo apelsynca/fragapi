@@ -79,7 +79,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
-    log.info("Fragment API stopped")
+    log.info("FragAPI stopped")
 
 
 def create_app() -> FastAPI:

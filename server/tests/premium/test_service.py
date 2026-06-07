@@ -137,7 +137,7 @@ async def test_buy_returns_good(
 
     fragment_transaction_service.send_from_tc.return_value = frag_trans
 
-    # AAA
+    # When
     prem_buy_response = await premium_service.buy(
         session=session,
         user=user,

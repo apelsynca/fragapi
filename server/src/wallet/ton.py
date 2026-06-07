@@ -4,10 +4,9 @@ from tonutils.contracts import WalletV5R1
 
 from src.config import Environment, settings
 
-# NOTE: i know that in development it is bad, but we need to test fragment
 NETWORK = (
     NetworkGlobalID.MAINNET
-    if settings.is_environment({Environment.production, Environment.development})
+    if settings.is_environment({Environment.production, Environment.sandbox})
     else NetworkGlobalID.TESTNET
 )
 
