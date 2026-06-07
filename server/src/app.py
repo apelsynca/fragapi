@@ -10,7 +10,7 @@ from fastapi.routing import APIRoute
 from src import rate_limit
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
-from src.bot.bot import create_bot
+from src.bot import create_bot
 from src.bot.endpoints import router as bot_router
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
