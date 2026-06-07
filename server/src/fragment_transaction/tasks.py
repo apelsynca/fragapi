@@ -16,8 +16,9 @@ from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectTransaction
 from src.logging import Logger
 from src.models.fragment_transactions import FragmentTransaction
-from src.postgres import AsyncSession, get_db_session
+from src.postgres import AsyncSession
 from src.worker import worker_task_with_queue_manager
+from src.worker.sqlalchemy import get_async_session
 from src.worker.wallet_manager import get_wallet_manager
 
 log: Logger = structlog.get_logger()
@@ -27,7 +28,7 @@ log: Logger = structlog.get_logger()
 async def process_fragment_transaction(
     fragment_transaction_id: uuid.UUID,
     tc_transaction: TonConnectTransaction,
-    session: Annotated[AsyncSession, TaskiqDepends(get_db_session)],
+    session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
     wallet_manager: Annotated[WalletManager, TaskiqDepends(get_wallet_manager)],
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)

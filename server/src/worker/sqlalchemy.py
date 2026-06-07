@@ -34,7 +34,7 @@ async def dispose_engine(state: TaskiqState) -> None:
         state.async_sessionmaker = None
 
 
-async def get_db_session(
+async def get_async_session(
     context: Annotated[Context, TaskiqDepends()],
 ) -> AsyncGenerator[AsyncSession]:
     try:
@@ -55,4 +55,4 @@ async def get_db_session(
             await session.commit()
 
 
-WorkerAsyncSessionDependency = Annotated[AsyncSession, TaskiqDepends(get_db_session)]
+WorkerAsyncSessionDependency = Annotated[AsyncSession, TaskiqDepends(get_async_session)]
