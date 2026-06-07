@@ -98,7 +98,8 @@ class FragmentTransactionService:
         await session.refresh(user, with_for_update=True)
 
         if user.balance <= fragment_transaction.amount:
-            raise InsuficcientFunds(amount=user.balance)
+            # NOTE: frag trans unsaved here, which is good.
+            raise InsuficcientFunds(required_amount=fragment_transaction.amount)
 
         user.balance -= fragment_transaction.amount
 
