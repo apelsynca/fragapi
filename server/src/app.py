@@ -25,7 +25,11 @@ from src.kit.database.postgres import (
 from src.kit.ton_connect import TonConnect
 from src.logging import Logger
 from src.logging import configure as configure_logging
-from src.middlewares import KiqEnqueuedTasksMiddleware, TraceIDMiddleware
+from src.middlewares import (
+    KiqEnqueuedTasksMiddleware,
+    SandboxResponseHeaderMiddleware,
+    TraceIDMiddleware,
+)
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
 from src.wallet.ton import create_wallet
@@ -98,6 +102,10 @@ def create_app() -> FastAPI:
         app.add_middleware(AuthSubjectMiddleware)
         app.add_middleware(AsyncSessionMiddleware)
         app.add_middleware(KiqEnqueuedTasksMiddleware)
+
+    if settings.is_sandbox():
+        app.add_middleware(SandboxResponseHeaderMiddleware)
+
     app.add_middleware(TraceIDMiddleware)
 
     add_exception_handlers(app)

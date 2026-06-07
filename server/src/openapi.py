@@ -71,6 +71,10 @@ OPENAPI_PARAMETERS: OpenAPIParameters = {
             "url": "https://api.fragapi.com",
             "description": "Production environment",
         },
+        {
+            "url": "https://sandbox-api.fragapi.com",
+            "description": "Sandbox environment",
+        },
     ],
 }
 

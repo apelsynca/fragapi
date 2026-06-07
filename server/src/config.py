@@ -11,8 +11,9 @@ from src.enums import TelegramLogSender
 
 class Environment(StrEnum):
     development = "development"
-    testing = "testing"  # Used for running tests
     production = "production"
+    sandbox = "sandbox"
+    testing = "testing"
 
 
 env = Environment(os.getenv("FRAG_ENV", Environment.development))
@@ -98,11 +99,14 @@ class Settings(BaseSettings):
             )
         )
 
+    def is_development(self) -> bool:
+        return self.is_environment({Environment.development})
+
     def is_production(self) -> bool:
         return self.is_environment({Environment.production})
 
-    def is_development(self) -> bool:
-        return self.is_environment({Environment.development})
+    def is_sandbox(self) -> bool:
+        return self.is_environment({Environment.sandbox})
 
     def is_testing(self) -> bool:
         return self.is_environment({Environment.testing})

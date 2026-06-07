@@ -1,8 +1,9 @@
 import structlog
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.datastructures import MutableHeaders
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from src.logging import TraceID
-from src.worker._enqueue import TaskQueueManager
+from src.worker import TaskQueueManager
 
 
 class TraceIDMiddleware:
@@ -37,3 +38,22 @@ class KiqEnqueuedTasksMiddleware:
 
         async with TaskQueueManager.open():
             await self.app(scope, receive, send)
+
+
+class SandboxResponseHeaderMiddleware:
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        async def send_wrapper(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                message.setdefault("headers", [])
+                headers = MutableHeaders(scope=message)
+                headers["X-Frag-Sandbox"] = "1"
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
