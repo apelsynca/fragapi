@@ -51,7 +51,6 @@ class Settings(BaseSettings):
 
     # Telegram Bot
     BOT_TOKEN: str = ""
-    BOT_WEBHOOK_URL: str = ""
     BOT_WEBHOOK_PATH: str = "/bot/webhook"
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
     TELEGRAM_LOG_SENDER: TelegramLogSender = (
@@ -120,6 +119,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         env_file=env_file,
+        extra="allow",
     )
 
 

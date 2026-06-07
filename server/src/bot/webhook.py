@@ -21,16 +21,21 @@ async def setup_webhook(bot: Bot) -> None:
     if webhook_info.allowed_updates is not None and set(
         webhook_info.allowed_updates
     ) == set(allowed_updates):
+        log.debug(
+            "Skipped setting bot webhook, already right allowed_updates",
+            info_updates=webhook_info.allowed_updates,
+        )
         return
 
-    log.info(
+    log.debug(
         "Setting up telegram bot webhook",
         new_url=webhook_url,
         prev_url=webhook_info.url,
     )
 
-    await bot.set_webhook(
+    result = await bot.set_webhook(
         url=webhook_url,
         allowed_updates=allowed_updates,
         secret_token=settings.BOT_WEBHOOK_SECRET_TOKEN,
     )
+    log.info("Setted up telegram webhook", url=webhook_url, result=result)
