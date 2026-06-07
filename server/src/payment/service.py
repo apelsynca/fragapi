@@ -5,6 +5,7 @@ from secrets import token_urlsafe
 import structlog
 from ton_core import begin_cell, to_amount, to_nano
 
+from src.backoffice.telegram_logs.deposits import enqueue_new_deposit_admin_log_task
 from src.config import settings
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
@@ -15,9 +16,7 @@ from src.models.payments import PaymentStatus
 from src.payment.repository import PaymentRepository
 from src.payment.schemas import PaymentTonRequestMessage
 from src.payment.sorting import PaymentSortProperty
-from src.payment.tasks import deposit_send_telegram_log
 from src.postgres import AsyncSession
-from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
 
@@ -121,7 +120,7 @@ class PaymentService:
             transaction_amount=transaction_amount,
         )
 
-        enqueue_task(deposit_send_telegram_log, payment_id=payment.id)
+        enqueue_new_deposit_admin_log_task(payment=payment)
 
 
 payment = PaymentService()
