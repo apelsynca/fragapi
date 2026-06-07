@@ -136,7 +136,7 @@ async def test_get_bc_trans_retries(
         status=400, message="Bad request"
     )
     procc_bc_trans_with_retry_spy = mocker.spy(
-        tonapi_service, "_process_bc_trans_with_retry"
+        tonapi_service, "_search_bc_trans_with_retry"
     )
 
     # RAISE, BUT CALLS RETRY

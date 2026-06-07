@@ -1,40 +1,4 @@
 services:
-  db:
-    image: postgres:17
-    restart: always
-    environment:
-      - POSTGRES_DB=${FRAG_POSTGRES_DATABASE}
-      - POSTGRES_USER=${FRAG_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${FRAG_POSTGRES_PWD}
-      - PGPORT=${FRAG_POSTGRES_PORT}
-    ports:
-      - ${FRAG_POSTGRES_PORT}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - dokploy-network
-
-  rabbitmq:
-    image: rabbitmq:4.3.1
-    restart: always
-    expose:
-      - "5672"
-    environment:
-      RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
-      RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - dokploy-network
-
-  redis:
-    image: redis:alpine
-    restart: unless-stopped
-    expose:
-      - "${FRAG_REDIS_PORT}"
-    volumes:
-      - redis_data:/data
-
   app:
     build: .
     command: sh -c "uv run task pre_deploy && exec uv run uvicorn src.app:app --host 0.0.0.0 --port 8000"
@@ -63,6 +27,47 @@ services:
       - dokploy-network
     env_file:
       - .env
+
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      - POSTGRES_DB=${FRAG_POSTGRES_DATABASE}
+      - POSTGRES_USER=${FRAG_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${FRAG_POSTGRES_PWD}
+      - PGPORT=${FRAG_POSTGRES_PORT}
+    ports:
+      - ${FRAG_POSTGRES_PORT}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - dokploy-network
+
+  rabbitmq:
+    image: rabbitmq:4.3.1-management
+    restart: always
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    expose:
+      - "5672"
+      - "15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${FRAG_AMQP_USER}
+      RABBITMQ_DEFAULT_PASS: ${FRAG_AMQP_PWD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - dokploy-network
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    expose:
+      - "${FRAG_REDIS_PORT}"
+    volumes:
+      - redis_data:/data
 
 
 volumes:

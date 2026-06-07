@@ -104,11 +104,11 @@ class TonAPIService:
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with rest_client as client:
-            return await self._process_bc_trans_with_retry(
+            return await self._search_bc_trans_with_retry(
                 client=client, tx_hash=tx_hash
             )
 
-    async def _process_bc_trans_with_retry(
+    async def _search_bc_trans_with_retry(
         self, client, tx_hash: str, *, retry_num: int = 0
     ) -> TonAPITransaction:
         if retry_num >= self.RETRY_LIMIT:
@@ -124,7 +124,7 @@ class TonAPIService:
         except TONAPINotFoundError:
             if retry_num + 1 < self.RETRY_LIMIT:
                 await asyncio.sleep(self.SEARCH_RETRY_SLEEP_FOR)
-                return await self._process_bc_trans_with_retry(
+                return await self._search_bc_trans_with_retry(
                     client=client, tx_hash=tx_hash, retry_num=retry_num + 1
                 )
             raise ResourceNotFound("Transaction with that hash is not found")
