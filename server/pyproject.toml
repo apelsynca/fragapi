@@ -15,7 +15,6 @@ dependencies = [
   "psycopg2-binary>=2.9.12",
   "pydantic>=2.12.5",
   "pydantic-settings>=2.13.1",
-  "python-telegram-bot>=22.3",
   "sqlalchemy>=2.0.49",
   "structlog>=25.5.0",
   "taskipy>=1.14.1",
@@ -31,6 +30,7 @@ dependencies = [
   "taskiq>=0.12.4",
   "taskiq-aio-pika>=0.6.0",
   "logtide-sdk[fastapi]>=0.8.5",
+  "aiogram>=3.28.2",
 ]
 
 [dependency-groups]

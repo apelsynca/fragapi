@@ -2,7 +2,6 @@ import logging
 
 from tests.fixtures.auth import *  # noqa: F403
 from tests.fixtures.base import *  # noqa: F403
-from tests.fixtures.bot import *  # noqa: F403
 from tests.fixtures.database import *  # noqa: F403
 from tests.fixtures.fragment import *  # noqa: F403
 from tests.fixtures.random_objects import *  # noqa: F403

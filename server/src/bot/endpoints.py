@@ -1,25 +1,25 @@
-from fastapi import Request, Response
-from telegram import Update
+from aiogram.types import Update
+from fastapi import Depends, Request, Response
 
+from src.bot.handlers import dispatcher
 from src.config import settings
 from src.openapi import APITag
+from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
 router = APIRouter(tags=[APITag.private])
 
 
 @router.post(settings.BOT_WEBHOOK_PATH)
-async def bot_webhook(request: Request) -> Response:
+async def telegram_bot_webhook(
+    request: Request, session: AsyncSession = Depends(get_db_session)
+) -> Response:
     try:
-        # any because the real type is fucked up
-        application = request.state.bot_application
-    except AttributeError as e:
-        raise RuntimeError(
-            "Session is not present in the request state. "
-            "Did you forget to add AsyncSessionMiddleware?"
-        ) from e
+        bot = request.state.bot
+    except AttributeError:
+        raise RuntimeError("Bot not in state, fixit")
 
-    update = Update.de_json(data=await request.json(), bot=application.bot)
-    await application.process_update(update)
+    update = Update.model_validate(await request.json())
+    await dispatcher.feed_update(bot=bot, update=update, session=session)
 
     return Response(status_code=200)

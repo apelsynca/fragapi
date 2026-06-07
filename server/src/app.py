@@ -3,14 +3,14 @@ from contextlib import asynccontextmanager
 from typing import TypedDict
 
 import structlog
+from aiogram import Bot
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from telegram.ext import Application as BotApplication
 
 from src import rate_limit
 from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
-from src.bot import get_bot_application, setup_bot
+from src.bot.bot import create_bot
 from src.bot.endpoints import router as bot_router
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
@@ -42,8 +42,8 @@ log: Logger = structlog.get_logger()
 class State(TypedDict):
     async_engine: AsyncEngine
     async_sessionmaker: AsyncSessionMaker
-    bot_application: BotApplication
     fragment: Fragment
+    bot: Bot
 
 
 @asynccontextmanager
@@ -63,11 +63,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     await fragment_rest_client.ensure_authorized()
     fragment = Fragment(clients=[fragment_rest_client])
 
-    bot_application = get_bot_application()
-    if settings.is_production():
-        await setup_bot(bot_application)
-        await bot_application.initialize()
-        await bot_application.start()
+    bot = create_bot()
 
     await broker.startup()
 
@@ -77,15 +73,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
         yield State(
             async_engine=async_engine,
             async_sessionmaker=async_sessionmaker,
-            bot_application=bot_application,
             fragment=fragment,
+            bot=bot,
         )
 
     await broker.shutdown()
-
-    if settings.is_production():
-        await bot_application.stop()
-        await bot_application.shutdown()
 
     log.info("Fragment API stopped")
 
