@@ -23,6 +23,12 @@ async def setup_webhook(bot: Bot) -> None:
     ) == set(allowed_updates):
         return
 
+    log.info(
+        "Setting up telegram bot webhook",
+        new_url=webhook_url,
+        prev_url=webhook_info.url,
+    )
+
     await bot.set_webhook(
         url=webhook_url,
         allowed_updates=allowed_updates,
