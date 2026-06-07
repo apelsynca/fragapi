@@ -40,6 +40,7 @@ class TonAPIService:
         if webhook_message.account_id not in self.ACCOUNT_RAW_ADDRESSES:
             raise FragError("Wrong account id")
 
+        # TODO: here refactor + retry
         try:
             await asyncio.sleep(0.5)  # to make sure transaction exists on tonapi side.
             # NOTE: here check maybe?
