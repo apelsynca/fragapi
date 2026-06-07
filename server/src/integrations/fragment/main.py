@@ -5,7 +5,7 @@ from typing import Literal
 from src.integrations.fragment.rest_client import FragmentRestClient
 from src.integrations.fragment.types import BuyLink, BuyRequest, RecipientData
 
-type MonthsAmount = Literal["3", "6", "12"]
+type MonthsAmount = Literal[3, 6, 12]
 
 
 class Fragment:
@@ -73,13 +73,13 @@ class Fragment:
         )
 
     async def search_premium_gift_recipient(
-        self, query: str, months: MonthsAmount = "12"
+        self, query: str, months: MonthsAmount = 12
     ) -> RecipientData:
         client = self.get_client()
 
         data = await client.api_request(
             method="searchPremiumGiftRecipient",
-            data={"query": query, "months": months},
+            data={"query": query, "months": str(months)},
         )
         return RecipientData.model_validate(data)
 
@@ -96,7 +96,7 @@ class Fragment:
             method="initGiftPremiumRequest",
             data={
                 "recipient": recipient,
-                "months": months,
+                "months": str(months),
                 "payment_method": payment_method,
             },
         )

@@ -12,6 +12,3 @@ class FragmentAPIUsersNotFound(FragmentAPIError):
 
 class FragmentAPIAccessDenied(FragmentAPIError):
     pass
-
-
-# Please enter a username assigned to a user.

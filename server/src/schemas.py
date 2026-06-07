@@ -1,7 +1,7 @@
 import re
 from typing import Annotated
 
-from pydantic import UUID4, Field
+from pydantic import UUID4, Field, computed_field
 
 from src.kit.schemas import Schema
 
@@ -11,6 +11,7 @@ class BaseRecipient(Schema):
     photo: str
     name: str
 
+    @computed_field
     @property
     def avatar_url(self) -> str:
         match = re.search(r'src\s*=\s*"(.+?)"', self.photo)
@@ -18,8 +19,8 @@ class BaseRecipient(Schema):
         if match:
             return match.group(1)
 
-        # NOTE: if i add validator for photo, this could be removed
-        return self.photo  # should not happen, fallback
+        # NOTE: fallback, but if i add validator for photo, this could be removed
+        return self.photo
 
 
 class BaseBuyResponse(Schema):
@@ -31,6 +32,7 @@ class BaseBuyResponse(Schema):
         float, Field(gt=0, description="Amount that was reduced from your balance")
     ]
 
+    @computed_field
     @property
     def avatar_url(self) -> str:
         match = re.search(r'src\s*=\s*"(.+?)"', self.photo)
@@ -38,5 +40,5 @@ class BaseBuyResponse(Schema):
         if match:
             return match.group(1)
 
-        # NOTE: if i add validator for photo, this could be removed
-        return self.photo  # should not happen, fallback
+        # NOTE: fallback, but if i add validator for photo, this could be removed
+        return self.photo

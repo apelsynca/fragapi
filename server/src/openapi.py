@@ -23,7 +23,7 @@ class APITag(StrEnum):
     **Example**
 
         ```py
-        router = APIRouter(prefix="/products", tags=["products", APITag.featured])
+        router = APIRouter(prefix="/products", tags=["products", APITag.public])
         ```
     """
 
@@ -43,7 +43,7 @@ class APITag(StrEnum):
             {
                 "name": cls.public,
                 "description": (
-                    "Endpoints shown and documented in the Fragment API documentation."
+                    "Endpoints shown and documented in the FragAPI documentation."
                 ),
             },
         ]
@@ -60,7 +60,7 @@ class OpenAPIParameters(TypedDict):
 
 OPENAPI_PARAMETERS: OpenAPIParameters = {
     "title": "FragAPI",
-    "summary": "Unofficial fragment.com API",
+    "summary": "API to interact with fragment.com",
     "version": "1.0.0",
     "description": "Read the docs at https://docs.fragapi.com/api-reference",
     "openapi_tags": APITag.metadata(),  # type: ignore

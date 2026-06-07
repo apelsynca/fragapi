@@ -54,7 +54,7 @@ class PremiumService:
             metadata=FTMetadata(
                 recipient=recipient_data.recipient,
                 recipient_username=data.username,
-                premium_months=int(data.months.value),  # pyright: ignore
+                premium_months=data.months.value,
             ),
         )
 

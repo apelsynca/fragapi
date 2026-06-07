@@ -21,7 +21,7 @@ class TonConnectData(BaseModel):
 
 
 class TonConnectMessage(BaseModel):
-    address: str  # user friendly
+    address: str
     amount: int
     payload: str | None = None
 

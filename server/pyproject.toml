@@ -1,7 +1,7 @@
 [project]
 name = "fragment-api"
 version = "1.0.0"
-description = "API for businesses to interact with Fragment.com"
+description = "API to interact with fragment.com"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

@@ -12,6 +12,7 @@ from src.api import router
 from src.auth.middlewares import AuthSubjectMiddleware
 from src.bot import create_bot
 from src.bot.endpoints import router as bot_router
+from src.bot.webhook import setup_webhook
 from src.config import settings
 from src.exception_handlers import add_exception_handlers
 from src.health.endpoints import router as health_router
@@ -58,12 +59,14 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
     )
     fragment_rest_client = FragmentRestClient(
         ton_connect=ton_connect,
-        session_key="CANBEANYTHING",
+        session_key="CanBeAnythingForNow",
     )
     await fragment_rest_client.ensure_authorized()
     fragment = Fragment(clients=[fragment_rest_client])
 
     bot = create_bot()
+    if not settings.is_development():
+        await setup_webhook(bot)  # does not work without VPN for me
 
     await broker.startup()
 
@@ -79,7 +82,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
-    log.info("Fragment API stopped")
+    log.info("FragAPI stopped")
 
 
 def create_app() -> FastAPI:
