@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params, to_amount
 
-from src.bot.logs_sender import telegram_log_sender
+from src.bot.log_sender import telegram_log_sender
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fragment_transaction.repository import FragmentTransactionRepository

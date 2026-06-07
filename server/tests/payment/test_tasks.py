@@ -3,7 +3,7 @@ import uuid
 import pytest
 from pytest_mock import MockerFixture
 
-from src.bot.logs_sender import TelegramLogSender
+from src.bot.log_sender import LoggerTelegramLogSender
 from src.exceptions import ResourceNotFound
 from src.models.payments import Payment
 from src.payment.tasks import NEW_DEPOSIT_NOTIFICATION_TEXT, deposit_send_telegram_log
@@ -27,7 +27,7 @@ async def test_telegram_log_right_message_and_notify(
     )
 
     telegram_log_sender_mock = mocker.patch(
-        "src.payment.tasks.telegram_log_sender", spec=TelegramLogSender
+        "src.payment.tasks.telegram_log_sender", spec=LoggerTelegramLogSender
     )
 
     await deposit_send_telegram_log(payment_id=payment.id, session=session)

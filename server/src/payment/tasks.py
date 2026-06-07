@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.orm import selectinload
 
-from src.bot.logs_sender import telegram_log_sender
+from src.bot.log_sender import telegram_log_sender
 from src.exceptions import ResourceNotFound
 from src.models import Payment
 from src.payment.repository import PaymentRepository

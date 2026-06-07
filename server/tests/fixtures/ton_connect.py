@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from ton_core import to_nano
 
-from src.bot.logs_sender import TelegramLogSender
+from src.bot.log_sender import LoggerTelegramLogSender
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from tests.fixtures.random_objects import get_tc_transaction
 
@@ -30,5 +30,6 @@ def valid_tc_transaction_hash() -> str:
 @pytest.fixture(autouse=True)
 def telegram_log_sender(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.fragment_transaction.tasks.telegram_log_sender", spec=TelegramLogSender
+        "src.fragment_transaction.tasks.telegram_log_sender",
+        spec=LoggerTelegramLogSender,
     )
