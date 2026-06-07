@@ -45,11 +45,15 @@ class Settings(BaseSettings):
     DATABASE_POOL_RECYCLE_SECONDS: int = 600  # 10 minutes
     DATABASE_COMMAND_TIMEOUT_SECONDS: float = 30.0
 
-    # Bot
+    # Telegram Bot
     BOT_TOKEN: str = ""
     BOT_WEBHOOK_URL: str = ""
     BOT_WEBHOOK_PATH: str = "/bot/webhook"
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
+    TELEGRAM_LOG_SENDER: TelegramLogSender = (
+        TelegramLogSender.logger
+    )  # used for admin aswell
+    ADMIN_TELEGRAM_LOGS_CHAT_ID: int | str = ""
 
     # LogTide
     LOGTIDE_TOKEN: str | None = None
@@ -59,10 +63,6 @@ class Settings(BaseSettings):
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
     MIN_NON_SILENT_AMOUNT: float = 3
-
-    TELEGRAM_LOG_SENDER: TelegramLogSender = TelegramLogSender.logger
-    TELEGRAM_LOGS_CHAT_ID: int | str = ""
-
     DOCS_URL: str = "https://docs.fragapi.com"
     API_URL: str = "https://api.fragapi.com"
     PANEL_URL: str = "https://fragapi.com"
