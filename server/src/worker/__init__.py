@@ -12,7 +12,7 @@ broker = get_broker()
 scheduler = get_scheduler(broker)
 
 
-def worker_task[**P, R](
+def worker_task_with_queue_manager[**P, R](
     task_name: str | None = None,
     **labels: Any,
 ):

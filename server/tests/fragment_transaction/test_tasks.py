@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import ANY, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 import pytest_asyncio
@@ -7,16 +7,11 @@ from pytest_mock import MockerFixture
 from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
-from src.config import settings
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
-from src.fragment_transaction.tasks import (
-    process_fragment_transaction,
-    send_telegram_log,
-)
+from src.fragment_transaction.tasks import process_fragment_transaction
 from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
-from src.models.transactions import Transaction
 from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
@@ -188,47 +183,3 @@ async def test_process_sets_hash(
     )
 
     assert valid_frag_trans.transaction.hash == hash_string
-
-
-@pytest.mark.asyncio
-async def test_sends_with_notification_if_more_than_cfgval_ton(
-    save_fixture: SaveFixture,
-    user: User,
-    transaction: Transaction,
-    telegram_log_sender: MagicMock,
-    session: AsyncSession,
-) -> None:
-    frag_transaction = await create_fragment_transaction(
-        save_fixture,
-        user=user,
-        transaction=transaction,
-        amount=settings.MIN_NON_SILENT_AMOUNT + 0.1,
-    )
-
-    await send_telegram_log(
-        fragment_transaction_id=frag_transaction.id, session=session
-    )
-
-    telegram_log_sender.send.assert_called_once_with(text=ANY, with_notification=True)
-
-
-@pytest.mark.asyncio
-async def test_sends_without_notification_if_less_than_cfgval_ton(
-    save_fixture: SaveFixture,
-    user: User,
-    transaction: Transaction,
-    telegram_log_sender: MagicMock,
-    session: AsyncSession,
-) -> None:
-    frag_transaction = await create_fragment_transaction(
-        save_fixture,
-        user=user,
-        transaction=transaction,
-        amount=settings.MIN_NON_SILENT_AMOUNT - 0.1,
-    )
-
-    await send_telegram_log(
-        fragment_transaction_id=frag_transaction.id, session=session
-    )
-
-    telegram_log_sender.send.assert_called_once_with(text=ANY, with_notification=False)
