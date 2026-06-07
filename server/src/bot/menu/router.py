@@ -32,7 +32,7 @@ AUTHORIZATION_SUCCESS_TEXT = "Авторизация прошла успешно
 
 @router.message(CommandStart())
 async def command_start(
-    message: Message, session: AsyncSession, command_object: CommandObject
+    message: Message, session: AsyncSession, command: CommandObject
 ) -> None:
     tg_user = cast(TGUser, message.from_user)
 
@@ -51,7 +51,7 @@ async def command_start(
             ),
         )
 
-    if command_object.args is not None and command_object.args == LOGIN_ARG:
+    if command.args is not None and command.args == LOGIN_ARG:
         return await login(message, session, user)
 
     await message.answer(
