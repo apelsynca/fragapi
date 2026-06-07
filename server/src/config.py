@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     ENV: Environment = Environment.development
     LOG_LEVEL: str = "DEBUG"
 
+    BASE_URL: str = "http://127.0.0.1:8000"
+    PANEL_URL: str = "http://127.0.0.1:3000"
+    DOCS_URL: str = "https://docs.fragapi.com"
+
     TON_ADDRESS: str = ""
     TONCENTER_API_KEY: str = ""
     TONAPI_API_KEY: str = ""
@@ -63,9 +67,6 @@ class Settings(BaseSettings):
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
     MIN_NON_SILENT_AMOUNT: float = 3
-    DOCS_URL: str = "https://docs.fragapi.com"
-    API_URL: str = "https://api.fragapi.com"
-    PANEL_URL: str = "https://fragapi.com"
 
     FRAGMENT_SESSION_PATH: str = ""
 
@@ -74,14 +75,14 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
-    @property
-    def redis_url(self) -> str:
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
-
     AMQP_HOST: str = "127.0.0.1"
     AMQP_USER: str = "guest"
     AMQP_PWD: str = "guest"
     AMQP_PORT: int = 5672
+
+    @property
+    def redis_url(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     @property
     def amqp_url(self) -> str:
