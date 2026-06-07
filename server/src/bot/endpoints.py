@@ -26,7 +26,7 @@ async def telegram_bot_webhook(
         raise RuntimeError("Bot not in state, fixit")
 
     if (
-        request.headers["X-Telegram-Bot-Api-Secret-Token"]
+        request.headers.get("X-Telegram-Bot-Api-Secret-Token")
         != settings.BOT_WEBHOOK_SECRET_TOKEN
     ):
         log.warning("telegram bot webhook wrong secret token")
