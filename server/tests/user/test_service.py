@@ -1,20 +1,30 @@
 import pytest
+from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.user.schemas import UserCreate
+from src.exceptions import BadRequest
 from src.user.service import user as user_service
 
 
 @pytest.mark.asyncio
-async def test_user_create(session: AsyncSession) -> None:
-    new_user = await user_service.create(
-        session=session,
-        data=UserCreate(
-            id=19999, first_name="Any Name", last_name=None, username="someusername"
-        ),
+async def test_creates_from_tg_user(session: AsyncSession) -> None:
+    tg_user = TGUser(
+        id=99299, is_bot=False, first_name="Homo Citrus", username="homocitrus"
     )
 
-    assert new_user.id == 19999
-    assert new_user.first_name == "Any Name"
-    assert new_user.last_name is None
-    assert new_user.username == "someusername"
+    user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
+
+    assert user.id == 99299
+    assert user.first_name == "Homo Citrus"
+    assert user.username == "homocitrus"
+    assert user.balance == 0
+
+
+@pytest.mark.asyncio
+async def test_create_from_tg_user_raises_if_is_bot(session: AsyncSession) -> None:
+    tg_user = TGUser(
+        id=99299, is_bot=True, first_name="Sanek", username="sanechka_snimayesh"
+    )
+
+    with pytest.raises(BadRequest):
+        await user_service.create_from_tg_user(session=session, tg_user=tg_user)

@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 
-from src.bot.menu.router import router as menu_router
+from src.bot.menu.handlers import router as menu_router
 
 dispatcher = Dispatcher()
 

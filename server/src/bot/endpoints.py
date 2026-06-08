@@ -3,7 +3,7 @@ from aiogram import Bot
 from aiogram.types import Update
 from fastapi import Depends, Request, Response
 
-from src.bot.handlers import dispatcher
+from src.bot.dispatcher import dispatcher
 from src.config import settings
 from src.exceptions import Unauthorized
 from src.logging import Logger

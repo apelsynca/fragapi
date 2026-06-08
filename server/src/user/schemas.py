@@ -12,9 +12,5 @@ class BaseUser(Schema):
     username: str | None
 
 
-class UserCreate(BaseUser):
-    is_premium: bool = False
-
-
 class UserRead(BaseUser):
     balance: float

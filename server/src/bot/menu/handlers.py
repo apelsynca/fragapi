@@ -19,7 +19,6 @@ from src.kit.crypto import generate_token
 from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
-from src.user.schemas import UserCreate
 from src.user.service import user as user_service
 
 router = Router(name="menu")
@@ -40,16 +39,7 @@ async def command_start(
         user = await user_service.get_by_id(session=session, id=tg_user.id)
         # user = await user_service.update()
     except ResourceNotFound:
-        user = await user_service.create(
-            session=session,
-            data=UserCreate(
-                id=tg_user.id,
-                first_name=tg_user.first_name,
-                last_name=tg_user.last_name,
-                username=tg_user.username,
-                is_premium=tg_user.is_premium or False,
-            ),
-        )
+        user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
 
     if command.args is not None and command.args == LOGIN_ARG:
         return await login(message, session, user)

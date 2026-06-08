@@ -1,11 +1,11 @@
 import structlog
+from aiogram.types import User as TGUser
 
-from src.exceptions import ResourceNotFound
+from src.exceptions import BadRequest, ResourceNotFound
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
 from src.user.repository import UserRepository
-from src.user.schemas import UserCreate
 
 log: Logger = structlog.get_logger()
 
@@ -20,23 +20,25 @@ class UserService:
 
         return user
 
-    async def create(self, session: AsyncSession, data: UserCreate) -> User:
+    async def create_from_tg_user(
+        self,
+        session: AsyncSession,
+        tg_user: TGUser,
+    ) -> User:
+        if tg_user.is_bot:
+            raise BadRequest("Cannot create from tg_user which is bot")
+
         repository = UserRepository.from_session(session)
-        log.info(
-            "Creating user",
-            user_id=data.id,
-            first_name=data.first_name,
-            username=data.username,
-        )
 
         return await repository.create(
             User(
-                id=data.id,
-                first_name=data.first_name,
-                last_name=data.last_name,
-                username=data.username,
-                is_premium=data.is_premium,
-            )
+                id=tg_user.id,
+                first_name=tg_user.first_name,
+                last_name=tg_user.last_name,
+                username=tg_user.username,
+                is_premium=tg_user.is_premium or False,
+            ),
+            flush=True,
         )
 
 
