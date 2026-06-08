@@ -44,7 +44,7 @@ async def command_start(
         user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
 
     if command.args is not None and command.args == LOGIN_ARG:
-        return await login(message, session, user)
+        return await login(message=message, session=session, user=user)
 
     await message.answer(
         text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} TON</b>",
