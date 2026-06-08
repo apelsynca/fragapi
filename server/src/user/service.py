@@ -41,5 +41,25 @@ class UserService:
             flush=True,
         )
 
+    async def update_by_tg_user(
+        self, session: AsyncSession, user: User, tg_user: TGUser
+    ) -> User:
+        if tg_user.is_bot:
+            raise BadRequest("Telegram user is bot")
+
+        if user.id != tg_user.id:
+            raise BadRequest("User and telegram user have different id's")
+
+        repository = UserRepository.from_session(session)
+        return await repository.update(
+            user,
+            update_dict={
+                "first_name": tg_user.first_name,
+                "last_name": tg_user.last_name,
+                "username": tg_user.username,
+                "is_premium": tg_user.is_premium or False,
+            },
+        )
+
 
 user = UserService()
