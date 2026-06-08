@@ -38,6 +38,7 @@ class Settings(BaseSettings):
 
     # User session
     USER_SESSION_TTL: timedelta = timedelta(days=7)
+    BOT_LOGIN_SESSION_TTL: timedelta = timedelta(minutes=15)
 
     # Database
     POSTGRES_USER: str = "frag"
