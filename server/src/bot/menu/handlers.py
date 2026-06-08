@@ -26,7 +26,7 @@ router = Router(name="menu")
 log: Logger = structlog.get_logger()
 
 LOGIN_ARG = "login"
-AUTHORIZATION_SUCCESS_TEXT = "Авторизация прошла успешно!\n\nНажмите войти 👇"
+AUTHORIZATION_SUCCESS_TEXT = "🚪 Авторизовал.\n\nЧтобы войти кнопка снизу 👇"
 
 
 @router.message(CommandStart())
@@ -37,7 +37,9 @@ async def command_start(
 
     try:
         user = await user_service.get_by_id(session=session, id=tg_user.id)
-        # user = await user_service.update()
+        user = await user_service.update_by_tg_user(
+            session=session, user=user, tg_user=tg_user
+        )
     except ResourceNotFound:
         user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
 
