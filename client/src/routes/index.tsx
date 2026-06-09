@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import Landing from '~/components/Landing'
+import Landing from '~/components/Landing/Landing'
 
 export const Route = createFileRoute('/')({
   component: App,

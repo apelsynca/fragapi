@@ -13,7 +13,8 @@ import { I18nextProvider } from 'react-i18next'
 import i18n from '~/lib/i18n-config'
 import { getLocale } from '~/lib/i18n'
 
-import appCss from '../styles.css?url'
+import globalsCss from '../styles/globals.css?url'
+import utilsCss from '../styles/utils.css?url'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { seo } from '~/utils/seo'
 
@@ -48,7 +49,11 @@ export const Route = createRootRouteWithContext<{
     links: [
       {
         rel: 'stylesheet',
-        href: appCss,
+        href: globalsCss,
+      },
+      {
+        rel: 'stylesheet',
+        href: utilsCss,
       },
     ],
   }),

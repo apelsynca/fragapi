@@ -1,15 +1,19 @@
-import { useThemeToggle } from './useThemeToggle.ts'
+import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
+import { DropdownMenuItem } from './ui/dropdown-menu.tsx'
+import useThemeToggle from './useThemeToggle.ts'
+import { useTranslation } from 'react-i18next'
 
 export default function DashboardThemeToggle() {
-  const { mode, toggleMode, label } = useThemeToggle()
+  const { theme, toggleTheme, label } = useThemeToggle()
+  const { t } = useTranslation()
 
   return (
-    <DropdownMenuItem onClick={toggleMode} aria-label={label} title={label}>
-      {mode === 'auto' ? (
+    <DropdownMenuItem onClick={toggleTheme} aria-label={label} title={label}>
+      {theme === 'auto' ? (
         <>
           <MonitorIcon /> {t('sidebar.theme_system')}
         </>
-      ) : mode === 'dark' ? (
+      ) : theme === 'dark' ? (
         <>
           <MoonIcon /> {t('sidebar.theme_dark')}
         </>

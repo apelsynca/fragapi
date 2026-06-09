@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react'
-import { DropdownMenuItem } from './ui/dropdown-menu'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -56,7 +54,7 @@ export default function useThemeToggle() {
     }
   }, [theme])
 
-  function toggleMode() {
+  function toggleTheme() {
     const nextMode: ThemeMode =
       theme === 'light' ? 'dark' : theme === 'dark' ? 'auto' : 'light'
     setTheme(nextMode)
@@ -69,5 +67,5 @@ export default function useThemeToggle() {
       ? 'Theme mode: auto (system). Click to switch to light mode.'
       : `Theme mode: ${theme}. Click to switch mode.`
 
-  return { theme, toggleMode, label }
+  return { theme, toggleTheme, label }
 }

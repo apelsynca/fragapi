@@ -1,8 +1,9 @@
 {
   "land": {
-    "cta": "CTA Longlong very long text here bla bla",
-    "desc": "Use fragment via API, without KYC, without 24words.",
-    "go_to_panel": "Go to panel",
+    "title": "FragAPI - Use Fragment without KYC as API",
+    "description": "Without KYC without seed phrases fully open source",
+    "badge": "FragAPI is now released",
+    "go_to_panel": "To panel",
     "bot_login": "Login via Bot",
     "learn_more": "Learn more"
   },
