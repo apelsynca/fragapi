@@ -45,7 +45,9 @@ export default function AppSidebarBottom() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton size="lg">
-          <div className="font-semibold">{user.firstName}</div>
+          <div className="font-semibold">
+            {user.firstName} {user.lastName}
+          </div>
           <ChevronsUpDownIcon className="ml-auto size-4" />{' '}
         </SidebarMenuButton>
       </DropdownMenuTrigger>

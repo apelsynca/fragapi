@@ -44,7 +44,7 @@ const CreateApiTokenDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={haveZeroTokens ? 'default' : 'secondary'}>
-          <PlusIcon /> Создать токен
+          <PlusIcon /> {haveZeroTokens ? 'Создать токен' : 'Добавить токен'}
         </Button>
       </DialogTrigger>
       <DialogContent>

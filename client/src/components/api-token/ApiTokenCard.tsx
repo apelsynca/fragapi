@@ -13,8 +13,15 @@ import {
   CardTitle,
 } from '../ui/card'
 import { Button } from '../ui/button'
+import { cn } from '~/lib/utils'
 
-const ApiTokenCard = ({ apiToken }: { apiToken: ApiToken }) => {
+const ApiTokenCard = ({
+  className,
+  apiToken,
+}: {
+  className?: string
+  apiToken: ApiToken
+}) => {
   const queryClient = useQueryClient()
 
   const deleteApiToken = useServerFn(deleteApiTokenFn)
@@ -27,7 +34,7 @@ const ApiTokenCard = ({ apiToken }: { apiToken: ApiToken }) => {
   })
 
   return (
-    <Card className="max-w-108">
+    <Card className={cn('max-w-108', className)}>
       <CardHeader>
         <CardTitle>{apiToken.name}</CardTitle>
         <CardDescription>
@@ -37,13 +44,13 @@ const ApiTokenCard = ({ apiToken }: { apiToken: ApiToken }) => {
       <CardContent className="flex flex-col gap-2">
         <div className="flex gap-2">
           <div
-            className="max-w-full flex items-center rounded-lg bg-muted pl-1 gap-1"
+            className="[&_code]:blur-xs hover:[&_code]:blur-none max-w-full flex items-center rounded-lg bg-muted pl-1 gap-1"
             onClick={() => {
               navigator.clipboard.writeText(apiToken.token)
               toast.success('Апи ключ скопирован')
             }}
           >
-            <code className="relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+            <code className="transition-all relative rounded mx-[0.3rem] my-[0.2rem] leading-none font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap">
               {apiToken.token}
             </code>
             <Button size="icon">
