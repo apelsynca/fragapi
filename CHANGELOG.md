@@ -1,12 +1,11 @@
-# 1.0.0 (Release)
+# v1.0.0 Beta (Latest)
 
-- Recipient/Buy response `avatar_url` object (with extracted link to avatar)
-- Worker (TaskIQ) overhaul
-- Changed bot library from `python-telegram-bot` to `aiogram`
-- Now supports multiple API-Keys instead of one
-- Added [LogTide](https://logtide.dev) observability
-- User info sync with telegram
-- [ ] User transaction logs
-- Admin transaction logs
-- Deposits check retry (for when not found sometimes from tonapi)
-- [ ] Landing page rework
+- feat: recipient/buy response `avatar_url` object (with extracted link to avatar)
+- refactor: worker (TaskIQ) overhaul
+- refactor: changed bot library from `python-telegram-bot` to `aiogram`
+- feat: supports multiple API-Keys instead of one
+- feat: added [LogTide](https://logtide.dev) observability
+- feat: user info sync with telegram
+- feat: admin and user transaction logs
+- fix: deposits check retry (for when not found sometimes from tonapi) (deposits sometimes didn't worked)
+- feat: prettier landing page
