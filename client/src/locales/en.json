@@ -1,5 +1,6 @@
 {
   "land": {
+    "cta": "CTA Longlong very long text here bla bla",
     "desc": "Use fragment via API, without KYC, without 24words.",
     "go_to_panel": "Go to panel",
     "bot_login": "Login via Bot",

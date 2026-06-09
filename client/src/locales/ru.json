@@ -1,5 +1,6 @@
 {
   "land": {
+    "cta": "CTA Длинный-длинный очень длинный text here bla bla",
     "desc": "Используйте фрагмент через API, без KYC, без 24х слов",
     "go_to_panel": "Go to panel",
     "bot_login": "Login via Bot",

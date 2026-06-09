@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react'
 import { DropdownMenuItem } from './ui/dropdown-menu'
-import { useTranslation } from 'react-i18next'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -34,18 +33,17 @@ function applyThemeMode(mode: ThemeMode) {
   document.documentElement.style.colorScheme = resolved
 }
 
-export default function ThemeToggle() {
-  const { t } = useTranslation()
-  const [mode, setMode] = useState<ThemeMode>('auto')
+export default function useThemeToggle() {
+  const [theme, setTheme] = useState<ThemeMode>('auto')
 
   useEffect(() => {
     const initialMode = getInitialMode()
-    setMode(initialMode)
+    setTheme(initialMode)
     applyThemeMode(initialMode)
   }, [])
 
   useEffect(() => {
-    if (mode !== 'auto') {
+    if (theme !== 'auto') {
       return
     }
 
@@ -56,36 +54,20 @@ export default function ThemeToggle() {
     return () => {
       media.removeEventListener('change', onChange)
     }
-  }, [mode])
+  }, [theme])
 
   function toggleMode() {
     const nextMode: ThemeMode =
-      mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light'
-    setMode(nextMode)
+      theme === 'light' ? 'dark' : theme === 'dark' ? 'auto' : 'light'
+    setTheme(nextMode)
     applyThemeMode(nextMode)
     window.localStorage.setItem('theme', nextMode)
   }
 
   const label =
-    mode === 'auto'
+    theme === 'auto'
       ? 'Theme mode: auto (system). Click to switch to light mode.'
-      : `Theme mode: ${mode}. Click to switch mode.`
+      : `Theme mode: ${theme}. Click to switch mode.`
 
-  return (
-    <DropdownMenuItem onClick={toggleMode} aria-label={label} title={label}>
-      {mode === 'auto' ? (
-        <>
-          <MonitorIcon /> {t('sidebar.theme_system')}
-        </>
-      ) : mode === 'dark' ? (
-        <>
-          <MoonIcon /> {t('sidebar.theme_dark')}
-        </>
-      ) : (
-        <>
-          <SunIcon /> {t('sidebar.theme_light')}
-        </>
-      )}
-    </DropdownMenuItem>
-  )
+  return { theme, toggleMode, label }
 }
