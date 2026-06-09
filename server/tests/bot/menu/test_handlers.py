@@ -73,7 +73,7 @@ async def test_login_creates_user_session(session: AsyncSession, user: User) -> 
     )
 
 
-@freeze_time()
+@freeze_time("2025-01-14")
 @pytest.mark.asyncio
 async def test_expires(session: AsyncSession, user: User) -> None:
     message = MagicMock(spec=Message)
@@ -85,5 +85,6 @@ async def test_expires(session: AsyncSession, user: User) -> None:
     user_session = await session.scalar(
         select(UserSession).where(UserSession.user == user)
     )
+
     assert user_session is not None
-    assert user_session.expires_at <= utc_now() + settings.BOT_LOGIN_SESSION_TTL
+    assert user_session.expires_at == utc_now() + settings.BOT_LOGIN_SESSION_TTL

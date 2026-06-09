@@ -5,7 +5,6 @@ import structlog
 from aiogram import Router
 from aiogram.filters import CommandObject, CommandStart
 from aiogram.types import (
-    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Message,
@@ -16,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
+from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
@@ -50,11 +50,15 @@ async def command_start(
         text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} TON</b>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🌐 Панель", url=settings.PANEL_URL)],
+                [
+                    InlineKeyboardButton(
+                        text="🌐 Панель", url=settings.PANEL_URL, style="primary"
+                    )
+                ],
                 [InlineKeyboardButton(text="📃 Документация", url=settings.DOCS_URL)],
                 [
                     InlineKeyboardButton(
-                        text="🔔 Уведомления", callback_data="notifications"
+                        text="📄 Логи о транзакциях", callback_data="logs"
                     )
                 ],
             ]
@@ -68,6 +72,7 @@ async def login(message: Message, session: AsyncSession, user: User) -> None:
         user_agent=None,
         token=generate_token(prefix=USER_SESSION_PREFIX),
         bot_hash=secrets.token_urlsafe(24),
+        expires_at=utc_now() + settings.BOT_LOGIN_SESSION_TTL,
     )
     session.add(user_session)
     await session.flush()
@@ -85,8 +90,3 @@ async def login(message: Message, session: AsyncSession, user: User) -> None:
             ]
         ),
     )
-
-
-@router.callback_query()
-async def notifications_empty(callback_query: CallbackQuery) -> None:
-    await callback_query.answer(text="Coming soon...", show_alert=True)

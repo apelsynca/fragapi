@@ -8,6 +8,7 @@ from src.kit.database.models import TimestampedModel
 
 if TYPE_CHECKING:
     from .fragment_transactions import FragmentTransaction
+    from .telegram_logs_sources import TelegramLogsSource
 
 
 class User(TimestampedModel):
@@ -25,4 +26,8 @@ class User(TimestampedModel):
 
     fragment_transactions: Mapped[list["FragmentTransaction"]] = relationship(
         "FragmentTransaction", back_populates="user"
+    )
+
+    telegram_logs_sources: Mapped[list["TelegramLogsSource"]] = relationship(
+        "TelegramLogsSource", back_populates="user"
     )
