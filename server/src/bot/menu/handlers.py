@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
+from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
@@ -68,6 +69,7 @@ async def login(message: Message, session: AsyncSession, user: User) -> None:
         user_agent=None,
         token=generate_token(prefix=USER_SESSION_PREFIX),
         bot_hash=secrets.token_urlsafe(24),
+        expires_at=utc_now() + settings.BOT_LOGIN_SESSION_TTL,
     )
     session.add(user_session)
     await session.flush()

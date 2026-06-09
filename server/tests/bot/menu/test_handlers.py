@@ -87,5 +87,4 @@ async def test_expires(session: AsyncSession, user: User) -> None:
     )
 
     assert user_session is not None
-    print(user_session.expires_at)
     assert user_session.expires_at == utc_now() + settings.BOT_LOGIN_SESSION_TTL
