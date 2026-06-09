@@ -15,7 +15,7 @@ USER_TELEGRAM_LOG_TEXT = (
 )
 
 
-async def enqueu_new_trans_telegram_log_task(
+def enqueue_new_trans_telegram_log_task(
     source: TelegramLogsSource,
     fragment_transaction: FragmentTransaction,
 ) -> None:

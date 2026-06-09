@@ -15,8 +15,10 @@ from src.fragment_transaction.utils import validate_tc_transaction
 from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectTransaction
 from src.logging import Logger
-from src.models.fragment_transactions import FragmentTransaction
+from src.models import FragmentTransaction
 from src.postgres import AsyncSession
+from src.telegram_log.fragment_transaction import enqueue_new_trans_telegram_log_task
+from src.telegram_log.service import telegram_log as telegram_log_service
 from src.worker import worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
 from src.worker.wallet_manager import get_wallet_manager
@@ -85,5 +87,14 @@ async def process_fragment_transaction(
 
     try:
         enqueue_frag_trans_admin_log_task(fragment_transaction)
+    except Exception:
+        log.error("Error enqueuing fragment transaction admin log", exc_info=True)
+
+    try:
+        sources = await telegram_log_service.get_all_sources(
+            session=session, user=fragment_transaction.user
+        )
+        if len(sources) == 1:  # PERF: dont forget to change it to > 1 or smth
+            enqueue_new_trans_telegram_log_task(sources[0], fragment_transaction)
     except Exception:
         log.error("Error enqueuing fragment transaction admin log", exc_info=True)
