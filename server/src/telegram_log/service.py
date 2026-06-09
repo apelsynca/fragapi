@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +14,14 @@ def validate_chat_id_or_smth(chat_id: int | str) -> str:
 
 
 class TelegramLogService:
+    async def get_all_sources(
+        self, session: AsyncSession, user: User
+    ) -> Sequence[TelegramLogsSource]:
+        repository = TelegramLogsSourceRepository.from_session(session)
+
+        stmt = repository.get_base_stmt().where(TelegramLogsSource.user == user)
+        return await repository.get_all(stmt)
+
     async def create_source(
         self, session: AsyncSession, user: User, chat_id: int | str
     ) -> TelegramLogsSource:

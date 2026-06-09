@@ -50,7 +50,11 @@ async def command_start(
         text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} TON</b>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🌐 Панель", url=settings.PANEL_URL)],
+                [
+                    InlineKeyboardButton(
+                        text="🌐 Панель", url=settings.PANEL_URL, style="primary"
+                    )
+                ],
                 [InlineKeyboardButton(text="📃 Документация", url=settings.DOCS_URL)],
                 [
                     InlineKeyboardButton(
