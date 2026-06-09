@@ -5,7 +5,6 @@ import structlog
 from aiogram import Router
 from aiogram.filters import CommandObject, CommandStart
 from aiogram.types import (
-    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Message,
@@ -55,7 +54,7 @@ async def command_start(
                 [InlineKeyboardButton(text="📃 Документация", url=settings.DOCS_URL)],
                 [
                     InlineKeyboardButton(
-                        text="🔔 Уведомления", callback_data="notifications"
+                        text="📄 Логи о транзакциях", callback_data="logs"
                     )
                 ],
             ]
@@ -87,8 +86,3 @@ async def login(message: Message, session: AsyncSession, user: User) -> None:
             ]
         ),
     )
-
-
-@router.callback_query()
-async def notifications_empty(callback_query: CallbackQuery) -> None:
-    await callback_query.answer(text="Coming soon...", show_alert=True)
