@@ -15,8 +15,8 @@ NOTIFICATION_TEXT = (
     "User: {user_field}\n"
     "Amount: <b>{amount:.4f} TON</b> (<i>+{fee_amount:.4f} TON</i>)\n"
     "Type: {reason}\n\n"
-    "R-Username: {username}\n"
-    "R-Value: {value_str}"
+    "Rec-Username: {username}\n"
+    "Rec-Value: {value_str}"
 )
 
 

@@ -3,7 +3,7 @@ from src.models import Payment
 from src.worker import enqueue_task
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
-    "<b>New deposit</b>\n\n"
+    "💎 <b>New deposit</b>\n\n"
     "User: {user_field}\n"
     "Amount: <b>{amount:.2f} TON</b>\n\n"
     "Hash: <code>{hash}</code>"
