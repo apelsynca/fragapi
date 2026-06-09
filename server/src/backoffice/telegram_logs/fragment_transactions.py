@@ -10,7 +10,7 @@ from .tasks import telegram_log_send
 STAR_EMOJI = "⭐️"
 GIFT_EMOJI = "🎁"
 
-NOTIFICATION_TEXT = (
+TELEGRAM_LOG_TEXT = (
     "{head_emoji} <b>New transaction</b>\n\n"
     "User: {user_field}\n"
     "Amount: <b>{amount:.4f} TON</b> (<i>+{fee_amount:.4f} TON</i>)\n"
@@ -43,7 +43,7 @@ def enqueue_frag_trans_admin_log_task(fragment_transaction: FragmentTransaction)
         else f"<a href='tg://user?id={fragment_transaction.user_id}'>{fragment_transaction.user.first_name}</a>"
     )
 
-    text = NOTIFICATION_TEXT.format(
+    text = TELEGRAM_LOG_TEXT.format(
         head_emoji=head_emoji,
         user_field=user_field,
         amount=fragment_transaction.amount,

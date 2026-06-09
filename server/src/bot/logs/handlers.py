@@ -38,7 +38,7 @@ async def get_logs_info(
 
     if len(logs_sources) > 0:
         logs_source = logs_sources[0]
-        status_text = LOGS_STATUS_SETUP_TEXT.format(logs_source.chat_id)
+        status_text = LOGS_STATUS_SETUP_TEXT.format(chat_id=logs_source.chat_id)
     else:
         status_text = STATUS_STATUS_UNSET_TEXT
 
@@ -69,9 +69,10 @@ async def get_logs_info_inline(callback: CallbackQuery, session: AsyncSession) -
 
 GIVE_CHAT_ID_TEXT = (
     "✍️ <b>Введите/Выберите chat_id telegram чата в который должны будут приходить логи</b>\n\n"
-    "<blockquote>\n"
-    "Что такое chat_id? - Айди чата/канала телеграм\n"
-    "Как его узнать? - Перешлите сообщение из чата/канала в @userinfobot и скопируйте цифры"
+    "⚠️ <b>Не забудьте добавить бота администратором с правом писать сообщения в выбранный чат/канал, иначе логи не будут приходить</b>\n\n"
+    "<blockquote>"
+    "<b>Что такое chat_id?</b> - Айди чата/канала телеграм\n"
+    "<b>Как его узнать?</b> - Перешлите сообщение из чата/канала в @userinfobot и скопируйте цифры"
     "</blockquote>\n\n"
     "<i>Или выберите снизу</i> 👇"
 )
@@ -111,7 +112,12 @@ async def on_logs_target_changed(
 
     await state.clear()
     await message.edit_text(text="Changed target to a new one!")
-    await message.answer(text="123", reply_to_message_id=message.message_id)
+
+    text, reply_markup = await get_logs_info(session=session, user=user)
+
+    await message.answer(
+        text=text, reply_markup=reply_markup, reply_to_message_id=message.message_id
+    )
 
 
 @router.callback_query(F.data == "target_this_chat")

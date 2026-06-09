@@ -3,7 +3,7 @@ from src.worker import broker
 from .sender import telegram_log_sender
 
 
-@broker.task
+@broker.task(task_name="telegram_log.send")
 async def telegram_log_send(
     chat_id: int, text: str, with_notification: bool = False
 ) -> None:
