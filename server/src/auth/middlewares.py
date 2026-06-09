@@ -27,7 +27,7 @@ def get_bearer_token(request: Request) -> str | None:
 async def get_auth_subject(
     request: Request, session: AsyncSession
 ) -> AuthSubject[Subject]:
-    # NOTE: Scope admin ignored for now
+    # PERF: Scope admin ignored for now (refactorable lol)
 
     token = get_bearer_token(request)
 

@@ -5,10 +5,10 @@ from src.exceptions import ResourceNotFound
 from src.models import User
 from src.user.service import user as user_service
 
-# TODO: refactor this or smth
+# PERF: refactor this later
 
 
-async def get_some_user(session: AsyncSession, tg_user: TGUser) -> User:
+async def get_fresh_user_from_tg_user(session: AsyncSession, tg_user: TGUser) -> User:
     try:
         user = await user_service.get_by_id(session=session, id=tg_user.id)
         return await user_service.update_by_tg_user(

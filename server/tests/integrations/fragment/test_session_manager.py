@@ -1,7 +1,7 @@
 from src.integrations.fragment.session_storage import FragmentSession, SessionStorage
 
 
-def test_save_cookies():
+def test_save_cookies() -> None:
     storage = SessionStorage(session_key="any")
     storage.session = FragmentSession(
         hash="any",
@@ -20,8 +20,4 @@ def test_save_cookies():
     }
 
 
-# TODO: tests for the saving
-
-
-# def test_save_tokens():
-#     pass
+# TODO: tests for the saving cookies

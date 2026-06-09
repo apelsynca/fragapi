@@ -12,7 +12,7 @@ from aiogram.types import (
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.bot.helper import get_some_user
+from src.bot.helper import get_fresh_user_from_tg_user
 from src.models import User
 from src.telegram_log.service import telegram_log as telegram_log_service
 
@@ -58,7 +58,9 @@ async def get_logs_info(
 
 @router.callback_query(F.data == "logs")
 async def get_logs_info_inline(callback: CallbackQuery, session: AsyncSession) -> None:
-    user = await get_some_user(session=session, tg_user=callback.from_user)
+    user = await get_fresh_user_from_tg_user(
+        session=session, tg_user=callback.from_user
+    )
     text, reply_markup = await get_logs_info(session=session, user=user)
 
     await callback.answer()
@@ -105,7 +107,9 @@ async def on_logs_target_changed(
         )
         return
 
-    user = await get_some_user(session=session, tg_user=cast(TGUser, message.from_user))
+    user = await get_fresh_user_from_tg_user(
+        session=session, tg_user=cast(TGUser, message.from_user)
+    )
     await telegram_log_service.set_source(
         session=session, user=user, chat_id=message.text
     )
@@ -125,7 +129,9 @@ async def set_logs_target_as_this_chat(
     callback: CallbackQuery, state: FSMContext, session: AsyncSession
 ) -> None:
     message = cast(Message, callback.message)
-    user = await get_some_user(session=session, tg_user=callback.from_user)
+    user = await get_fresh_user_from_tg_user(
+        session=session, tg_user=callback.from_user
+    )
 
     await state.clear()
     await telegram_log_service.set_source(

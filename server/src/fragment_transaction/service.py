@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import structlog
 from sqlalchemy import case, func, select
-from ton_core import Address, ExternalMessage, to_amount
+from ton_core import to_amount
 
 from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
@@ -18,9 +18,10 @@ from src.kit.sorting import Sorting
 from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
 from src.logging import Logger
-from src.models import FragmentTransaction, Transaction, User
+from src.models import FragmentTransaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
+from src.transaction.service import transaction as transaction_service
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
@@ -125,27 +126,19 @@ class FragmentTransactionService:
         metadata: FTMetadata,
     ) -> FragmentTransaction:
         validate_tc_transaction(tc_transaction)
-
         tc_msg = tc_transaction.messages[0]
-        ext_msg = ExternalMessage(
-            dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
+
+        transaction = await transaction_service.create_as_tc(
+            session=session, tc_transaction=tc_transaction
         )
 
-        # NOTE: move that logic to transaction service
-        transaction = Transaction(
-            nano_amount=tc_msg.amount,
-            hash=None,
-            message_hash=ext_msg.normalized_hash,
-            from_address=tc_transaction.from_address,
-            to_address=Address(tc_msg.address).to_str(is_user_friendly=False),
-        )
-
-        # NOTE: jumper.
+        # NOTE: do better testing on fee side of things, maybe even create a class Fee calculator later,
+        # that way it would be easier to create a solid type shi (one place)
         without_fee_f_amount = float(to_amount(tc_msg.amount))
         f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
 
         repository = FragmentTransactionRepository.from_session(session)
-        transaction = await repository.create(
+        fragment_transaction = await repository.create(
             FragmentTransaction(
                 user=user,
                 amount=f_amount,
@@ -158,7 +151,7 @@ class FragmentTransactionService:
             )
         )
 
-        return transaction
+        return fragment_transaction
 
     async def get_chart_data(
         self, session: AsyncSession, user: User

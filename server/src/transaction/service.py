@@ -1,6 +1,8 @@
 from pytonapi.rest.models import Transaction as TonAPITransaction
+from ton_core import Address, ExternalMessage
 
 from src.exceptions import FragRequestValidationError
+from src.kit.ton_connect import TonConnectTransaction
 from src.models import Transaction
 from src.postgres import AsyncSession
 from src.transaction.repository import TransactionRepository
@@ -8,22 +10,22 @@ from src.transaction.repository import TransactionRepository
 
 class TransactionService:
     async def create_as_tc(
-        self,
-        session: AsyncSession,
-        nano_amount: int,
-        message_hash: str,
-        from_address: str,
-        to_address: str,
+        self, session: AsyncSession, tc_transaction: TonConnectTransaction
     ) -> Transaction:
-        repository = TransactionRepository.from_session(session)
-
-        transaction = Transaction(
-            nano_amount=nano_amount,
-            message_hash=message_hash,
-            from_address=from_address,
-            to_address=to_address,
+        tc_msg = tc_transaction.messages[0]
+        ext_msg = ExternalMessage(
+            dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
 
+        transaction = Transaction(
+            nano_amount=tc_msg.amount,
+            hash=None,
+            message_hash=ext_msg.normalized_hash,
+            from_address=tc_transaction.from_address,
+            to_address=Address(tc_msg.address).to_str(is_user_friendly=False),
+        )
+
+        repository = TransactionRepository.from_session(session)
         return await repository.create(transaction, flush=True)
 
     async def create_as_tonapi_internal(
