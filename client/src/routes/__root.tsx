@@ -27,9 +27,7 @@ export const Route = createRootRouteWithContext<{
     getLocale()
     const token = await fetchSessionToken()
 
-    return {
-      token,
-    }
+    return { token }
   },
   head: () => ({
     meta: [
@@ -43,7 +41,7 @@ export const Route = createRootRouteWithContext<{
       ...seo({
         title: 'FragAPI',
         description_en: 'API for interaction with Fragment, no KYC',
-        keywords: 'fragment,frag,fragapi',
+        keywords: 'fragapi,fragment,frag',
       }),
     ],
     links: [
@@ -76,10 +74,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const lang = i18n.language
-
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
