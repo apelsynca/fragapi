@@ -21,5 +21,5 @@ class FragmentTransaction(TimestampedSchema):
 
 class ChartPoint(Schema):
     date: date
-    ton_amount: float
-    transactions_count: int
+    stars_spend: int
+    premium_spend: int

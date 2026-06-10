@@ -6,9 +6,6 @@ import CreateApiTokenDialog from '~/components/api-token/CreateApiTokenDialog'
 
 export const Route = createFileRoute('/dashboard/api-tokens')({
   component: RouteComponent,
-  loader: ({ context }) => {
-    context.queryClient.prefetchQuery(apiTokensOptions())
-  },
 })
 
 function RouteComponent() {

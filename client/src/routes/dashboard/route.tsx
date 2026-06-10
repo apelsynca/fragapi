@@ -2,7 +2,6 @@ import { Toaster } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
-import { userMeOptions } from '~/lib/queries'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import DashboardProviders from '~/components/Dashboard/DashboardProviders'
 import Landing from '~/components/Landing'
@@ -14,9 +13,6 @@ export const Route = createFileRoute('/dashboard')({
     if (!context.token) {
       throw new Error('Not authenticated')
     }
-  },
-  loader: ({ context }) => {
-    context.queryClient.fetchQuery(userMeOptions())
   },
   errorComponent: ({ error }) => {
     if (error.message === 'Not authenticated') {
