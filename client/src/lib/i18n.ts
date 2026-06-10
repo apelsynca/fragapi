@@ -3,7 +3,7 @@ import { getCookie, getRequestHeader } from '@tanstack/react-start/server'
 import acceptLanguage from 'accept-language'
 import i18n from './i18n-config'
 
-acceptLanguage.languages(['en', 'ru'])
+acceptLanguage.languages(['ru'])
 
 export const getLocale = createIsomorphicFn()
   .client(() => {
@@ -17,7 +17,7 @@ export const getLocale = createIsomorphicFn()
     // 2. Fall back to the Accept-Language header
     const header = getRequestHeader('accept-language')
     const parsed = acceptLanguage.get(header)
-    const locale = parsed || 'en' // default to English
+    const locale = parsed || 'ru' // default to Russian
 
     // Synchronise the i18next instance on the server
     i18n.changeLanguage(locale)
