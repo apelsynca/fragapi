@@ -1,6 +1,6 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import {
   Card,
   CardContent,

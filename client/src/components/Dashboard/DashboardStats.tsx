@@ -1,12 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import BalanceTopUp from './BalanceTopUp'
+import BalanceTopUp from '~/components/BalanceTopUp'
 import {
   tonRateOptions,
   transactionsStatsOptions,
   userMeOptions,
 } from '~/lib/queries'
-import { useTranslation } from 'react-i18next'
 
 export default function DashboardStats() {
   const { t } = useTranslation()

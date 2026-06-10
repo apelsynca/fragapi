@@ -1,12 +1,15 @@
 {
   "land": {
-    "desc": "Используйте фрагмент через API, без KYC, без 24х слов",
-    "go_to_panel": "Go to panel",
-    "bot_login": "Login via Bot",
-    "learn_more": "Learn more"
+    "title": "FragAPI - Используйте функционал Fragment в виде API",
+    "description": "Без KYC, без ввода seed фраз, с полностью открытым исходным кодом",
+    "badge": "FragAPI теперь в релизе!",
+    "go_to_panel": "Войти в панель",
+    "bot_login": "Войти через Бота",
+    "learn_more": "Узнать больше"
   },
   "connect_wallet": "Подключить кошелек",
   "disconnect_wallet": "Отключить кошелек",
+  "dashboard": "Панель",
   "sidebar": {
     "main": "Главная",
     "transactions": "Транзакции",

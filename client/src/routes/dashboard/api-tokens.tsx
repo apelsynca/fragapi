@@ -16,7 +16,7 @@ function RouteComponent() {
 
   return (
     <div>
-      <div className="flex flex-col items-center md:items-start gap-4 mb-4">
+      <div className="flex flex-col items-center md:items-start gap-4 mb-4 md:mb-8">
         <div>
           <h2 className="text-center md:text-left text-xl font-medium">
             Ваши API Токены
@@ -28,9 +28,13 @@ function RouteComponent() {
         <CreateApiTokenDialog haveZeroTokens={apiTokens.length === 0} />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-row flex-wrap gap-2 md:gap-4">
         {apiTokens.map((apiToken) => (
-          <ApiTokenCard key={apiToken.id} apiToken={apiToken} />
+          <ApiTokenCard
+            className="max-w-[455px]"
+            key={apiToken.id}
+            apiToken={apiToken}
+          />
         ))}
       </div>
     </div>
