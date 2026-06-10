@@ -1,6 +1,7 @@
 import { useServerFn } from '@tanstack/react-start'
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
+import { useTranslation } from 'react-i18next'
 import {
   ChevronsUpDownIcon,
   LogOutIcon,
@@ -15,14 +16,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { SidebarMenuButton, useSidebar } from './ui/sidebar'
+} from '../ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
+import { SidebarMenuButton, useSidebar } from '~/components/ui/sidebar'
 import { logoutFn } from '~/server/auth-manager'
-import DashboardThemeToggle from './DashboardThemeToggle'
+import DashboardThemeToggle from './AppSidebarThemeToggle'
 import { userMeOptions } from '~/lib/queries'
-import LanguageToggle from './LanguageToggle'
-import { useTranslation } from 'react-i18next'
+import LanguageToggle from '../LanguageToggle'
 
 export default function AppSidebarBottom() {
   const { t } = useTranslation()

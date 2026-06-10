@@ -15,11 +15,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from './ui/sidebar'
-import AppSidebarBottom from './AppSidebarBottom'
+} from '~/components/ui/sidebar'
 import { Suspense } from 'react'
-import AppSidebarBottomSkeleton from './AppSidebarBottomSkeleton'
 import { useTranslation } from 'react-i18next'
+import AppSidebarBottom from './AppSidebarBottom'
+
+function AppSidebarBottomSkeleton() {
+  return <div>SKELETON</div>
+}
 
 function AppSidebar() {
   const { t } = useTranslation()

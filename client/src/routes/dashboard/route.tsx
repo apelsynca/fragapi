@@ -1,11 +1,11 @@
 import { Toaster } from 'sonner'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
-import { TooltipProvider } from '~/components/ui/tooltip'
-import AppSidebar from '~/components/AppSidebar'
-import DashboardProviders from '~/components/DashboardProviders'
-import Landing from '~/components/Landing'
 import { userMeOptions } from '~/lib/queries'
+import { TooltipProvider } from '~/components/ui/tooltip'
+import DashboardProviders from '~/components/Dashboard/DashboardProviders'
+import Landing from '~/components/Landing'
+import AppSidebar from '~/components/AppSidebar'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {
