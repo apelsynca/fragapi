@@ -28,8 +28,8 @@ from src.logging import Logger
 from src.logging import configure as configure_logging
 from src.middlewares import (
     KiqEnqueuedTasksMiddleware,
+    LogTraceIdMiddleware,
     SandboxResponseHeaderMiddleware,
-    TraceIDMiddleware,
 )
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
@@ -104,7 +104,7 @@ def create_app() -> FastAPI:
     if settings.is_sandbox():
         app.add_middleware(SandboxResponseHeaderMiddleware)
 
-    app.add_middleware(TraceIDMiddleware)
+    app.add_middleware(LogTraceIdMiddleware)
 
     add_exception_handlers(app)
 

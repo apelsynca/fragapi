@@ -1,12 +1,15 @@
+import contextlib
+
 import structlog
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from src.logging import TraceID
+from src.logtide import logtide_client
 from src.worker import TaskQueueManager
 
 
-class TraceIDMiddleware:
+class LogTraceIdMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -22,9 +25,15 @@ class TraceIDMiddleware:
             path=scope["path"],
         )
 
-        await self.app(scope, receive, send)
+        logtide_stack = contextlib.ExitStack()
+        logtide_stack.enter_context(logtide_client.with_trace_id(trace_id=trace_id))
 
-        structlog.contextvars.unbind_contextvars("trace_id", "method", "path")
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            logtide_stack.close()
+            structlog.contextvars.unbind_contextvars("trace_id", "method", "path")
+            TraceID.clear()
 
 
 class KiqEnqueuedTasksMiddleware:
