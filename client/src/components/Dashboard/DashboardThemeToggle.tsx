@@ -1,7 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu.tsx'
 import useThemeToggle from '~/hooks/useThemeToggle.ts'
-import { useTranslation } from 'react-i18next'
 
 export default function DashboardThemeToggle() {
   const { theme, toggleTheme, label } = useThemeToggle()
