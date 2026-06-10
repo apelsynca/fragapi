@@ -113,16 +113,16 @@ export default function DashboardChart() {
               }
             />
             <Area
-              dataKey="tonAmount"
+              dataKey="starsSpend"
               type="step"
               fill="url(#fillTonAmount)"
-              stroke="var(--color-tonAmount)"
+              stroke="var(--color-starsSpend)"
             />
             <Area
-              dataKey="transactionsCount"
+              dataKey="premiumSpend"
               type="step"
               fill="url(#fillTransactionsCount)"
-              stroke="var(--color-transactionsCount)"
+              stroke="var(--color-premiumSpend)"
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>

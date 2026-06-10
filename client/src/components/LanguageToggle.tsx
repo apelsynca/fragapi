@@ -6,7 +6,7 @@ export default function LanguageToggle() {
   const { i18n } = useTranslation()
 
   const toggleLanguage = () => {
-    const next = i18n.language === 'en' ? 'ru' : 'en'
+    const next = i18n.language === 'ru' ? 'ru' : 'ru'
     i18n.changeLanguage(next)
   }
 

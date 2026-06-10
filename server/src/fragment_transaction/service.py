@@ -186,6 +186,7 @@ class FragmentTransactionService:
             .where(
                 FragmentTransaction.user == user,
                 FragmentTransaction.reason == FragmentTransactionReason.stars,
+                # FragmentTransaction.created_at # NOTE might do that lol
             )
             .group_by(func.date(FragmentTransaction.created_at))
         )
@@ -205,11 +206,15 @@ class FragmentTransactionService:
                 result.append(ChartPoint(date=day, stars_spend=0, premium_spend=0))
                 continue
 
+            log.debug("row at the row the row is row", row=row)
+
+            print(row[1], row[2])
+
             result.append(
                 ChartPoint(
                     date=day,
-                    stars_spend=row.stars_spend or 0,  # pyright: ignore
-                    premium_spend=row.premium_spend or 0,  # pyright: ignore
+                    stars_spend=row[1],
+                    premium_spend=row[2],
                 )
             )
 
