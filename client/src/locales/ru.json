@@ -9,6 +9,7 @@
   },
   "connect_wallet": "Подключить кошелек",
   "disconnect_wallet": "Отключить кошелек",
+  "dashboard": "Панель",
   "sidebar": {
     "main": "Главная",
     "transactions": "Транзакции",

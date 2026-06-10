@@ -9,6 +9,7 @@
   },
   "connect_wallet": "Connect wallet",
   "disconnect_wallet": "Disconnect wallet",
+  "dashboard": "Dashboard",
   "sidebar": {
     "main": "Main",
     "transactions": "Transactions",
