@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { SidebarMenuButton, useSidebar } from './ui/sidebar'
 import { logoutFn } from '~/server/auth-manager'
-import ThemeToggle from './ThemeToggle'
+import DashboardThemeToggle from './DashboardThemeToggle'
 import { userMeOptions } from '~/lib/queries'
 import LanguageToggle from './LanguageToggle'
 import { useTranslation } from 'react-i18next'
@@ -74,7 +74,7 @@ export default function AppSidebarBottom() {
               </div>
             </div>
           </DropdownMenuLabel>
-          <ThemeToggle />
+          <DashboardThemeToggle />
           {wallet === null ? (
             <DropdownMenuItem onClick={() => tonConnectUI.openModal()}>
               <PlugZapIcon /> {t('connect_wallet')}
