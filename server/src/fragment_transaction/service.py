@@ -161,7 +161,6 @@ class FragmentTransactionService:
         today = utc_now().date()
         start_date = today - timedelta(days=days_count - 1)
 
-        # TODO: date here is diffie diff lol
         stmt = (
             select(
                 func.date(FragmentTransaction.created_at).label("date"),
@@ -187,7 +186,7 @@ class FragmentTransactionService:
             .where(
                 FragmentTransaction.user == user,
                 FragmentTransaction.reason == FragmentTransactionReason.stars,
-                # FragmentTransaction.created_at
+                # FragmentTransaction.created_at # NOTE might do that lol
             )
             .group_by(func.date(FragmentTransaction.created_at))
         )
@@ -208,6 +207,8 @@ class FragmentTransactionService:
                 continue
 
             log.debug("row at the row the row is row", row=row)
+
+            print(row[1], row[2])
 
             result.append(
                 ChartPoint(

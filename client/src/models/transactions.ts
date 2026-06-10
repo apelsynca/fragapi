@@ -20,6 +20,6 @@ export interface TransactionsStats {
 
 export interface TransactionChartPoint {
   date: string
-  tonAmount: number
-  transactionsCount: number
+  starsSpend: number
+  premiumSpend: number
 }
