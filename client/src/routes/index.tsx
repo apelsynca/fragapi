@@ -11,7 +11,6 @@ function RouteComponent() {
       {m.example_message({
         username: 'Some username',
       })}
-      <p>{m.some_second()}</p>
     </div>
   )
 }

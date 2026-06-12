@@ -18,11 +18,8 @@ import { Field, FieldGroup } from './ui/field'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { requestTonPayment as requestTonPaymentFn } from '~/notserver/payments'
-import { useTranslation } from 'react-i18next'
 
 export default function BalanceTopUp() {
-  const { t } = useTranslation()
-
   const [tonConnectUI] = useTonConnectUI()
   const wallet = useTonWallet()
 
@@ -66,7 +63,7 @@ export default function BalanceTopUp() {
   if (wallet === null) {
     return (
       <Button onClick={() => tonConnectUI.openModal()} className="w-full">
-        {t('connect_wallet')}
+        {'connect_wallet'}
       </Button>
     )
   }

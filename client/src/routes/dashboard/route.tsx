@@ -1,5 +1,4 @@
 import { Toaster } from 'sonner'
-import { useTranslation } from 'react-i18next'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
 import { TooltipProvider } from '~/components/ui/tooltip'
@@ -25,8 +24,6 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function DashboardComponent() {
-  const { t } = useTranslation()
-
   return (
     <TooltipProvider>
       <SidebarProvider>
@@ -36,7 +33,7 @@ function DashboardComponent() {
             <div className="flex items-center gap-2 absolute mx-1 my-1">
               <SidebarTrigger className="px-2 py-2" />
               <Separator orientation="vertical" />
-              <h2 className="text-base font-medium">{t('dashboard')}</h2>
+              <h2 className="text-base font-medium">tdashboard</h2>
             </div>
             <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
               <Outlet />

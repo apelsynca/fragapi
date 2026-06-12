@@ -1,7 +1,6 @@
 import { useServerFn } from '@tanstack/react-start'
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
-import { useTranslation } from 'react-i18next'
 import {
   ChevronsUpDownIcon,
   LogOutIcon,
@@ -22,11 +21,12 @@ import { SidebarMenuButton, useSidebar } from '~/components/ui/sidebar'
 import { logoutFn } from '~/notserver/auth-manager'
 import DashboardThemeToggle from './AppSidebarThemeToggle'
 import { userMeOptions } from '~/lib/queries'
-import LanguageToggle from '../LanguageToggle'
+
+const LanguageToggle = () => {
+  return <div>I am language toggle</div>
+}
 
 export default function AppSidebarBottom() {
-  const { t } = useTranslation()
-
   const logout = useServerFn(logoutFn)
   const queryClient = useQueryClient()
   const { data: user } = useSuspenseQuery(userMeOptions())
@@ -77,11 +77,11 @@ export default function AppSidebarBottom() {
           <DashboardThemeToggle />
           {wallet === null ? (
             <DropdownMenuItem onClick={() => tonConnectUI.openModal()}>
-              <PlugZapIcon /> {t('connect_wallet')}
+              <PlugZapIcon /> {'connect_wallet'}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => tonConnectUI.disconnect()}>
-              <UnplugIcon /> {t('disconnect_wallet')}
+              <UnplugIcon /> {'disconnect_wallet'}
             </DropdownMenuItem>
           )}
           <LanguageToggle />
@@ -94,7 +94,7 @@ export default function AppSidebarBottom() {
             onClick={handleLogout}
           >
             <LogOutIcon />
-            {t('sidebar.logout')}
+            {'sidebar.logout'}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

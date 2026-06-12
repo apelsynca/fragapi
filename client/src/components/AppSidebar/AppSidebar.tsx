@@ -17,7 +17,6 @@ import {
   SidebarMenuItem,
 } from '~/components/ui/sidebar'
 import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
 import AppSidebarBottom from './AppSidebarBottom'
 
 function AppSidebarBottomSkeleton() {
@@ -25,8 +24,6 @@ function AppSidebarBottomSkeleton() {
 }
 
 function AppSidebar() {
-  const { t } = useTranslation()
-
   return (
     <Sidebar>
       <SidebarHeader />
@@ -37,21 +34,21 @@ function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard">
-                    <HomeIcon /> {t('sidebar.main')}
+                    <HomeIcon /> {'sidebar.main'}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/transactions">
-                    <ListIcon /> {t('sidebar.transactions')}
+                    <ListIcon /> {'sidebar.transactions'}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/api-tokens">
-                    <KeySquareIcon /> {t('sidebar.api_tokens')}
+                    <KeySquareIcon /> {'sidebar.api_tokens'}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -62,7 +59,7 @@ function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuButton asChild>
                 <a href="https://docs.fragapi.com">
-                  <ExternalLinkIcon /> {t('sidebar.docs')}
+                  <ExternalLinkIcon /> {'sidebar.docs'}
                 </a>
               </SidebarMenuButton>
             </SidebarMenu>

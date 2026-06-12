@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 import {
   Card,
@@ -33,15 +32,14 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function DashboardChart() {
-  const { t, i18n } = useTranslation()
   const { data: chartData } = useSuspenseQuery(transactionChartOptions())
 
   return (
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>{t('stats.transaction_stats')}</CardTitle>
-          <CardDescription>{t('stats.90days_chart')}</CardDescription>
+          <CardTitle>{'stats.transaction_stats'}</CardTitle>
+          <CardDescription>{'stats.90days_chart'}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
@@ -91,7 +89,7 @@ export default function DashboardChart() {
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value)
-                return date.toLocaleDateString(i18n.language, {
+                return date.toLocaleDateString('ru-RU', {
                   month: 'short',
                   day: 'numeric',
                 })
@@ -103,7 +101,7 @@ export default function DashboardChart() {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString(i18n.language, {
+                    return new Date(value).toLocaleDateString('ru-RU', {
                       month: 'short',
                       day: 'numeric',
                     })
