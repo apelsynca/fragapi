@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { devtools } from '@tanstack/devtools-vite'
 import { defineConfig } from 'vite'
 import { nitro } from 'nitro/vite'
@@ -10,7 +11,7 @@ const config = defineConfig({
     port: 3000,
   },
   resolve: { tsconfigPaths: true },
-  plugins: [devtools(), tanstackStart(), tailwindcss(), nitro(), viteReact()],
+  plugins: [paraglideVitePlugin({ project: './project.inlang', outdir: './src/paraglide' }),devtools(), tanstackStart(), tailwindcss(), nitro(), viteReact()],
 })
 
 export default config
