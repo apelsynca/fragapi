@@ -6,6 +6,7 @@ import {
   transactionsStatsOptions,
   userMeOptions,
 } from '~/lib/queries'
+import { m } from '~/paraglide/messages'
 
 export default function DashboardStats() {
   const { data: user } = useSuspenseQuery(userMeOptions())
@@ -17,31 +18,31 @@ export default function DashboardStats() {
   return (
     <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
       <DashboardStatsCard
-        name={'stats.balance'}
+        name={m.stats_balance()}
         amount={user.balance}
         fiatAmount={user.balance * tonRate}
         after={<BalanceTopUp />}
       />
       <DashboardStatsCard
-        name={'stats.spend'}
+        name={m.stats_spend()}
         amount={transactionStats.totalSpend || 0}
         fiatAmount={transactionStats.totalSpend * tonRate}
         percent={0}
-        description={'stats.all_time'}
+        description={m.stats_all_time()}
       />
       <DashboardStatsCard
-        name={'stats.stars_spend'}
+        name={m.stats_stars_spend()}
         amount={transactionStats.starsTotalSpend || 0}
         fiatAmount={transactionStats.starsTotalSpend * tonRate}
         percent={0}
-        description={'stats.all_time'}
+        description={m.stats_all_time()}
       />
       <DashboardStatsCard
-        name={'stats.premium_spend'}
+        name={m.stats_premium_spend()}
         amount={transactionStats.premiumTotalSpend || 0}
         fiatAmount={transactionStats.premiumTotalSpend * tonRate}
         percent={0}
-        description={'stats.all_time'}
+        description={m.stats_all_time()}
       />
     </div>
   )

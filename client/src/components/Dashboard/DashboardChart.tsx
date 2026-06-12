@@ -16,6 +16,7 @@ import {
   ChartTooltipContent,
 } from '~/components/ui/chart'
 import { transactionChartOptions } from '~/lib/queries'
+import { m } from '~/paraglide/messages'
 
 const chartConfig = {
   visitors: {
@@ -38,8 +39,8 @@ export default function DashboardChart() {
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>{'stats.transaction_stats'}</CardTitle>
-          <CardDescription>{'stats.90days_chart'}</CardDescription>
+          <CardTitle>{m.stats_transaction_stats()}</CardTitle>
+          <CardDescription>{m.stats_90days_chart()}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">

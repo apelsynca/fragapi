@@ -14,13 +14,14 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import globalsCss from '../styles/globals.css?url'
 import utilsCss from '../styles/utils.css?url'
 import { seo } from '~/utils/seo'
+import { getLocale } from '~/paraglide/runtime'
+import { m } from '~/paraglide/messages'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   beforeLoad: async () => {
     const token = await fetchSessionToken()
-
     return { token }
   },
   head: () => ({
@@ -34,7 +35,7 @@ export const Route = createRootRouteWithContext<{
       },
       ...seo({
         title: 'FragAPI',
-        description_en: 'API for interaction with Fragment, no KYC',
+        description: m.seo_description(),
         keywords: 'fragapi,fragment,frag',
       }),
     ],
@@ -71,8 +72,10 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const locale = getLocale()
+
   return (
-    <html>
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>

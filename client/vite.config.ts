@@ -23,7 +23,7 @@ const config = defineConfig({
         {
           pattern: '/',
           localized: [
-            ['ru', '/'],
+            ['ru', '/ru'],
             ['en', '/en'],
           ],
         },
