@@ -16,6 +16,7 @@ import utilsCss from '../styles/utils.css?url'
 import { seo } from '~/utils/seo'
 import { getLocale } from '~/paraglide/runtime'
 import { m } from '~/paraglide/messages'
+import { ThemeProvider } from '~/components/theme-provider'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -80,7 +81,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ThemeProvider defaultTheme="system" storageKey="theme">
+          {children}
+        </ThemeProvider>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
