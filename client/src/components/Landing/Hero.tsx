@@ -1,15 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { BotIcon, ExternalLinkIcon, LogInIcon } from 'lucide-react'
-import { Badge } from '~/components/ui/badge'
 import Glow from '~/components/ui/glow'
 import { Mockup, MockupFrame } from '~/components/ui/mockup'
 import Screenshot from '~/components/ui/screenshot'
 import { Section } from '~/components/ui/section'
 import { Button } from '~/components/ui/button'
-import type { ButtonProps } from '~/components/ui/button'
 import { GithubLogoIcon } from '~/components/icons/GithubLogoIcon'
 import { cn } from '~/lib/utils'
 import { siteConfig } from '~/config'
+import { m } from '~/paraglide/messages'
 
 interface HeroProps {
   title?: string
@@ -47,7 +46,7 @@ export default function Hero({
               {toPanel ? (
                 <Button asChild size="lg" className="w-full">
                   <Link to="/dashboard">
-                    <LogInIcon /> {t('land.go_to_panel')}
+                    <LogInIcon /> {m.land_go_to_panel()}
                   </Link>
                 </Button>
               ) : (
@@ -55,7 +54,7 @@ export default function Hero({
                   <a
                     href={`https://t.me/${import.meta.env.VITE_BOT_USERNAME}?start=login`}
                   >
-                    <BotIcon /> {t('land.bot_login')}
+                    <BotIcon /> {m.land_bot_login()}
                   </a>
                 </Button>
               )}

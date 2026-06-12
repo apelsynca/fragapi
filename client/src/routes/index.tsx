@@ -1,16 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { m } from '~/paraglide/messages'
+import Landing from '~/components/Landing'
 
 export const Route = createFileRoute('/')({
-  component: RouteComponent,
+  component: () => <Landing />,
 })
-
-function RouteComponent() {
-  return (
-    <div>
-      {m.example_message({
-        username: 'Some username',
-      })}
-    </div>
-  )
-}
