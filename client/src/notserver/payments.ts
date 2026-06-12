@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { TonConnectMessage } from '~/models/message'
+import type { TonConnectMessage } from '~/notserver/models/message'
 import { apiRequest } from './request'
 import { verifySession } from '../lib/auth'
 

@@ -3,7 +3,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import en from '~/locales/en.json'
 import ru from '~/locales/ru.json'
 
-export const Route = createFileRoute('/{-$locale}/')({
+export const Route = createFileRoute('/disabled/{-$locale}/')({
   component: RouteComponent,
   loader: ({ params }) => {
     if (!params.locale || !['ru', 'en'].includes(params.locale)) {

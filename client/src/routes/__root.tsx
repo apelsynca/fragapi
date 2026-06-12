@@ -11,7 +11,6 @@ import { fetchSessionToken } from '~/lib/auth'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import { getLocale } from '~/lib/i18n'
 import globalsCss from '../styles/globals.css?url'
 import utilsCss from '../styles/utils.css?url'
 import { seo } from '~/utils/seo'
@@ -20,7 +19,6 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   beforeLoad: async () => {
-    getLocale()
     const token = await fetchSessionToken()
 
     return { token }

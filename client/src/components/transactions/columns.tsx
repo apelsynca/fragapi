@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoonIcon, StarIcon } from 'lucide-react'
-import type { FragmentTransaction } from '~/models/transactions'
+import type { FragmentTransaction } from '~/notserver/models/transactions'
 
 export const columns: ColumnDef<FragmentTransaction>[] = [
   {

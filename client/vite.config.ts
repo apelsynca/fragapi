@@ -11,7 +11,28 @@ const config = defineConfig({
     port: 3000,
   },
   resolve: { tsconfigPaths: true },
-  plugins: [paraglideVitePlugin({ project: './project.inlang', outdir: './src/paraglide' }),devtools(), tanstackStart(), tailwindcss(), nitro(), viteReact()],
+  plugins: [
+    devtools(),
+    tanstackStart(),
+    paraglideVitePlugin({
+      project: './project.inlang',
+      outdir: './src/paraglide',
+      cookieName: 'PARAGLIDE_LOCALE',
+      strategy: ['url', 'cookie', 'preferredLanguage', 'baseLocale'],
+      urlPatterns: [
+        {
+          pattern: '/',
+          localized: [
+            ['ru', '/'],
+            ['en', '/en'],
+          ],
+        },
+      ],
+    }),
+    tailwindcss(),
+    nitro(),
+    viteReact(),
+  ],
 })
 
 export default config

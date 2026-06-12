@@ -1,0 +1,8 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "example_message": "ПРивет на русс {username}",
+  "some_second": "второе сообщение",
+  "why_didnot": {
+    "i_just_tested_it": "Типо такого?"
+  }
+}
