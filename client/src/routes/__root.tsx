@@ -7,29 +7,22 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { fetchSessionToken } from '~/lib/auth'
+import { fetchSessionToken } from '#/lib/auth'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { I18nextProvider } from 'react-i18next'
-import i18n from '~/lib/i18n-config'
-import { getLocale } from '~/lib/i18n'
-
-import globalsCss from '../styles/globals.css?url'
-import utilsCss from '../styles/utils.css?url'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { seo } from '~/utils/seo'
 
-const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
+import globalsCss from '#/styles/globals.css?url'
+import utilsCss from '#/styles/utils.css?url'
+import { seo } from '#/utils/seo'
+import { getLocale } from '#/paraglide/runtime'
+import { m } from '#/paraglide/messages'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   beforeLoad: async () => {
-    getLocale()
     const token = await fetchSessionToken()
-
-    return {
-      token,
-    }
+    return { token }
   },
   head: () => ({
     meta: [
@@ -42,8 +35,9 @@ export const Route = createRootRouteWithContext<{
       },
       ...seo({
         title: 'FragAPI',
-        description_en: 'API for interaction with Fragment, no KYC',
-        keywords: 'fragment,frag,fragapi',
+        description: m.seo_description(),
+        keywords: 'fragapi,fragment,frag',
+        image: 'https://storage.apelsynca.pro/fragapi/fraga.png',
       }),
     ],
     links: [
@@ -65,6 +59,9 @@ export const Route = createRootRouteWithContext<{
       </div>
     )
   },
+  notFoundComponent: () => {
+    return <div>Basic not found</div>
+  },
 })
 
 function RootComponent() {
@@ -76,16 +73,15 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const lang = i18n.language
+  const locale = getLocale()
 
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
-        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        {children}
         <TanStackDevtools
           config={{
             position: 'bottom-right',

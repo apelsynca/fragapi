@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { columns } from './columns'
 import { DataTable } from './DataTable'
-import { transactionsListOptions } from '~/lib/queries'
+import { transactionsListOptions } from '#/lib/queries'
 import {
   Pagination,
   PaginationContent,
@@ -10,7 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
   PaginationEllipsis,
-} from '~/components/ui/pagination'
+} from '#/components/ui/pagination'
 import { useState } from 'react'
 
 function getPageNumbers(

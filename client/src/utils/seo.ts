@@ -1,28 +1,27 @@
 export const seo = ({
   title,
-  description_en,
-  description_ru,
+  description,
   keywords,
   image,
 }: {
   title: string
-  description_en?: string
+  description?: string
   description_ru?: string
   image?: string
   keywords?: string
 }) => {
   const tags = [
     { title },
-    { name: 'description', lang: 'en', content: description_en },
-    { name: 'description', lang: 'ru', content: description_ru },
+    { name: 'description', content: description },
     { name: 'keywords', content: keywords },
     { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description_en },
-    { name: 'twitter:creator', content: '@homocitrus' },
-    { name: 'twitter:site', content: '@homocitrus' },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:creator', content: '@apelsynca' },
+    { name: 'twitter:site', content: '@apelsynca' },
     { name: 'og:title', content: title },
     { name: 'og:type', content: 'website' },
-    { name: 'og:description', content: description_en },
+    { name: 'og:url', content: 'https://fragapi.com' },
+    { name: 'og:description', content: description },
     ...(image
       ? [
           { name: 'twitter:image', content: image },

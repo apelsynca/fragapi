@@ -4,7 +4,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from src.auth.schemas import LoginResponse
-from src.exceptions import Forbidden
+from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
 from src.kit.utils import utc_now
 from src.logging import Logger
@@ -19,11 +19,13 @@ class AuthService:
     async def login_by_bot_hash(
         self, session: AsyncSession, bot_hash: str, *, request: Request | None = None
     ) -> LoginResponse:
-        stmt = select(UserSession).where(UserSession.bot_hash == bot_hash)
+        stmt = select(UserSession).where(
+            UserSession.bot_hash == bot_hash, UserSession.expires_at > utc_now()
+        )
         user_session = await session.scalar(stmt)
 
         if user_session is None:
-            raise Forbidden()
+            raise ResourceNotFound()
 
         user_agent = None
         if request is not None:

@@ -11,25 +11,22 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '~/components/ui/sidebar'
+  SidebarSeparator,
+} from '#/components/ui/sidebar'
 import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
 import AppSidebarBottom from './AppSidebarBottom'
+import { m } from '#/paraglide/messages'
 
 function AppSidebarBottomSkeleton() {
-  return <div>SKELETON</div>
+  return <div>Bottom loading...</div>
 }
 
 function AppSidebar() {
-  const { t } = useTranslation()
-
   return (
-    <Sidebar>
-      <SidebarHeader />
+    <Sidebar variant="inset">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -37,32 +34,36 @@ function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard">
-                    <HomeIcon /> {t('sidebar.main')}
+                    <HomeIcon /> {m.sidebar_main()}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/transactions">
-                    <ListIcon /> {t('sidebar.transactions')}
+                    <ListIcon /> {m.sidebar_transactions()}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard/api-tokens">
-                    <KeySquareIcon /> {t('sidebar.api_tokens')}
+                    <KeySquareIcon /> {m.sidebar_api_tokens()}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
 
+        <SidebarSeparator />
+
+        <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuButton asChild>
                 <a href="https://docs.fragapi.com">
-                  <ExternalLinkIcon /> {t('sidebar.docs')}
+                  <ExternalLinkIcon /> {m.sidebar_docs()}
                 </a>
               </SidebarMenuButton>
             </SidebarMenu>
@@ -72,11 +73,9 @@ function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Suspense fallback={<AppSidebarBottomSkeleton />}>
-              <AppSidebarBottom />
-            </Suspense>
-          </SidebarMenuItem>
+          <Suspense fallback={<AppSidebarBottomSkeleton />}>
+            <AppSidebarBottom />
+          </Suspense>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

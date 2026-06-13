@@ -1,4 +1,4 @@
-import { Button } from '~/components/ui/button'
+import { Button } from '#/components/ui/button'
 import { RefreshCwIcon, TriangleAlertIcon } from 'lucide-react'
 import {
   AlertDialog,
@@ -11,7 +11,7 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '~/components/ui/alert-dialog'
+} from '#/components/ui/alert-dialog'
 
 const RegenerateKeyDialog: React.FC<{ onClick?: () => void }> = ({
   onClick,

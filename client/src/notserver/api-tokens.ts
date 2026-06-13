@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
-import { verifySession } from '~/lib/auth'
+import { verifySession } from '#/lib/auth'
 import { apiRequest } from './request'
-import type { ApiToken } from '~/models/api-token'
+import type { ApiToken } from '#/notserver/models/api-token'
 
 export const fetchApiTokens = createServerFn({ method: 'GET' }).handler(
   async () => {

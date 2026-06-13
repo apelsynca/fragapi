@@ -17,12 +17,10 @@ import {
 import { Field, FieldGroup } from './ui/field'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { requestTonPayment as requestTonPaymentFn } from '~/server/payments'
-import { useTranslation } from 'react-i18next'
+import { requestTonPayment as requestTonPaymentFn } from '#/notserver/payments'
+import { m } from '#/paraglide/messages'
 
 export default function BalanceTopUp() {
-  const { t } = useTranslation()
-
   const [tonConnectUI] = useTonConnectUI()
   const wallet = useTonWallet()
 
@@ -41,7 +39,7 @@ export default function BalanceTopUp() {
 
     const numAmount = parseFloat(amount)
     if (!amount || isNaN(numAmount) || numAmount < 0.1) {
-      toast.error('Введите правильную сумму пополнения', {
+      toast.error(m.deposit_enter_right_amount(), {
         richColors: true,
       })
       return
@@ -66,7 +64,7 @@ export default function BalanceTopUp() {
   if (wallet === null) {
     return (
       <Button onClick={() => tonConnectUI.openModal()} className="w-full">
-        {t('connect_wallet')}
+        {m.connect_wallet()}
       </Button>
     )
   }
@@ -74,22 +72,20 @@ export default function BalanceTopUp() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Пополнить баланс</Button>
+        <Button className="w-full">{m.deposit()}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Пополнение баланса</DialogTitle>
-          <DialogDescription>
-            Пополнение баланса с кошелька TON
-          </DialogDescription>
+          <DialogTitle>{m.deposit_title()}</DialogTitle>
+          <DialogDescription>{m.deposit_description()}</DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field>
-            <Label htmlFor="amount-1">Сумма</Label>
+            <Label htmlFor="amount-1">{m.amount()}</Label>
             <Input
               id="amount-1"
               name="name"
-              defaultValue="5"
+              placeholder="5"
               value={amount}
               onChange={(e) => {
                 setAmount(e.target.value.replace(/[^0-9.]/g, ''))
@@ -99,7 +95,7 @@ export default function BalanceTopUp() {
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Отмена</Button>
+            <Button variant="outline">{m.cancel()}</Button>
           </DialogClose>
           <Button
             className="min-w-24"
@@ -107,7 +103,7 @@ export default function BalanceTopUp() {
             onClick={handlePayment}
             disabled={loading}
           >
-            {loading ? <LoaderIcon /> : 'Пополнить'}
+            {loading ? <LoaderIcon /> : m.deposit_short()}
           </Button>
         </DialogFooter>
       </DialogContent>

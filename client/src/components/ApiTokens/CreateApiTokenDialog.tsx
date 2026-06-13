@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createApiTokenFn } from '~/server/api-tokens'
+import { createApiTokenFn } from '#/notserver/api-tokens'
 import { useServerFn } from '@tanstack/react-start'
 import { PlusIcon } from 'lucide-react'
 import { Button } from '../ui/button'

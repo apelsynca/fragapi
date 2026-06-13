@@ -164,10 +164,30 @@ class FragmentTransactionService:
         stmt = (
             select(
                 func.date(FragmentTransaction.created_at).label("date"),
-                func.sum(FragmentTransaction.amount).label("ton_amount"),
-                func.count().label("transactions_count"),
+                func.sum(
+                    case(
+                        (
+                            FragmentTransaction.reason == "stars",
+                            FragmentTransaction.amount,
+                        ),
+                        else_=0,
+                    ).label("stars_spend")
+                ),
+                func.sum(
+                    case(
+                        (
+                            FragmentTransaction.reason == "premium",
+                            FragmentTransaction.amount,
+                        ),
+                        else_=0,
+                    ).label("premium_spend")
+                ),
             )
-            .where(FragmentTransaction.user == user)
+            .where(
+                FragmentTransaction.user == user,
+                FragmentTransaction.reason == FragmentTransactionReason.stars,
+                # FragmentTransaction.created_at # NOTE might do that lol
+            )
             .group_by(func.date(FragmentTransaction.created_at))
         )
 
@@ -180,12 +200,19 @@ class FragmentTransactionService:
 
         for i in range(days_count):
             day = start_date + timedelta(days=i)
-            row = existing.get(day)
+            row = existing.get(day, None)
+
+            if row is None:
+                result.append(ChartPoint(date=day, stars_spend=0, premium_spend=0))
+                continue
+
+            log.debug("row at the row the row is row", row=row)
+
             result.append(
                 ChartPoint(
                     date=day,
-                    ton_amount=row.ton_amount if row else 0,
-                    transactions_count=row.transactions_count if row else 0,
+                    stars_spend=row[1],
+                    premium_spend=row[2],
                 )
             )
 

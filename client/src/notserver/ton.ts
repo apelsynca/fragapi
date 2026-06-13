@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { apiRequest } from '~/server/request'
-import { verifySession } from '~/lib/auth'
+import { apiRequest } from '#/notserver/request'
+import { verifySession } from '#/lib/auth'
 
 interface TonRate {
   tonRate: number

@@ -1,9 +1,9 @@
 import { toast } from 'sonner'
-import { ClipboardCopyIcon, TrashIcon } from 'lucide-react'
+import { TrashIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
-import { deleteApiTokenFn } from '~/server/api-tokens'
+import { deleteApiTokenFn } from '#/notserver/api-tokens'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { ApiToken } from '~/models/api-token'
+import type { ApiToken } from '#/notserver/models/api-token'
 import {
   Card,
   CardContent,
@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '../ui/card'
 import { Button } from '../ui/button'
-import { cn } from '~/lib/utils'
+import { cn } from '#/lib/utils'
 
 const ApiTokenCard = ({
   className,
@@ -42,20 +42,26 @@ const ApiTokenCard = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
-        <div className="flex gap-2">
+        <div className="flex gap-2 hover:ring active:ring-gray-600 rounded-lg">
           <div
-            className="[&_code]:blur-xs hover:[&_code]:blur-none max-w-full flex items-center rounded-lg bg-muted pl-1 gap-1"
+            className={cn(
+              'md:[&_code]:text-transparent md:hover:[&_code]:text-foreground md:hover:[&_code]:bg-transparent',
+              'max-w-full flex items-center rounded-lg bg-muted gap-1',
+            )}
             onClick={() => {
               navigator.clipboard.writeText(apiToken.token)
               toast.success('Апи ключ скопирован')
             }}
           >
-            <code className="transition-all relative rounded mx-[0.3rem] my-[0.2rem] leading-none font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+            <code
+              className={cn(
+                'transition-all relative rounded mx-2 my-1.5 leading-none',
+                'font-mono text-sm overflow-hidden text-ellipsis whitespace-nowrap',
+                'select-none leading-none md:bg-accent-foreground/80',
+              )}
+            >
               {apiToken.token}
             </code>
-            <Button size="icon">
-              <ClipboardCopyIcon />
-            </Button>
           </div>
         </div>
       </CardContent>

@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table'
-
 import {
   flexRender,
   getCoreRowModel,
@@ -13,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table'
+} from '#/components/ui/table'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
