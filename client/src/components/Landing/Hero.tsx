@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router'
 import { BotIcon, ExternalLinkIcon, LogInIcon } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import Glow from '#/components/ui/glow'
 import { Mockup, MockupFrame } from '#/components/ui/mockup'
 import Screenshot from '#/components/ui/screenshot'

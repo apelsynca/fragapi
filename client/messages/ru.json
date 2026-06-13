@@ -30,5 +30,12 @@
   "theme_light": "Светлая",
   "theme_dark": "Тёмная",
   "theme_system": "Системная",
-  "chat": "Чат"
+  "chat": "Чат",
+  "faq_title": "Вопросы и ответы",
+  "deposit": "Пополнить баланс",
+  "deposit_short": "Пополнить",
+  "deposit_title": "Пополнение баланса",
+  "deposit_description": "Пополнение баланс с кошелька TON",
+  "amount": "Сумма",
+  "deposit_enter_right_amount": "Введите правильную сумму пополнения"
 }

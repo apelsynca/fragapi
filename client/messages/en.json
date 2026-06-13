@@ -30,5 +30,12 @@
   "theme_light": "Ligth",
   "theme_dark": "Dark",
   "theme_system": "System",
-  "chat": "Chat"
+  "chat": "Chat",
+  "faq_title": "Questions and Answers",
+  "deposit": "Top-up balance",
+  "deposit_short": "Deposit",
+  "deposit_title": "Balance deposit",
+  "deposit_description": "Depositing with TON wallet",
+  "amount": "Amount",
+  "deposit_enter_right_amount": "Enter right deposit amount"
 }
