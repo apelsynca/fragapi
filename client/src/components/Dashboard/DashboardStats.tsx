@@ -16,7 +16,7 @@ export default function DashboardStats() {
   )
 
   return (
-    <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1 md:gap-2.5">
+    <div className="flex flex-col items-center md:grid md:grid-cols-4 gap-1.5 md:gap-2.5">
       <DashboardStatsCard
         name={m.stats_balance()}
         amount={user.balance}

@@ -29,5 +29,6 @@
   "seo_description": "API for interaction with Fragment, no KYC",
   "theme_light": "Ligth",
   "theme_dark": "Dark",
-  "theme_system": "System"
+  "theme_system": "System",
+  "chat": "Chat"
 }

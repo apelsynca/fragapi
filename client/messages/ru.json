@@ -29,5 +29,6 @@
   "seo_description": "API функционала Fragment без KYC и 24х слов",
   "theme_light": "Светлая",
   "theme_dark": "Тёмная",
-  "theme_system": "Системная"
+  "theme_system": "Системная",
+  "chat": "Чат"
 }
