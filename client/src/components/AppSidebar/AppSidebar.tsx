@@ -26,7 +26,7 @@ function AppSidebarBottomSkeleton() {
 
 function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar variant="inset">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>

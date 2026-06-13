@@ -1,14 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
+import CreateApiTokenDialog from '#/components/ApiTokens/CreateApiTokenDialog'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { apiTokensOptions } from '~/lib/queries'
-import ApiTokenCard from '~/components/api-token/ApiTokenCard'
-import CreateApiTokenDialog from '~/components/api-token/CreateApiTokenDialog'
+import { apiTokensOptions } from '#/lib/queries'
+import ApiTokenCard from '#/components/ApiTokens/ApiTokenCard'
 
 export const Route = createFileRoute('/dashboard/api-tokens')({
-  component: RouteComponent,
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(apiTokensOptions())
+  },
+  component: ApiTokensRouteComp,
 })
 
-function RouteComponent() {
+// TODO: locale
+
+function ApiTokensRouteComp() {
   const { data: apiTokens } = useSuspenseQuery(apiTokensOptions())
 
   return (
@@ -28,7 +33,7 @@ function RouteComponent() {
       <div className="flex flex-row flex-wrap gap-2 md:gap-4">
         {apiTokens.map((apiToken) => (
           <ApiTokenCard
-            className="max-w-[455px]"
+            className="max-w-114"
             key={apiToken.id}
             apiToken={apiToken}
           />

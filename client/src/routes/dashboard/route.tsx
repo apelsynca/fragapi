@@ -24,10 +24,10 @@ function DashboardComponent() {
   return (
     <DashboardProviders>
       <AppSidebar />
-      <main className="w-full bg-sidebar min-h-screen">
-        <div className="md:rounded-xl md:m-2 bg-background">
+      <main className="w-full bg-sidebar min-h-screen md:p-2">
+        <div className="md:rounded-xl bg-background h-full">
           <DashboardTopBar />
-          <div className="pt-4 pb-6 px-2 md:px-4 w-full h-full max-w-7xl mx-auto">
+          <div className="pt-4 pb-6 px-2 md:px-4 w-full max-w-7xl mx-auto">
             <Outlet />
           </div>
           <Toaster theme="system" richColors />
