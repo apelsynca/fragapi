@@ -1,6 +1,7 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu.tsx'
 import useThemeToggle from '~/hooks/useThemeToggle.ts'
+import { m } from '~/paraglide/messages'
 
 export default function DashboardThemeToggle() {
   const { theme, toggleTheme, label } = useThemeToggle()
@@ -9,15 +10,15 @@ export default function DashboardThemeToggle() {
     <DropdownMenuItem onClick={toggleTheme} aria-label={label} title={label}>
       {theme === 'auto' ? (
         <>
-          <MonitorIcon /> {'sidebar.theme_system'}
+          <MonitorIcon /> {m.theme_system()}
         </>
       ) : theme === 'dark' ? (
         <>
-          <MoonIcon /> {'sidebar.theme_dark'}
+          <MoonIcon /> {m.theme_dark()}
         </>
       ) : (
         <>
-          <SunIcon /> {'sidebar.theme_light'}
+          <SunIcon /> {m.theme_light()}
         </>
       )}
     </DropdownMenuItem>

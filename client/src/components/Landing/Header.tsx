@@ -1,27 +1,33 @@
-import { LanguagesIcon, MoonIcon, SunIcon } from 'lucide-react'
+import { LanguagesIcon } from 'lucide-react'
 import { getLocale, setLocale } from '~/paraglide/runtime'
 import { Button } from '../ui/button'
-import { useTheme } from '../theme-provider'
+// import { useTheme } from '../theme-provider'
+// import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 
-const HeaderThemeToggle = () => {
-  const { setTheme } = useTheme()
-
-  return (
-    <Button variant="outline" size="icon-lg" onClick={() => setTheme('dark')}>
-      <MoonIcon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-      <SunIcon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
-  )
-}
+// const HeaderThemeToggle = () => {
+//   const { setTheme, theme } = useTheme()
+//
+//   return (
+//     <Tabs
+//       value={theme}
+//       onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
+//     >
+//       <TabsList>
+//         <TabsTrigger value="light">Light</TabsTrigger>
+//         <TabsTrigger value="dark">Dark</TabsTrigger>
+//         <TabsTrigger value="system">System</TabsTrigger>
+//       </TabsList>
+//     </Tabs>
+//   )
+// }
 
 const HeaderLanguageToggle = () => {
   const locale = getLocale()
 
   return (
     <Button
-      variant="outline"
-      size="icon-lg"
+      variant="default"
+      size="icon"
       onClick={() => {
         setLocale(locale === 'ru' ? 'en' : 'ru')
       }}
@@ -33,9 +39,8 @@ const HeaderLanguageToggle = () => {
 
 export default function Header() {
   return (
-    <div className="py-4">
-      <div className="flex gap-1">
-        <HeaderThemeToggle />
+    <div className="pt-6 px-8 max-w-334 w-full">
+      <div className="flex justify-end items-center gap-1.5">
         <HeaderLanguageToggle />
       </div>
     </div>

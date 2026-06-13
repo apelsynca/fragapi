@@ -14,9 +14,6 @@
   "sidebar_api_tokens": "API Tokens",
   "sidebar_docs": "Docs",
   "sidebar_other": "Other",
-  "sidebar_theme_dark": "Dark",
-  "sidebar_theme_light": "Light",
-  "sidebar_theme_system": "System",
   "sidebar_logout": "Logout",
   "transactions": "Transactions",
   "transactions_desc": "Your transactions history",
@@ -29,5 +26,8 @@
   "stats_90days_chart": "Showing stats for the last 90 days",
   "stats_all_time": "All time",
   "cancel": "Cancel",
-  "seo_description": "API for interaction with Fragment, no KYC"
+  "seo_description": "API for interaction with Fragment, no KYC",
+  "theme_light": "Ligth",
+  "theme_dark": "Dark",
+  "theme_system": "System"
 }
