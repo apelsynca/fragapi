@@ -11,12 +11,11 @@ import { fetchSessionToken } from '~/lib/auth'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import globalsCss from '../styles/globals.css?url'
-import utilsCss from '../styles/utils.css?url'
+import globalsCss from '~/styles/globals.css?url'
+import utilsCss from '~/styles/utils.css?url'
 import { seo } from '~/utils/seo'
 import { getLocale } from '~/paraglide/runtime'
 import { m } from '~/paraglide/messages'
-import { ThemeProvider } from '~/components/theme-provider'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -76,7 +75,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const locale = getLocale()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

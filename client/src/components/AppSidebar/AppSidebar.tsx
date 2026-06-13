@@ -21,7 +21,7 @@ import AppSidebarBottom from './AppSidebarBottom'
 import { m } from '~/paraglide/messages'
 
 function AppSidebarBottomSkeleton() {
-  return <div>SKELETON</div>
+  return <div>Bottom loading...</div>
 }
 
 function AppSidebar() {
@@ -70,11 +70,9 @@ function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Suspense fallback={<AppSidebarBottomSkeleton />}>
-              <AppSidebarBottom />
-            </Suspense>
-          </SidebarMenuItem>
+          <Suspense fallback={<AppSidebarBottomSkeleton />}>
+            <AppSidebarBottom />
+          </Suspense>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

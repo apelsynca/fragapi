@@ -4,9 +4,15 @@ import { ThemeProvider } from '~/components/theme-provider'
 
 export const Route = createFileRoute('/')({
   // NOTE: here we are forcing dark theme for the landing page.
-  component: () => (
-    <ThemeProvider defaultTheme="dark" storageKey="landing-theme">
-      <Landing />
-    </ThemeProvider>
-  ),
+  component: () => <IndexRoute />,
 })
+
+function IndexRoute() {
+  const context = Route.useRouteContext()
+
+  return (
+    <ThemeProvider defaultTheme="dark" storageKey="landing-theme">
+      <Landing toPanel={context.token ? true : false} />
+    </ThemeProvider>
+  )
+}

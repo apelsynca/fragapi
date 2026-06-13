@@ -44,9 +44,9 @@ export default function AppSidebarBottom() {
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()
 
+  const queryClient = useQueryClient()
   const logout = useServerFn(logoutFn)
   const { isMobile } = useSidebar()
-  const queryClient = useQueryClient()
 
   const { data: user } = useSuspenseQuery(userMeOptions())
 
