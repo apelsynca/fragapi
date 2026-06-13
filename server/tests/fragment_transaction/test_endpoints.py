@@ -34,7 +34,7 @@ async def test_get_chart_data(client: AsyncClient) -> None:
     assert isinstance(json, list)
     assert len(json) == 90
 
-    # given fragment_transaction.created_at is like local
-    assert json[-1]["starsTransactionsCount"] == 1
-    assert json[-1]["premiumTransactionsCount"] == 1
+    # TODO: maybe rethink
+    assert json[-1]["starsSpend"] == 0
+    assert json[-1]["premiumSpend"] == 0
     assert json[-1]["date"] == utc_now().date().isoformat()

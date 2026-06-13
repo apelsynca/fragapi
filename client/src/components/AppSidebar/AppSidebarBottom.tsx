@@ -1,9 +1,9 @@
 import { useServerFn } from '@tanstack/react-start'
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
-import { useTranslation } from 'react-i18next'
 import {
   ChevronsUpDownIcon,
+  LanguagesIcon,
   LogOutIcon,
   PlugZapIcon,
   UnplugIcon,
@@ -19,22 +19,36 @@ import {
 } from '../ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { SidebarMenuButton, useSidebar } from '~/components/ui/sidebar'
-import { logoutFn } from '~/server/auth-manager'
+import { logoutFn } from '~/notserver/auth-manager'
 import DashboardThemeToggle from './AppSidebarThemeToggle'
 import { userMeOptions } from '~/lib/queries'
-import LanguageToggle from '../LanguageToggle'
+import { getLocale, setLocale } from '~/paraglide/runtime'
+import { m } from '~/paraglide/messages'
+
+const LanguageToggle = () => {
+  const locale = getLocale()
+
+  return (
+    <DropdownMenuItem
+      onClick={() => {
+        setLocale(locale === 'ru' ? 'en' : 'ru')
+      }}
+    >
+      <LanguagesIcon />
+      {locale === 'ru' ? 'Язык: Русский' : 'Lang: English'}
+    </DropdownMenuItem>
+  )
+}
 
 export default function AppSidebarBottom() {
-  const { t } = useTranslation()
-
-  const logout = useServerFn(logoutFn)
-  const queryClient = useQueryClient()
-  const { data: user } = useSuspenseQuery(userMeOptions())
-
-  const { isMobile } = useSidebar()
-
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()
+
+  const logout = useServerFn(logoutFn)
+  const { isMobile } = useSidebar()
+  const queryClient = useQueryClient()
+
+  const { data: user } = useSuspenseQuery(userMeOptions())
 
   const handleLogout = async () => {
     queryClient.invalidateQueries()
@@ -77,11 +91,11 @@ export default function AppSidebarBottom() {
           <DashboardThemeToggle />
           {wallet === null ? (
             <DropdownMenuItem onClick={() => tonConnectUI.openModal()}>
-              <PlugZapIcon /> {t('connect_wallet')}
+              <PlugZapIcon /> {m.connect_wallet()}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => tonConnectUI.disconnect()}>
-              <UnplugIcon /> {t('disconnect_wallet')}
+              <UnplugIcon /> {m.disconnect_wallet()}
             </DropdownMenuItem>
           )}
           <LanguageToggle />
@@ -94,7 +108,7 @@ export default function AppSidebarBottom() {
             onClick={handleLogout}
           >
             <LogOutIcon />
-            {t('sidebar.logout')}
+            {m.sidebar_logout()}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

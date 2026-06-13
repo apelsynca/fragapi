@@ -208,8 +208,6 @@ class FragmentTransactionService:
 
             log.debug("row at the row the row is row", row=row)
 
-            print(row[1], row[2])
-
             result.append(
                 ChartPoint(
                     date=day,

@@ -9,13 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SomegoodoneRouteImport } from './routes/somegoodone'
 import { Route as BotLoginRouteImport } from './routes/bot-login'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard/transactions'
 import { Route as DashboardApiTokensRouteImport } from './routes/dashboard/api-tokens'
+import { Route as DisabledChar123LocaleChar125IndexRouteImport } from './routes/disabled/{-$locale}.index'
 
+const SomegoodoneRoute = SomegoodoneRouteImport.update({
+  id: '/somegoodone',
+  path: '/somegoodone',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
   path: '/bot-login',
@@ -46,30 +53,42 @@ const DashboardApiTokensRoute = DashboardApiTokensRouteImport.update({
   path: '/api-tokens',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DisabledChar123LocaleChar125IndexRoute =
+  DisabledChar123LocaleChar125IndexRouteImport.update({
+    id: '/disabled/{-$locale}/',
+    path: '/disabled/{-$locale}/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
+  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/disabled/{-$locale}/': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
+  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/disabled/{-$locale}': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
+  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/disabled/{-$locale}/': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -77,34 +96,49 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/bot-login'
+    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
+    | '/disabled/{-$locale}/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/bot-login'
+    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard'
+    | '/disabled/{-$locale}'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/bot-login'
+    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
+    | '/disabled/{-$locale}/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   BotLoginRoute: typeof BotLoginRoute
+  SomegoodoneRoute: typeof SomegoodoneRoute
+  DisabledChar123LocaleChar125IndexRoute: typeof DisabledChar123LocaleChar125IndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/somegoodone': {
+      id: '/somegoodone'
+      path: '/somegoodone'
+      fullPath: '/somegoodone'
+      preLoaderRoute: typeof SomegoodoneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bot-login': {
       id: '/bot-login'
       path: '/bot-login'
@@ -147,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApiTokensRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/disabled/{-$locale}/': {
+      id: '/disabled/{-$locale}/'
+      path: '/disabled/{-$locale}'
+      fullPath: '/disabled/{-$locale}/'
+      preLoaderRoute: typeof DisabledChar123LocaleChar125IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -170,6 +211,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   BotLoginRoute: BotLoginRoute,
+  SomegoodoneRoute: SomegoodoneRoute,
+  DisabledChar123LocaleChar125IndexRoute:
+    DisabledChar123LocaleChar125IndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
