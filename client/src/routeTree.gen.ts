@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SomegoodoneRouteImport } from './routes/somegoodone'
 import { Route as BotLoginRouteImport } from './routes/bot-login'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,11 +17,6 @@ import { Route as DashboardTransactionsRouteImport } from './routes/dashboard/tr
 import { Route as DashboardApiTokensRouteImport } from './routes/dashboard/api-tokens'
 import { Route as DisabledChar123LocaleChar125IndexRouteImport } from './routes/disabled/{-$locale}.index'
 
-const SomegoodoneRoute = SomegoodoneRouteImport.update({
-  id: '/somegoodone',
-  path: '/somegoodone',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
   path: '/bot-login',
@@ -64,7 +58,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -73,7 +66,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bot-login': typeof BotLoginRoute
-  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -84,7 +76,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/bot-login': typeof BotLoginRoute
-  '/somegoodone': typeof SomegoodoneRoute
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -96,7 +87,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/bot-login'
-    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
@@ -105,7 +95,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bot-login'
-    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard'
@@ -115,7 +104,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/bot-login'
-    | '/somegoodone'
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
@@ -126,19 +114,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   BotLoginRoute: typeof BotLoginRoute
-  SomegoodoneRoute: typeof SomegoodoneRoute
   DisabledChar123LocaleChar125IndexRoute: typeof DisabledChar123LocaleChar125IndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/somegoodone': {
-      id: '/somegoodone'
-      path: '/somegoodone'
-      fullPath: '/somegoodone'
-      preLoaderRoute: typeof SomegoodoneRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/bot-login': {
       id: '/bot-login'
       path: '/bot-login'
@@ -211,7 +191,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   BotLoginRoute: BotLoginRoute,
-  SomegoodoneRoute: SomegoodoneRoute,
   DisabledChar123LocaleChar125IndexRoute:
     DisabledChar123LocaleChar125IndexRoute,
 }

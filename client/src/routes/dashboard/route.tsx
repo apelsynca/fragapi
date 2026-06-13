@@ -1,8 +1,7 @@
 import { Toaster } from 'sonner'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar'
-import { TooltipProvider } from '~/components/ui/tooltip'
-import DashboardProviders from '~/components/Dashboard/DashboardProviders'
+import { SidebarTrigger } from '~/components/ui/sidebar'
+import DashboardProviders from '~/layout/DashboardProviders'
 import AppSidebar from '~/components/AppSidebar'
 import { Separator } from '~/components/ui/separator'
 import { m } from '~/paraglide/messages'
@@ -25,23 +24,19 @@ export const Route = createFileRoute('/dashboard')({
 
 function DashboardComponent() {
   return (
-    <TooltipProvider>
-      <SidebarProvider>
-        <DashboardProviders>
-          <AppSidebar />
-          <main className="w-full relative">
-            <div className="flex items-center gap-2 absolute mx-1 my-1">
-              <SidebarTrigger className="px-2 py-2" />
-              <Separator orientation="vertical" />
-              <h2 className="text-base font-medium">{m.dashboard()}</h2>
-            </div>
-            <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
-              <Outlet />
-            </div>
-            <Toaster theme="system" richColors />
-          </main>
-        </DashboardProviders>
-      </SidebarProvider>
-    </TooltipProvider>
+    <DashboardProviders>
+      <AppSidebar />
+      <main className="w-full relative">
+        <div className="flex items-center gap-2 absolute mx-1 my-1">
+          <SidebarTrigger className="px-2 py-2" />
+          <Separator orientation="vertical" />
+          <h2 className="text-base font-medium">{m.dashboard()}</h2>
+        </div>
+        <div className="mt-8 pt-4 px-2 md:px-4 w-full max-w-7xl mx-auto">
+          <Outlet />
+        </div>
+        <Toaster theme="system" richColors />
+      </main>
+    </DashboardProviders>
   )
 }
