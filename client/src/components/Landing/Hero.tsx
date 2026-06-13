@@ -1,14 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { BotIcon, ExternalLinkIcon, LogInIcon } from 'lucide-react'
-import Glow from '~/components/ui/glow'
-import { Mockup, MockupFrame } from '~/components/ui/mockup'
-import Screenshot from '~/components/ui/screenshot'
-import { Section } from '~/components/ui/section'
-import { Button } from '~/components/ui/button'
-import { GithubLogoIcon } from '~/components/icons/GithubLogoIcon'
-import { cn } from '~/lib/utils'
-import { siteConfig } from '~/config'
-import { m } from '~/paraglide/messages'
+import Glow from '#/components/ui/glow'
+import { Mockup, MockupFrame } from '#/components/ui/mockup'
+import Screenshot from '#/components/ui/screenshot'
+import { Section } from '#/components/ui/section'
+import { Button } from '#/components/ui/button'
+import { GithubLogoIcon } from '#/components/icons/GithubLogoIcon'
+import { cn } from '#/lib/utils'
+import { siteConfig } from '#/config'
+import { m } from '#/paraglide/messages'
 
 interface HeroProps {
   title?: string

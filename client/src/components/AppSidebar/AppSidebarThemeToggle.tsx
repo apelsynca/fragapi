@@ -1,7 +1,7 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
-import { DropdownMenuItem } from '~/components/ui/dropdown-menu.tsx'
-import useThemeToggle from '~/hooks/useThemeToggle.ts'
-import { m } from '~/paraglide/messages'
+import { DropdownMenuItem } from '#/components/ui/dropdown-menu.tsx'
+import useThemeToggle from '#/hooks/useThemeToggle.ts'
+import { m } from '#/paraglide/messages'
 
 export default function AppSidebarThemeToggle() {
   const { theme, toggleTheme, label } = useThemeToggle()

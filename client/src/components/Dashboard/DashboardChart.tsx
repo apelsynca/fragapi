@@ -6,17 +6,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card'
-import type { ChartConfig } from '~/components/ui/chart'
+} from '#/components/ui/card'
+import type { ChartConfig } from '#/components/ui/chart'
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '~/components/ui/chart'
-import { transactionChartOptions } from '~/lib/queries'
-import { m } from '~/paraglide/messages'
+} from '#/components/ui/chart'
+import { transactionChartOptions } from '#/lib/queries'
+import { m } from '#/paraglide/messages'
 
 const chartConfig = {
   visitors: {

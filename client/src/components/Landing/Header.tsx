@@ -1,5 +1,5 @@
 import { LanguagesIcon } from 'lucide-react'
-import { getLocale, setLocale } from '~/paraglide/runtime'
+import { getLocale, setLocale } from '#/paraglide/runtime'
 import { Button } from '../ui/button'
 // import { useTheme } from '../theme-provider'
 // import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'

@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import BalanceTopUp from '~/components/BalanceTopUp'
+import BalanceTopUp from '#/components/BalanceTopUp'
 import {
   tonRateOptions,
   transactionsStatsOptions,
   userMeOptions,
-} from '~/lib/queries'
-import { m } from '~/paraglide/messages'
+} from '#/lib/queries'
+import { m } from '#/paraglide/messages'
 
 export default function DashboardStats() {
   const { data: user } = useSuspenseQuery(userMeOptions())

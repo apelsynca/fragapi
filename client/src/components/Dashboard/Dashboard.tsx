@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import DashboardChart from '~/components/Dashboard/DashboardChart'
-import DashboardStats from '~/components/Dashboard/DashboardStats'
+import DashboardChart from '#/components/Dashboard/DashboardChart'
+import DashboardStats from '#/components/Dashboard/DashboardStats'
 import DashboardChartSkeleton from './DashboardChartSkeleton'
 import DashboardStatsSkeleton from './DashboardStatsSkeleton'
 

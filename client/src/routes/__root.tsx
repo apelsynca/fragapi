@@ -7,15 +7,15 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { fetchSessionToken } from '~/lib/auth'
+import { fetchSessionToken } from '#/lib/auth'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import globalsCss from '~/styles/globals.css?url'
-import utilsCss from '~/styles/utils.css?url'
-import { seo } from '~/utils/seo'
-import { getLocale } from '~/paraglide/runtime'
-import { m } from '~/paraglide/messages'
+import globalsCss from '#/styles/globals.css?url'
+import utilsCss from '#/styles/utils.css?url'
+import { seo } from '#/utils/seo'
+import { getLocale } from '#/paraglide/runtime'
+import { m } from '#/paraglide/messages'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient

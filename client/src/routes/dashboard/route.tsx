@@ -1,8 +1,8 @@
 import { Toaster } from 'sonner'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import DashboardProviders from '~/layout/DashboardProviders'
-import AppSidebar from '~/components/AppSidebar'
-import DashboardTopBar from '~/components/Dashboard/DashboardTopBar'
+import DashboardProviders from '#/layout/DashboardProviders'
+import AppSidebar from '#/components/AppSidebar'
+import DashboardTopBar from '#/components/Dashboard/DashboardTopBar'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {

@@ -1,6 +1,6 @@
-import { siteConfig } from '~/config'
+import { siteConfig } from '#/config'
 import { SidebarTrigger } from '../ui/sidebar'
-import { m } from '~/paraglide/messages'
+import { m } from '#/paraglide/messages'
 import { TelegramLogoIcon } from '../icons/TelegramLogoIcon'
 
 export default function DashboardTopBar() {

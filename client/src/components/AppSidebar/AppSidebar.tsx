@@ -15,10 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from '~/components/ui/sidebar'
+} from '#/components/ui/sidebar'
 import { Suspense } from 'react'
 import AppSidebarBottom from './AppSidebarBottom'
-import { m } from '~/paraglide/messages'
+import { m } from '#/paraglide/messages'
 
 function AppSidebarBottomSkeleton() {
   return <div>Bottom loading...</div>
