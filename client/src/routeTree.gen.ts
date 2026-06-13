@@ -15,7 +15,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTransactionsRouteImport } from './routes/dashboard/transactions'
 import { Route as DashboardApiTokensRouteImport } from './routes/dashboard/api-tokens'
-import { Route as DisabledChar123LocaleChar125IndexRouteImport } from './routes/disabled/{-$locale}.index'
 
 const BotLoginRoute = BotLoginRouteImport.update({
   id: '/bot-login',
@@ -47,12 +46,6 @@ const DashboardApiTokensRoute = DashboardApiTokensRouteImport.update({
   path: '/api-tokens',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DisabledChar123LocaleChar125IndexRoute =
-  DisabledChar123LocaleChar125IndexRouteImport.update({
-    id: '/disabled/{-$locale}/',
-    path: '/disabled/{-$locale}/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,7 +54,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/disabled/{-$locale}/': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +61,6 @@ export interface FileRoutesByTo {
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/disabled/{-$locale}': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +70,6 @@ export interface FileRoutesById {
   '/dashboard/api-tokens': typeof DashboardApiTokensRoute
   '/dashboard/transactions': typeof DashboardTransactionsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/disabled/{-$locale}/': typeof DisabledChar123LocaleChar125IndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +80,6 @@ export interface FileRouteTypes {
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
-    | '/disabled/{-$locale}/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,7 +87,6 @@ export interface FileRouteTypes {
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard'
-    | '/disabled/{-$locale}'
   id:
     | '__root__'
     | '/'
@@ -107,14 +95,12 @@ export interface FileRouteTypes {
     | '/dashboard/api-tokens'
     | '/dashboard/transactions'
     | '/dashboard/'
-    | '/disabled/{-$locale}/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   BotLoginRoute: typeof BotLoginRoute
-  DisabledChar123LocaleChar125IndexRoute: typeof DisabledChar123LocaleChar125IndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -161,13 +147,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApiTokensRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/disabled/{-$locale}/': {
-      id: '/disabled/{-$locale}/'
-      path: '/disabled/{-$locale}'
-      fullPath: '/disabled/{-$locale}/'
-      preLoaderRoute: typeof DisabledChar123LocaleChar125IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -191,8 +170,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   BotLoginRoute: BotLoginRoute,
-  DisabledChar123LocaleChar125IndexRoute:
-    DisabledChar123LocaleChar125IndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
