@@ -18,6 +18,7 @@ import { Field, FieldGroup } from './ui/field'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { requestTonPayment as requestTonPaymentFn } from '~/notserver/payments'
+import { m } from '~/paraglide/messages'
 
 export default function BalanceTopUp() {
   const [tonConnectUI] = useTonConnectUI()
@@ -63,7 +64,7 @@ export default function BalanceTopUp() {
   if (wallet === null) {
     return (
       <Button onClick={() => tonConnectUI.openModal()} className="w-full">
-        {'connect_wallet'}
+        {m.connect_wallet()}
       </Button>
     )
   }
