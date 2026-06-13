@@ -11,10 +11,10 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from '~/components/ui/sidebar'
 import { Suspense } from 'react'
 import AppSidebarBottom from './AppSidebarBottom'
@@ -27,7 +27,6 @@ function AppSidebarBottomSkeleton() {
 function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -55,7 +54,11 @@ function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
 
+        <SidebarSeparator />
+
+        <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuButton asChild>
