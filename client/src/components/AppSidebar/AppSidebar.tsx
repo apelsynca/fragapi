@@ -11,23 +11,22 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '~/components/ui/sidebar'
+  SidebarSeparator,
+} from '#/components/ui/sidebar'
 import { Suspense } from 'react'
 import AppSidebarBottom from './AppSidebarBottom'
-import { m } from '~/paraglide/messages'
+import { m } from '#/paraglide/messages'
 
 function AppSidebarBottomSkeleton() {
-  return <div>SKELETON</div>
+  return <div>Bottom loading...</div>
 }
 
 function AppSidebar() {
   return (
-    <Sidebar>
-      <SidebarHeader />
+    <Sidebar variant="inset">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -55,7 +54,11 @@ function AppSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
 
+        <SidebarSeparator />
+
+        <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuButton asChild>
@@ -70,11 +73,9 @@ function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Suspense fallback={<AppSidebarBottomSkeleton />}>
-              <AppSidebarBottom />
-            </Suspense>
-          </SidebarMenuItem>
+          <Suspense fallback={<AppSidebarBottomSkeleton />}>
+            <AppSidebarBottom />
+          </Suspense>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

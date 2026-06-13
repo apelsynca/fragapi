@@ -7,16 +7,15 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { fetchSessionToken } from '~/lib/auth'
+import { fetchSessionToken } from '#/lib/auth'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import globalsCss from '../styles/globals.css?url'
-import utilsCss from '../styles/utils.css?url'
-import { seo } from '~/utils/seo'
-import { getLocale } from '~/paraglide/runtime'
-import { m } from '~/paraglide/messages'
-import { ThemeProvider } from '~/components/theme-provider'
+import globalsCss from '#/styles/globals.css?url'
+import utilsCss from '#/styles/utils.css?url'
+import { seo } from '#/utils/seo'
+import { getLocale } from '#/paraglide/runtime'
+import { m } from '#/paraglide/messages'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -38,6 +37,7 @@ export const Route = createRootRouteWithContext<{
         title: 'FragAPI',
         description: m.seo_description(),
         keywords: 'fragapi,fragment,frag',
+        image: 'https://storage.apelsynca.pro/fragapi/fraga.png',
       }),
     ],
     links: [
@@ -76,14 +76,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const locale = getLocale()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider defaultTheme="system" storageKey="theme">
-          {children}
-        </ThemeProvider>
+        {children}
         <TanStackDevtools
           config={{
             position: 'bottom-right',

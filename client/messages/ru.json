@@ -14,9 +14,6 @@
   "sidebar_api_tokens": "API Токены",
   "sidebar_docs": "Документация",
   "sidebar_other": "Другое",
-  "sidebar_theme_dark": "Тёмная",
-  "sidebar_theme_light": "Светлая",
-  "sidebar_theme_system": "Системная",
   "sidebar_logout": "Выйти",
   "transactions": "Транзакции",
   "transactions_desc": "История ваших транзакций",
@@ -29,5 +26,16 @@
   "stats_90days_chart": "Показываем транзакции за последние 90 дней",
   "stats_all_time": "За все время",
   "cancel": "Отмена",
-  "seo_description": "API функционала Fragment без KYC и 24х слов"
+  "seo_description": "API функционала Fragment без KYC и 24х слов",
+  "theme_light": "Светлая",
+  "theme_dark": "Тёмная",
+  "theme_system": "Системная",
+  "chat": "Чат",
+  "faq_title": "Вопросы и ответы",
+  "deposit": "Пополнить баланс",
+  "deposit_short": "Пополнить",
+  "deposit_title": "Пополнение баланса",
+  "deposit_description": "Пополнение баланс с кошелька TON",
+  "amount": "Сумма",
+  "deposit_enter_right_amount": "Введите правильную сумму пополнения"
 }

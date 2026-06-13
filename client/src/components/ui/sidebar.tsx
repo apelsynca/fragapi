@@ -4,24 +4,24 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
 
-import { useIsMobile } from '~/hooks/useIsMobile'
-import { cn } from '~/lib/utils.ts'
-import { Button } from '~/components/ui/button.tsx'
-import { Input } from '~/components/ui/input.tsx'
-import { Separator } from '~/components/ui/separator.tsx'
+import { useIsMobile } from '#/hooks/useIsMobile'
+import { cn } from '#/lib/utils.ts'
+import { Button } from '#/components/ui/button.tsx'
+import { Input } from '#/components/ui/input.tsx'
+import { Separator } from '#/components/ui/separator.tsx'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '~/components/ui/sheet.tsx'
-import { Skeleton } from '~/components/ui/skeleton.tsx'
+} from '#/components/ui/sheet.tsx'
+import { Skeleton } from '#/components/ui/skeleton.tsx'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '~/components/ui/tooltip.tsx'
+} from '#/components/ui/tooltip.tsx'
 import { PanelLeftIcon } from 'lucide-react'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'

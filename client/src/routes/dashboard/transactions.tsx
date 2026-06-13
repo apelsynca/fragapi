@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import TransactionsList from '~/components/transactions/TransactionsList'
-import { m } from '~/paraglide/messages'
+import TransactionsList from '#/components/transactions/TransactionsList'
+import { m } from '#/paraglide/messages'
 
 export const Route = createFileRoute('/dashboard/transactions')({
   component: RouteComponent,

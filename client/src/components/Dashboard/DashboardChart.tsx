@@ -6,28 +6,28 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card'
-import type { ChartConfig } from '~/components/ui/chart'
+} from '#/components/ui/card'
+import type { ChartConfig } from '#/components/ui/chart'
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '~/components/ui/chart'
-import { transactionChartOptions } from '~/lib/queries'
-import { m } from '~/paraglide/messages'
+} from '#/components/ui/chart'
+import { transactionChartOptions } from '#/lib/queries'
+import { m } from '#/paraglide/messages'
 
 const chartConfig = {
   visitors: {
     label: 'Статистика',
   },
-  tonAmount: {
-    label: 'TON',
+  starsSpend: {
+    label: 'Stars',
     color: 'var(--chart-1)',
   },
-  transactionsCount: {
-    label: 'Покупок',
+  premiumSpend: {
+    label: 'Premium',
     color: 'var(--chart-2)',
   },
 } satisfies ChartConfig
@@ -50,33 +50,27 @@ export default function DashboardChart() {
         >
           <AreaChart data={chartData}>
             <defs>
-              <linearGradient id="fillTonAmount" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillStarsSpend" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-tonAmount)"
+                  stopColor="var(--color-starsSpend)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-transactionsCount)"
+                  stopColor="var(--color-premiumSpend)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient
-                id="fillTransactionsCount"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
+              <linearGradient id="fillPremiumSpend" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-tonAmount)"
+                  stopColor="var(--color-starsSpend)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-transactionsCount)"
+                  stopColor="var(--color-premiumSpend)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -114,13 +108,13 @@ export default function DashboardChart() {
             <Area
               dataKey="starsSpend"
               type="step"
-              fill="url(#fillTonAmount)"
+              fill="url(#fillStarsSpend)"
               stroke="var(--color-starsSpend)"
             />
             <Area
               dataKey="premiumSpend"
               type="step"
-              fill="url(#fillTransactionsCount)"
+              fill="url(#fillPremiumSpend)"
               stroke="var(--color-premiumSpend)"
             />
             <ChartLegend content={<ChartLegendContent />} />

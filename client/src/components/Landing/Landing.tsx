@@ -2,7 +2,7 @@ import FAQ from './FAQ'
 import Footer from './Footer'
 import Header from './Header'
 import Hero from './Hero'
-import { m } from '~/paraglide/messages'
+import { m } from '#/paraglide/messages'
 
 export default function Landing({ toPanel = false }: { toPanel?: boolean }) {
   return (

@@ -17,13 +17,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import { SidebarMenuButton, useSidebar } from '~/components/ui/sidebar'
-import { logoutFn } from '~/notserver/auth-manager'
+import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
+import { SidebarMenuButton, useSidebar } from '#/components/ui/sidebar'
+import { logoutFn } from '#/notserver/auth-manager'
 import DashboardThemeToggle from './AppSidebarThemeToggle'
-import { userMeOptions } from '~/lib/queries'
-import { getLocale, setLocale } from '~/paraglide/runtime'
-import { m } from '~/paraglide/messages'
+import { userMeOptions } from '#/lib/queries'
+import { getLocale, setLocale } from '#/paraglide/runtime'
+import { m } from '#/paraglide/messages'
 
 const LanguageToggle = () => {
   const locale = getLocale()
@@ -44,9 +44,9 @@ export default function AppSidebarBottom() {
   const wallet = useTonWallet()
   const [tonConnectUI] = useTonConnectUI()
 
+  const queryClient = useQueryClient()
   const logout = useServerFn(logoutFn)
   const { isMobile } = useSidebar()
-  const queryClient = useQueryClient()
 
   const { data: user } = useSuspenseQuery(userMeOptions())
 

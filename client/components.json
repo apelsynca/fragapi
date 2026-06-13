@@ -15,11 +15,11 @@
   "menuColor": "default",
   "menuAccent": "subtle",
   "aliases": {
-    "components": "~/components",
-    "utils": "~/lib/utils",
-    "ui": "~/components/ui",
-    "lib": "~/lib",
-    "hooks": "~/hooks"
+    "components": "#/components",
+    "utils": "#/lib/utils",
+    "ui": "#/components/ui",
+    "lib": "#/lib",
+    "hooks": "#/hooks"
   },
   "registries": {
     "@launchui": "https://www.launchuicomponents.com/r/{name}.json"
