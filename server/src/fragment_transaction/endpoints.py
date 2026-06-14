@@ -14,7 +14,7 @@ from src.kit.routing import APITag
 from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
-router = APIRouter(prefix="/transactions", tags=["", APITag.public])
+router = APIRouter(prefix="/transactions", tags=["transactions", APITag.public])
 
 
 @router.get("", description="Fragment transactions list")
