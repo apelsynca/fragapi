@@ -32,7 +32,7 @@ export const Route = createFileRoute("/docs/$")({
 const serverLoader = createServerFn({
   method: "GET",
 })
-  .inputValidator((slugs: string[]) => slugs)
+  .validator((slugs: string[]) => slugs)
   .handler(async ({ data: slugs }) => {
     const page = source.getPage(slugs);
     if (!page) throw notFound();
@@ -41,6 +41,7 @@ const serverLoader = createServerFn({
       path: page.path,
       markdownUrl: slugsToMarkdownPath(page.slugs).url,
       pageTree: await source.serializePageTree(source.getPageTree()),
+      openapiData: await openapi.preloadOpenAPIPage(page),
     };
   });
 
@@ -51,9 +52,11 @@ const clientLoader = browserCollections.docs.createClientLoader({
     {
       markdownUrl,
       path,
+      openapiData,
     }: {
       markdownUrl: string;
       path: string;
+      openapiData: object;
     },
   ) {
     return (
@@ -71,10 +74,7 @@ const clientLoader = browserCollections.docs.createClientLoader({
           <MDX
             components={useMDXComponents({
               OpenAPIPage: async (props) => (
-                <OpenAPIPage
-                  {...await openapi.preloadOpenAPIPage(page)}
-                  {...props}
-                />
+                <OpenAPIPage {...openapiData} {...props} />
               ),
             })}
           />
@@ -85,14 +85,14 @@ const clientLoader = browserCollections.docs.createClientLoader({
 });
 
 function Page() {
-  const { path, pageTree, markdownUrl } = useFumadocsLoader(
+  const { path, pageTree, markdownUrl, openapiData } = useFumadocsLoader(
     Route.useLoaderData(),
   );
 
   return (
     <DocsLayout {...baseOptions()} tree={pageTree}>
       <Suspense>
-        {clientLoader.useContent(path, { markdownUrl, path })}
+        {clientLoader.useContent(path, { markdownUrl, path, openapiData })}
       </Suspense>
     </DocsLayout>
   );

@@ -33,7 +33,7 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider>
+        <RootProvider search={{ enabled: false }}>
           <Outlet />
         </RootProvider>
         <Scripts />
