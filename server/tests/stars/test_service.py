@@ -3,9 +3,10 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from src.exceptions import FragError
+from src.exceptions import FragError, ResourceNotFound
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.service import FragmentTransactionService
+from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.integrations.fragment.types import (
     BuyLink,
     FoundRecipientData,
@@ -154,3 +155,13 @@ async def test_buy_returns_good(
     )
     assert stars_buy_response.name == "TheName"
     assert stars_buy_response.amount is not None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("username", ["apelsynca", "SyncaViA"])
+async def test_get_recipient_raises_if_fragment_not_found(
+    fragment: MagicMock, username: str
+) -> None:
+    fragment.search_stars_recipient.side_effect = FragmentAPIUsersNotFound()
+    with pytest.raises(ResourceNotFound):
+        await stars_service.get_recipient(fragment=fragment, username=username)

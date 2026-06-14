@@ -4,8 +4,8 @@ from typing import Annotated
 import structlog
 from taskiq import Context, TaskiqDepends, TaskiqEvents, TaskiqState
 
-from src.integrations.ton_wallet.manager import WalletManager
 from src.logging import Logger
+from src.wallet.manager import WalletManager
 from src.wallet.ton import create_wallet
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker

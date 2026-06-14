@@ -1,0 +1,21 @@
+INFO_ABOUT_LOGS = "Логи о ваших транзакциях:\n\n{status}"
+
+STATUS_SETTED_UP_SINGLE = "✅ <b>Настроено</b>\nChatID: {chat_id}"
+STATUS_UNSET = "❄️ <b>Не настроено</b>"
+
+CONFIGURE_CHAT = "Настроить чат"
+
+GIVE_CHAT_ID = (
+    "✍️ <b>Введите/Выберите chat_id telegram чата в который должны будут приходить логи</b>\n\n"
+    "⚠️ <b>Не забудьте добавить бота администратором с правом писать сообщения в выбранный чат/канал, иначе логи не будут приходить</b>\n\n"
+    "<blockquote>"
+    "<b>Что такое chat_id?</b> - Айди чата/канала телеграм\n"
+    "<b>Как его узнать?</b> - Перешлите сообщение из чата/канала в @userinfobot и скопируйте цифры"
+    "</blockquote>\n\n"
+    "<i>Или выберите снизу</i> 👇"
+)
+
+LOGS_WILL_BE_HERE = "Логи о транзакциях будут приходить в этот чат (от бота)"
+CHANGED_TARGET_CHAT_ID = "Changed target to a new one!"
+
+ENTER_TEXT_LOL = "Enter text lol"
