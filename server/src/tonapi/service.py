@@ -8,7 +8,6 @@ from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
 from src.config import settings
-from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.payment.service import payment as payment_service
@@ -29,11 +28,17 @@ class TonAPIService:
     RETRY_LIMIT: int = 3
     SEARCH_RETRY_SLEEP_FOR: float = 2.5
 
+    _last_lt: int = 0
+
+    def __init__(self) -> None:
+        # TODO: starting value prefetch?! (rethink if multi-wallet)
+        self._last_lt = 82005139000003
+
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
-        if webhook_message.lt < BADLY_HARD_CODED_LAST_LT:
-            log.info(
+        if webhook_message.lt < self._last_lt:
+            log.warning(
                 "tonapi.process_webhook_acc_tx skipping by lt", lt=webhook_message.lt
             )
             return
@@ -87,16 +92,19 @@ class TonAPIService:
             account_id=webhook_message.account_id,
         )
 
+        if webhook_message.lt > self._last_lt:
+            self._last_lt = webhook_message.lt
+
         await payment_service.complete_ton(
             session=session, transaction=transaction, hash=hash
         )
 
-    # Move out of this service probably
+    # TODO: Move out of this service (probably)
     def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
         if tonapi_transaction.in_msg is None:
             return None
 
-        # here test the message type
+        # here test the message type - int_msg ()
 
         if (
             tonapi_transaction.in_msg.decoded_body is None

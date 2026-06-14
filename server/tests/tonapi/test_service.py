@@ -9,7 +9,6 @@ from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
-from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.models import Transaction
@@ -65,11 +64,12 @@ def get_webhook_message(
     event_type: str | None = "account_tx",
     account_id: str | None = None,
     tx_hash: str | None = None,
+    lt: int | None = None,
 ) -> TonAPIWebhookMessage:
     return TonAPIWebhookMessage(
         event_type=rstr("wrong_event") if event_type is None else event_type,
         account_id=rstr("canbeany") if account_id is None else account_id,
-        lt=BADLY_HARD_CODED_LAST_LT,
+        lt=tonapi_service._last_lt + 1000 if lt is None else lt,
         tx_hash=rstr("canbeany") if tx_hash is None else tx_hash,
     )
 
@@ -231,7 +231,7 @@ async def test_logs_on_get_tx_any_error_and_does_not_call(
 
 
 @pytest.mark.asyncio
-async def test_all_good_calls(
+async def test_all_good_right_calls_and_sets_lt(
     save_fixture: SaveFixture,
     payment_service: MagicMock,
     session: AsyncSession,
@@ -244,6 +244,7 @@ async def test_all_good_calls(
     webhook_message = get_webhook_message(
         event_type="account_tx",
         account_id=tonapi_service.ACCOUNT_RAW_ADDRESSES[0],
+        lt=99999999999999999111,
         tx_hash="my_tx_hash_SHOULD_REDO",
     )
 
@@ -262,6 +263,7 @@ async def test_all_good_calls(
         session=session, webhook_message=webhook_message
     )
 
+    # then
     tonapi_rest_client_mock.blockchain.get_transaction.assert_called_once_with(
         transaction_id="my_tx_hash_SHOULD_REDO"
     )
@@ -271,6 +273,9 @@ async def test_all_good_calls(
     payment_service.complete_ton.assert_called_once_with(
         session=session, transaction=usual_transaction, hash=ref_hash
     )
+
+    # and
+    assert tonapi_service._last_lt >= 99999999999999999111
 
 
 def test_resolves_hash() -> None:
@@ -302,23 +307,22 @@ async def test_if_wrong_comment_hash_resolve_logs_and_returns(
 
     tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
     tonapi_tx_mock.success = True
-    tonapi_tx_mock.msg_type = "diffie"
+    tonapi_tx_mock.msg_type = "in_msg"
     in_msg = MagicMock(spec=TonAPIMessage)
-    in_msg.decoded_body = None
+    in_msg.decoded_body = {"text": "Completily wrong text"}
+    in_msg.decoded_op_name = "text_comment"
     tonapi_tx_mock.in_msg = in_msg
 
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
-    resolve_payment_hash_mock = mocker.patch.object(
-        tonapi_service, "resolve_payment_hash", return_value=None
-    )
+    resolve_payment_hash_spy = mocker.spy(tonapi_service, "resolve_payment_hash")
     transaction_service_mock.create_as_tonapi_internal.return_value = transaction
 
     await tonapi_service.process_webhook_acc_tx(
         session=session, webhook_message=valid_webhook_message
     )
 
-    resolve_payment_hash_mock.assert_called_once_with(tonapi_tx_mock)
+    resolve_payment_hash_spy.assert_called_once_with(tonapi_tx_mock)
     log_mock.warning.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction with unresolved payload hash",
         hash=None,
