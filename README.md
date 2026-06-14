@@ -6,6 +6,11 @@
 
 <!-- TODO: image here -->
 
+Repository at:
+
+[Forgejo](https://forge.apelsynca.pro/apelsynca/fragapi)
+[GitHub (Mirror)](https://github.com/apelsynca/fragapi)
+
 Frag API is a service for parts (_currentlly stars and premium_) of [Fragment](https://fragment.com) functionality
 
 Completely open source.
@@ -30,14 +35,6 @@ Buy telegram premium automatically.
 ## Contributions
 
 Our [`DEVELOPMENT.md`](./DEVELOPMENT.md) file contains everything you need to know to configure your development environment.
-
-TODOs: (_contributions are welcome_)
-
-- [ ] Return in response recipient photo as url (avatar_url)
-- [ ] Update user info on any interaction with bot, relogin included.
-- [ ] API Keys (multiple, diff model)
-- [ ] Payments view on the client.
-- [ ] Redis storage of recipient data for like 5 minutes
 
 ### Contributors
 
