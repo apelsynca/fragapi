@@ -9,10 +9,10 @@ from tonutils.contracts import WalletV5R1
 
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
 from src.fragment_transaction.tasks import process_fragment_transaction
-from src.integrations.ton_wallet.manager import WalletManager
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import FragmentTransaction, User
 from src.postgres import AsyncSession
+from src.wallet.manager import WalletManager
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,

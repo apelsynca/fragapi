@@ -4,8 +4,7 @@ from secrets import token_urlsafe
 
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models.transactions import Transaction
-from src.models.user_sessions import UserSession
+from src.models import Transaction, UserSession
 from src.postgres import AsyncSession, create_async_engine
 from src.transaction.repository import TransactionRepository
 from src.user.repository import UserRepository

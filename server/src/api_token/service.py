@@ -38,7 +38,6 @@ class ApiTokenService:
 
     async def delete(self, session: AsyncSession, user: User, id: UUID) -> None:
         api_token = await session.scalar(select(ApiToken).where(ApiToken.id == id))
-
         if api_token is None:
             raise ResourceNotFound()
 
