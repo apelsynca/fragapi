@@ -7,12 +7,23 @@ icon: SquareCode
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 import { Rocket } from "lucide-react";
 
+### HTTP Запрос
+
 <Accordions type="single">
   <Accordion title="Как получить api токен?">
-    Тут дофига текста как это сделать
+    Получить API токен можно только в
+    [панеле](https://fragapi.com/dashboard/api-tokens)
+
+    Введите имя и дату действия (пока нельзя) токена.
+
   </Accordion>
   <Accordion title="Как делать запросы?">
-    Тут дофига текста как делать запросы
+    Запросы делаются на `https://api.fragapi.com/v1/название-метода`
+ 	
+	Обязятельно передав заголовок авторизации, с API ключом.
+
+    Вот так: `Authorization`: `Bearer ВашАПИ_ТОКЕНсПанели`
+
   </Accordion>
 </Accordions>
 
