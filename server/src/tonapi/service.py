@@ -3,11 +3,11 @@ import re
 
 import structlog
 from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
+from pytonapi.rest import TonapiRestClient
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
 from src.config import settings
-from src.consts import BADLY_HARD_CODED_LAST_LT
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.payment.service import payment as payment_service
@@ -28,11 +28,17 @@ class TonAPIService:
     RETRY_LIMIT: int = 3
     SEARCH_RETRY_SLEEP_FOR: float = 2.5
 
+    _last_lt: int = 0
+
+    def __init__(self) -> None:
+        # TODO: starting value prefetch?! (rethink if multi-wallet)
+        self._last_lt = 82005139000003
+
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
     ) -> None:
-        if webhook_message.lt < BADLY_HARD_CODED_LAST_LT:
-            log.info(
+        if webhook_message.lt < self._last_lt:
+            log.warning(
                 "tonapi.process_webhook_acc_tx skipping by lt", lt=webhook_message.lt
             )
             return
@@ -45,7 +51,6 @@ class TonAPIService:
 
         try:
             await asyncio.sleep(0.85)  # let tonapi process it
-            # NOTE: here check maybe?
             tonapi_transaction = await self.get_blockchain_transaction(
                 tx_hash=webhook_message.tx_hash
             )
@@ -73,22 +78,33 @@ class TonAPIService:
 
         hash = self.resolve_payment_hash(tonapi_transaction)
         if hash is None:
-            log.warning("Transaction without hash", hash=hash, account_id="0")
+            log.warning(
+                "tonapi.process_webhook_acc_tx transaction with unresolved payload hash",
+                hash=hash,
+                account_id=webhook_message.account_id,
+            )
             return
 
         log.info(
-            "New valid tonapi transaction", hash=hash, tx_hash=webhook_message.tx_hash
+            "tonapi.process_webhook_acc_tx new valid transaction",
+            hash=hash,
+            tx_hash=webhook_message.tx_hash,
+            account_id=webhook_message.account_id,
         )
+
+        if webhook_message.lt > self._last_lt:
+            self._last_lt = webhook_message.lt
 
         await payment_service.complete_ton(
             session=session, transaction=transaction, hash=hash
         )
 
+    # TODO: Move out of this service (probably)
     def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
         if tonapi_transaction.in_msg is None:
             return None
 
-        # here test the message type
+        # here test the message type - int_msg ()
 
         if (
             tonapi_transaction.in_msg.decoded_body is None
@@ -109,16 +125,13 @@ class TonAPIService:
             )
 
     async def _search_bc_trans_with_retry(
-        self, client, tx_hash: str, *, retry_num: int = 0
+        self, client: TonapiRestClient, tx_hash: str, *, retry_num: int = 0
     ) -> TonAPITransaction:
         if retry_num >= self.RETRY_LIMIT:
             raise ValueError("Retry limit exceeded")
 
         try:
-            transaction = await client.blockchain.get_transaction(
-                transaction_id=tx_hash
-            )
-            return transaction
+            return await client.blockchain.get_transaction(transaction_id=tx_hash)
         except TONAPIBadRequestError:
             raise BadRequest("Transaction with that hash is not found")
         except TONAPINotFoundError:

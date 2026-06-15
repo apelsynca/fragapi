@@ -13,7 +13,7 @@ GIFT_EMOJI = "🎁"
 TELEGRAM_LOG_TEXT = (
     "{head_emoji} <b>New transaction</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.4f} TON</b> (<i>+{fee_amount:.4f} TON</i>)\n"
+    "Amount: <b>{amount:.4f} GRAM</b> (<i>+{fee_amount:.4f} GRAM</i>)\n"
     "Type: {reason}\n\n"
     "Rec-Username: {username}\n"
     "Rec-Value: {value_str}"

@@ -5,7 +5,7 @@ import type { FragmentTransaction } from '#/notserver/models/transactions'
 export const columns: ColumnDef<FragmentTransaction>[] = [
   {
     header: 'Amount',
-    cell: ({ row }) => `${parseFloat(row.original.amount.toFixed(2))} TON`,
+    cell: ({ row }) => `${parseFloat(row.original.amount.toFixed(2))} GRAM`,
   },
   {
     accessorKey: 'reason',

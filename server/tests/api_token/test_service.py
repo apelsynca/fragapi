@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Sequence
 from datetime import timedelta
 
@@ -71,7 +72,7 @@ async def test_delete_api_key(
 
 
 @pytest.mark.asyncio
-async def test_raises_not_found_if_tries_to_delete_wrong_api_key(
+async def test_raises_not_found_if_tries_to_delete_not_owned_api_key(
     save_fixture: SaveFixture, session: AsyncSession, user: User, user_second: User
 ) -> None:
     api_token = await create_api_token(save_fixture, user=user)
@@ -80,3 +81,11 @@ async def test_raises_not_found_if_tries_to_delete_wrong_api_key(
         await api_token_service.delete(
             session=session, user=user_second, id=api_token.id
         )
+
+
+@pytest.mark.asyncio
+async def test_raises_not_found_if_not_found_by_id(
+    session: AsyncSession, user: User
+) -> None:
+    with pytest.raises(ResourceNotFound):
+        await api_token_service.delete(session=session, user=user, id=uuid.uuid4())

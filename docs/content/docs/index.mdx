@@ -1,0 +1,81 @@
+---
+title: Главная
+description: Что это за сервис такой?
+icon: House
+---
+
+import { GithubLogoIcon } from "@/components/icons/github-logo-icon";
+import { TelegramLogoIcon } from "@/components/icons/telegram-logo-icon";
+import { GlobeCheckIcon } from "lucide-react";
+
+<Cards>
+  <Card
+    href="https://github.com/apelsynca/fragapi"
+    title="GitHub"
+    icon={<GithubLogoIcon />}
+  >
+    Исходный код этого сервиса
+  </Card>
+  <Card
+    href="https://fragapi.com"
+    title="Панель"
+    icon={<GlobeCheckIcon />}
+  >
+    Сама веб-панель сервиса
+  </Card>
+
+  <Card
+    href="https://t.me/frag_api"
+    title="Телеграм канал"
+    icon={<TelegramLogoIcon />}
+  >
+    Новости, важные оповещения
+  </Card>
+  <Card
+    href="https://t.me/fragapichat"
+    title="Телеграм чат"
+    icon={<TelegramLogoIcon />}
+  >
+    Вопросы, помощь, общение
+  </Card>
+</Cards>
+
+## Что это?
+
+<b>FragAPI</b> - API Сервис, с на 100% [открытым исходным
+кодом](https://github.com/apelsynca/fragapi), с помощью которого можно:
+
+Пользоваться функционалом fragapi в виде API
+
+### Зачем?
+
+Зачем его юзать, вместо обычного фрагмента:
+
+- Не нужно KYC.
+- Не нужно 24 слова.
+- Можно заранее пополнить баланс
+- Настраиваются уведомления о покупках
+- Не нужно с нуля писать свою автоматизацию fragment
+
+### Коммисия
+
+Сервис берет коммисию за каждую успешную транзакцию.
+
+<b>0.5%</b> + ~0.0001 GRAM (коммисия сети тон)
+
+<Callout title="Коммисия скоро может измениться" type="warn">
+  Планируется увеличение коммисии с <b>0.5%</b> до <b>2%</b> под конец июня!
+</Callout>
+
+---
+
+## Какой функционал доступен?
+
+- [x] Покупка звезд
+- [x] Покупка premium
+- [ ] Покупка GRAM на аккаунт телеграмм
+- [ ] Информация о коллекциях подарков
+
+---
+
+<i>Основной разработчик: [@apelsynca](https://t.me/syncavi)</i>

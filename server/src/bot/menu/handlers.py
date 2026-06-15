@@ -47,7 +47,7 @@ async def command_start(
         return await login(message=message, session=session, user=user)
 
     await message.answer(
-        text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} TON</b>",
+        text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} GRAM</b>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [
