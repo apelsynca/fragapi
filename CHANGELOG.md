@@ -1,4 +1,4 @@
-# v1.0.0 Beta (Latest)
+# v1.0.0 Release (Latest, 14.06.2026)
 
 - feat: recipient/buy response `avatar_url` object (with extracted link to avatar)
 - refactor: worker (TaskIQ) overhaul
@@ -9,3 +9,4 @@
 - feat: admin and user transaction logs
 - fix: deposits check retry (for when not found sometimes from tonapi) (deposits sometimes didn't worked)
 - feat: prettier landing page
+- fix: next-i18n causing hydration issues, switched to paraglide

@@ -10,7 +10,7 @@ from src.routing import APIRouter
 
 router = APIRouter(
     prefix="/ton",
-    tags=["ton", APITag.public],
+    tags=["ton", APITag.private],
     dependencies=[
         Depends(
             Authenticator(

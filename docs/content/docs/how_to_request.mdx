@@ -1,0 +1,172 @@
+---
+title: Пример запроса
+description: Примеры на разных языках программирования для запросов к API (Сервису)
+icon: SquareCode
+---
+
+import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
+import { Rocket } from "lucide-react";
+
+### HTTP Запрос
+
+<Accordions type="single">
+  <Accordion title="Как получить api токен?">
+    Получить API токен можно только в
+    [панеле](https://fragapi.com/dashboard/api-tokens)
+
+    Введите имя и дату действия (пока нельзя) токена.
+
+  </Accordion>
+  <Accordion title="Как делать запросы?">
+    Запросы делаются на `https://api.fragapi.com/v1/название-метода`
+ 	
+	Обязятельно передав заголовок авторизации, с API ключом.
+
+    Вот так: `Authorization`: `Bearer ВашАПИ_ТОКЕНсПанели`
+
+  </Accordion>
+</Accordions>
+
+---
+
+### Примеры на языках программирования
+
+```python tab="example.py"
+import requests
+
+BASE_URL = "https://api.fragapi.com/v1"
+token = "<Ваш API ключ>"
+
+# Делаем запрос к API передавая свой API ключ
+r = requests.get(
+  url=f"{BASE_URL}/users/me",
+  headers={
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+  }
+)
+me = r.json()
+
+# Должно вывести данные о балансе и тд..
+print(me)
+```
+
+```javascript tab="example.js"
+const baseUrl = "https://api.fragapi.com/v1";
+const token = "<Ваш API ключ>";
+
+// Делаем запрос к API передавая свой API ключ
+const response = await fetch(`${baseUrl}/users/me`, {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+});
+
+const me = await response.json();
+
+// Должно вывести данные о балансе и тд..
+console.log(me);
+```
+
+```java tab="example.java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fragapi.com/v1";
+        String token = "<Ваш API ключ>";
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/users/me"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String me = response.body();
+
+        // Должно вывести данные о балансе и тд..
+        System.out.println(me);
+    }
+}
+```
+
+```go tab="example.go"
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+)
+
+func main() {
+	baseURL := "https://api.fragapi.com/v1"
+	token := "<Ваш API ключ>"
+
+	req, _ := http.NewRequest("GET", baseURL+"/users/me", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	me := string(body)
+
+	// Должно вывести данные о балансе и тд..
+	fmt.Println(me)
+}
+```
+
+```php tab="example.php"
+<?php
+
+use Illuminate\Support\Facades\Http;
+
+$baseUrl = "https://api.fragapi.com/v1";
+$token = "<Ваш API ключ>";
+
+$response = Http::withHeaders([
+    'Authorization' => "Bearer {$token}",
+    'Content-Type' => 'application/json',
+])->get("{$baseUrl}/users/me");
+
+$me = $response->json();
+
+// Должно вывести данные о балансе и тд..
+print_r($me)"e;
+```
+
+```rust tab="example.rs"
+use reqwest;
+
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let base_url = "https://api.fragapi.com/v1";
+    let token = "<Ваш API ключ>";
+
+    let client = reqwest::Client::new();
+    let me = client
+        .get(format!("{}/users/me", base_url))
+        .header("Authorization", format!("Bearer {}", token))
+        .header("Content-Type", "application/json")
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
+
+    // Должно вывести данные о балансе и тд..
+    println!("{:?}", me);
+
+    Ok(())
+}
+```
