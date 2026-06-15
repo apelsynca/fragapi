@@ -34,7 +34,7 @@ export default function DashboardStatsCard({
       <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
         <CardDescription>{name}</CardDescription>
         <CardTitle className="flex flex-col text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-          {parseFloat(amount.toFixed(2))} TON
+          {parseFloat(amount.toFixed(2))} GRAM
           <span className="text-sm text-muted-foreground">
             ~${parseFloat(fiatAmount.toFixed(2))}
           </span>

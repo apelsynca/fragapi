@@ -30,7 +30,7 @@ Buy telegram premium automatically.
 
 ## Pricing
 
-- Only 0.5% + TON network fee (`+- $0.01`) for every transaction.
+- Only 0.5% + GRAM network fee (`+- $0.01`) for every transaction.
 
 ## Contributions
 
