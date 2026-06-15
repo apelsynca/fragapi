@@ -11,6 +11,9 @@
     "types:check": "fumadocs-mdx && tsc --noEmit",
     "postinstall": "fumadocs-mdx"
   },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@fuma-translate/react": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.13",
