@@ -18,6 +18,7 @@ import { useFumadocsLoader } from "fumadocs-core/source/client";
 import { useMDXComponents } from "@/components/mdx";
 import { OpenAPIPage } from "@/components/api-page";
 import { openapi } from "@/lib/openapi";
+import { Repositories } from "@/components/repositories";
 
 export const Route = createFileRoute("/docs/$")({
   component: Page,
@@ -76,6 +77,7 @@ const clientLoader = browserCollections.docs.createClientLoader({
               OpenAPIPage: async (props) => (
                 <OpenAPIPage {...openapiData} {...props} />
               ),
+              Repositories,
             })}
           />
         </DocsBody>
