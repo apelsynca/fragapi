@@ -25,8 +25,8 @@ Completely open source.
 
 ## What this service do?
 
-Buy telegram stars automatically,
-Buy telegram premium automatically.
+Buy telegram stars programatically,
+Buy telegram premium programatically.
 
 ## Pricing
 

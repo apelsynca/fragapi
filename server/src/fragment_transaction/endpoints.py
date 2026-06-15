@@ -38,7 +38,7 @@ async def list_transactions(
     )
 
 
-@router.get("/stats", description="Fragment transactions stats")
+@router.get("/stats", description="Fragment transactions stats", tags=[APITag.private])
 async def get_transactions_stats(
     auth_subject: auth.TransactionsRead,
     session: AsyncSession = Depends(get_db_session),
@@ -48,7 +48,9 @@ async def get_transactions_stats(
     )
 
 
-@router.get("/chart", description="Get fragment transactions chart data")
+@router.get(
+    "/chart", description="Get fragment transactions chart data", tags=[APITag.private]
+)
 async def get_chart_data(
     auth_subject: auth.TransactionsRead, session: AsyncSession = Depends(get_db_session)
 ) -> list[ChartPoint]:
