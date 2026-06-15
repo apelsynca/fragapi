@@ -4,6 +4,42 @@ description: Что это за сервис такой?
 icon: House
 ---
 
+import { GithubLogoIcon } from "@/components/icons/github-logo-icon";
+import { TelegramLogoIcon } from "@/components/icons/telegram-logo-icon";
+import { GlobeCheckIcon } from "lucide-react";
+
+<Cards>
+  <Card
+    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    title="GitHub"
+    icon={<GithubLogoIcon />}
+  >
+    Исходный код этого сервиса
+  </Card>
+  <Card
+    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    title="Панель"
+    icon={<GlobeCheckIcon />}
+  >
+    Сама веб-панель сервиса
+  </Card>
+
+  <Card
+    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    title="Телеграм канал"
+    icon={<TelegramLogoIcon />}
+  >
+    Новости, важные оповещения
+  </Card>
+  <Card
+    href="https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating"
+    title="Телеграм чат"
+    icon={<TelegramLogoIcon />}
+  >
+    Вопросы, помощь, общение
+  </Card>
+</Cards>
+
 ## Что это?
 
 <b>FragAPI</b> - API Сервис, с на 100% [открытым исходным
@@ -42,10 +78,4 @@ icon: House
 
 ---
 
-## Разное
-
-GitHub -> https://github.com/apelsynca/fragapi
-
-Forgejo -> https://forge.apelsynca.pro
-
-Telegram -> https://t.me/fragapi
+<i>Основной разработчик: [@apelsynca](https://t.me/syncavi)</i>

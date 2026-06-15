@@ -10,7 +10,12 @@ function Home() {
   return (
     <HomeLayout {...baseOptions()}>
       <div className="flex flex-col flex-1 justify-center px-4 py-8 text-center">
-        <h1 className="font-medium text-xl mb-4">Документация FragAPI</h1>
+        <div className="mb-4 flex flex-col gap-1">
+          <h1 className="font-medium text-xl ">Документация FragAPI</h1>
+          <p className="text-center italic text-sm">
+            Тут будет красивое оформление (надеюсь)
+          </p>
+        </div>
         <Link
           to="/docs/$"
           params={{
