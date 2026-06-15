@@ -18,7 +18,7 @@ export default defineConfig({
       },
     }),
     react(),
-    nitro({ traceDeps: ["tslib*"] }),
+    nitro(),
   ],
   resolve: {
     tsconfigPaths: true,
