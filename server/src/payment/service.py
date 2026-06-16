@@ -1,5 +1,6 @@
 import base64
 from collections.abc import Sequence
+from decimal import Decimal
 from secrets import token_urlsafe
 
 import structlog
@@ -45,7 +46,7 @@ class PaymentService:
         )
 
     async def create_ton(
-        self, session: AsyncSession, user: User, amount: float
+        self, session: AsyncSession, user: User, amount: Decimal
     ) -> PaymentTonRequestMessage:
         payment = await self.create(session=session, user=user, amount=amount)
 
@@ -60,7 +61,7 @@ class PaymentService:
 
         return PaymentTonRequestMessage(
             address=settings.TON_ADDRESS,
-            amount=str(to_nano(payment.amount)),
+            amount=str(to_nano(str(payment.amount))),
             payload=payload,
         )
 
@@ -68,7 +69,7 @@ class PaymentService:
         self,
         session: AsyncSession,
         user: User,
-        amount: float,
+        amount: Decimal,
     ) -> Payment:
         if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
             raise BadRequest(
@@ -104,7 +105,7 @@ class PaymentService:
         if payment.transaction is not None:
             raise FragError("Payment already has transaction")
 
-        transaction_amount = float(to_amount(transaction.nano_amount))
+        transaction_amount = Decimal(str(to_amount(transaction.nano_amount)))
         if payment.amount != transaction_amount:
             raise BadRequest("Payment amount and transaction amount is different")
 

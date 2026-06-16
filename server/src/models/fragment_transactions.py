@@ -1,8 +1,9 @@
+from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.database.models import RecordModel
@@ -23,7 +24,7 @@ class FragmentTransaction(RecordModel):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", back_populates="fragment_transactions")
 
-    amount: Mapped[float]  # amount in TON with fee
+    amount: Mapped[Decimal] = mapped_column(Numeric(precision=20, scale=9))  # amount in TON with fee
     recipient: Mapped[str]  # later can be nullable
     recipient_username: Mapped[str]  # later can be nullable
 

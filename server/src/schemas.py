@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import UUID4, Field, computed_field
 
-from src.kit.schemas import Schema
+from src.kit.schemas import DecimalFloat, Schema
 
 
 class BaseRecipient(Schema):
@@ -29,7 +29,8 @@ class BaseBuyResponse(Schema):
     photo: str  # backwards compatibility
     name: str
     amount: Annotated[
-        float, Field(gt=0, description="Amount that was reduced from your balance")
+        DecimalFloat,
+        Field(gt=0, description="Amount that was reduced from your balance"),
     ]
 
     @computed_field

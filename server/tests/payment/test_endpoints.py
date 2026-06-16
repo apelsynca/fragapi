@@ -7,8 +7,8 @@ from src.config import settings
 
 @pytest.mark.asyncio
 @pytest.mark.auth
-@pytest.mark.parametrize("amount", [0.49, 1, 3.22, 1.235, 999, 100])
-async def test_ton_payment_right_data(client: AsyncClient, amount: float) -> None:
+@pytest.mark.parametrize("amount", ["0.49", "1", "3.22", "1.235", "999", "100"])
+async def test_ton_payment_right_data(client: AsyncClient, amount: str) -> None:
     response = await client.post("/v1/payments/ton", params={"amount": amount})
 
     assert response.status_code == 200

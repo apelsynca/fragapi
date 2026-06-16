@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from src.kit.schemas import Schema
+from src.kit.schemas import DecimalFloat, Schema
 
 
 class BaseUser(Schema):
@@ -13,4 +13,4 @@ class BaseUser(Schema):
 
 
 class UserRead(BaseUser):
-    balance: float
+    balance: DecimalFloat

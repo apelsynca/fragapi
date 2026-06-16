@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from ton_core import to_amount
 
 from src.config import settings
@@ -33,8 +35,8 @@ def enqueue_frag_trans_admin_log_task(fragment_transaction: FragmentTransaction)
     elif fragment_transaction.stars_amount:
         value_str = f"{fragment_transaction.stars_amount} stars"
 
-    fee_amount = fragment_transaction.amount - float(
-        to_amount(fragment_transaction.transaction.nano_amount)
+    fee_amount = fragment_transaction.amount - Decimal(
+        str(to_amount(fragment_transaction.transaction.nano_amount))
     )
 
     user_field = (

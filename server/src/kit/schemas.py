@@ -1,13 +1,22 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated
 
 from pydantic import UUID4, BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
+from pydantic.functional_serializers import PlainSerializer
+
+# Decimal that serializes to float in JSON (not string)
+DecimalFloat = Annotated[
+    Decimal, PlainSerializer(lambda x: float(x), return_type=float, when_used="json")
+]
 
 
 class Schema(BaseModel):
     model_config = ConfigDict(
-        from_attributes=True, populate_by_name=True, alias_generator=to_camel
+        from_attributes=True,
+        populate_by_name=True,
+        alias_generator=to_camel,
     )
 
 

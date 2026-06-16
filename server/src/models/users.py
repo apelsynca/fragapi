@@ -1,6 +1,7 @@
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.enums import UserRole
@@ -21,7 +22,7 @@ class User(TimestampedModel):
     username: Mapped[str | None] = mapped_column(unique=True)
     is_premium: Mapped[bool] = mapped_column(default=False)
 
-    balance: Mapped[float] = mapped_column(default=0)
+    balance: Mapped[Decimal] = mapped_column(Numeric(precision=20, scale=9), default=Decimal("0"))
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
 
     fragment_transactions: Mapped[list["FragmentTransaction"]] = relationship(

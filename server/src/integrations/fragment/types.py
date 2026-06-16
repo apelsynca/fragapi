@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel
 
 from src.kit.ton_connect import TonConnectTransaction
@@ -25,7 +27,7 @@ class RecipientData(FragmentAPIResponseObject):
 class BuyRequest(FragmentAPIObject):
     req_id: str
     myself: bool
-    amount: float
+    amount: Decimal
 
 
 class BuyLink(FragmentAPIResponseObject):

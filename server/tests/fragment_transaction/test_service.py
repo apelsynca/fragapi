@@ -1,4 +1,5 @@
 import random
+from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
@@ -89,7 +90,7 @@ async def test_creates_from_tc_with_valid_data(
 
     assert fragment_transaction.user == user
     assert fragment_transaction.amount == after_fee(
-        after_ton_network_fee(float(to_amount(tc_msg.amount)))
+        after_ton_network_fee(Decimal(str(to_amount(tc_msg.amount))))
     )
     assert fragment_transaction.recipient == "recipientXrecipient"
     assert fragment_transaction.recipient_username == "homocitrus"
@@ -172,7 +173,7 @@ async def test_removes_money_from_user_with_fee(
         ]
     )
 
-    user.balance = amount + 100
+    user.balance = Decimal(str(amount + 100))
     await session.flush()
 
     frag_trans = await fragment_transaction_service.send_from_tc(
@@ -188,7 +189,10 @@ async def test_removes_money_from_user_with_fee(
     )
     assert frag_trans is not None
 
-    expect = amount + 100 - after_fee(after_ton_network_fee(amount))
+    amount_dec = Decimal(str(amount))
+    expect = Decimal(str(amount + 100)) - after_fee(
+        after_ton_network_fee(amount_dec)
+    )
     assert user.balance == expect
 
     assert frag_trans.id is not None
@@ -232,9 +236,9 @@ async def test_lists_transactions_right_user(
 async def test_get_stats_empty(session: AsyncSession, user: User) -> None:
     stats = await fragment_transaction_service.get_stats(session=session, user=user)
 
-    assert stats.total_spend == 0
-    assert stats.stars_total_spend == 0
-    assert stats.premium_total_spend == 0
+    assert stats.total_spend == Decimal("0")
+    assert stats.stars_total_spend == Decimal("0")
+    assert stats.premium_total_spend == Decimal("0")
 
 
 @pytest.mark.asyncio
@@ -253,6 +257,6 @@ async def test_gets_stats_right_amount(
 
     stats = await fragment_transaction_service.get_stats(session=session, user=user)
 
-    assert stats.total_spend == 6.35
-    assert stats.stars_total_spend == 4.25
-    assert stats.premium_total_spend == 2.1
+    assert stats.total_spend == Decimal("6.35")
+    assert stats.stars_total_spend == Decimal("4.25")
+    assert stats.premium_total_spend == Decimal("2.1")

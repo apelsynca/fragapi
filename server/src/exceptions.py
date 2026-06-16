@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from decimal import Decimal
 from typing import Any, LiteralString, NotRequired, TypedDict
 
 from pydantic_core import ErrorDetails, InitErrorDetails, PydanticCustomError
@@ -44,7 +45,7 @@ class InsuficcientFunds(BadRequest):
         self,
         message: str = "Insuficcient funds",
         status_code: int = 400,
-        required_amount: float | None = None,
+        required_amount: Decimal | None = None,
     ):
         super().__init__(
             message

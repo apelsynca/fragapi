@@ -1,25 +1,25 @@
 from datetime import date
 
-from src.kit.schemas import Schema, TimestampedSchema
+from src.kit.schemas import DecimalFloat, Schema, TimestampedSchema
 
 
 class FragmentTransactionsStats(Schema):
-    total_spend: float
-    stars_total_spend: float
-    premium_total_spend: float
+    total_spend: DecimalFloat
+    stars_total_spend: DecimalFloat
+    premium_total_spend: DecimalFloat
 
 
 class FragmentTransaction(TimestampedSchema):
-    amount: float
+    amount: DecimalFloat
     reason: str
     recipient: str
     recipient_username: str
 
-    stars_amount: int | None
-    premium_months: int | None
+    stars_amount: int | None = None
+    premium_months: int | None = None
 
 
 class ChartPoint(Schema):
     date: date
-    stars_spend: float
-    premium_spend: float
+    stars_spend: DecimalFloat
+    premium_spend: DecimalFloat

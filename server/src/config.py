@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from decimal import Decimal
 from enum import StrEnum
 from typing import Literal
 
@@ -63,10 +64,10 @@ class Settings(BaseSettings):
     LOGTIDE_TOKEN: str | None = None
 
     # Application behaviours
-    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
+    API_PRICE_MARKUP: Decimal = Field(gt=0, default=Decimal("0.01"))
     API_PAGINATION_MAX_LIMIT: int = 100
-    MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
-    MIN_NON_SILENT_AMOUNT: float = 3
+    MIN_TON_DEPOSIT_AMOUNT: Decimal = Field(gt=0, default=Decimal("0.25"))
+    MIN_NON_SILENT_AMOUNT: Decimal = Decimal("3")
 
     FRAGMENT_SESSION_PATH: str = ""
 

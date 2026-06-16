@@ -1,8 +1,9 @@
+from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.kit.database.models import RecordModel
@@ -25,8 +26,9 @@ class Payment(RecordModel):
     user: Mapped["User"] = relationship("User", lazy="joined")
 
     # amount just as amount
-    amount: Mapped[float]
+    amount: Mapped[Decimal] = mapped_column(Numeric(precision=20, scale=9))
     # it is just prettier to be like that
+    
     hash: Mapped[str] = mapped_column(unique=True)
 
     transaction_id: Mapped[UUID | None] = mapped_column(

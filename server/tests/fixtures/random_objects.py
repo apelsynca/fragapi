@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import datetime, timedelta
+from decimal import Decimal
 from secrets import token_urlsafe
 from unittest.mock import MagicMock
 
@@ -121,11 +122,13 @@ async def transaction(save_fixture: SaveFixture) -> Transaction:
 async def create_transaction(
     save_fixture: SaveFixture,
     *,
-    amount: float | None = None,
+    amount: Decimal | float | None = None,
     message_hash: str | None = None,
 ) -> Transaction:
     transaction = Transaction(
-        nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
+        nano_amount=to_nano(
+            random.randint(1, 100) / 10 if amount is None else amount
+        ),
         hash=None,
         message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
         from_address=rstr("someaddress"),
@@ -148,7 +151,7 @@ async def create_fragment_transaction(
     save_fixture: SaveFixture,
     user: User,
     transaction: Transaction,
-    amount: float | None = None,
+    amount: Decimal | None = None,
     stars_amount: int | None = None,
     premium_months: int | None = None,
 ) -> FragmentTransaction:
@@ -156,7 +159,9 @@ async def create_fragment_transaction(
         user=user,
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
-        amount=amount if amount is not None else random.randint(1, 250) / 100,
+        amount=amount
+        if amount is not None
+        else Decimal(str(random.randint(1, 250) / 100)),
         transaction=transaction,
         reason=FragmentTransactionReason.premium
         if premium_months
@@ -176,7 +181,7 @@ async def payment(save_fixture: SaveFixture, user: User) -> Payment:
 async def create_payment(
     save_fixture: SaveFixture,
     user: User,
-    amount: float,
+    amount: Decimal,
     hash: str | None = None,
     completed: bool = False,
 ) -> Payment:

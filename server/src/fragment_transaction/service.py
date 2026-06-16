@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from datetime import timedelta
+from decimal import Decimal
 
 import structlog
 from sqlalchemy import case, func, select
@@ -23,6 +24,8 @@ from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
 from src.transaction.service import transaction as transaction_service
 from src.worker import enqueue_task
+
+ZERO = Decimal("0")
 
 log: Logger = structlog.get_logger()
 
@@ -56,9 +59,9 @@ class FragmentTransactionService:
         row = result.one()
 
         return FragmentTransactionsStats(
-            total_spend=row.total_amount or 0,
-            stars_total_spend=row.stars_total_amount or 0,
-            premium_total_spend=row.premium_total_amount or 0,
+            total_spend=row.total_amount or Decimal("0"),
+            stars_total_spend=row.stars_total_amount or Decimal("0"),
+            premium_total_spend=row.premium_total_amount or Decimal("0"),
         )
 
     async def fetch_list(
@@ -134,7 +137,7 @@ class FragmentTransactionService:
 
         # NOTE: do better testing on fee side of things, maybe even create a class Fee calculator later,
         # that way it would be easier to create a solid type shi (one place)
-        without_fee_f_amount = float(to_amount(tc_msg.amount))
+        without_fee_f_amount = Decimal(str(to_amount(tc_msg.amount)))
         f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
 
         repository = FragmentTransactionRepository.from_session(session)
@@ -203,7 +206,13 @@ class FragmentTransactionService:
             row = existing.get(day, None)
 
             if row is None:
-                result.append(ChartPoint(date=day, stars_spend=0, premium_spend=0))
+                result.append(
+                    ChartPoint(
+                        date=day,
+                        stars_spend=ZERO,
+                        premium_spend=ZERO,
+                    )
+                )
                 continue
 
             log.debug("row at the row the row is row", row=row)
@@ -211,8 +220,8 @@ class FragmentTransactionService:
             result.append(
                 ChartPoint(
                     date=day,
-                    stars_spend=row[1],
-                    premium_spend=row[2],
+                    stars_spend=Decimal(str(row[1])) if row[1] is not None else ZERO,
+                    premium_spend=Decimal(str(row[2])) if row[2] is not None else ZERO,
                 )
             )
 

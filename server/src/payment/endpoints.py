@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import Depends, Query
 
 from src.auth.dependencies import AuthorizeWebUser
@@ -14,7 +16,7 @@ router = APIRouter(prefix="/payments")
 @router.post("/ton", description="Request a new ton payment")
 async def request_ton_payment(
     auth_subject: AuthorizeWebUser,
-    amount: float = Query(...),
+    amount: Decimal = Query(...),
     session: AsyncSession = Depends(get_db_session),
 ) -> PaymentTonRequestMessage:
     return await payment_service.create_ton(
