@@ -9,15 +9,12 @@ from pytest_mock import MockerFixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.bot.menu.handlers import (
-    AUTHORIZATION_SUCCESS_TEXT,
-    command_start,
-    login,
-    user_service,
-)
+from src.bot.menu import texts
+from src.bot.menu.handlers import command_start, login, user_service
 from src.config import settings
 from src.kit.utils import utc_now
 from src.models import User, UserSession
+from src.user.service import UserService
 
 
 @pytest.mark.asyncio
@@ -59,7 +56,7 @@ async def test_login_creates_user_session(session: AsyncSession, user: User) -> 
     assert user_session.bot_hash is not None
 
     message.answer.assert_called_once_with(
-        text=AUTHORIZATION_SUCCESS_TEXT,
+        text=texts.AUTHORIZATION_SUCCESS,
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -88,3 +85,42 @@ async def test_expires(session: AsyncSession, user: User) -> None:
 
     assert user_session is not None
     assert user_session.expires_at == utc_now() + settings.BOT_LOGIN_SESSION_TTL
+
+
+@pytest.mark.asyncio
+async def test_menu_authorized_answers_right_text_and_keyboard(
+    session: AsyncSession, mocker: MockerFixture, user: User
+) -> None:
+    message = MagicMock(spec=Message)
+    message.answer = AsyncMock()
+    message.from_user = TGUser(is_bot=False, id=-1, first_name="Firstiie")
+
+    user_service_mock = mocker.patch(
+        "src.bot.menu.handlers.user_service", spec=UserService
+    )
+    # NOTE: this is anti pattern i guess
+    user_service_mock.get_by_id.return_value = user
+    user_service_mock.update_by_tg_user.return_value = user
+
+    await command_start(message, session, CommandObject(command="start"))
+
+    message.answer.assert_called_once_with(
+        text=texts.MENU.format(full_name="Firstiie", balance=user.balance),
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="🌐 Панель",
+                        url=settings.generate_panel_url("/dashboard"),
+                        style="primary",
+                    )
+                ],
+                [InlineKeyboardButton(text="📃 Документация", url=settings.DOCS_URL)],
+                [
+                    InlineKeyboardButton(
+                        text="📄 Логи о транзакциях", callback_data="logs"
+                    )
+                ],
+            ]
+        ),
+    )

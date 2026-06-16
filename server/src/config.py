@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     AMQP_PWD: str = "guest"
     AMQP_PORT: int = 5672
 
+    def generate_panel_url(self, path: str) -> str:
+        return f"{self.PANEL_URL}{path}"
+
     @property
     def redis_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
