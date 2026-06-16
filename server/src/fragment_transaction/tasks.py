@@ -94,7 +94,7 @@ async def process_fragment_transaction(
         sources = await telegram_log_service.get_all_sources(
             session=session, user=fragment_transaction.user
         )
-        if len(sources) == 1:  # PERF: dont forget to change it to > 1 or smth
+        if len(sources) > 0:  # If the user has more than one source bound, the function will be called
             enqueue_new_trans_telegram_log_task(sources[0], fragment_transaction)
     except Exception:
         log.error("Error enqueuing fragment transaction admin log", exc_info=True)
