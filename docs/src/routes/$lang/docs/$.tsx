@@ -20,12 +20,16 @@ import { OpenAPIPage } from "@/components/api-page";
 import { openapi } from "@/lib/openapi";
 import { Repositories } from "@/components/repositories";
 
-export const Route = createFileRoute("/docs/$lang/$")({
+export const Route = createFileRoute("/$lang/docs/$")({
   component: Page,
   loader: async ({ params }) => {
-    const lang = params.lang;
-    const slugs = params._splat?.split("/") ?? [];
-    const data = await serverLoader({ data: { lang, slugs } });
+    const data = await serverLoader({
+      data: {
+        slugs: params._splat?.split("/") ?? [],
+        lang: params.lang,
+      },
+    });
+
     await clientLoader.preload(data.path);
     return data;
   },
@@ -88,12 +92,14 @@ const clientLoader = browserCollections.docs.createClientLoader({
 });
 
 function Page() {
+  const { lang } = Route.useParams();
+
   const { path, pageTree, markdownUrl, openapiData } = useFumadocsLoader(
     Route.useLoaderData(),
   );
 
   return (
-    <DocsLayout {...baseOptions()} tree={pageTree}>
+    <DocsLayout {...baseOptions(lang)} tree={pageTree}>
       <Suspense>
         {clientLoader.useContent(path, { markdownUrl, path, openapiData })}
       </Suspense>

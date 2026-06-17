@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LangIndexRouteImport } from './routes/$lang/index'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
-import { Route as DocsLangChar123Char125DotmdRouteImport } from './routes/docs/$lang/{$}[.]md'
-import { Route as DocsLangSplatRouteImport } from './routes/docs/$lang/$'
+import { Route as LangDocsChar123Char125DotmdRouteImport } from './routes/$lang/docs/{$}[.]md'
+import { Route as LangDocsSplatRouteImport } from './routes/$lang/docs/$'
 
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
@@ -26,9 +26,9 @@ const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
   path: '/llms-full.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LangIndexRoute = LangIndexRouteImport.update({
+  id: '/$lang/',
+  path: '/$lang/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
@@ -36,77 +36,77 @@ const ApiSearchRoute = ApiSearchRouteImport.update({
   path: '/api/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DocsLangChar123Char125DotmdRoute =
-  DocsLangChar123Char125DotmdRouteImport.update({
-    id: '/docs/$lang/{$}.md',
-    path: '/docs/$lang/{$}.md',
+const LangDocsChar123Char125DotmdRoute =
+  LangDocsChar123Char125DotmdRouteImport.update({
+    id: '/$lang/docs/{$}.md',
+    path: '/$lang/docs/{$}.md',
     getParentRoute: () => rootRouteImport,
   } as any)
-const DocsLangSplatRoute = DocsLangSplatRouteImport.update({
-  id: '/docs/$lang/$',
-  path: '/docs/$lang/$',
+const LangDocsSplatRoute = LangDocsSplatRouteImport.update({
+  id: '/$lang/docs/$',
+  path: '/$lang/docs/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/api/search': typeof ApiSearchRoute
-  '/docs/$lang/$': typeof DocsLangSplatRoute
-  '/docs/$lang/{$}.md': typeof DocsLangChar123Char125DotmdRoute
+  '/$lang/': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
+  '/$lang/docs/{$}.md': typeof LangDocsChar123Char125DotmdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/api/search': typeof ApiSearchRoute
-  '/docs/$lang/$': typeof DocsLangSplatRoute
-  '/docs/$lang/{$}.md': typeof DocsLangChar123Char125DotmdRoute
+  '/$lang': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
+  '/$lang/docs/{$}.md': typeof LangDocsChar123Char125DotmdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/api/search': typeof ApiSearchRoute
-  '/docs/$lang/$': typeof DocsLangSplatRoute
-  '/docs/$lang/{$}.md': typeof DocsLangChar123Char125DotmdRoute
+  '/$lang/': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
+  '/$lang/docs/{$}.md': typeof LangDocsChar123Char125DotmdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/api/search'
-    | '/docs/$lang/$'
-    | '/docs/$lang/{$}.md'
+    | '/$lang/'
+    | '/$lang/docs/$'
+    | '/$lang/docs/{$}.md'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/api/search'
-    | '/docs/$lang/$'
-    | '/docs/$lang/{$}.md'
+    | '/$lang'
+    | '/$lang/docs/$'
+    | '/$lang/docs/{$}.md'
   id:
     | '__root__'
-    | '/'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/api/search'
-    | '/docs/$lang/$'
-    | '/docs/$lang/{$}.md'
+    | '/$lang/'
+    | '/$lang/docs/$'
+    | '/$lang/docs/{$}.md'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   ApiSearchRoute: typeof ApiSearchRoute
-  DocsLangSplatRoute: typeof DocsLangSplatRoute
-  DocsLangChar123Char125DotmdRoute: typeof DocsLangChar123Char125DotmdRoute
+  LangIndexRoute: typeof LangIndexRoute
+  LangDocsSplatRoute: typeof LangDocsSplatRoute
+  LangDocsChar123Char125DotmdRoute: typeof LangDocsChar123Char125DotmdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -125,11 +125,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LlmsFullDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/$lang/': {
+      id: '/$lang/'
+      path: '/$lang'
+      fullPath: '/$lang/'
+      preLoaderRoute: typeof LangIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/search': {
@@ -139,30 +139,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/docs/$lang/{$}.md': {
-      id: '/docs/$lang/{$}.md'
-      path: '/docs/$lang/{$}.md'
-      fullPath: '/docs/$lang/{$}.md'
-      preLoaderRoute: typeof DocsLangChar123Char125DotmdRouteImport
+    '/$lang/docs/{$}.md': {
+      id: '/$lang/docs/{$}.md'
+      path: '/$lang/docs/{$}.md'
+      fullPath: '/$lang/docs/{$}.md'
+      preLoaderRoute: typeof LangDocsChar123Char125DotmdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/docs/$lang/$': {
-      id: '/docs/$lang/$'
-      path: '/docs/$lang/$'
-      fullPath: '/docs/$lang/$'
-      preLoaderRoute: typeof DocsLangSplatRouteImport
+    '/$lang/docs/$': {
+      id: '/$lang/docs/$'
+      path: '/$lang/docs/$'
+      fullPath: '/$lang/docs/$'
+      preLoaderRoute: typeof LangDocsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   ApiSearchRoute: ApiSearchRoute,
-  DocsLangSplatRoute: DocsLangSplatRoute,
-  DocsLangChar123Char125DotmdRoute: DocsLangChar123Char125DotmdRoute,
+  LangIndexRoute: LangIndexRoute,
+  LangDocsSplatRoute: LangDocsSplatRoute,
+  LangDocsChar123Char125DotmdRoute: LangDocsChar123Char125DotmdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

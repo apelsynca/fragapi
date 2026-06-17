@@ -1,7 +1,81 @@
 ---
-title: Home
+title: Welcome
 description: What is this about?
 icon: House
 ---
 
-Same bullshit, but in english
+import { GithubLogoIcon } from "@/components/icons/github-logo-icon";
+import { TelegramLogoIcon } from "@/components/icons/telegram-logo-icon";
+import { GlobeCheckIcon } from "lucide-react";
+
+<Cards>
+  <Card
+    href="https://github.com/apelsynca/fragapi"
+    title="GitHub"
+    icon={<GithubLogoIcon />}
+  >
+    Source code of this service
+  </Card>
+  <Card
+    href="https://fragapi.com"
+    title="Панель"
+    icon={<GlobeCheckIcon />}
+  >
+    Service web panel
+  </Card>
+
+  <Card
+    href="https://t.me/frag_api"
+    title="TG Channel"
+    icon={<TelegramLogoIcon />}
+  >
+    News, important notifications
+  </Card>
+  <Card
+    href="https://t.me/fragapichat"
+    title="TG Chat"
+    icon={<TelegramLogoIcon />}
+  >
+    Questions, help, chat
+  </Card>
+</Cards>
+
+## What is this service?
+
+<b>FragAPI</b> - API Service, with 100% [open source
+code](https://github.com/apelsynca/fragapi), с помощью которого можно:
+
+Пользоваться функционалом fragapi в виде API
+
+### What can it do?
+
+Why use it, over usual fragment?:
+
+- Provides automation of fragment.
+- No KYC required.
+- No need in 24 words or interaction with wallet at all.
+- Notifications about your fragment transactions
+
+### Коммисия
+
+Service takes commision for each transaction.
+
+<b>0.5%</b> + ~0.0001 GRAM (network fee, +-$0.0001)
+
+<Callout title="Коммисия скоро может измениться" type="warn">
+  Commission top-up planned from <b>0.5%</b> to <b>2%</b> before the end of
+  month!
+</Callout>
+
+---
+
+## What functionale already implemented?
+
+- [x] Buying stars
+- [x] Buying premium
+- [ ] Buying GRAM to the telegram user
+- [ ] Info/Stats about telegram gifts
+
+---
+
+<i>Main developer: [@synca](https://t.me/synca)</i>

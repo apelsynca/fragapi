@@ -5,7 +5,14 @@ icon: SquareCode
 ---
 
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
-import { Rocket } from "lucide-react";
+import {
+  PythonIcon,
+  JavascriptIcon,
+  JavaIcon,
+  GoIcon,
+  PhpIcon,
+  RustIcon,
+} from "@/components/icons";
 
 ### HTTP Запрос
 
@@ -31,7 +38,7 @@ import { Rocket } from "lucide-react";
 
 ### Примеры на языках программирования
 
-```python tab="example.py"
+```python tab="<PythonIcon /> example.py"
 import requests
 
 BASE_URL = "https://api.fragapi.com/v1"
@@ -51,7 +58,7 @@ me = r.json()
 print(me)
 ```
 
-```javascript tab="example.js"
+```javascript tab="<JavascriptIcon /> example.js"
 const baseUrl = "https://api.fragapi.com/v1";
 const token = "<Ваш API ключ>";
 
@@ -70,35 +77,7 @@ const me = await response.json();
 console.log(me);
 ```
 
-```java tab="example.java"
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
-public class Example {
-    public static void main(String[] args) throws Exception {
-        String baseUrl = "https://api.fragapi.com/v1";
-        String token = "<Ваш API ключ>";
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/users/me"))
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        String me = response.body();
-
-        // Должно вывести данные о балансе и тд..
-        System.out.println(me);
-    }
-}
-```
-
-```go tab="example.go"
+```go tab="<GoIcon /> example.go"
 package main
 
 import (
@@ -127,26 +106,7 @@ func main() {
 }
 ```
 
-```php tab="example.php"
-<?php
-
-use Illuminate\Support\Facades\Http;
-
-$baseUrl = "https://api.fragapi.com/v1";
-$token = "<Ваш API ключ>";
-
-$response = Http::withHeaders([
-    'Authorization' => "Bearer {$token}",
-    'Content-Type' => 'application/json',
-])->get("{$baseUrl}/users/me");
-
-$me = $response->json();
-
-// Должно вывести данные о балансе и тд..
-print_r($me)"e;
-```
-
-```rust tab="example.rs"
+```rust tab="<RustIcon /> example.rs"
 use reqwest;
 
 #[tokio::main]
@@ -169,4 +129,51 @@ async fn main() -> Result<(), reqwest::Error> {
 
     Ok(())
 }
+```
+
+```java tab="<JavaIcon /> example.java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fragapi.com/v1";
+        String token = "<Ваш API ключ>";
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/users/me"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String me = response.body();
+
+        // Должно вывести данные о балансе и тд..
+        System.out.println(me);
+    }
+}
+```
+
+```php tab="<PhpIcon /> example.php"
+<?php
+
+use Illuminate\Support\Facades\Http;
+
+$baseUrl = "https://api.fragapi.com/v1";
+$token = "<Ваш API ключ>";
+
+$response = Http::withHeaders([
+    'Authorization' => "Bearer {$token}",
+    'Content-Type' => 'application/json',
+])->get("{$baseUrl}/users/me");
+
+$me = $response->json();
+
+// Должно вывести данные о балансе и тд..
+print_r($me)"e;
 ```
