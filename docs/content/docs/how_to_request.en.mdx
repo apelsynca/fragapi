@@ -5,7 +5,14 @@ icon: SquareCode
 ---
 
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
-import { Rocket } from "lucide-react";
+import {
+  PythonIcon,
+  JavascriptIcon,
+  JavaIcon,
+  GoIcon,
+  PhpIcon,
+  RustIcon,
+} from "@/components/icons";
 
 ### HTTP Request
 
@@ -28,11 +35,11 @@ import { Rocket } from "lucide-react";
 
 ### Examples using programming languages
 
-```python tab="example.py"
+```python tab="<PythonIcon /> example.py"
 import requests
 
 BASE_URL = "https://api.fragapi.com/v1"
-token = "<Ваш API ключ>"
+token = "<Your API token>"
 
 r = requests.get(
   url=f"{BASE_URL}/users/me",
@@ -47,9 +54,9 @@ me = r.json()
 print(me)
 ```
 
-```javascript tab="example.js"
+```javascript tab="<JavascriptIcon /> example.js"
 const baseUrl = "https://api.fragapi.com/v1";
-const token = "<Ваш API ключ>";
+const token = "<Your API token>";
 
 // Making request to the API and passing API token
 const response = await fetch(`${baseUrl}/users/me`, {
@@ -66,7 +73,61 @@ const me = await response.json();
 console.log(me);
 ```
 
-```java tab="example.java"
+```go tab="<GoIcon /> example.go"
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+)
+
+func main() {
+	baseURL := "https://api.fragapi.com/v1"
+	token := "<Your API token>"
+
+	req, _ := http.NewRequest("GET", baseURL+"/users/me", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	me := string(body)
+
+	// Should print info about balance, etc...
+	fmt.Println(me)
+}
+```
+
+```rust tab="<RustIcon /> example.rs"
+use reqwest;
+
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let base_url = "https://api.fragapi.com/v1";
+    let token = "<Your API token>";
+
+    let client = reqwest::Client::new();
+    let me = client
+        .get(format!("{}/users/me", base_url))
+        .header("Authorization", format!("Bearer {}", token))
+        .header("Content-Type", "application/json")
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
+
+    // Should print info about balance, etc...
+    println!("{:?}", me);
+
+    Ok(())
+}
+```
+
+```java tab="<JavaIcon /> example.java"
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -75,7 +136,7 @@ import java.net.http.HttpResponse;
 public class Example {
     public static void main(String[] args) throws Exception {
         String baseUrl = "https://api.fragapi.com/v1";
-        String token = "<Ваш API ключ>";
+        String token = "<Your API token>";
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -94,42 +155,13 @@ public class Example {
 }
 ```
 
-```go tab="example.go"
-package main
-
-import (
-	"fmt"
-	"io"
-	"net/http"
-)
-
-func main() {
-	baseURL := "https://api.fragapi.com/v1"
-	token := "<Ваш API ключ>"
-
-	req, _ := http.NewRequest("GET", baseURL+"/users/me", nil)
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, _ := client.Do(req)
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	me := string(body)
-
-	// Should print info about balance, etc...
-	fmt.Println(me)
-}
-```
-
-```php tab="example.php"
+```php tab="<PhpIcon /> example.php"
 <?php
 
 use Illuminate\Support\Facades\Http;
 
 $baseUrl = "https://api.fragapi.com/v1";
-$token = "<Ваш API ключ>";
+$token = "<Your API token>";
 
 $response = Http::withHeaders([
     'Authorization' => "Bearer {$token}",
@@ -140,29 +172,4 @@ $me = $response->json();
 
 // Should print info about balance, etc...
 print_r($me)"e;
-```
-
-```rust tab="example.rs"
-use reqwest;
-
-#[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
-    let base_url = "https://api.fragapi.com/v1";
-    let token = "<Ваш API ключ>";
-
-    let client = reqwest::Client::new();
-    let me = client
-        .get(format!("{}/users/me", base_url))
-        .header("Authorization", format!("Bearer {}", token))
-        .header("Content-Type", "application/json")
-        .send()
-        .await?
-        .json::<serde_json::Value>()
-        .await?;
-
-    // Should print info about balance, etc...
-    println!("{:?}", me);
-
-    Ok(())
-}
 ```

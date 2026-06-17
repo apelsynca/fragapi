@@ -15,7 +15,9 @@ function Home() {
         <div className="mb-4 flex flex-col gap-1">
           <h1 className="font-medium text-xl ">Документация FragAPI</h1>
           <p className="text-center italic text-sm">
-            Тут будет красивое оформление (надеюсь)
+            {lang === "ru"
+              ? "Тут будет красивое оформление (надеюсь)"
+              : "Here will be nice page (we hope)"}
           </p>
         </div>
         <Link
@@ -26,7 +28,7 @@ function Home() {
           }}
           className="px-3 py-2 rounded-lg bg-fd-primary text-fd-primary-foreground font-medium text-sm mx-auto"
         >
-          Открыть документацию
+          {lang === "ru" ? "Открыть документацию" : "Open docs"}
         </Link>
       </div>
     </HomeLayout>
