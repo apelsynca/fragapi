@@ -148,6 +148,7 @@ async def create_fragment_transaction(
     save_fixture: SaveFixture,
     user: User,
     transaction: Transaction,
+    *,
     amount: float | None = None,
     stars_amount: int | None = None,
     premium_months: int | None = None,

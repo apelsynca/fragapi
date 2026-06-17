@@ -11,7 +11,7 @@ from src.worker.sqlalchemy import get_async_session
 log = structlog.get_logger()
 
 
-@broker.task(task_name="auth.delete_expired", schedule=[{"cron": "0 0 * * *"}])
+@broker.task(task_name="auth.delete_expired", schedule=[{"cron": "15 0 * * *"}])
 async def auth_delete_expired(
     session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
 ) -> None:
