@@ -1,11 +1,17 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoonIcon, StarIcon } from 'lucide-react'
 import type { FragmentTransaction } from '#/notserver/models/transactions'
+import { GramRoundedIcon } from '../icons/GramRoundedIcon'
 
 export const columns: ColumnDef<FragmentTransaction>[] = [
   {
     header: 'Amount',
-    cell: ({ row }) => `${parseFloat(row.original.amount.toFixed(2))} GRAM`,
+    cell: ({ row }) => (
+      <span className="flex items-center gap-1.5 [&_svg]:size-4 font-medium">
+        {parseFloat(row.original.amount.toFixed(2))}{' '}
+        <GramRoundedIcon size={22} />
+      </span>
+    ),
   },
   {
     accessorKey: 'reason',

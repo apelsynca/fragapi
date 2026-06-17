@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import DashboardStatsCard from './DashboardStatsCard'
-import BalanceTopUp from '#/components/BalanceTopUp'
+import BalanceTopUp from '#/components/Payments/BalanceTopUp'
 import {
   tonRateOptions,
   transactionsStatsOptions,

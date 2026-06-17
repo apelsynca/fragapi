@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { LoaderIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react'
-import { Button } from './ui/button'
+import { Button } from '../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -13,10 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog'
-import { Field, FieldGroup } from './ui/field'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+} from '../ui/dialog'
+import { Field, FieldGroup } from '../ui/field'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 import { requestTonPayment as requestTonPaymentFn } from '#/notserver/payments'
 import { m } from '#/paraglide/messages'
 
