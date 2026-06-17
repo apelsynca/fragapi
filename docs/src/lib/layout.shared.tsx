@@ -25,6 +25,13 @@ export function baseOptions(locale: string): BaseLayoutProps {
       url: `/${locale}`,
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
-    links: [{ type: "button", text: "Text", url: "https://google.com" }],
+    links: [
+      {
+        type: "button",
+        text: locale === "ru" ? "В панель" : "To dashboard",
+        url: "https://fragapi.com",
+        secondary: true,
+      },
+    ],
   };
 }

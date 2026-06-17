@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "users/get_api_user_me",
+    "stars/get_recipient",
+    "stars/buy_stars",
+    "premium/get_recipient",
+    "premium/buy_premium",
+    "gifts/get_gift_models_short_names",
+    "gifts/get_collection_models",
+    "gifts/get_model",
+    "transactions/list_transactions"
+  ]
+}
