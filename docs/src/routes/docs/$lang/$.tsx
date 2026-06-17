@@ -20,11 +20,12 @@ import { OpenAPIPage } from "@/components/api-page";
 import { openapi } from "@/lib/openapi";
 import { Repositories } from "@/components/repositories";
 
-export const Route = createFileRoute("/docs/$")({
+export const Route = createFileRoute("/docs/$lang/$")({
   component: Page,
   loader: async ({ params }) => {
+    const lang = params.lang;
     const slugs = params._splat?.split("/") ?? [];
-    const data = await serverLoader({ data: slugs });
+    const data = await serverLoader({ data: { lang, slugs } });
     await clientLoader.preload(data.path);
     return data;
   },
@@ -33,9 +34,9 @@ export const Route = createFileRoute("/docs/$")({
 const serverLoader = createServerFn({
   method: "GET",
 })
-  .validator((slugs: string[]) => slugs)
-  .handler(async ({ data: slugs }) => {
-    const page = source.getPage(slugs);
+  .validator((data: { slugs: string[]; lang: string }) => data)
+  .handler(async ({ data: { slugs, lang } }) => {
+    const page = source.getPage(slugs, lang);
     if (!page) throw notFound();
 
     return {

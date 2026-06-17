@@ -17,8 +17,9 @@ function Home() {
           </p>
         </div>
         <Link
-          to="/docs/$"
+          to="/docs/$lang/$"
           params={{
+            lang: "ru",
             _splat: "",
           }}
           className="px-3 py-2 rounded-lg bg-fd-primary text-fd-primary-foreground font-medium text-sm mx-auto"
