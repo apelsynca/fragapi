@@ -4,4 +4,5 @@ import { createOpenAPI } from "fumadocs-openapi/server";
 export const openapi = createOpenAPI({
   // the OpenAPI schema, you can also give it an external URL.
   input: [process.env.OPENAPI_URL || "https://api.fragapi.com/openapi.json"],
+  proxyUrl: "/api/proxy",
 });
