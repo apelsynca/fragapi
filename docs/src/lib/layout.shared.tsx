@@ -1,11 +1,13 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import { uiTranslations } from "fumadocs-ui/i18n";
+import { openapiTranslations } from "fumadocs-openapi/i18n";
 import { appName, gitConfig } from "./shared";
 import { i18n } from "./i18n";
-import { uiTranslations } from "fumadocs-ui/i18n";
 
 export const translations = i18n
   .translations()
   .extend(uiTranslations())
+  .extend(openapiTranslations())
   .add({
     ru: {
       displayName: "Русский",
@@ -20,7 +22,9 @@ export function baseOptions(locale: string): BaseLayoutProps {
     nav: {
       // JSX supported
       title: appName,
+      url: `/${locale}`,
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+    links: [{ type: "button", text: "Text", url: "https://google.com" }],
   };
 }
