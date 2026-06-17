@@ -1,6 +1,6 @@
 ---
-title: Пример запроса
-description: Примеры на разных языках программирования для запросов к API (Сервису)
+title: Request example
+description: Examples using different coding languages for requests to the API (Service)
 icon: SquareCode
 ---
 
@@ -14,37 +14,33 @@ import {
   RustIcon,
 } from "@/components/icons";
 
-### HTTP Запрос
+### HTTP Request
 
 <Accordions type="single">
-  <Accordion title="Как получить api токен?">
-    Получить API токен можно только в
-    [панеле](https://fragapi.com/dashboard/api-tokens)
+  <Accordion title="How to get api token?">
+    You can get API token at [panel](https://fragapi.com/dashboard/api-tokens)
 
-    Введите имя и дату действия (пока нельзя) токена.
+    Enter name and expiry date of the api token.
 
   </Accordion>
-  <Accordion title="Как делать запросы?">
-    Запросы делаются на `https://api.fragapi.com/v1/название-метода`
+  <Accordion title="How to make requests?">
+    Requests are made to `https://api.fragapi.com/v1/name-of-the-method`
  	
-	Обязятельно передав заголовок авторизации, с API ключом.
-
-    Вот так: `Authorization`: `Bearer ВашАПИ_ТОКЕНсПанели`
-
+    Also required to pass the authorization header, with API token,
+    Like: `Authorization`: `Bearer YourAPI_TOKENfromPanel`
   </Accordion>
 </Accordions>
 
 ---
 
-### Примеры на языках программирования
+### Examples using programming languages
 
 ```python tab="<PythonIcon /> example.py"
 import requests
 
 BASE_URL = "https://api.fragapi.com/v1"
-token = "<Ваш API ключ>"
+token = "<Your API token>"
 
-# Делаем запрос к API передавая свой API ключ
 r = requests.get(
   url=f"{BASE_URL}/users/me",
   headers={
@@ -54,15 +50,15 @@ r = requests.get(
 )
 me = r.json()
 
-# Должно вывести данные о балансе и тд..
+# Should print info about the balance, etc..
 print(me)
 ```
 
 ```javascript tab="<JavascriptIcon /> example.js"
 const baseUrl = "https://api.fragapi.com/v1";
-const token = "<Ваш API ключ>";
+const token = "<Your API token>";
 
-// Делаем запрос к API передавая свой API ключ
+// Making request to the API and passing API token
 const response = await fetch(`${baseUrl}/users/me`, {
   method: "GET",
   headers: {
@@ -73,7 +69,7 @@ const response = await fetch(`${baseUrl}/users/me`, {
 
 const me = await response.json();
 
-// Должно вывести данные о балансе и тд..
+// Should print info about the balance, etc..
 console.log(me);
 ```
 
@@ -88,7 +84,7 @@ import (
 
 func main() {
 	baseURL := "https://api.fragapi.com/v1"
-	token := "<Ваш API ключ>"
+	token := "<Your API token>"
 
 	req, _ := http.NewRequest("GET", baseURL+"/users/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -101,7 +97,7 @@ func main() {
 	body, _ := io.ReadAll(resp.Body)
 	me := string(body)
 
-	// Должно вывести данные о балансе и тд..
+	// Should print info about balance, etc...
 	fmt.Println(me)
 }
 ```
@@ -112,7 +108,7 @@ use reqwest;
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
     let base_url = "https://api.fragapi.com/v1";
-    let token = "<Ваш API ключ>";
+    let token = "<Your API token>";
 
     let client = reqwest::Client::new();
     let me = client
@@ -124,7 +120,7 @@ async fn main() -> Result<(), reqwest::Error> {
         .json::<serde_json::Value>()
         .await?;
 
-    // Должно вывести данные о балансе и тд..
+    // Should print info about balance, etc...
     println!("{:?}", me);
 
     Ok(())
@@ -140,7 +136,7 @@ import java.net.http.HttpResponse;
 public class Example {
     public static void main(String[] args) throws Exception {
         String baseUrl = "https://api.fragapi.com/v1";
-        String token = "<Ваш API ключ>";
+        String token = "<Your API token>";
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -153,7 +149,7 @@ public class Example {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String me = response.body();
 
-        // Должно вывести данные о балансе и тд..
+        // Should print info about balance, etc...
         System.out.println(me);
     }
 }
@@ -165,7 +161,7 @@ public class Example {
 use Illuminate\Support\Facades\Http;
 
 $baseUrl = "https://api.fragapi.com/v1";
-$token = "<Ваш API ключ>";
+$token = "<Your API token>";
 
 $response = Http::withHeaders([
     'Authorization' => "Bearer {$token}",
@@ -174,6 +170,6 @@ $response = Http::withHeaders([
 
 $me = $response->json();
 
-// Должно вывести данные о балансе и тд..
+// Should print info about balance, etc...
 print_r($me)"e;
 ```

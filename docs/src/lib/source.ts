@@ -3,11 +3,13 @@ import { docs } from "collections/server";
 import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
 import { docsRoute } from "./shared";
 import { openapiPlugin } from "fumadocs-openapi/server";
+import { i18n } from "./i18n";
 
 export const source = loader({
   source: docs.toFumadocsSource(),
   baseUrl: docsRoute,
   plugins: [lucideIconsPlugin(), openapiPlugin()],
+  i18n,
 });
 
 export function markdownPathToSlugs(segs: string[]) {

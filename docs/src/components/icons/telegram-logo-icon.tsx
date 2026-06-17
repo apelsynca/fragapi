@@ -1,8 +1,4 @@
-export const TelegramLogoIcon = ({
-  size = 24,
-  color = "#26A5E4",
-  ...props
-}) => (
+export const TelegramLogoIcon = ({ size = 24, ...props }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}

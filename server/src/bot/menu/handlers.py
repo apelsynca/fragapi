@@ -5,13 +5,12 @@ import structlog
 from aiogram import Router
 from aiogram.filters import CommandObject, CommandStart
 from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
     Message,
 )
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.bot.menu import keyboards, texts
 from src.config import settings
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
@@ -26,7 +25,6 @@ router = Router(name="menu")
 log: Logger = structlog.get_logger()
 
 LOGIN_ARG = "login"
-AUTHORIZATION_SUCCESS_TEXT = "🚪 Авторизовал.\n\nЧтобы войти кнопка снизу 👇"
 
 
 @router.message(CommandStart())
@@ -47,22 +45,8 @@ async def command_start(
         return await login(message=message, session=session, user=user)
 
     await message.answer(
-        text=f"Привет, <b>{tg_user.full_name}</b>\n\nБаланс: <b>{user.balance:.2f} GRAM</b>",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text="🌐 Панель", url=settings.PANEL_URL, style="primary"
-                    )
-                ],
-                [InlineKeyboardButton(text="📃 Документация", url=settings.DOCS_URL)],
-                [
-                    InlineKeyboardButton(
-                        text="📄 Логи о транзакциях", callback_data="logs"
-                    )
-                ],
-            ]
-        ),
+        text=texts.MENU.format(full_name=tg_user.full_name, balance=user.balance),
+        reply_markup=keyboards.panel(),
     )
 
 
@@ -77,16 +61,9 @@ async def login(message: Message, session: AsyncSession, user: User) -> None:
     session.add(user_session)
     await session.flush()
 
+    assert user_session.bot_hash is not None
+
     await message.answer(
-        text=AUTHORIZATION_SUCCESS_TEXT,
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text="Войти",
-                        url=f"{settings.PANEL_URL}/bot-login?hash={user_session.bot_hash}",
-                    )
-                ]
-            ]
-        ),
+        text=texts.AUTHORIZATION_SUCCESS,
+        reply_markup=keyboards.login(bot_hash=user_session.bot_hash),
     )
