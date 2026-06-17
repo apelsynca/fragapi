@@ -2,20 +2,20 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { MoonIcon, StarIcon } from 'lucide-react'
 import type { FragmentTransaction } from '#/server-api/models/transactions'
 import { GramRoundedIcon } from '../icons/GramRoundedIcon'
+import { m } from '#/paraglide/messages'
 
 export const columns: ColumnDef<FragmentTransaction>[] = [
   {
-    header: 'Amount',
+    header: m.amount(),
     cell: ({ row }) => (
-      <span className="flex items-center gap-1.5 [&_svg]:size-4 font-medium">
-        {parseFloat(row.original.amount.toFixed(2))}{' '}
-        <GramRoundedIcon size={22} />
+      <span className="flex items-center gap-1.5 [&_svg]:size-3.5 font-medium">
+        {parseFloat(row.original.amount.toFixed(2))} <GramRoundedIcon />
       </span>
     ),
   },
   {
     accessorKey: 'reason',
-    header: 'Reason',
+    header: m.reason(),
     cell: ({ row }) => {
       const reason = row.original.reason
       if (reason === 'stars') {
@@ -34,11 +34,11 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
   },
   {
     accessorKey: 'recipientUsername',
-    header: 'Username',
+    header: m.username(),
     cell: ({ row }) => `@${row.original.recipientUsername}`,
   },
   {
-    header: 'Value',
+    header: 'Payload',
     cell: ({ row }) => (
       <span className="font-semibold flex items-center gap-0.5">
         {row.original.premiumMonths ? (
@@ -55,7 +55,7 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Date',
+    header: m.created_at(),
     cell: ({ row }) => (
       <span>{new Date(row.original.createdAt).toLocaleString()}</span>
     ),

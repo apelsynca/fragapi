@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { columns } from './columns'
-import { DataTable } from './DataTable'
+import { DataTable } from '../DataTable'
 import { transactionsListOptions } from '#/lib/queries'
 import { useState } from 'react'
 import BreadPagination from '#/layout/BreadPagination'

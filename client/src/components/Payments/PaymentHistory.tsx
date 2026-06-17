@@ -10,6 +10,9 @@ import {
 import { paymentHistoryOptions } from '#/lib/queries'
 import { useState } from 'react'
 import BreadPagination from '#/layout/BreadPagination'
+import { DataTable } from '../DataTable'
+import { columns } from './columns'
+import { m } from '#/paraglide/messages'
 
 export default function PaymentHistory() {
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -23,20 +26,24 @@ export default function PaymentHistory() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>История пополнений</CardTitle>
-        <CardDescription>История пополнений вашего баланса</CardDescription>
+      <CardHeader className="flex items-center gap-2 md:gap-5">
+        <div>
+          <CardTitle>{m.payments_history_title()}</CardTitle>
+          <CardDescription>{m.payments_history_description()}</CardDescription>
+        </div>
       </CardHeader>
       <CardContent>
+        <DataTable columns={columns} data={data.items} />
+      </CardContent>
+      <CardFooter>
         {maxPage > 1 && (
           <BreadPagination
             page={currentPage}
-            maxPage={data.pagination.maxPage}
+            maxPage={maxPage}
             setPage={setCurrentPage}
           />
         )}
-      </CardContent>
-      <CardFooter></CardFooter>
+      </CardFooter>
     </Card>
   )
 }

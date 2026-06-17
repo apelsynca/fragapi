@@ -37,5 +37,10 @@
   "deposit_title": "Пополнение баланса",
   "deposit_description": "Пополнение баланса с TON кошелька",
   "amount": "Сумма",
-  "deposit_enter_right_amount": "Введите правильную сумму пополнения"
+  "deposit_enter_right_amount": "Введите правильную сумму пополнения",
+  "created_at": "Появилось",
+  "payments_history_title": "История пополнений",
+  "payments_history_description": "Историй пополнений вашего баланса",
+  "reason": "Причина",
+  "username": "Юзернейм"
 }
