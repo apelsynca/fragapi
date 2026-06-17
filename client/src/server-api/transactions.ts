@@ -1,15 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
 import { verifySession } from '#/lib/auth'
 import { apiRequest } from './request'
-import type { ListResource } from '#/notserver/models/misc'
+import type { ListResource } from './models/misc'
 import type {
   FragmentTransaction,
   TransactionChartPoint,
   TransactionsStats,
-} from '#/notserver/models/transactions'
+} from './models/transactions'
 
 export const fetchTransactionsPage = createServerFn()
-  .inputValidator((data: { page: number; sorting: string }) => data)
+  .validator((data: { page: number; sorting: string }) => data)
   .handler(async ({ data: { page, sorting } }) => {
     const token = await verifySession()
     console.log('fetching', page, sorting)

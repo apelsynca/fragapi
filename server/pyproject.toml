@@ -46,10 +46,11 @@ dev = [
   "ruff>=0.15.12",
   "typer>=0.25.1",
   "types-redis>=4.6.0.20241004",
+  "watchfiles>=1.2.0",
 ]
 
 [tool.taskipy.tasks]
-api = { cmd = "uvicorn src.app:app --reload --workers 1 --host 0.0.0.0 --port 8000", help = "Run api service" }
+api = { cmd = 'uvicorn src.app:app --reload --reload-exclude "tests/*" --workers 1 --host 0.0.0.0 --port 8000', help = "Run api service" }
 worker = { cmd = "taskiq worker -w 1 src.worker.run:broker", help = "Run worker" }
 scheduler = { cmd = "taskiq scheduler src.worker.run:scheduler", help = "Run scheduler" }
 test = { cmd = "FRAG_ENV=testing python -m pytest --cov src/ --cov-report=term-missing", help = "run all tests" }

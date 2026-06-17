@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from src.kit.schemas import Schema
+from src.models.payments import PaymentStatus
 
 
 class PaymentTonRequestMessage(Schema):
@@ -8,4 +11,6 @@ class PaymentTonRequestMessage(Schema):
 
 
 class Payment(Schema):
-    pass
+    amount: float
+    created_at: datetime
+    status: PaymentStatus

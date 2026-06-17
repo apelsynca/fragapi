@@ -1,9 +1,9 @@
 import { toast } from 'sonner'
 import { TrashIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
-import { deleteApiTokenFn } from '#/notserver/api-tokens'
+import { deleteApiTokenFn } from '#/server-api/api-tokens'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { ApiToken } from '#/notserver/models/api-token'
+import type { ApiToken } from '#/server-api/models/api-token'
 import {
   Card,
   CardContent,

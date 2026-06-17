@@ -1,12 +1,13 @@
 import { queryOptions } from '@tanstack/react-query'
-import { fetchMe } from '#/notserver/user'
-import { fetchTonRate } from '#/notserver/ton'
+import { fetchMe } from '#/server-api/user'
+import { fetchTonRate } from '#/server-api/ton'
 import {
   fetchTransactionsChart,
   fetchTransactionsPage,
   fetchTransactionsStats,
-} from '#/notserver/transactions'
-import { fetchApiTokens } from '#/notserver/api-tokens'
+} from '#/server-api/transactions'
+import { fetchApiTokens } from '#/server-api/api-tokens'
+import { fetchTonPaymentHistory } from '#/server-api/payments'
 
 export const userMeOptions = () =>
   queryOptions({
@@ -43,4 +44,10 @@ export const apiTokensOptions = () =>
   queryOptions({
     queryKey: ['api-tokens'],
     queryFn: () => fetchApiTokens(),
+  })
+
+export const paymentHistoryOptions = (page: number) =>
+  queryOptions({
+    queryKey: ['payments', 'history', page],
+    queryFn: () => fetchTonPaymentHistory({ data: page }),
   })

@@ -3,6 +3,9 @@ from httpx import AsyncClient
 from ton_core import to_nano
 
 from src.config import settings
+from src.models import User
+from tests.fixtures.database import SaveFixture
+from tests.fixtures.random_objects import create_payment
 
 
 @pytest.mark.asyncio
@@ -21,7 +24,11 @@ async def test_ton_payment_right_data(client: AsyncClient, amount: float) -> Non
 
 @pytest.mark.asyncio
 @pytest.mark.auth
-async def test_list_payments(client: AsyncClient) -> None:
+async def test_list_payments(
+    save_fixture: SaveFixture, client: AsyncClient, user: User
+) -> None:
+    await create_payment(save_fixture, user=user, amount=5.25, completed=True)
+
     response = await client.get("/v1/payments/")
     assert response.status_code == 200
 
@@ -29,3 +36,10 @@ async def test_list_payments(client: AsyncClient) -> None:
 
     assert "items" in json
     assert "pagination" in json
+
+    assert len(json["items"]) == 1
+    item = json["items"][0]
+
+    assert item["amount"] == 5.25
+    assert item["createdAt"] is not None
+    assert item["status"] == "completed"

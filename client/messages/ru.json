@@ -35,7 +35,7 @@
   "deposit": "Пополнить баланс",
   "deposit_short": "Пополнить",
   "deposit_title": "Пополнение баланса",
-  "deposit_description": "Пополнение баланс с кошелька GRAM",
+  "deposit_description": "Пополнение баланса с TON кошелька",
   "amount": "Сумма",
   "deposit_enter_right_amount": "Введите правильную сумму пополнения"
 }

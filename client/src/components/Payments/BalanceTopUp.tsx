@@ -17,7 +17,7 @@ import {
 import { Field, FieldGroup } from '../ui/field'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { requestTonPayment as requestTonPaymentFn } from '#/notserver/payments'
+import { requestTonPayment as requestTonPaymentFn } from '#/server-api/payments'
 import { m } from '#/paraglide/messages'
 
 export default function BalanceTopUp() {

@@ -35,7 +35,7 @@
   "deposit": "Top-up balance",
   "deposit_short": "Deposit",
   "deposit_title": "Balance deposit",
-  "deposit_description": "Depositing with GRAM wallet",
+  "deposit_description": "Depositing via TON wallet",
   "amount": "Amount",
   "deposit_enter_right_amount": "Enter right deposit amount"
 }

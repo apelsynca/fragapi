@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { verifySession } from '#/lib/auth'
 import { apiRequest } from './request'
-import type { ApiToken } from '#/notserver/models/api-token'
+import type { ApiToken } from '#/server-api/models/api-token'
 
 export const fetchApiTokens = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -16,7 +16,7 @@ export const fetchApiTokens = createServerFn({ method: 'GET' }).handler(
 )
 
 export const createApiTokenFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { name: string }) => data)
+  .validator((data: { name: string }) => data)
   .handler(async ({ data: { name } }) => {
     const token = await verifySession()
 
@@ -29,7 +29,7 @@ export const createApiTokenFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteApiTokenFn = createServerFn({ method: 'POST' })
-  .inputValidator((id: string) => id)
+  .validator((id: string) => id)
   .handler(async ({ data: id }) => {
     const token = await verifySession()
 

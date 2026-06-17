@@ -4,7 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useAppSession } from '../lib/session'
 
 export const botHashLoginFn = createServerFn({ method: 'POST' })
-  .inputValidator((hash: string) => hash)
+  .validator((hash: string) => hash)
   .handler(async ({ data: hash }) => {
     const defaultHeaders = { 'Content-Type': 'application/json' }
 
