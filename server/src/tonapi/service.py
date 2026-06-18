@@ -1,5 +1,4 @@
 import asyncio
-import re
 
 import structlog
 from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
@@ -11,6 +10,7 @@ from src.config import settings
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.payment.service import payment as payment_service
+from src.payment.ton_payload import TonPaymentPayload
 from src.postgres import AsyncSession
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
@@ -76,18 +76,20 @@ class TonAPIService:
             session=session, tonapi_transaction=tonapi_transaction
         )
 
-        hash = self.resolve_payment_hash(tonapi_transaction)
-        if hash is None:
+        try:
+            ton_payment_payload = TonPaymentPayload.from_tonapi_transaction(
+                tonapi_transaction
+            )
+        except ValueError:
             log.warning(
                 "tonapi.process_webhook_acc_tx transaction with unresolved payload hash",
-                hash=hash,
                 account_id=webhook_message.account_id,
             )
             return
 
         log.info(
             "tonapi.process_webhook_acc_tx new valid transaction",
-            hash=hash,
+            hash=ton_payment_payload.hash,
             tx_hash=webhook_message.tx_hash,
             account_id=webhook_message.account_id,
         )
@@ -96,27 +98,10 @@ class TonAPIService:
             self._last_lt = webhook_message.lt
 
         await payment_service.complete_ton(
-            session=session, transaction=transaction, hash=hash
+            session=session,
+            transaction=transaction,
+            payment_hash=ton_payment_payload.hash,
         )
-
-    # TODO: Move out of this service (probably)
-    def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
-        if tonapi_transaction.in_msg is None:
-            return None
-
-        # here test the message type - int_msg ()
-
-        if (
-            tonapi_transaction.in_msg.decoded_body is None
-            or tonapi_transaction.in_msg.decoded_op_name != "text_comment"
-        ):
-            return None
-
-        text: str = tonapi_transaction.in_msg.decoded_body["text"]
-        match = re.match(pattern=self.TON_COMMENT_PATTERN, string=text)
-
-        if match is not None:
-            return match.group(1)
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with rest_client as client:

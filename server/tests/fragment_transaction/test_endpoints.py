@@ -34,7 +34,6 @@ async def test_get_chart_data(client: AsyncClient) -> None:
     assert isinstance(json, list)
     assert len(json) == 90
 
-    # TODO: maybe rethink
     assert json[-1]["starsSpend"] == 0
     assert json[-1]["premiumSpend"] == 0
     assert json[-1]["date"] == utc_now().date().isoformat()

@@ -52,16 +52,8 @@ async def test_raises_not_found_if_not_found(
 
     with pytest.raises(ResourceNotFound):
         await payment_service.complete_ton(
-            session=session, transaction=transaction, hash=rstr("some")
+            session=session, transaction=transaction, payment_hash=rstr("some")
         )
-
-
-# might do with initial balance set, idk why
-
-
-@pytest.mark.asyncio
-async def test_abc():
-    pass
 
 
 @pytest.mark.asyncio
@@ -85,7 +77,7 @@ async def test_increases_users_balance(
     )
 
     await payment_service.complete_ton(
-        session=session, transaction=transaction, hash=hash
+        session=session, transaction=transaction, payment_hash=hash
     )
 
     assert user.balance == payment.amount
@@ -95,7 +87,7 @@ async def test_increases_users_balance(
     payment.status = PaymentStatus.pending
     with pytest.raises(FragError, match="Payment already has transaction"):
         await payment_service.complete_ton(
-            session=session, transaction=transaction, hash=hash
+            session=session, transaction=transaction, payment_hash=hash
         )
 
 
@@ -120,7 +112,7 @@ async def test_raises_bad_different_amounts(
 
     with pytest.raises(BadRequest):
         await payment_service.complete_ton(
-            session=session, transaction=transaction, hash=hash
+            session=session, transaction=transaction, payment_hash=hash
         )
 
     assert user.balance == 0

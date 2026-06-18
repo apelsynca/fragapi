@@ -90,10 +90,10 @@ class PaymentService:
         return payment
 
     async def complete_ton(
-        self, session: AsyncSession, transaction: Transaction, hash: str
+        self, session: AsyncSession, transaction: Transaction, payment_hash: str
     ) -> None:
         repository = PaymentRepository.from_session(session)
-        payment = await repository.get_by_hash(hash=hash)
+        payment = await repository.get_by_hash(hash=payment_hash)
 
         if payment is None:
             raise ResourceNotFound("Payment not found")
