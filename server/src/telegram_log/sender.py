@@ -4,12 +4,17 @@ import structlog
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.exceptions import TelegramNotFound
 
 from src.config import settings
 from src.enums import TelegramLogSender as TelegramLogSenderType
 from src.logging import Logger
 
 log: Logger = structlog.get_logger()
+
+
+class TelegramLogChatNotFound(Exception):
+    pass
 
 
 class BaseTelegramLogSender(ABC):
@@ -36,11 +41,14 @@ class TelegramLogSender(BaseTelegramLogSender):
         )
 
     async def send(self, chat_id: int, text: str, with_notification: bool) -> None:
-        await self.bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            disable_notification=not with_notification,
-        )
+        try:
+            await self.bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                disable_notification=not with_notification,
+            )
+        except TelegramNotFound:
+            raise TelegramLogChatNotFound()
 
 
 telegram_log_sender: BaseTelegramLogSender
