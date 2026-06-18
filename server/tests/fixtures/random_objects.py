@@ -123,10 +123,11 @@ async def create_transaction(
     *,
     amount: float | None = None,
     message_hash: str | None = None,
+    hash: str | None = None,
 ) -> Transaction:
     transaction = Transaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
-        hash=None,
+        hash=hash,
         message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
         from_address=rstr("someaddress"),
         to_address=rstr("someaddress"),
@@ -180,12 +181,14 @@ async def create_payment(
     amount: float,
     hash: str | None = None,
     completed: bool = False,
+    transaction: Transaction | None = None,
 ) -> Payment:
     payment = Payment(
         user=user,
         amount=amount,
         hash=hash if hash is not None else token_urlsafe(32),
         status=PaymentStatus.completed if completed else PaymentStatus.pending,
+        transaction=transaction,
     )
     await save_fixture(payment)
     return payment

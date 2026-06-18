@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from secrets import token_urlsafe
 
 import structlog
+from sqlalchemy.orm import selectinload
 from ton_core import begin_cell, to_amount, to_nano
 
 from src.backoffice.telegram_logs.deposits import enqueue_new_deposit_admin_log_task
@@ -35,8 +36,10 @@ class PaymentService:
     ) -> tuple[Sequence[Payment], int]:
         repository = PaymentRepository.from_session(session)
 
-        stmt = repository.get_base_stmt().where(
-            Payment.user == user, Payment.status == PaymentStatus.completed
+        stmt = (
+            repository.get_base_stmt()
+            .where(Payment.user == user, Payment.status == PaymentStatus.completed)
+            .options(selectinload(Payment.transaction))
         )
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
 

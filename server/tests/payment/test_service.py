@@ -166,3 +166,24 @@ async def test_fetch_list_gets_only_completed(
 
     assert len(payments) == 2
     assert count == len(payments)
+
+
+@pytest.mark.asyncio
+async def test_fetch_list_gets_transactions(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    transaction = await create_transaction(
+        save_fixture, amount=2.5291, hash="Usual hashiie"
+    )
+    await create_payment(
+        save_fixture, user=user, amount=2.5291, completed=True, transaction=transaction
+    )
+    await create_payment(save_fixture, user=user, amount=9.25, completed=False)
+
+    pagination = PaginationParams(page=1, limit=100)
+    payments, _ = await payment_service.fetch_list(
+        session=session, user=user, pagination=pagination
+    )
+
+    assert payments[0].transaction is not None
+    assert payments[0].transaction.hash == "Usual hashiie"
