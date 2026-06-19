@@ -20,7 +20,6 @@ log: Logger = structlog.get_logger()
 
 
 class TonAPIService:
-    TON_COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
     ACCOUNT_RAW_ADDRESSES = [
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]

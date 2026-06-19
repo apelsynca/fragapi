@@ -1,13 +1,13 @@
-import base64
 import random
 
 import pytest
 from pytest_mock import MockerFixture
-from ton_core import begin_cell, to_amount
+from ton_core import to_amount
 
 from src.config import settings
 from src.deposit.repository import DepositRepository
 from src.deposit.service import deposit as deposit_service
+from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
@@ -127,19 +127,11 @@ async def test_create_ton_right_payload(
 
     mocker.patch.object(deposit_service, "create", return_value=deposit)
 
-    same_payload_cell = (
-        begin_cell()
-        .store_uint(0, 32)
-        .store_snake_string(deposit_service.TON_COMMENT_TEMPLATE.format(ref_hash))
-        .end_cell()
-    )
-    same_payload = base64.b64encode(same_payload_cell.to_boc()).decode("utf-8")
-
     deposit_req_msg = await deposit_service.create_ton(
         session=session, user=user, amount=6.251
     )
 
-    assert deposit_req_msg.payload == same_payload
+    assert deposit_req_msg.payload == TonDepositPayload(hash=ref_hash).get_base64()
 
 
 @pytest.mark.asyncio

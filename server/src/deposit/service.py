@@ -1,16 +1,16 @@
-import base64
 from collections.abc import Sequence
 from secrets import token_urlsafe
 
 import structlog
 from sqlalchemy.orm import selectinload
-from ton_core import begin_cell, to_amount, to_nano
+from ton_core import to_amount, to_nano
 
 from src.backoffice.telegram_logs.deposits import enqueue_new_deposit_admin_log_task
 from src.config import settings
 from src.deposit.repository import DepositRepository
 from src.deposit.schemas import DepositTonRequestMessage
 from src.deposit.sorting import DepositSortProperty
+from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
@@ -23,8 +23,6 @@ log: Logger = structlog.get_logger()
 
 
 class DepositService:
-    TON_COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
-
     async def fetch_list(
         self,
         session: AsyncSession,
@@ -52,19 +50,10 @@ class DepositService:
     ) -> DepositTonRequestMessage:
         deposit = await self.create(session=session, user=user, amount=amount)
 
-        payload_cell = (
-            begin_cell()
-            .store_uint(0, 32)
-            .store_snake_string(self.TON_COMMENT_TEMPLATE.format(deposit.hash))
-            .end_cell()
-        )
-        payload_boc = payload_cell.to_boc()
-        payload = base64.b64encode(payload_boc).decode("utf-8")
-
         return DepositTonRequestMessage(
             address=settings.TON_ADDRESS,
             amount=str(to_nano(deposit.amount)),
-            payload=payload,
+            payload=TonDepositPayload(hash=deposit.hash).get_base64(),
         )
 
     async def create(
