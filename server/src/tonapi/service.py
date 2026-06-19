@@ -30,7 +30,7 @@ class TonAPIService:
     _last_lt: int = 0
 
     def __init__(self) -> None:
-        # TODO: starting value prefetch?! (rethink if multi-wallet)
+        # PERF: starting value prefetch?! (rethink if multi-wallet)
         self._last_lt = 82005139000003
 
     async def process_webhook_acc_tx(
