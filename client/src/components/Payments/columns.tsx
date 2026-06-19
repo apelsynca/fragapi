@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { CopyIcon, ExternalLinkIcon, MoreHorizontalIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { m } from '#/paraglide/messages'
-import type { Payment } from '#/server-api/models/payments'
+import type { Deposit } from '#/server-api/models/deposits'
 import { GramRoundedIcon } from '../icons/GramRoundedIcon'
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 } from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Deposit>[] = [
   {
     header: m.amount(),
     cell: ({ row }) => (

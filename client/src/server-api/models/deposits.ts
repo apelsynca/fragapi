@@ -2,7 +2,7 @@ interface Transaction {
   hash: string | null
 }
 
-export interface Payment {
+export interface Deposit {
   amount: number
   createdAt: string
   status: 'pending' | 'completed'

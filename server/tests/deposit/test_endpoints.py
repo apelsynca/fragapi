@@ -12,8 +12,8 @@ from tests.fixtures.random_objects import create_transaction
 @pytest.mark.asyncio
 @pytest.mark.auth
 @pytest.mark.parametrize("amount", [0.49, 1, 3.22, 1.235, 999, 100])
-async def test_ton_payment_right_data(client: AsyncClient, amount: float) -> None:
-    response = await client.post("/v1/payments/ton", params={"amount": amount})
+async def test_ton_deposit_right_data(client: AsyncClient, amount: float) -> None:
+    response = await client.post("/v1/deposits/ton", params={"amount": amount})
 
     assert response.status_code == 200
     json = response.json()
@@ -25,13 +25,13 @@ async def test_ton_payment_right_data(client: AsyncClient, amount: float) -> Non
 
 @pytest.mark.asyncio
 @pytest.mark.auth
-async def test_list_payments(
+async def test_list_deposits(
     save_fixture: SaveFixture, client: AsyncClient, user: User
 ) -> None:
     await create_deposit(save_fixture, user=user, amount=5.25, completed=False)
     await create_deposit(save_fixture, user=user, amount=5.25, completed=True)
 
-    response = await client.get("/v1/payments/")
+    response = await client.get("/v1/deposits/")
     assert response.status_code == 200
 
     json = response.json()
@@ -50,7 +50,7 @@ async def test_list_payments(
 
 @pytest.mark.asyncio
 @pytest.mark.auth
-async def test_list_payments_also_gives_tx_hash_if_present(
+async def test_list_deposits_also_gives_tx_hash_if_present(
     save_fixture: SaveFixture, user: User, client: AsyncClient
 ) -> None:
     transaction = await create_transaction(save_fixture, amount=5.25, hash="MyTxHash")
@@ -58,7 +58,7 @@ async def test_list_payments_also_gives_tx_hash_if_present(
         save_fixture, user=user, amount=5.25, transaction=transaction, completed=True
     )
 
-    response = await client.get("/v1/payments/")
+    response = await client.get("/v1/deposits/")
     assert response.status_code == 200
 
     json = response.json()

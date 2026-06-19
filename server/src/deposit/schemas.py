@@ -5,17 +5,17 @@ from src.models.deposits import DepositStatus
 from src.transaction.schemas import Transaction
 
 
-class PaymentTonRequestMessage(Schema):
+class DepositTonRequestMessage(Schema):
     address: str
     amount: str
     payload: str
 
 
-class BasePayment(Schema):
+class BaseDeposit(Schema):
     amount: float
     created_at: datetime
     status: DepositStatus
 
 
-class Payment(BasePayment):
+class Deposit(BaseDeposit):
     transaction: Transaction | None

@@ -3,7 +3,7 @@ import { apiRequest } from './request'
 import { verifySession } from '../lib/auth'
 import type { TonConnectMessage } from '#/server-api/models/message'
 import type { ListResource } from './models/misc'
-import type { Payment } from './models/payments'
+import type { Deposit } from './models/deposits'
 
 export const requestTonPayment = createServerFn({ method: 'POST' })
   .validator((amount: number) => amount)
@@ -12,7 +12,7 @@ export const requestTonPayment = createServerFn({ method: 'POST' })
 
     return await apiRequest<TonConnectMessage>({
       method: 'POST',
-      endpoint: `/payments/ton?amount=${data}`,
+      endpoint: `/deposits/ton?amount=${data}`,
       token,
     })
   })
@@ -22,9 +22,9 @@ export const fetchTonPaymentHistory = createServerFn({ method: 'GET' })
   .handler(async ({ data: page }) => {
     const token = await verifySession()
 
-    return await apiRequest<ListResource<Payment>>({
+    return await apiRequest<ListResource<Deposit>>({
       method: 'GET',
-      endpoint: `/payments/?page=${page}`,
+      endpoint: `/deposits/?page=${page}`,
       token,
     })
   })

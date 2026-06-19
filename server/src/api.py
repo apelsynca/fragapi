@@ -1,6 +1,6 @@
 from src.api_token.endpoints import router as api_token_router
 from src.auth.endpoints import router as auth_router
-from src.deposit.endpoints import router as payment_router
+from src.deposit.endpoints import router as deposit_router
 from src.fragment_transaction.endpoints import router as fragment_transactions_router
 from src.gifts.endpoints import router as gifts_router
 from src.premium.endpoints import router as premium_router
@@ -20,5 +20,5 @@ router.include_router(premium_router)
 router.include_router(ton_router)
 router.include_router(gifts_router)
 router.include_router(tonapi_router)
-router.include_router(payment_router)
+router.include_router(deposit_router)
 router.include_router(fragment_transactions_router)
