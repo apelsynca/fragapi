@@ -6,7 +6,7 @@ from ton_core import to_nano
 
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.kit.database.postgres import create_async_sessionmaker
-from src.models import FragmentTransaction, Transaction
+from src.models import FragmentTransaction, TonTransaction
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession, create_async_engine
 from src.user.repository import UserRepository
@@ -47,7 +47,7 @@ async def create_trans(session: AsyncSession):
             stars_amount = random.randint(25, 500)
             reason = FragmentTransactionReason.stars
 
-        transaction = Transaction(
+        transaction = TonTransaction(
             nano_amount=to_nano(amount),
             message_hash="faketransa" + token_urlsafe(10),
             from_address="bbbbbR8wYxL4mZ2pT7vN1cQ9jS3dX8zV5fW6qB4nL0tM1rP",

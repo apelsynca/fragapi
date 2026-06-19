@@ -2,7 +2,7 @@ import pytest
 
 from src.exceptions import FragRequestValidationError
 from src.postgres import AsyncSession
-from src.transaction.service import transaction as transaction_service
+from src.ton_transaction.service import transaction as transaction_service
 from tests.fixtures.random_objects import create_tonapi_transaction_mock
 
 

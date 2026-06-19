@@ -34,7 +34,7 @@ def enqueue_frag_trans_admin_log_task(fragment_transaction: FragmentTransaction)
         value_str = f"{fragment_transaction.stars_amount} stars"
 
     fee_amount = fragment_transaction.amount - float(
-        to_amount(fragment_transaction.transaction.nano_amount)
+        to_amount(fragment_transaction.ton_transaction.nano_amount)
     )
 
     user_field = (

@@ -13,11 +13,11 @@ from src.deposit.service import DepositService
 from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
-from src.models import Transaction
+from src.models import TonTransaction
 from src.postgres import AsyncSession
+from src.ton_transaction.service import TransactionService
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
-from src.transaction.service import TransactionService
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_transaction, rstr
 
@@ -282,7 +282,7 @@ async def test_all_good_right_calls_and_sets_lt(
 
 @pytest.mark.asyncio
 async def test_if_wrong_comment_hash_resolve_logs_and_returns(
-    transaction: Transaction,
+    transaction: TonTransaction,
     transaction_service_mock: MagicMock,
     session: AsyncSession,
     valid_webhook_message: TonAPIWebhookMessage,

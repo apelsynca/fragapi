@@ -95,7 +95,7 @@ async def test_creates_from_tc_with_valid_data(
     assert fragment_transaction.recipient_username == "homocitrus"
     assert fragment_transaction.stars_amount == 52
 
-    btransa = fragment_transaction.transaction
+    btransa = fragment_transaction.ton_transaction
     assert btransa is not None
     assert btransa.nano_amount == tc_msg.amount
     assert btransa.hash is None
@@ -126,7 +126,7 @@ async def test_creates_from_tc_with_right_message_hash(
             premium_months=3,
         ),
     )
-    transaction = fragment_transaction.transaction
+    transaction = fragment_transaction.ton_transaction
     assert transaction is not None
 
     assert transaction.message_hash == message.normalized_hash

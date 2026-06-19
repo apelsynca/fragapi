@@ -1,5 +1,5 @@
 from src.kit.schemas import Schema
 
 
-class Transaction(Schema):
+class TonTransaction(Schema):
     hash: str | None

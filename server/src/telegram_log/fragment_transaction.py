@@ -15,7 +15,7 @@ USER_TELEGRAM_LOG_TEXT = (
 )
 
 
-def enqueue_new_trans_telegram_log_task(
+def enqueue_new_transaction_telegram_log_task(
     source: TelegramLogsSource,
     fragment_transaction: FragmentTransaction,
 ) -> None:
@@ -41,5 +41,5 @@ def enqueue_new_trans_telegram_log_task(
             username=fragment_transaction.recipient_username,
             value=value_str,
         ),
-        with_notification=True,  # NOTE: might change to custom setting, or range setting
+        with_notification=True,
     )

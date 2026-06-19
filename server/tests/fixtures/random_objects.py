@@ -11,7 +11,7 @@ from ton_core import Address, to_nano
 
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import ApiToken, Transaction, User
+from src.models import ApiToken, TonTransaction, User
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
@@ -112,7 +112,7 @@ def create_tonapi_transaction_mock(
 
 
 @pytest_asyncio.fixture
-async def transaction(save_fixture: SaveFixture) -> Transaction:
+async def transaction(save_fixture: SaveFixture) -> TonTransaction:
     return await create_transaction(save_fixture)
 
 
@@ -122,8 +122,8 @@ async def create_transaction(
     amount: float | None = None,
     message_hash: str | None = None,
     hash: str | None = None,
-) -> Transaction:
-    transaction = Transaction(
+) -> TonTransaction:
+    transaction = TonTransaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
         hash=hash,
         message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
@@ -136,7 +136,7 @@ async def create_transaction(
 
 @pytest_asyncio.fixture
 async def fragment_transaction(
-    save_fixture: SaveFixture, user: User, transaction: Transaction
+    save_fixture: SaveFixture, user: User, transaction: TonTransaction
 ) -> FragmentTransaction:
     return await create_fragment_transaction(
         save_fixture, user=user, transaction=transaction
@@ -146,7 +146,7 @@ async def fragment_transaction(
 async def create_fragment_transaction(
     save_fixture: SaveFixture,
     user: User,
-    transaction: Transaction,
+    transaction: TonTransaction,
     *,
     amount: float | None = None,
     stars_amount: int | None = None,
@@ -157,7 +157,7 @@ async def create_fragment_transaction(
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
-        transaction=transaction,
+        ton_transaction=transaction,
         reason=FragmentTransactionReason.premium
         if premium_months
         else FragmentTransactionReason.stars,

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
-    from .transactions import Transaction
+    from .ton_transactions import TonTransaction
     from .users import User
 
 
@@ -27,11 +27,11 @@ class FragmentTransaction(RecordModel):
     recipient: Mapped[str]  # later can be nullable
     recipient_username: Mapped[str]  # later can be nullable
 
-    transaction_id: Mapped[UUID] = mapped_column(
-        ForeignKey("transactions.id"), unique=True
+    ton_transaction_id: Mapped[UUID] = mapped_column(
+        ForeignKey("ton_transactions.id"), unique=True
     )
-    transaction: Mapped["Transaction"] = relationship(
-        "Transaction", back_populates="fragment_transaction"
+    ton_transaction: Mapped["TonTransaction"] = relationship(
+        back_populates="fragment_transaction"
     )
 
     reason: Mapped[FragmentTransactionReason] = mapped_column(

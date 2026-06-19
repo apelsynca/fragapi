@@ -112,4 +112,4 @@ async def test_get_ton_rate_not_from_cache_if_cached_ton_rate_is_none(
     get_mp_tokens_mock.assert_called_once()
 
 
-# TODO: Test gets random client
+# NOTE: Test gets random client, if implement multi wallets

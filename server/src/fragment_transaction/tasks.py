@@ -16,7 +16,9 @@ from src.kit.ton_connect import TonConnectTransaction
 from src.logging import Logger
 from src.models import FragmentTransaction
 from src.postgres import AsyncSession
-from src.telegram_log.fragment_transaction import enqueue_new_trans_telegram_log_task
+from src.telegram_log.fragment_transaction import (
+    enqueue_new_transaction_telegram_log_task,
+)
 from src.telegram_log.service import telegram_log as telegram_log_service
 from src.wallet.manager import WalletManager
 from src.worker import worker_task_with_queue_manager
@@ -40,7 +42,7 @@ async def process_fragment_transaction(
         id=fragment_transaction_id,
         options=[
             selectinload(FragmentTransaction.user),
-            selectinload(FragmentTransaction.transaction),
+            selectinload(FragmentTransaction.ton_transaction),
         ],
     )
 
@@ -65,7 +67,10 @@ async def process_fragment_transaction(
         dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
     )
 
-    if fragment_transaction.transaction.message_hash != built_ext_msg.normalized_hash:
+    if (
+        fragment_transaction.ton_transaction.message_hash
+        != built_ext_msg.normalized_hash
+    ):
         log.warning(
             "process_fragment_transaction Different transaction message hash and ext_msg hash"
         )
@@ -83,7 +88,7 @@ async def process_fragment_transaction(
         params=WalletV5Params(valid_until=valid_until),
     )
 
-    fragment_transaction.transaction.hash = ext_msg.normalized_hash
+    fragment_transaction.ton_transaction.hash = ext_msg.normalized_hash
 
     try:
         enqueue_frag_trans_admin_log_task(fragment_transaction)
@@ -95,6 +100,6 @@ async def process_fragment_transaction(
             session=session, user=fragment_transaction.user
         )
         if len(sources) == 1:  # PERF: dont forget to change it to > 1 or smth
-            enqueue_new_trans_telegram_log_task(sources[0], fragment_transaction)
+            enqueue_new_transaction_telegram_log_task(sources[0], fragment_transaction)
     except Exception:
         log.error("Error enqueuing fragment transaction admin log", exc_info=True)

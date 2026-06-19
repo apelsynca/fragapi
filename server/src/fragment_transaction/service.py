@@ -21,7 +21,7 @@ from src.logging import Logger
 from src.models import FragmentTransaction, User
 from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
-from src.transaction.service import transaction as transaction_service
+from src.ton_transaction.service import transaction as transaction_service
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
@@ -132,8 +132,6 @@ class FragmentTransactionService:
             session=session, tc_transaction=tc_transaction
         )
 
-        # NOTE: do better testing on fee side of things, maybe even create a class Fee calculator later,
-        # that way it would be easier to create a solid type shi (one place)
         without_fee_f_amount = float(to_amount(tc_msg.amount))
         f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
 
@@ -144,7 +142,7 @@ class FragmentTransactionService:
                 amount=f_amount,
                 recipient=metadata.recipient,
                 recipient_username=metadata.recipient_username,
-                transaction=transaction,
+                ton_transaction=transaction,
                 reason=reason,
                 stars_amount=metadata.stars_amount,
                 premium_months=metadata.premium_months,

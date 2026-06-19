@@ -74,7 +74,7 @@ class StarsService:
         )
 
         return BuyStarsResponse(
-            message_hash=fragment_transaction.transaction.message_hash,
+            message_hash=fragment_transaction.ton_transaction.message_hash,
             transaction_id=fragment_transaction.id,
             photo=recipient_data.photo,
             name=recipient_data.name,

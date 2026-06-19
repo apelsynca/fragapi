@@ -45,7 +45,7 @@ async def test_list_deposits(
     assert item["amount"] == 5.25
     assert item["createdAt"] is not None
     assert item["status"] == "completed"
-    assert item["transaction"] is None
+    assert item["tonTransaction"] is None
 
 
 @pytest.mark.asyncio
@@ -55,7 +55,11 @@ async def test_list_deposits_also_gives_tx_hash_if_present(
 ) -> None:
     transaction = await create_transaction(save_fixture, amount=5.25, hash="MyTxHash")
     await create_deposit(
-        save_fixture, user=user, amount=5.25, transaction=transaction, completed=True
+        save_fixture,
+        user=user,
+        amount=5.25,
+        ton_transaction=transaction,
+        completed=True,
     )
 
     response = await client.get("/v1/deposits/")
@@ -65,5 +69,5 @@ async def test_list_deposits_also_gives_tx_hash_if_present(
 
     item = json["items"][0]
 
-    assert item["transaction"]["hash"] == "MyTxHash"
+    assert item["tonTransaction"]["hash"] == "MyTxHash"
     assert item["status"] == "completed"

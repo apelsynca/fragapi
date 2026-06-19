@@ -17,18 +17,15 @@ class WalletManagerError(Exception):
     pass
 
 
-# why is that an integration? WalletManager is not an integration, the WalletV5R1 is (to an extent).
-# thus -> TODO: move it somewhere outta here (probably in worker, or where is best)
 class WalletManager:
     """
     Service of a global FragAPI wallet
 
-    Since the wallets can be split
+    Since there can be multiple wallets
     """
 
     def __init__(self, wallet: WalletV5R1) -> None:
         self.wallet = wallet
-        # self.wallet = create_wallet()
 
     async def get_balance(self) -> int:
         await self.wallet.refresh()

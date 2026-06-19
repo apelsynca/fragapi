@@ -10,8 +10,8 @@ if TYPE_CHECKING:
     from .fragment_transactions import FragmentTransaction
 
 
-class Transaction(RecordModel):
-    __tablename__ = "transactions"
+class TonTransaction(RecordModel):
+    __tablename__ = "ton_transactions"
 
     # nano tons transaction amount
     nano_amount: Mapped[int] = mapped_column(BigInteger)
@@ -27,8 +27,8 @@ class Transaction(RecordModel):
     to_address: Mapped[str] = mapped_column(String(100))  # workchain:init
 
     deposit: Mapped["Deposit | None"] = relationship(
-        back_populates="transaction", uselist=False, lazy="raise"
+        back_populates="ton_transaction", uselist=False, lazy="raise"
     )
     fragment_transaction: Mapped["FragmentTransaction | None"] = relationship(
-        back_populates="transaction", uselist=False, lazy="raise"
+        back_populates="ton_transaction", uselist=False, lazy="raise"
     )

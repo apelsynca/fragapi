@@ -34,7 +34,7 @@ async def create_fragment_transaction(
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
-        transaction=transaction,
+        ton_transaction=transaction,
         reason=FragmentTransactionReason.stars,
         created_at=utc_now() if created_at is None else created_at,
     )

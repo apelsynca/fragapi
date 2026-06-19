@@ -165,7 +165,11 @@ async def test_fetch_list_gets_transactions(
         save_fixture, amount=2.5291, hash="Usual hashiie"
     )
     await create_deposit(
-        save_fixture, user=user, amount=2.5291, completed=True, transaction=transaction
+        save_fixture,
+        user=user,
+        amount=2.5291,
+        completed=True,
+        ton_transaction=transaction,
     )
     await create_deposit(save_fixture, user=user, amount=9.25, completed=False)
 
@@ -174,5 +178,5 @@ async def test_fetch_list_gets_transactions(
         session=session, user=user, pagination=pagination
     )
 
-    assert deposits[0].transaction is not None
-    assert deposits[0].transaction.hash == "Usual hashiie"
+    assert deposits[0].ton_transaction is not None
+    assert deposits[0].ton_transaction.hash == "Usual hashiie"

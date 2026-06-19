@@ -12,9 +12,9 @@ from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.postgres import AsyncSession
+from src.ton_transaction.service import transaction as transaction_service
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
-from src.transaction.service import transaction as transaction_service
 
 log: Logger = structlog.get_logger()
 

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
-    from .transactions import Transaction
+    from .ton_transactions import TonTransaction
     from .users import User
 
 
@@ -30,9 +30,9 @@ class Deposit(RecordModel):
     hash: Mapped[str] = mapped_column(unique=True)
 
     transaction_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("transactions.id"), unique=True
+        ForeignKey("ton_transactions.id"), unique=True
     )
-    transaction: Mapped["Transaction | None"] = relationship(
+    ton_transaction: Mapped["TonTransaction | None"] = relationship(
         back_populates="deposit", uselist=False
     )
 

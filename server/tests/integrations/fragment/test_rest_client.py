@@ -115,4 +115,4 @@ async def test_return_right_json_data(
     assert data == {"some": "data", "withExternal": "values"}
 
 
-# TODO: There is a lot to test, especcialy in terms of the auth, but i'm concerned with different stuff
+# PERF: There is a lot to test, especcialy in terms of the auth, but i'm concerned with different stuff

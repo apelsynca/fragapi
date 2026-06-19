@@ -168,7 +168,7 @@ async def test_process_sets_hash(
 ) -> None:
     wallet_manager = FakeWalletManager()
 
-    assert valid_frag_trans.transaction.hash is None
+    assert valid_frag_trans.ton_transaction.hash is None
 
     wallet_mock = MagicMock(spec=WalletV5R1)
     hash_string = rstr("somehash")
@@ -182,4 +182,4 @@ async def test_process_sets_hash(
         wallet_manager=wallet_manager,
     )
 
-    assert valid_frag_trans.transaction.hash == hash_string
+    assert valid_frag_trans.ton_transaction.hash == hash_string

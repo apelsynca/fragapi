@@ -4,7 +4,7 @@ from .api_tokens import ApiToken
 from .deposits import Deposit
 from .fragment_transactions import FragmentTransaction
 from .telegram_logs_sources import TelegramLogsSource
-from .transactions import Transaction
+from .ton_transactions import TonTransaction
 from .user_sessions import UserSession
 from .users import User
 
@@ -14,7 +14,7 @@ __all__ = [
     "FragmentTransaction",
     "Model",
     "TelegramLogsSource",
-    "Transaction",
+    "TonTransaction",
     "User",
     "UserSession",
 ]

@@ -8,13 +8,13 @@ from ton_core import to_nano
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models import Transaction, UserSession
+from src.models import TonTransaction, UserSession
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
 from src.postgres import AsyncSession, create_async_engine
-from src.transaction.repository import TransactionRepository
+from src.ton_transaction.repository import TransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -45,8 +45,8 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
             return
 
         amount = float(input(f"Amount for [{offset}]: "))
-        transaction = await usual_repo.create(
-            Transaction(
+        ton_transaction = await usual_repo.create(
+            TonTransaction(
                 nano_amount=to_nano(amount),
                 hash="6ec1e3a7678ce211a44b5a98fbef46f299355a408978104941048e73f5db6cec",
                 message_hash=None,
@@ -63,7 +63,7 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
                 amount=amount,
                 recipient=token_urlsafe(24),
                 recipient_username="recipient_username_here",
-                transaction=transaction,
+                ton_transaction=ton_transaction,
                 created_at=utc_now() - timedelta(days=offset),
                 reason=FragmentTransactionReason.stars,
                 stars_amount=[100, 125, 51, 200, 500][random.randint(1, 5)],

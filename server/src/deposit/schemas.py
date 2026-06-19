@@ -2,7 +2,7 @@ from datetime import datetime
 
 from src.kit.schemas import Schema
 from src.models.deposits import DepositStatus
-from src.transaction.schemas import Transaction
+from src.ton_transaction.schemas import TonTransaction
 
 
 class DepositTonRequestMessage(Schema):
@@ -18,4 +18,4 @@ class BaseDeposit(Schema):
 
 
 class Deposit(BaseDeposit):
-    transaction: Transaction | None
+    ton_transaction: TonTransaction | None

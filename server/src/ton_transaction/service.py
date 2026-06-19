@@ -3,21 +3,21 @@ from ton_core import Address, ExternalMessage
 
 from src.exceptions import FragRequestValidationError
 from src.kit.ton_connect import TonConnectTransaction
-from src.models import Transaction
+from src.models import TonTransaction
 from src.postgres import AsyncSession
-from src.transaction.repository import TransactionRepository
+from src.ton_transaction.repository import TransactionRepository
 
 
 class TransactionService:
     async def create_as_tc(
         self, session: AsyncSession, tc_transaction: TonConnectTransaction
-    ) -> Transaction:
+    ) -> TonTransaction:
         tc_msg = tc_transaction.messages[0]
         ext_msg = ExternalMessage(
             dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
 
-        transaction = Transaction(
+        transaction = TonTransaction(
             nano_amount=tc_msg.amount,
             hash=None,
             message_hash=ext_msg.normalized_hash,
@@ -30,7 +30,7 @@ class TransactionService:
 
     async def create_as_tonapi_internal(
         self, session: AsyncSession, tonapi_transaction: TonAPITransaction
-    ) -> Transaction:
+    ) -> TonTransaction:
         if not tonapi_transaction.success:
             raise FragRequestValidationError(
                 [
@@ -103,7 +103,7 @@ class TransactionService:
                 ]
             )
 
-        transaction = Transaction(
+        transaction = TonTransaction(
             hash=tonapi_transaction.hash,
             nano_amount=in_msg.value,
             from_address=in_msg.source.address,

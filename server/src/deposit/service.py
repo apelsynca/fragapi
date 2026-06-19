@@ -15,7 +15,7 @@ from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.logging import Logger
-from src.models import Deposit, Transaction, User
+from src.models import Deposit, TonTransaction, User
 from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
 
@@ -37,7 +37,7 @@ class DepositService:
         stmt = (
             repository.get_base_stmt()
             .where(Deposit.user == user, Deposit.status == DepositStatus.completed)
-            .options(selectinload(Deposit.transaction))
+            .options(selectinload(Deposit.ton_transaction))
         )
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
 
@@ -82,7 +82,7 @@ class DepositService:
         return deposit
 
     async def complete_ton(
-        self, session: AsyncSession, transaction: Transaction, ref_hash: str
+        self, session: AsyncSession, transaction: TonTransaction, ref_hash: str
     ) -> None:
         repository = DepositRepository.from_session(session)
         deposit = await repository.get_by_hash(hash=ref_hash)
@@ -93,14 +93,14 @@ class DepositService:
         if deposit.status == DepositStatus.completed:
             raise FragError("Status is wrong")
 
-        if deposit.transaction is not None:
+        if deposit.ton_transaction is not None:
             raise FragError("Deposit already has transaction")
 
         transaction_amount = float(to_amount(transaction.nano_amount))
         if deposit.amount != transaction_amount:
             raise BadRequest("Deposit amount and transaction amount is different")
 
-        deposit.transaction = transaction
+        deposit.ton_transaction = transaction
         deposit.status = DepositStatus.completed
 
         deposit.user.balance += transaction_amount
