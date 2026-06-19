@@ -6,12 +6,12 @@ from fastapi import Depends
 from src.kit.sorting import Sorting, SortingGetter
 
 
-class FragTransactionSortProperty(StrEnum):
+class TransactionSortProperty(StrEnum):
     created_at = "created_at"
     amount = "amount"
 
 
 ListSorting = Annotated[
-    list[Sorting[FragTransactionSortProperty]],
-    Depends(SortingGetter(FragTransactionSortProperty, ["-created_at"])),
+    list[Sorting[TransactionSortProperty]],
+    Depends(SortingGetter(TransactionSortProperty, ["-created_at"])),
 ]

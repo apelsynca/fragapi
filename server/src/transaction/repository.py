@@ -7,21 +7,19 @@ from src.kit.repository.mixins import (
     SortingClause,
 )
 from src.models import Transaction
-from src.transaction.sorting import FragTransactionSortProperty
+from src.transaction.sorting import TransactionSortProperty
 
 
-class FragmentTransactionRepository(
+class TransactionRepository(
     BaseRepository[Transaction],
     RepositoryIDMixin[Transaction, UUID],
-    RepositorySortingMixin[Transaction, FragTransactionSortProperty],
+    RepositorySortingMixin[Transaction, TransactionSortProperty],
 ):
     model = Transaction
 
-    def get_sorting_clause(
-        self, property: FragTransactionSortProperty
-    ) -> SortingClause:
+    def get_sorting_clause(self, property: TransactionSortProperty) -> SortingClause:
         match property:
-            case FragTransactionSortProperty.created_at:
+            case TransactionSortProperty.created_at:
                 return Transaction.created_at
-            case FragTransactionSortProperty.amount:
+            case TransactionSortProperty.amount:
                 return Transaction.amount

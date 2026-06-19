@@ -17,7 +17,7 @@ def worker_task_with_queue_manager[**P, R](
     **labels: Any,
 ):
     """
-    WARN: this is bad, we need a middleware to provide good `enqueue_task`
+    WARN: this decorator is bad, we need a middleware to provide good `enqueue_task`
           because this even tho works, does not allow for testable env
           which is bad.
     """

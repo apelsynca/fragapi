@@ -25,6 +25,7 @@ class FakeWalletManager(WalletManager):
     async def get_balance(self) -> int:
         return self.balance
 
+    # NOTE: bad since unused...
     async def get_wallet_for_amount(self, amount: int) -> WalletV5R1:
         return self.wallet
 

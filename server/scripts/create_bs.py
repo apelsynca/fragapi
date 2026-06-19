@@ -8,7 +8,7 @@ from src.enums import TransactionReason
 from src.kit.database.postgres import create_async_sessionmaker
 from src.models import TonTransaction, Transaction
 from src.postgres import AsyncSession, create_async_engine
-from src.transaction.repository import FragmentTransactionRepository
+from src.transaction.repository import TransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -27,7 +27,7 @@ async def create_trans(session: AsyncSession):
         print("Exit, user with id 99999 none")
         return
 
-    repository = FragmentTransactionRepository.from_session(session)
+    repository = TransactionRepository.from_session(session)
 
     while True:
         ipt = input("Amount:")

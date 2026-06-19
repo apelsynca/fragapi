@@ -17,9 +17,9 @@ from src.models import Transaction, User
 from src.postgres import AsyncSession
 from src.ton_transaction.service import ton_transaction as ton_transaction_service
 from src.transaction.models import FTMetadata
-from src.transaction.repository import FragmentTransactionRepository
-from src.transaction.schemas import ChartPoint, FragmentTransactionsStats
-from src.transaction.sorting import FragTransactionSortProperty
+from src.transaction.repository import TransactionRepository
+from src.transaction.schemas import ChartPoint, TransactionStats
+from src.transaction.sorting import TransactionSortProperty
 from src.transaction.tasks import process_fragment_transaction
 from src.transaction.utils import validate_tc_transaction
 from src.worker import enqueue_task
@@ -27,10 +27,8 @@ from src.worker import enqueue_task
 log: Logger = structlog.get_logger()
 
 
-class FragmentTransactionService:
-    async def get_stats(
-        self, session: AsyncSession, user: User
-    ) -> FragmentTransactionsStats:
+class TransactionService:
+    async def get_stats(self, session: AsyncSession, user: User) -> TransactionStats:
         stmt = select(
             func.sum(Transaction.amount).label("total_amount"),
             func.sum(
@@ -55,7 +53,7 @@ class FragmentTransactionService:
         result = await session.execute(stmt)
         row = result.one()
 
-        return FragmentTransactionsStats(
+        return TransactionStats(
             total_spend=row.total_amount or 0,
             stars_total_spend=row.stars_total_amount or 0,
             premium_total_spend=row.premium_total_amount or 0,
@@ -66,14 +64,16 @@ class FragmentTransactionService:
         session: AsyncSession,
         user: User,
         pagination: PaginationParams,
-        sorting: list[Sorting[FragTransactionSortProperty]] = [
-            (FragTransactionSortProperty.created_at, True)
+        sorting: list[Sorting[TransactionSortProperty]] = [
+            (TransactionSortProperty.created_at, True)
         ],
     ) -> tuple[Sequence[Transaction], int]:
-        repository = FragmentTransactionRepository.from_session(session)
+        repository = TransactionRepository.from_session(session)
 
-        stmt = repository.get_base_stmt().where(Transaction.user == user)
-        stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
+        stmt = repository.apply_sorting(
+            stmt=repository.get_base_stmt().where(Transaction.user == user),
+            sorting=sorting,
+        )
 
         return await repository.paginate(
             stmt=stmt, limit=pagination.limit, page=pagination.page
@@ -87,7 +87,7 @@ class FragmentTransactionService:
         reason: TransactionReason,
         metadata: FTMetadata,
     ) -> Transaction:
-        fragment_transaction = await self._create_from_tc(
+        transaction = await self._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -95,27 +95,26 @@ class FragmentTransactionService:
             metadata=metadata,
         )
 
-        # WARN: maybe there is something better. for now = ideal.
         await session.refresh(user, with_for_update=True)
 
-        if user.balance <= fragment_transaction.amount:
-            # NOTE: frag trans unsaved here, which is good.
-            raise InsuficcientFunds(required_amount=fragment_transaction.amount)
+        # NOTE: in this case, ton transaction is unsaved here, which is good.
+        if user.balance <= transaction.amount:
+            raise InsuficcientFunds(required_amount=transaction.amount)
 
-        user.balance -= fragment_transaction.amount
+        user.balance -= transaction.amount
 
         log.info(
             "fragment_transaction.send_from_tc",
-            fragment_transaction_id=fragment_transaction.id,
+            fragment_transaction_id=transaction.id,
         )
 
         enqueue_task(
             process_fragment_transaction,
-            fragment_transaction.id,
-            tc_transaction,
+            transaction_id=transaction.id,
+            tc_transaction=tc_transaction,
         )
 
-        return fragment_transaction
+        return transaction
 
     async def _create_from_tc(
         self,
@@ -127,7 +126,6 @@ class FragmentTransactionService:
     ) -> Transaction:
         validate_tc_transaction(tc_transaction)
         tc_msg = tc_transaction.messages[0]
-
         transaction = await ton_transaction_service.create_as_tc(
             session=session, tc_transaction=tc_transaction
         )
@@ -135,8 +133,9 @@ class FragmentTransactionService:
         without_fee_f_amount = float(to_amount(tc_msg.amount))
         f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
 
-        repository = FragmentTransactionRepository.from_session(session)
-        fragment_transaction = await repository.create(
+        repository = TransactionRepository.from_session(session)
+
+        return await repository.create(
             Transaction(
                 user=user,
                 amount=f_amount,
@@ -148,8 +147,6 @@ class FragmentTransactionService:
                 premium_months=metadata.premium_months,
             )
         )
-
-        return fragment_transaction
 
     async def get_chart_data(
         self, session: AsyncSession, user: User
@@ -184,7 +181,7 @@ class FragmentTransactionService:
             .where(
                 Transaction.user == user,
                 Transaction.reason == TransactionReason.stars,
-                # FragmentTransaction.created_at # NOTE might do that lol
+                # NOTE: might add `Transaction.created_at` to that lol
             )
             .group_by(func.date(Transaction.created_at))
         )
@@ -193,7 +190,6 @@ class FragmentTransactionService:
         rows = result.all()
 
         existing = {row.date: row for row in rows}
-
         result = []
 
         for i in range(days_count):
@@ -217,4 +213,4 @@ class FragmentTransactionService:
         return result
 
 
-fragment_transaction = FragmentTransactionService()
+transaction = TransactionService()

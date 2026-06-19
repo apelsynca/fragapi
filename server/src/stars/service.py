@@ -12,9 +12,7 @@ from src.models import User
 from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.transaction.models import FTMetadata
-from src.transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
+from src.transaction.service import transaction as transaction_service
 
 log: Logger = structlog.get_logger()
 
@@ -61,7 +59,7 @@ class StarsService:
 
         tc_transaction = buy_link.transaction
 
-        fragment_transaction = await fragment_transaction_service.send_from_tc(
+        transaction = await transaction_service.send_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -74,11 +72,11 @@ class StarsService:
         )
 
         return BuyStarsResponse(
-            message_hash=fragment_transaction.ton_transaction.message_hash,
-            transaction_id=fragment_transaction.id,
+            message_hash=transaction.ton_transaction.message_hash,
+            transaction_id=transaction.id,
             photo=recipient_data.photo,
             name=recipient_data.name,
-            amount=fragment_transaction.amount,
+            amount=transaction.amount,
         )
 
     async def get_recipient(

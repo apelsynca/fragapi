@@ -137,19 +137,20 @@ async def create_ton_transaction(
     return transaction
 
 
+# TODO: rename it
 @pytest_asyncio.fixture
 async def fragment_transaction(
     save_fixture: SaveFixture, user: User, transaction: TonTransaction
 ) -> Transaction:
-    return await create_fragment_transaction(
-        save_fixture, user=user, transaction=transaction
+    return await create_transaction(
+        save_fixture, user=user, ton_transaction=transaction
     )
 
 
-async def create_fragment_transaction(
+async def create_transaction(
     save_fixture: SaveFixture,
     user: User,
-    transaction: TonTransaction,
+    ton_transaction: TonTransaction,
     *,
     amount: float | None = None,
     stars_amount: int | None = None,
@@ -160,7 +161,7 @@ async def create_fragment_transaction(
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
-        ton_transaction=transaction,
+        ton_transaction=ton_transaction,
         reason=TransactionReason.premium if premium_months else TransactionReason.stars,
         stars_amount=stars_amount,
         premium_months=premium_months,

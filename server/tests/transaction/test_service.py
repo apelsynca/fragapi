@@ -13,16 +13,14 @@ from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.postgres import AsyncSession
 from src.transaction.models import FTMetadata
-from src.transaction.repository import FragmentTransactionRepository
-from src.transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
-from src.transaction.sorting import FragTransactionSortProperty
+from src.transaction.repository import TransactionRepository
+from src.transaction.service import transaction as transaction_service
+from src.transaction.sorting import TransactionSortProperty
 from src.transaction.tasks import process_fragment_transaction
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
-    create_fragment_transaction,
     create_ton_transaction,
+    create_transaction,
     create_user,
     get_tc_transaction,
 )
@@ -42,7 +40,7 @@ async def test_create_from_tc_raises_validation_if_no_msgs(
 ) -> None:
     tc_transaction = get_tc_transaction(messages=[])
     with pytest.raises(FragRequestValidationError):
-        await fragment_transaction_service._create_from_tc(
+        await transaction_service._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -59,7 +57,7 @@ async def test_create_from_tc_raises_validation_if_2_msgs(
         messages=[get_valid_tc_msg(amount=19.2), get_valid_tc_msg(amount=5.12)]
     )
     with pytest.raises(FragRequestValidationError):
-        await fragment_transaction_service._create_from_tc(
+        await transaction_service._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
@@ -75,7 +73,7 @@ async def test_creates_from_tc_with_valid_data(
     tc_msg = valid_tc_transaction.messages[0]
     assert tc_msg.payload
 
-    fragment_transaction = await fragment_transaction_service._create_from_tc(
+    transaction = await transaction_service._create_from_tc(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
@@ -87,15 +85,15 @@ async def test_creates_from_tc_with_valid_data(
         ),
     )
 
-    assert fragment_transaction.user == user
-    assert fragment_transaction.amount == after_fee(
+    assert transaction.user == user
+    assert transaction.amount == after_fee(
         after_ton_network_fee(float(to_amount(tc_msg.amount)))
     )
-    assert fragment_transaction.recipient == "recipientXrecipient"
-    assert fragment_transaction.recipient_username == "homocitrus"
-    assert fragment_transaction.stars_amount == 52
+    assert transaction.recipient == "recipientXrecipient"
+    assert transaction.recipient_username == "homocitrus"
+    assert transaction.stars_amount == 52
 
-    btransa = fragment_transaction.ton_transaction
+    btransa = transaction.ton_transaction
     assert btransa is not None
     assert btransa.nano_amount == tc_msg.amount
     assert btransa.hash is None
@@ -115,7 +113,7 @@ async def test_creates_from_tc_with_right_message_hash(
     cell = Cell.one_from_boc(padded_payload)
     message = ExternalMessage(dest=Address(tc_msg.address), body=cell)
 
-    fragment_transaction = await fragment_transaction_service._create_from_tc(
+    fragment_transaction = await transaction_service._create_from_tc(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
@@ -137,7 +135,7 @@ async def test_creates_from_tc_with_right_message_hash(
 async def test_creates_in_db(
     session: AsyncSession, valid_tc_transaction: TonConnectTransaction, user: User
 ) -> None:
-    await fragment_transaction_service._create_from_tc(
+    await transaction_service._create_from_tc(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
@@ -149,7 +147,7 @@ async def test_creates_in_db(
         ),
     )
 
-    repository = FragmentTransactionRepository.from_session(session)
+    repository = TransactionRepository.from_session(session)
     transactions = await repository.get_all(stmt=repository.get_base_stmt())
 
     assert len(transactions) == 1
@@ -175,7 +173,7 @@ async def test_removes_money_from_user_with_fee(
     user.balance = amount + 100
     await session.flush()
 
-    frag_trans = await fragment_transaction_service.send_from_tc(
+    transaction = await transaction_service.send_from_tc(
         session=session,
         tc_transaction=tc_transaction,
         user=user,
@@ -186,16 +184,15 @@ async def test_removes_money_from_user_with_fee(
             stars_amount=52,
         ),
     )
-    assert frag_trans is not None
+    assert transaction is not None
 
     expect = amount + 100 - after_fee(after_ton_network_fee(amount))
     assert user.balance == expect
 
-    assert frag_trans.id is not None
     enqueue_task_mock.assert_called_once_with(
         process_fragment_transaction,
-        frag_trans.id,
-        tc_transaction,
+        transaction_id=transaction.id,
+        tc_transaction=tc_transaction,
     )
 
 
@@ -207,22 +204,20 @@ async def test_lists_transactions_right_user(
         transaction = await create_ton_transaction(
             save_fixture, amount=random.randint(1, 100)
         )
-        await create_fragment_transaction(
-            save_fixture, user=user, transaction=transaction
-        )
+        await create_transaction(save_fixture, user=user, ton_transaction=transaction)
 
     user_second = await create_user(save_fixture)
     transactiond = await create_ton_transaction(
         save_fixture, amount=random.randint(1, 100)
     )
-    await create_fragment_transaction(
-        save_fixture, user=user_second, transaction=transactiond
+    await create_transaction(
+        save_fixture, user=user_second, ton_transaction=transactiond
     )
 
-    sorting = [(FragTransactionSortProperty.created_at, True)]
+    sorting = [(TransactionSortProperty.created_at, True)]
     pagination = PaginationParams(page=1, limit=100)
 
-    items, count = await fragment_transaction_service.fetch_list(
+    items, count = await transaction_service.fetch_list(
         session=session, user=user, pagination=pagination, sorting=sorting
     )
 
@@ -232,7 +227,7 @@ async def test_lists_transactions_right_user(
 
 @pytest.mark.asyncio
 async def test_get_stats_empty(session: AsyncSession, user: User) -> None:
-    stats = await fragment_transaction_service.get_stats(session=session, user=user)
+    stats = await transaction_service.get_stats(session=session, user=user)
 
     assert stats.total_spend == 0
     assert stats.stars_total_spend == 0
@@ -244,16 +239,20 @@ async def test_gets_stats_right_amount(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
     transaction1 = await create_ton_transaction(save_fixture, amount=5.252)
-    await create_fragment_transaction(
-        save_fixture, user=user, transaction=transaction1, amount=4.25
+    await create_transaction(
+        save_fixture, user=user, ton_transaction=transaction1, amount=4.25
     )
 
     transaction2 = await create_ton_transaction(save_fixture, amount=5.252)
-    await create_fragment_transaction(
-        save_fixture, user=user, transaction=transaction2, amount=2.1, premium_months=3
+    await create_transaction(
+        save_fixture,
+        user=user,
+        ton_transaction=transaction2,
+        amount=2.1,
+        premium_months=3,
     )
 
-    stats = await fragment_transaction_service.get_stats(session=session, user=user)
+    stats = await transaction_service.get_stats(session=session, user=user)
 
     assert stats.total_spend == 6.35
     assert stats.stars_total_spend == 4.25

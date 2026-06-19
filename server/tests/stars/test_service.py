@@ -13,19 +13,16 @@ from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars
 from src.stars.service import stars as stars_service
 from src.transaction.models import FTMetadata
-from src.transaction.service import FragmentTransactionService
+from src.transaction.service import TransactionService
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import (
-    create_fragment_transaction,
-    create_ton_transaction,
-)
+from tests.fixtures.random_objects import create_ton_transaction, create_transaction
 
 
 @pytest.fixture(autouse=True)
-def fragment_transaction_service(mocker: MockerFixture) -> MagicMock:
+def transaction_service(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.stars.service.fragment_transaction_service",
-        spec=FragmentTransactionService,
+        "src.stars.service.transaction_service",
+        spec=TransactionService,
     )
 
 
@@ -36,7 +33,7 @@ async def test_buy_calls_frag_service_buy_from_tc(
     user: User,
     fragment: MagicMock,
     valid_tc_transaction: TonConnectTransaction,
-    fragment_transaction_service: MagicMock,
+    transaction_service: MagicMock,
 ) -> None:
     fragment.search_stars_recipient.return_value = RecipientData(
         ok=True,
@@ -52,10 +49,8 @@ async def test_buy_calls_frag_service_buy_from_tc(
         message_hash="vaid",
     )
 
-    fragment_transaction_service.send_from_tc.return_value = (
-        await create_fragment_transaction(
-            save_fixture, user=user, transaction=transaction
-        )
+    transaction_service.send_from_tc.return_value = await create_transaction(
+        save_fixture, user=user, ton_transaction=transaction
     )
 
     await stars_service.buy(
@@ -65,7 +60,7 @@ async def test_buy_calls_frag_service_buy_from_tc(
         fragment=fragment,
     )
 
-    fragment_transaction_service.send_from_tc.assert_called_once_with(
+    transaction_service.send_from_tc.assert_called_once_with(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
@@ -109,7 +104,7 @@ async def test_buy_returns_good(
     user: User,
     fragment: MagicMock,
     valid_tc_transaction: TonConnectTransaction,
-    fragment_transaction_service: MagicMock,
+    transaction_service: MagicMock,
 ) -> None:
     fragment.search_stars_recipient.return_value = RecipientData(
         ok=True,
@@ -124,15 +119,15 @@ async def test_buy_returns_good(
         transaction=valid_tc_transaction, ok=True
     )
 
-    transaction = await create_ton_transaction(
+    ton_transaction = await create_ton_transaction(
         save_fixture,
         message_hash="myhash",
     )
-    frag_trans = await create_fragment_transaction(
-        save_fixture, user=user, transaction=transaction
+    frag_trans = await create_transaction(
+        save_fixture, user=user, ton_transaction=ton_transaction
     )
 
-    fragment_transaction_service.send_from_tc.return_value = frag_trans
+    transaction_service.send_from_tc.return_value = frag_trans
 
     stars_buy_response = await stars_service.buy(
         session=session,

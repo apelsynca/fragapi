@@ -7,13 +7,13 @@ from src.routing import APIRouter
 from src.stars.endpoints import router as stars_router
 from src.ton.endpoints import router as ton_router
 from src.tonapi.endpoints import router as tonapi_router
-from src.transaction.endpoints import router as fragment_transactions_router
-from src.user.endpoints import router as users_router
+from src.transaction.endpoints import router as transaction_router
+from src.user.endpoints import router as user_router
 
 router = APIRouter(prefix="/v1")
 
 router.include_router(api_token_router)
-router.include_router(users_router)
+router.include_router(user_router)
 router.include_router(auth_router)
 router.include_router(stars_router)
 router.include_router(premium_router)
@@ -21,4 +21,4 @@ router.include_router(ton_router)
 router.include_router(gifts_router)
 router.include_router(tonapi_router)
 router.include_router(deposit_router)
-router.include_router(fragment_transactions_router)
+router.include_router(transaction_router)

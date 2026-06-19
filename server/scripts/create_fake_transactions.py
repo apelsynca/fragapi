@@ -11,7 +11,7 @@ from src.kit.utils import utc_now
 from src.models import TonTransaction, Transaction, UserSession
 from src.postgres import AsyncSession, create_async_engine
 from src.ton_transaction.repository import TonTransactionRepository
-from src.transaction.repository import FragmentTransactionRepository
+from src.transaction.repository import TransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -53,7 +53,7 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
             )
         )
 
-        frag_repo = FragmentTransactionRepository.from_session(session)
+        frag_repo = TransactionRepository.from_session(session)
         frag_transaction = await frag_repo.create(
             Transaction(
                 user=user,

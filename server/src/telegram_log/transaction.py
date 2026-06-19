@@ -15,30 +15,28 @@ USER_TELEGRAM_LOG_TEXT = (
 )
 
 
-def enqueue_new_transaction_telegram_log_task(
+def enqueue_transaction_telegram_log_task(
     source: TelegramLogsSource,
-    fragment_transaction: Transaction,
+    transaction: Transaction,
 ) -> None:
     head_emoji = (
-        STAR_EMOJI
-        if fragment_transaction.reason == TransactionReason.stars
-        else GIFT_EMOJI
+        STAR_EMOJI if transaction.reason == TransactionReason.stars else GIFT_EMOJI
     )
 
     value_str = "Без подгрузочки"
-    if fragment_transaction.premium_months:
-        value_str = f"{fragment_transaction.premium_months} месяцев"
-    elif fragment_transaction.stars_amount:
-        value_str = f"{fragment_transaction.stars_amount} звезд"
+    if transaction.premium_months:
+        value_str = f"{transaction.premium_months} месяцев"
+    elif transaction.stars_amount:
+        value_str = f"{transaction.stars_amount} звезд"
 
     enqueue_task(
         telegram_log_send,
         chat_id=source.chat_id,
         text=USER_TELEGRAM_LOG_TEXT.format(
             head_emoji=head_emoji,
-            amount=fragment_transaction.amount,
-            reason=fragment_transaction.reason,
-            username=fragment_transaction.recipient_username,
+            amount=transaction.amount,
+            reason=transaction.reason,
+            username=transaction.recipient_username,
             value=value_str,
         ),
         with_notification=True,
