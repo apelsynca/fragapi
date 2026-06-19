@@ -1,18 +1,18 @@
 from fastapi import Depends
 
-from src.fragment_transaction import auth, sorting
-from src.fragment_transaction.schemas import (
-    ChartPoint,
-    FragmentTransaction,
-    FragmentTransactionsStats,
-)
-from src.fragment_transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.kit.routing import APITag
 from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
+from src.transaction import auth, sorting
+from src.transaction.schemas import (
+    ChartPoint,
+    FragmentTransaction,
+    FragmentTransactionsStats,
+)
+from src.transaction.service import (
+    fragment_transaction as fragment_transaction_service,
+)
 
 router = APIRouter(prefix="/transactions", tags=["transactions", APITag.public])
 

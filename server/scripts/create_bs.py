@@ -4,11 +4,11 @@ from secrets import token_urlsafe
 
 from ton_core import to_nano
 
-from src.enums import FragmentTransactionReason
-from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.enums import TransactionReason
 from src.kit.database.postgres import create_async_sessionmaker
-from src.models import FragmentTransaction, TonTransaction
+from src.models import TonTransaction, Transaction
 from src.postgres import AsyncSession, create_async_engine
+from src.transaction.repository import FragmentTransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -41,11 +41,11 @@ async def create_trans(session: AsyncSession):
         premium_months = None
 
         if r == 1:
-            reason = FragmentTransactionReason.premium
+            reason = TransactionReason.premium
             premium_months = 3
         else:
             stars_amount = random.randint(25, 500)
-            reason = FragmentTransactionReason.stars
+            reason = TransactionReason.stars
 
         transaction = TonTransaction(
             nano_amount=to_nano(amount),
@@ -54,7 +54,7 @@ async def create_trans(session: AsyncSession):
             to_address="bbbbbR8wYxL4mZ2pT7vN1cQ9jS3dX8zV5fW6qB4nL0tM1rP",
         )
         transa = await repository.create(
-            FragmentTransaction(
+            Transaction(
                 user=user,
                 amount=amount,
                 reason=reason,

@@ -29,6 +29,6 @@ class TonTransaction(RecordModel):
     deposit: Mapped["Deposit | None"] = relationship(
         back_populates="ton_transaction", uselist=False, lazy="raise"
     )
-    fragment_transaction: Mapped["Transaction | None"] = relationship(
+    transaction: Mapped["Transaction | None"] = relationship(
         back_populates="ton_transaction", uselist=False, lazy="raise"
     )

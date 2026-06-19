@@ -15,7 +15,7 @@ from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
 from tests.deposit.conftest import create_deposit
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_transaction, rstr
+from tests.fixtures.random_objects import create_ton_transaction, rstr
 
 
 @pytest.mark.asyncio
@@ -47,7 +47,7 @@ async def test_raises_if_less_than_min_dep_amount(
 async def test_raises_not_found_if_not_found(
     save_fixture: SaveFixture, session: AsyncSession
 ) -> None:
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture, amount=0.1, message_hash=rstr("any")
     )
 
@@ -71,7 +71,7 @@ async def test_increases_users_balance(
     deposit = await create_deposit(
         save_fixture=save_fixture, user=user, amount=amount, hash=hash
     )
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture, amount=amount, message_hash="xxx0xxx"
     )
 
@@ -103,7 +103,7 @@ async def test_raises_bad_different_amounts(
         amount=settings.MIN_TON_DEPOSIT_AMOUNT + random.randint(1, 10),
         hash=hash,
     )
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture,
         amount=settings.MIN_TON_DEPOSIT_AMOUNT + random.randint(20, 99),
         message_hash="xxx0xxx",
@@ -161,7 +161,7 @@ async def test_fetch_list_gets_only_completed(
 async def test_fetch_list_gets_transactions(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture, amount=2.5291, hash="Usual hashiie"
     )
     await create_deposit(

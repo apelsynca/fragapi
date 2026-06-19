@@ -7,19 +7,19 @@ from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params
 
 from src.backoffice.telegram_logs.fragment_transactions import (
-    enqueue_frag_trans_admin_log_task,
+    enqueue_trans_admin_log_task,
 )
 from src.exceptions import BadRequest, ResourceNotFound
-from src.fragment_transaction.repository import FragmentTransactionRepository
-from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.ton_connect import TonConnectTransaction
 from src.logging import Logger
-from src.models import FragmentTransaction
+from src.models import Transaction
 from src.postgres import AsyncSession
 from src.telegram_log.fragment_transaction import (
     enqueue_new_transaction_telegram_log_task,
 )
 from src.telegram_log.service import telegram_log as telegram_log_service
+from src.transaction.repository import FragmentTransactionRepository
+from src.transaction.utils import validate_tc_transaction
 from src.wallet.manager import WalletManager
 from src.worker import worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
@@ -41,8 +41,8 @@ async def process_fragment_transaction(
     fragment_transaction = await repository.get_by_id(
         id=fragment_transaction_id,
         options=[
-            selectinload(FragmentTransaction.user),
-            selectinload(FragmentTransaction.ton_transaction),
+            selectinload(Transaction.user),
+            selectinload(Transaction.ton_transaction),
         ],
     )
 
@@ -91,7 +91,7 @@ async def process_fragment_transaction(
     fragment_transaction.ton_transaction.hash = ext_msg.normalized_hash
 
     try:
-        enqueue_frag_trans_admin_log_task(fragment_transaction)
+        enqueue_trans_admin_log_task(fragment_transaction)
     except Exception:
         log.error("Error enqueuing fragment transaction admin log", exc_info=True)
 

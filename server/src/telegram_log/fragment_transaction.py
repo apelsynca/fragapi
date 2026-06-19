@@ -1,5 +1,5 @@
-from src.enums import FragmentTransactionReason
-from src.models import FragmentTransaction, TelegramLogsSource
+from src.enums import TransactionReason
+from src.models import TelegramLogsSource, Transaction
 from src.telegram_log.tasks import telegram_log_send
 from src.worker import enqueue_task
 
@@ -17,11 +17,11 @@ USER_TELEGRAM_LOG_TEXT = (
 
 def enqueue_new_transaction_telegram_log_task(
     source: TelegramLogsSource,
-    fragment_transaction: FragmentTransaction,
+    fragment_transaction: Transaction,
 ) -> None:
     head_emoji = (
         STAR_EMOJI
-        if fragment_transaction.reason == FragmentTransactionReason.stars
+        if fragment_transaction.reason == TransactionReason.stars
         else GIFT_EMOJI
     )
 

@@ -8,15 +8,15 @@ from ton_core import Address, Cell, WalletV5Params, to_nano
 from tonutils.contracts import WalletV5R1
 
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
-from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
-from src.models import FragmentTransaction, User
+from src.models import Transaction, User
 from src.postgres import AsyncSession
+from src.transaction.tasks import process_fragment_transaction
 from src.wallet.manager import WalletManager
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,
-    create_transaction,
+    create_ton_transaction,
     rstr,
 )
 from tests.fixtures.worker import FakeWalletManager
@@ -25,8 +25,8 @@ from tests.fixtures.worker import FakeWalletManager
 @pytest_asyncio.fixture
 async def valid_frag_trans(
     save_fixture: SaveFixture, valid_tc_transaction_hash: str, user: User
-) -> FragmentTransaction:
-    transaction = await create_transaction(
+) -> Transaction:
+    transaction = await create_ton_transaction(
         save_fixture,
         message_hash=valid_tc_transaction_hash,
     )
@@ -58,7 +58,7 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
     session: AsyncSession,
     wallet_manager: WalletManager,
 ) -> None:
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture, message_hash=rstr("completely-wrong-hash")
     )
     frag_trans = await create_fragment_transaction(
@@ -77,7 +77,7 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
 @pytest.mark.asyncio
 async def test_process_raises_if_tc_msg_len_diff(
     valid_tc_transaction: TonConnectTransaction,
-    valid_frag_trans: FragmentTransaction,
+    valid_frag_trans: Transaction,
     session: AsyncSession,
     wallet_manager: WalletManager,
 ) -> None:
@@ -97,7 +97,7 @@ async def test_process_raises_if_tc_msg_len_diff(
 @pytest.mark.asyncio
 async def test_process_calls_transfer(
     valid_tc_transaction: TonConnectTransaction,
-    valid_frag_trans: FragmentTransaction,
+    valid_frag_trans: Transaction,
     session: AsyncSession,
 ) -> None:
     tc_msg = valid_tc_transaction.messages[0]
@@ -138,13 +138,13 @@ async def test_process_calls_transfer(
 @pytest.mark.asyncio
 async def test_process_calls_validate_transaction(
     valid_tc_transaction: TonConnectTransaction,
-    valid_frag_trans: FragmentTransaction,
+    valid_frag_trans: Transaction,
     mocker: MockerFixture,
     session: AsyncSession,
 ) -> None:
     wallet_manager = FakeWalletManager()
     mock = mocker.patch(
-        "src.fragment_transaction.tasks.validate_tc_transaction",
+        "src.transaction.tasks.validate_tc_transaction",
         side_effect=FragRequestValidationError([]),
     )
 
@@ -163,7 +163,7 @@ async def test_process_calls_validate_transaction(
 @pytest.mark.asyncio
 async def test_process_sets_hash(
     valid_tc_transaction: TonConnectTransaction,
-    valid_frag_trans: FragmentTransaction,
+    valid_frag_trans: Transaction,
     session: AsyncSession,
 ) -> None:
     wallet_manager = FakeWalletManager()

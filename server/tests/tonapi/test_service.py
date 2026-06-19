@@ -19,13 +19,13 @@ from src.ton_transaction.service import TonTransactionService
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_transaction, rstr
+from tests.fixtures.random_objects import create_ton_transaction, rstr
 
 
 @pytest.fixture
 def transaction_service_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.tonapi.service.transaction_service", spec=TonTransactionService
+        "src.tonapi.service.ton_transaction_service", spec=TonTransactionService
     )
 
 
@@ -248,7 +248,7 @@ async def test_all_good_right_calls_and_sets_lt(
         tx_hash="my_tx_hash_SHOULD_REDO",
     )
 
-    usual_transaction = await create_transaction(
+    usual_transaction = await create_ton_transaction(
         save_fixture, amount=0, message_hash=""
     )
     transaction_service_mock.create_as_tonapi_internal.return_value = usual_transaction

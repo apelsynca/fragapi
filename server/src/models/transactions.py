@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.enums import FragmentTransactionReason
+from src.enums import TransactionReason
 from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ class Transaction(RecordModel):
     __tablename__ = "transactions"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped["User"] = relationship("User", back_populates="fragment_transactions")
+    user: Mapped["User"] = relationship("User", back_populates="transactions")
 
     amount: Mapped[float]  # amount in TON with fee
     recipient: Mapped[str]  # later can be nullable
@@ -26,15 +26,12 @@ class Transaction(RecordModel):
         ForeignKey("ton_transactions.id"), unique=True
     )
     ton_transaction: Mapped["TonTransaction"] = relationship(
-        back_populates="fragment_transaction"
+        back_populates="transaction"
     )
 
-    reason: Mapped[FragmentTransactionReason] = mapped_column(
-        Enum(FragmentTransactionReason, native_enum=False)
+    reason: Mapped[TransactionReason] = mapped_column(
+        Enum(TransactionReason, native_enum=False)
     )
 
     stars_amount: Mapped[int | None]
     premium_months: Mapped[int | None]
-
-
-FragmentTransaction = Transaction

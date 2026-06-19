@@ -25,9 +25,3 @@ class TelegramLogSender(StrEnum):
 class TransactionReason(StrEnum):
     premium = "premium"
     stars = "stars"
-
-
-# WARN: Copy
-class FragmentTransactionReason(StrEnum):
-    premium = "premium"
-    stars = "stars"

@@ -3,10 +3,8 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from src.enums import FragmentTransactionReason, PremiumMonths
+from src.enums import PremiumMonths, TransactionReason
 from src.exceptions import FragError, ResourceNotFound
-from src.fragment_transaction.models import FTMetadata
-from src.fragment_transaction.service import FragmentTransactionService
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.integrations.fragment.types import (
     BuyLink,
@@ -18,10 +16,12 @@ from src.models import User
 from src.postgres import AsyncSession
 from src.premium.schemas import BuyPremium
 from src.premium.service import premium as premium_service
+from src.transaction.models import FTMetadata
+from src.transaction.service import FragmentTransactionService
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,
-    create_transaction,
+    create_ton_transaction,
 )
 
 
@@ -51,7 +51,7 @@ async def test_buy_calls_frag_service_buy_from_tc(
     fragment.get_gift_premium_link.return_value = BuyLink(
         transaction=valid_tc_transaction, ok=True
     )
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture,
         message_hash="vaid",
     )
@@ -73,7 +73,7 @@ async def test_buy_calls_frag_service_buy_from_tc(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
-        reason=FragmentTransactionReason.premium,
+        reason=TransactionReason.premium,
         metadata=FTMetadata(
             recipient="SomeMtDataXx", recipient_username="homocitrus", premium_months=6
         ),
@@ -125,7 +125,7 @@ async def test_buy_returns_good(
         transaction=valid_tc_transaction, ok=True
     )
 
-    transaction = await create_transaction(
+    transaction = await create_ton_transaction(
         save_fixture,
         message_hash="myhash",
     )

@@ -5,13 +5,13 @@ from secrets import token_urlsafe
 
 from ton_core import to_nano
 
-from src.enums import FragmentTransactionReason
-from src.fragment_transaction.repository import FragmentTransactionRepository
+from src.enums import TransactionReason
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models import FragmentTransaction, TonTransaction, UserSession
+from src.models import TonTransaction, Transaction, UserSession
 from src.postgres import AsyncSession, create_async_engine
 from src.ton_transaction.repository import TonTransactionRepository
+from src.transaction.repository import FragmentTransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -55,14 +55,14 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
 
         frag_repo = FragmentTransactionRepository.from_session(session)
         frag_transaction = await frag_repo.create(
-            FragmentTransaction(
+            Transaction(
                 user=user,
                 amount=amount,
                 recipient=token_urlsafe(24),
                 recipient_username="recipient_username_here",
                 ton_transaction=ton_transaction,
                 created_at=utc_now() - timedelta(days=offset),
-                reason=FragmentTransactionReason.stars,
+                reason=TransactionReason.stars,
                 stars_amount=[100, 125, 51, 200, 500][random.randint(1, 5)],
             )
         )

@@ -5,24 +5,24 @@ import pytest
 from pytest_mock import MockerFixture
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
-from src.enums import FragmentTransactionReason
+from src.enums import TransactionReason
 from src.exceptions import FragRequestValidationError
 from src.fee import after_fee, after_ton_network_fee
-from src.fragment_transaction.models import FTMetadata
-from src.fragment_transaction.repository import FragmentTransactionRepository
-from src.fragment_transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
-from src.fragment_transaction.sorting import FragTransactionSortProperty
-from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
 from src.postgres import AsyncSession
+from src.transaction.models import FTMetadata
+from src.transaction.repository import FragmentTransactionRepository
+from src.transaction.service import (
+    fragment_transaction as fragment_transaction_service,
+)
+from src.transaction.sorting import FragTransactionSortProperty
+from src.transaction.tasks import process_fragment_transaction
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_fragment_transaction,
-    create_transaction,
+    create_ton_transaction,
     create_user,
     get_tc_transaction,
 )
@@ -33,7 +33,7 @@ from tests.fixtures.ton_connect import get_valid_tc_msg
 
 @pytest.fixture
 def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
-    return mocker.patch("src.fragment_transaction.service.enqueue_task")
+    return mocker.patch("src.transaction.service.enqueue_task")
 
 
 @pytest.mark.asyncio
@@ -46,7 +46,7 @@ async def test_create_from_tc_raises_validation_if_no_msgs(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
-            reason=FragmentTransactionReason.stars,
+            reason=TransactionReason.stars,
             metadata=FTMetadata(recipient="", recipient_username=""),
         )
 
@@ -63,7 +63,7 @@ async def test_create_from_tc_raises_validation_if_2_msgs(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
-            reason=FragmentTransactionReason.stars,
+            reason=TransactionReason.stars,
             metadata=FTMetadata(recipient="", recipient_username=""),
         )
 
@@ -79,7 +79,7 @@ async def test_creates_from_tc_with_valid_data(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
-        reason=FragmentTransactionReason.stars,
+        reason=TransactionReason.stars,
         metadata=FTMetadata(
             recipient="recipientXrecipient",
             recipient_username="homocitrus",
@@ -119,7 +119,7 @@ async def test_creates_from_tc_with_right_message_hash(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
-        reason=FragmentTransactionReason.premium,
+        reason=TransactionReason.premium,
         metadata=FTMetadata(
             recipient="random",
             recipient_username="apelsin",
@@ -141,7 +141,7 @@ async def test_creates_in_db(
         session=session,
         tc_transaction=valid_tc_transaction,
         user=user,
-        reason=FragmentTransactionReason.premium,
+        reason=TransactionReason.premium,
         metadata=FTMetadata(
             recipient="X-x-xrecipientXrecipientx-x-X",
             recipient_username="homocitrus",
@@ -179,7 +179,7 @@ async def test_removes_money_from_user_with_fee(
         session=session,
         tc_transaction=tc_transaction,
         user=user,
-        reason=FragmentTransactionReason.stars,
+        reason=TransactionReason.stars,
         metadata=FTMetadata(
             recipient="X-x-xrecipientXrecipientx-x-X",
             recipient_username="homocitrus",
@@ -204,7 +204,7 @@ async def test_lists_transactions_right_user(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
     for _ in range(3):
-        transaction = await create_transaction(
+        transaction = await create_ton_transaction(
             save_fixture, amount=random.randint(1, 100)
         )
         await create_fragment_transaction(
@@ -212,7 +212,9 @@ async def test_lists_transactions_right_user(
         )
 
     user_second = await create_user(save_fixture)
-    transactiond = await create_transaction(save_fixture, amount=random.randint(1, 100))
+    transactiond = await create_ton_transaction(
+        save_fixture, amount=random.randint(1, 100)
+    )
     await create_fragment_transaction(
         save_fixture, user=user_second, transaction=transactiond
     )
@@ -241,12 +243,12 @@ async def test_get_stats_empty(session: AsyncSession, user: User) -> None:
 async def test_gets_stats_right_amount(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
-    transaction1 = await create_transaction(save_fixture, amount=5.252)
+    transaction1 = await create_ton_transaction(save_fixture, amount=5.252)
     await create_fragment_transaction(
         save_fixture, user=user, transaction=transaction1, amount=4.25
     )
 
-    transaction2 = await create_transaction(save_fixture, amount=5.252)
+    transaction2 = await create_ton_transaction(save_fixture, amount=5.252)
     await create_fragment_transaction(
         save_fixture, user=user, transaction=transaction2, amount=2.1, premium_months=3
     )

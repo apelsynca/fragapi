@@ -1,8 +1,8 @@
 from ton_core import to_amount
 
 from src.config import settings
-from src.enums import FragmentTransactionReason
-from src.models import FragmentTransaction
+from src.enums import TransactionReason
+from src.models import Transaction
 from src.worker import enqueue_task
 
 from .tasks import telegram_log_send
@@ -20,10 +20,10 @@ TELEGRAM_LOG_TEXT = (
 )
 
 
-def enqueue_frag_trans_admin_log_task(fragment_transaction: FragmentTransaction):
+def enqueue_trans_admin_log_task(fragment_transaction: Transaction):
     head_emoji = (
         STAR_EMOJI
-        if fragment_transaction.reason == FragmentTransactionReason.stars
+        if fragment_transaction.reason == TransactionReason.stars
         else GIFT_EMOJI
     )
     value_str = "❌ No value"

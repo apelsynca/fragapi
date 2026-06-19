@@ -5,23 +5,23 @@ import structlog
 from sqlalchemy import case, func, select
 from ton_core import to_amount
 
-from src.enums import FragmentTransactionReason
+from src.enums import TransactionReason
 from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
-from src.fragment_transaction.models import FTMetadata
-from src.fragment_transaction.repository import FragmentTransactionRepository
-from src.fragment_transaction.schemas import ChartPoint, FragmentTransactionsStats
-from src.fragment_transaction.sorting import FragTransactionSortProperty
-from src.fragment_transaction.tasks import process_fragment_transaction
-from src.fragment_transaction.utils import validate_tc_transaction
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
 from src.logging import Logger
-from src.models import FragmentTransaction, User
+from src.models import Transaction, User
 from src.postgres import AsyncSession
 from src.ton_transaction.service import ton_transaction as ton_transaction_service
+from src.transaction.models import FTMetadata
+from src.transaction.repository import FragmentTransactionRepository
+from src.transaction.schemas import ChartPoint, FragmentTransactionsStats
+from src.transaction.sorting import FragTransactionSortProperty
+from src.transaction.tasks import process_fragment_transaction
+from src.transaction.utils import validate_tc_transaction
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
@@ -32,12 +32,12 @@ class FragmentTransactionService:
         self, session: AsyncSession, user: User
     ) -> FragmentTransactionsStats:
         stmt = select(
-            func.sum(FragmentTransaction.amount).label("total_amount"),
+            func.sum(Transaction.amount).label("total_amount"),
             func.sum(
                 case(
                     (
-                        FragmentTransaction.reason == FragmentTransactionReason.stars,
-                        FragmentTransaction.amount,
+                        Transaction.reason == TransactionReason.stars,
+                        Transaction.amount,
                     ),
                     else_=0,
                 )
@@ -45,13 +45,13 @@ class FragmentTransactionService:
             func.sum(
                 case(
                     (
-                        FragmentTransaction.reason == FragmentTransactionReason.premium,
-                        FragmentTransaction.amount,
+                        Transaction.reason == TransactionReason.premium,
+                        Transaction.amount,
                     ),
                     else_=0,
                 )
             ).label("premium_total_amount"),
-        ).where(FragmentTransaction.user == user)
+        ).where(Transaction.user == user)
         result = await session.execute(stmt)
         row = result.one()
 
@@ -69,10 +69,10 @@ class FragmentTransactionService:
         sorting: list[Sorting[FragTransactionSortProperty]] = [
             (FragTransactionSortProperty.created_at, True)
         ],
-    ) -> tuple[Sequence[FragmentTransaction], int]:
+    ) -> tuple[Sequence[Transaction], int]:
         repository = FragmentTransactionRepository.from_session(session)
 
-        stmt = repository.get_base_stmt().where(FragmentTransaction.user == user)
+        stmt = repository.get_base_stmt().where(Transaction.user == user)
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
 
         return await repository.paginate(
@@ -84,9 +84,9 @@ class FragmentTransactionService:
         session: AsyncSession,
         tc_transaction: TonConnectTransaction,
         user: User,
-        reason: FragmentTransactionReason,
+        reason: TransactionReason,
         metadata: FTMetadata,
-    ) -> FragmentTransaction:
+    ) -> Transaction:
         fragment_transaction = await self._create_from_tc(
             session=session,
             tc_transaction=tc_transaction,
@@ -122,9 +122,9 @@ class FragmentTransactionService:
         session: AsyncSession,
         tc_transaction: TonConnectTransaction,
         user: User,
-        reason: FragmentTransactionReason,
+        reason: TransactionReason,
         metadata: FTMetadata,
-    ) -> FragmentTransaction:
+    ) -> Transaction:
         validate_tc_transaction(tc_transaction)
         tc_msg = tc_transaction.messages[0]
 
@@ -137,7 +137,7 @@ class FragmentTransactionService:
 
         repository = FragmentTransactionRepository.from_session(session)
         fragment_transaction = await repository.create(
-            FragmentTransaction(
+            Transaction(
                 user=user,
                 amount=f_amount,
                 recipient=metadata.recipient,
@@ -161,12 +161,12 @@ class FragmentTransactionService:
 
         stmt = (
             select(
-                func.date(FragmentTransaction.created_at).label("date"),
+                func.date(Transaction.created_at).label("date"),
                 func.sum(
                     case(
                         (
-                            FragmentTransaction.reason == "stars",
-                            FragmentTransaction.amount,
+                            Transaction.reason == "stars",
+                            Transaction.amount,
                         ),
                         else_=0,
                     ).label("stars_spend")
@@ -174,19 +174,19 @@ class FragmentTransactionService:
                 func.sum(
                     case(
                         (
-                            FragmentTransaction.reason == "premium",
-                            FragmentTransaction.amount,
+                            Transaction.reason == "premium",
+                            Transaction.amount,
                         ),
                         else_=0,
                     ).label("premium_spend")
                 ),
             )
             .where(
-                FragmentTransaction.user == user,
-                FragmentTransaction.reason == FragmentTransactionReason.stars,
+                Transaction.user == user,
+                Transaction.reason == TransactionReason.stars,
                 # FragmentTransaction.created_at # NOTE might do that lol
             )
-            .group_by(func.date(FragmentTransaction.created_at))
+            .group_by(func.date(Transaction.created_at))
         )
 
         result = await session.execute(stmt)

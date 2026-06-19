@@ -3,18 +3,18 @@ import random
 
 import structlog
 
-from src.enums import FragmentTransactionReason
+from src.enums import TransactionReason
 from src.exceptions import FragError, FragRequestValidationError, ResourceNotFound
-from src.fragment_transaction.models import FTMetadata
-from src.fragment_transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
+from src.transaction.models import FTMetadata
+from src.transaction.service import (
+    fragment_transaction as fragment_transaction_service,
+)
 
 log: Logger = structlog.get_logger()
 
@@ -65,7 +65,7 @@ class StarsService:
             session=session,
             tc_transaction=tc_transaction,
             user=user,
-            reason=FragmentTransactionReason.stars,
+            reason=TransactionReason.stars,
             metadata=FTMetadata(
                 recipient=recipient_data.recipient,
                 recipient_username=data.username,

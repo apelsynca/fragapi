@@ -6,7 +6,7 @@ from src.config import settings
 from src.models import User
 from tests.deposit.conftest import create_deposit
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_transaction
+from tests.fixtures.random_objects import create_ton_transaction
 
 
 @pytest.mark.asyncio
@@ -53,7 +53,9 @@ async def test_list_deposits(
 async def test_list_deposits_also_gives_tx_hash_if_present(
     save_fixture: SaveFixture, user: User, client: AsyncClient
 ) -> None:
-    transaction = await create_transaction(save_fixture, amount=5.25, hash="MyTxHash")
+    transaction = await create_ton_transaction(
+        save_fixture, amount=5.25, hash="MyTxHash"
+    )
     await create_deposit(
         save_fixture,
         user=user,
