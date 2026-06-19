@@ -1,5 +1,5 @@
 from src.backoffice.telegram_logs.tasks import telegram_log_send
-from src.models import Payment
+from src.models import Deposit
 from src.worker import enqueue_task
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
@@ -10,7 +10,7 @@ NEW_DEPOSIT_NOTIFICATION_TEXT = (
 )
 
 
-def enqueue_new_deposit_admin_log_task(payment: Payment) -> None:
+def enqueue_new_deposit_admin_log_task(payment: Deposit) -> None:
     user_field = (
         f"<a href='tg://resolve?domain={payment.user.username}'>{payment.user.first_name}</a>"
         if payment.user.username

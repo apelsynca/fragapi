@@ -9,7 +9,7 @@ from src.config import settings
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
-from src.models.payments import PaymentStatus
+from src.models.deposits import DepositStatus
 from src.payment.repository import PaymentRepository
 from src.payment.service import payment as payment_service
 from src.postgres import AsyncSession
@@ -84,7 +84,7 @@ async def test_increases_users_balance(
     assert user.balance == float(to_amount(transaction.nano_amount))
 
     # And
-    payment.status = PaymentStatus.pending
+    payment.status = DepositStatus.pending
     with pytest.raises(FragError, match="Payment already has transaction"):
         await payment_service.complete_ton(
             session=session, transaction=transaction, payment_hash=hash

@@ -12,8 +12,8 @@ from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.logging import Logger
-from src.models import Payment, Transaction, User
-from src.models.payments import PaymentStatus
+from src.models import Deposit, Transaction, User
+from src.models.deposits import DepositStatus
 from src.payment.repository import PaymentRepository
 from src.payment.schemas import PaymentTonRequestMessage
 from src.payment.sorting import PaymentSortProperty
@@ -33,13 +33,13 @@ class PaymentService:
         sorting: list[Sorting[PaymentSortProperty]] = [
             (PaymentSortProperty.created_at, True)
         ],
-    ) -> tuple[Sequence[Payment], int]:
+    ) -> tuple[Sequence[Deposit], int]:
         repository = PaymentRepository.from_session(session)
 
         stmt = (
             repository.get_base_stmt()
-            .where(Payment.user == user, Payment.status == PaymentStatus.completed)
-            .options(selectinload(Payment.transaction))
+            .where(Deposit.user == user, Deposit.status == DepositStatus.completed)
+            .options(selectinload(Deposit.transaction))
         )
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)
 
@@ -72,14 +72,14 @@ class PaymentService:
         session: AsyncSession,
         user: User,
         amount: float,
-    ) -> Payment:
+    ) -> Deposit:
         if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
             raise BadRequest(
                 f"Minimal deposit amount is {settings.MIN_TON_DEPOSIT_AMOUNT}"
             )
 
         repository = PaymentRepository.from_session(session)
-        payment = Payment(user=user, amount=amount, hash=token_urlsafe(14))
+        payment = Deposit(user=user, amount=amount, hash=token_urlsafe(14))
 
         payment = await repository.create(payment, flush=True)
 
@@ -101,7 +101,7 @@ class PaymentService:
         if payment is None:
             raise ResourceNotFound("Payment not found")
 
-        if payment.status == PaymentStatus.completed:
+        if payment.status == DepositStatus.completed:
             raise FragError("Status is wrong")
 
         if payment.transaction is not None:
@@ -112,7 +112,7 @@ class PaymentService:
             raise BadRequest("Payment amount and transaction amount is different")
 
         payment.transaction = transaction
-        payment.status = PaymentStatus.completed
+        payment.status = DepositStatus.completed
 
         payment.user.balance += transaction_amount
 

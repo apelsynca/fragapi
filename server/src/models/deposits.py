@@ -12,14 +12,14 @@ if TYPE_CHECKING:
     from .users import User
 
 
-class PaymentStatus(StrEnum):
+class DepositStatus(StrEnum):
     pending = "pending"
     completed = "completed"
     # failed maybe via task to create default failed.
 
 
-class Payment(RecordModel):
-    __tablename__ = "payments"
+class Deposit(RecordModel):
+    __tablename__ = "deposits"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", lazy="joined")
@@ -37,8 +37,8 @@ class Payment(RecordModel):
     )
 
     # not sure about that
-    status: Mapped[PaymentStatus] = mapped_column(
-        Enum(PaymentStatus, native_enum=False), default=PaymentStatus.pending
+    status: Mapped[DepositStatus] = mapped_column(
+        Enum(DepositStatus, native_enum=False), default=DepositStatus.pending
     )
 
     # can add paid_at here

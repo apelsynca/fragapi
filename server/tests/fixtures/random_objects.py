@@ -12,12 +12,12 @@ from ton_core import Address, to_nano
 
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import ApiToken, Payment, Transaction, User
+from src.models import ApiToken, Deposit, Transaction, User
+from src.models.deposits import DepositStatus
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
 )
-from src.models.payments import PaymentStatus
 from tests.fixtures.database import SaveFixture
 
 
@@ -171,7 +171,7 @@ async def create_fragment_transaction(
 
 
 @pytest_asyncio.fixture
-async def payment(save_fixture: SaveFixture, user: User) -> Payment:
+async def payment(save_fixture: SaveFixture, user: User) -> Deposit:
     return await create_payment(save_fixture, user, amount=3.252, hash=rstr("phash"))
 
 
@@ -182,12 +182,12 @@ async def create_payment(
     hash: str | None = None,
     completed: bool = False,
     transaction: Transaction | None = None,
-) -> Payment:
-    payment = Payment(
+) -> Deposit:
+    payment = Deposit(
         user=user,
         amount=amount,
         hash=hash if hash is not None else token_urlsafe(32),
-        status=PaymentStatus.completed if completed else PaymentStatus.pending,
+        status=DepositStatus.completed if completed else DepositStatus.pending,
         transaction=transaction,
     )
     await save_fixture(payment)

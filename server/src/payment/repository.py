@@ -7,16 +7,16 @@ from src.kit.repository.mixins import (
     RepositorySortingMixin,
     SortingClause,
 )
-from src.models import Payment
+from src.models import Deposit
 from src.payment.sorting import PaymentSortProperty
 
 
 class PaymentRepository(
-    RepositorySortingMixin[Payment, PaymentSortProperty],
-    RepositoryIDMixin[Payment, UUID],
-    BaseRepository[Payment],
+    RepositorySortingMixin[Deposit, PaymentSortProperty],
+    RepositoryIDMixin[Deposit, UUID],
+    BaseRepository[Deposit],
 ):
-    model = Payment
+    model = Deposit
 
     async def get_by_hash(self, hash: str, *, options: Options = ()):
         stmt = self.get_base_stmt().where(self.model.hash == hash).options(*options)

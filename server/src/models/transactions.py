@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
+    from .deposits import Deposit
     from .fragment_transactions import FragmentTransaction
-    from .payments import Payment
 
 
 class Transaction(RecordModel):
@@ -26,7 +26,7 @@ class Transaction(RecordModel):
     from_address: Mapped[str] = mapped_column(String(100))  # workchain:init
     to_address: Mapped[str] = mapped_column(String(100))  # workchain:init
 
-    payment: Mapped["Payment | None"] = relationship(
+    payment: Mapped["Deposit | None"] = relationship(
         back_populates="transaction", uselist=False, lazy="raise"
     )
     fragment_transaction: Mapped["FragmentTransaction | None"] = relationship(
