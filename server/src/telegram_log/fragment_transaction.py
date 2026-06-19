@@ -1,5 +1,5 @@
+from src.enums import FragmentTransactionReason
 from src.models import FragmentTransaction, TelegramLogsSource
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.telegram_log.tasks import telegram_log_send
 from src.worker import enqueue_task
 

@@ -38,7 +38,7 @@ def test_generates_ton_ref_hash(ref_hash: str) -> None:
     payload_boc = payload_cell.to_boc()
     payload = base64.b64encode(payload_boc).decode("utf-8")
 
-    ton_deposit_payload = TonDepositPayload(hash=ref_hash)
+    ton_deposit_payload = TonDepositPayload(ref_hash=ref_hash)
     assert ton_deposit_payload.get_base64() == payload
 
 
@@ -49,7 +49,7 @@ def test_parses_right_payload(ref_hash: str) -> None:
     )
 
     ton_deposit_payload = TonDepositPayload.from_tonapi_transaction(tonapi_transaction)
-    assert ton_deposit_payload.hash == ref_hash
+    assert ton_deposit_payload.ref_hash == ref_hash
 
 
 @pytest.mark.parametrize("op_name", ["wrong_op_name", "text_comment_op"])

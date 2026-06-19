@@ -12,7 +12,7 @@ from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.postgres import AsyncSession
-from src.ton_transaction.service import transaction as transaction_service
+from src.ton_transaction.service import ton_transaction as ton_transaction_service
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
 
@@ -71,7 +71,7 @@ class TonAPIService:
             )
             return
 
-        transaction = await transaction_service.create_as_tonapi_internal(
+        transaction = await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
@@ -88,7 +88,7 @@ class TonAPIService:
 
         log.info(
             "tonapi.process_webhook_acc_tx new valid transaction",
-            hash=ton_dep_payload.hash,
+            hash=ton_dep_payload.ref_hash,
             tx_hash=webhook_message.tx_hash,
             account_id=webhook_message.account_id,
         )
@@ -99,7 +99,7 @@ class TonAPIService:
         await deposit_service.complete_ton(
             session=session,
             transaction=transaction,
-            ref_hash=ton_dep_payload.hash,
+            ref_hash=ton_dep_payload.ref_hash,
         )
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:

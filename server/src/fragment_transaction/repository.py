@@ -7,7 +7,7 @@ from src.kit.repository.mixins import (
     RepositorySortingMixin,
     SortingClause,
 )
-from src.models.fragment_transactions import FragmentTransaction
+from src.models import FragmentTransaction
 
 
 class FragmentTransactionRepository(

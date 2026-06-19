@@ -1,8 +1,8 @@
 from ton_core import to_amount
 
 from src.config import settings
+from src.enums import FragmentTransactionReason
 from src.models import FragmentTransaction
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.worker import enqueue_task
 
 from .tasks import telegram_log_send

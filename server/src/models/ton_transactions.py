@@ -7,7 +7,7 @@ from src.kit.database.models import RecordModel
 
 if TYPE_CHECKING:
     from .deposits import Deposit
-    from .fragment_transactions import FragmentTransaction
+    from .transactions import Transaction
 
 
 class TonTransaction(RecordModel):
@@ -29,6 +29,6 @@ class TonTransaction(RecordModel):
     deposit: Mapped["Deposit | None"] = relationship(
         back_populates="ton_transaction", uselist=False, lazy="raise"
     )
-    fragment_transaction: Mapped["FragmentTransaction | None"] = relationship(
+    fragment_transaction: Mapped["Transaction | None"] = relationship(
         back_populates="ton_transaction", uselist=False, lazy="raise"
     )

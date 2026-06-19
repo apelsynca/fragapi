@@ -5,6 +5,7 @@ import structlog
 from sqlalchemy import case, func, select
 from ton_core import to_amount
 
+from src.enums import FragmentTransactionReason
 from src.exceptions import InsuficcientFunds
 from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
@@ -19,9 +20,8 @@ from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import FragmentTransaction, User
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
-from src.ton_transaction.service import transaction as transaction_service
+from src.ton_transaction.service import ton_transaction as ton_transaction_service
 from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
@@ -128,7 +128,7 @@ class FragmentTransactionService:
         validate_tc_transaction(tc_transaction)
         tc_msg = tc_transaction.messages[0]
 
-        transaction = await transaction_service.create_as_tc(
+        transaction = await ton_transaction_service.create_as_tc(
             session=session, tc_transaction=tc_transaction
         )
 

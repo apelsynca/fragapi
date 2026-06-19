@@ -4,10 +4,10 @@ from secrets import token_urlsafe
 
 from ton_core import to_nano
 
+from src.enums import FragmentTransactionReason
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.kit.database.postgres import create_async_sessionmaker
 from src.models import FragmentTransaction, TonTransaction
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession, create_async_engine
 from src.user.repository import UserRepository
 

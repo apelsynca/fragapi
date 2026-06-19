@@ -3,6 +3,7 @@ import random
 
 import structlog
 
+from src.enums import FragmentTransactionReason
 from src.exceptions import FragError, FragRequestValidationError, ResourceNotFound
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.service import (
@@ -12,7 +13,6 @@ from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import Logger
 from src.models import User
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 

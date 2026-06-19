@@ -15,7 +15,7 @@ from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.models import TonTransaction
 from src.postgres import AsyncSession
-from src.ton_transaction.service import TransactionService
+from src.ton_transaction.service import TonTransactionService
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
 from tests.fixtures.database import SaveFixture
@@ -25,7 +25,7 @@ from tests.fixtures.random_objects import create_transaction, rstr
 @pytest.fixture
 def transaction_service_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
-        "src.tonapi.service.transaction_service", spec=TransactionService
+        "src.tonapi.service.transaction_service", spec=TonTransactionService
     )
 
 

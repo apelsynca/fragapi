@@ -5,10 +5,10 @@ from src.exceptions import FragRequestValidationError
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import TonTransaction
 from src.postgres import AsyncSession
-from src.ton_transaction.repository import TransactionRepository
+from src.ton_transaction.repository import TonTransactionRepository
 
 
-class TransactionService:
+class TonTransactionService:
     async def create_as_tc(
         self, session: AsyncSession, tc_transaction: TonConnectTransaction
     ) -> TonTransaction:
@@ -17,16 +17,17 @@ class TransactionService:
             dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
         )
 
-        transaction = TonTransaction(
-            nano_amount=tc_msg.amount,
-            hash=None,
-            message_hash=ext_msg.normalized_hash,
-            from_address=tc_transaction.from_address,
-            to_address=Address(tc_msg.address).to_str(is_user_friendly=False),
+        repository = TonTransactionRepository.from_session(session)
+        return await repository.create(
+            TonTransaction(
+                nano_amount=tc_msg.amount,
+                hash=None,
+                message_hash=ext_msg.normalized_hash,
+                from_address=tc_transaction.from_address,
+                to_address=Address(tc_msg.address).to_str(is_user_friendly=False),
+            ),
+            flush=True,
         )
-
-        repository = TransactionRepository.from_session(session)
-        return await repository.create(transaction, flush=True)
 
     async def create_as_tonapi_internal(
         self, session: AsyncSession, tonapi_transaction: TonAPITransaction
@@ -103,16 +104,17 @@ class TransactionService:
                 ]
             )
 
-        transaction = TonTransaction(
-            hash=tonapi_transaction.hash,
-            nano_amount=in_msg.value,
-            from_address=in_msg.source.address,
-            to_address=in_msg.destination.address,
+        repository = TonTransactionRepository.from_session(session)
+
+        return await repository.create(
+            TonTransaction(
+                hash=tonapi_transaction.hash,
+                nano_amount=in_msg.value,
+                from_address=in_msg.source.address,
+                to_address=in_msg.destination.address,
+            ),
+            flush=True,
         )
 
-        repository = TransactionRepository.from_session(session)
 
-        return await repository.create(transaction, flush=True)
-
-
-transaction = TransactionService()
+ton_transaction = TonTransactionService()

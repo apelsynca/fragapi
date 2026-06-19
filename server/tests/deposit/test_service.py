@@ -131,7 +131,7 @@ async def test_create_ton_right_payload(
         session=session, user=user, amount=6.251
     )
 
-    assert deposit_req_msg.payload == TonDepositPayload(hash=ref_hash).get_base64()
+    assert deposit_req_msg.payload == TonDepositPayload(ref_hash=ref_hash).get_base64()
 
 
 @pytest.mark.asyncio

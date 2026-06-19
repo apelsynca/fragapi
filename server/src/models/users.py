@@ -7,8 +7,8 @@ from src.enums import UserRole
 from src.kit.database.models import TimestampedModel
 
 if TYPE_CHECKING:
-    from .fragment_transactions import FragmentTransaction
     from .telegram_logs_sources import TelegramLogsSource
+    from .transactions import FragmentTransaction
 
 
 class User(TimestampedModel):

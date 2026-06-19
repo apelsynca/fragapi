@@ -9,12 +9,14 @@ from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address, to_nano
 
+from src.enums import FragmentTransactionReason
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import ApiToken, TonTransaction, User
-from src.models.fragment_transactions import (
+from src.models import (
+    ApiToken,
     FragmentTransaction,
-    FragmentTransactionReason,
+    TonTransaction,
+    User,
 )
 from tests.fixtures.database import SaveFixture
 

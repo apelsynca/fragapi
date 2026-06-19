@@ -5,6 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
+from src.enums import FragmentTransactionReason
 from src.exceptions import FragRequestValidationError
 from src.fee import after_fee, after_ton_network_fee
 from src.fragment_transaction.models import FTMetadata
@@ -17,7 +18,6 @@ from src.fragment_transaction.tasks import process_fragment_transaction
 from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import User
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (

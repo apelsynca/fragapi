@@ -2,7 +2,7 @@ import pytest
 
 from src.exceptions import FragRequestValidationError
 from src.postgres import AsyncSession
-from src.ton_transaction.service import transaction as transaction_service
+from src.ton_transaction.service import ton_transaction as ton_transaction_service
 from tests.fixtures.random_objects import create_tonapi_transaction_mock
 
 
@@ -16,17 +16,17 @@ async def test_creates_as_tonapi_internal(session: AsyncSession) -> None:
         source_address_raw="0:11111ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebxxx",
     )
 
-    transaction = await transaction_service.create_as_tonapi_internal(
+    ton_transaction = await ton_transaction_service.create_as_tonapi_internal(
         session=session, tonapi_transaction=tonapi_transaction
     )
 
-    assert transaction.nano_amount == 425750000
+    assert ton_transaction.nano_amount == 425750000
     assert (
-        transaction.to_address
+        ton_transaction.to_address
         == "0:69061ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebc9f"
     )
     assert (
-        transaction.from_address
+        ton_transaction.from_address
         == "0:11111ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebxxx"
     )
 
@@ -38,7 +38,7 @@ async def test_tonapi_raises_if_not_success(session: AsyncSession) -> None:
     )
 
     with pytest.raises(FragRequestValidationError):
-        await transaction_service.create_as_tonapi_internal(
+        await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
@@ -50,7 +50,7 @@ async def test_tonapi_raises_if_wrong_in_msgs_type(session: AsyncSession) -> Non
     )
 
     with pytest.raises(FragRequestValidationError):
-        await transaction_service.create_as_tonapi_internal(
+        await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
@@ -66,7 +66,7 @@ async def test_tonapi_raises_if_out_msgs(session: AsyncSession) -> None:
     )
 
     with pytest.raises(FragRequestValidationError):
-        await transaction_service.create_as_tonapi_internal(
+        await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
@@ -76,7 +76,7 @@ async def test_tonapi_must_have_destination(session: AsyncSession) -> None:
     tonapi_transaction = create_tonapi_transaction_mock(destination_address_raw=None)
 
     with pytest.raises(FragRequestValidationError):
-        await transaction_service.create_as_tonapi_internal(
+        await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
@@ -88,6 +88,6 @@ async def test_raises_wrong_dests_if_source_is_none(
     tonapi_transaction = create_tonapi_transaction_mock(source_address_raw=None)
 
     with pytest.raises(FragRequestValidationError):
-        await transaction_service.create_as_tonapi_internal(
+        await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )

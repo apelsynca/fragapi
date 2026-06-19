@@ -10,14 +10,16 @@ class TonDepositPayload:
     COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
     COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
 
-    def __init__(self, hash: str) -> None:
-        self.hash = hash
+    def __init__(self, ref_hash: str) -> None:
+        self.ref_hash = ref_hash
 
     def get_base64(self):
         payload_cell = (
             begin_cell()
             .store_uint(0, 32)
-            .store_snake_string(TonDepositPayload.COMMENT_TEMPLATE.format(self.hash))
+            .store_snake_string(
+                TonDepositPayload.COMMENT_TEMPLATE.format(self.ref_hash)
+            )
             .end_cell()
         )
         payload_boc = payload_cell.to_boc()
@@ -42,4 +44,4 @@ class TonDepositPayload:
         if match is None:
             raise ValueError("wrong comment text")
 
-        return cls(hash=match.group(1))
+        return cls(ref_hash=match.group(1))

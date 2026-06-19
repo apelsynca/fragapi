@@ -53,7 +53,7 @@ class DepositService:
         return DepositTonRequestMessage(
             address=settings.TON_ADDRESS,
             amount=str(to_nano(deposit.amount)),
-            payload=TonDepositPayload(hash=deposit.hash).get_base64(),
+            payload=TonDepositPayload(ref_hash=deposit.hash).get_base64(),
         )
 
     async def create(

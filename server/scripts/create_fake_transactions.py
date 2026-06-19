@@ -5,16 +5,13 @@ from secrets import token_urlsafe
 
 from ton_core import to_nano
 
+from src.enums import FragmentTransactionReason
 from src.fragment_transaction.repository import FragmentTransactionRepository
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models import TonTransaction, UserSession
-from src.models.fragment_transactions import (
-    FragmentTransaction,
-    FragmentTransactionReason,
-)
+from src.models import FragmentTransaction, TonTransaction, UserSession
 from src.postgres import AsyncSession, create_async_engine
-from src.ton_transaction.repository import TransactionRepository
+from src.ton_transaction.repository import TonTransactionRepository
 from src.user.repository import UserRepository
 
 
@@ -35,7 +32,7 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
         print("No user")
         return
 
-    usual_repo = TransactionRepository.from_session(session)
+    usual_repo = TonTransactionRepository.from_session(session)
 
     while True:
         offset = input("Days offset (any key to stop): ")

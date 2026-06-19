@@ -12,9 +12,9 @@ from src.backoffice.fragment_transactions.tasks import (
     fragment_transactions_log_daily_stats,
 )
 from src.backoffice.telegram_logs.tasks import telegram_log_send
+from src.enums import FragmentTransactionReason
 from src.kit.utils import utc_now
 from src.models import FragmentTransaction, User
-from src.models.fragment_transactions import FragmentTransactionReason
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_transaction, rstr
 

@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
+from src.enums import FragmentTransactionReason
 from src.exceptions import FragError, ResourceNotFound
 from src.fragment_transaction.models import FTMetadata
 from src.fragment_transaction.service import FragmentTransactionService
@@ -14,9 +15,6 @@ from src.integrations.fragment.types import (
 )
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import User
-from src.models.fragment_transactions import (
-    FragmentTransactionReason,
-)
 from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars
 from src.stars.service import stars as stars_service
