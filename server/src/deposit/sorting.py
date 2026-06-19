@@ -6,11 +6,11 @@ from fastapi import Depends
 from src.kit.sorting import Sorting, SortingGetter
 
 
-class PaymentSortProperty(StrEnum):
+class DepositSortProperty(StrEnum):
     created_at = "created_at"
 
 
 ListSorting = Annotated[
-    list[Sorting[PaymentSortProperty]],
-    Depends(SortingGetter(PaymentSortProperty, ["-created_at"])),
+    list[Sorting[DepositSortProperty]],
+    Depends(SortingGetter(DepositSortProperty, ["-created_at"])),
 ]

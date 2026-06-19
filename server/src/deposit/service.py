@@ -8,21 +8,21 @@ from ton_core import begin_cell, to_amount, to_nano
 
 from src.backoffice.telegram_logs.deposits import enqueue_new_deposit_admin_log_task
 from src.config import settings
+from src.deposit.repository import DepositRepository
+from src.deposit.schemas import PaymentTonRequestMessage
+from src.deposit.sorting import DepositSortProperty
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.logging import Logger
 from src.models import Deposit, Transaction, User
 from src.models.deposits import DepositStatus
-from src.payment.repository import PaymentRepository
-from src.payment.schemas import PaymentTonRequestMessage
-from src.payment.sorting import PaymentSortProperty
 from src.postgres import AsyncSession
 
 log: Logger = structlog.get_logger()
 
 
-class PaymentService:
+class DepositService:
     TON_COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
 
     async def fetch_list(
@@ -30,11 +30,11 @@ class PaymentService:
         session: AsyncSession,
         user: User,
         pagination: PaginationParams,
-        sorting: list[Sorting[PaymentSortProperty]] = [
-            (PaymentSortProperty.created_at, True)
+        sorting: list[Sorting[DepositSortProperty]] = [
+            (DepositSortProperty.created_at, True)
         ],
     ) -> tuple[Sequence[Deposit], int]:
-        repository = PaymentRepository.from_session(session)
+        repository = DepositRepository.from_session(session)
 
         stmt = (
             repository.get_base_stmt()
@@ -78,7 +78,7 @@ class PaymentService:
                 f"Minimal deposit amount is {settings.MIN_TON_DEPOSIT_AMOUNT}"
             )
 
-        repository = PaymentRepository.from_session(session)
+        repository = DepositRepository.from_session(session)
         payment = Deposit(user=user, amount=amount, hash=token_urlsafe(14))
 
         payment = await repository.create(payment, flush=True)
@@ -93,37 +93,37 @@ class PaymentService:
         return payment
 
     async def complete_ton(
-        self, session: AsyncSession, transaction: Transaction, payment_hash: str
+        self, session: AsyncSession, transaction: Transaction, ref_hash: str
     ) -> None:
-        repository = PaymentRepository.from_session(session)
-        payment = await repository.get_by_hash(hash=payment_hash)
+        repository = DepositRepository.from_session(session)
+        deposit = await repository.get_by_hash(hash=ref_hash)
 
-        if payment is None:
+        if deposit is None:
             raise ResourceNotFound("Payment not found")
 
-        if payment.status == DepositStatus.completed:
+        if deposit.status == DepositStatus.completed:
             raise FragError("Status is wrong")
 
-        if payment.transaction is not None:
+        if deposit.transaction is not None:
             raise FragError("Payment already has transaction")
 
         transaction_amount = float(to_amount(transaction.nano_amount))
-        if payment.amount != transaction_amount:
+        if deposit.amount != transaction_amount:
             raise BadRequest("Payment amount and transaction amount is different")
 
-        payment.transaction = transaction
-        payment.status = DepositStatus.completed
+        deposit.transaction = transaction
+        deposit.status = DepositStatus.completed
 
-        payment.user.balance += transaction_amount
+        deposit.user.balance += transaction_amount
 
         log.info(
             "payment.completed",
-            user_id=payment.user_id,
-            hash=payment.hash,
+            user_id=deposit.user_id,
+            hash=deposit.hash,
             transaction_amount=transaction_amount,
         )
 
-        enqueue_new_deposit_admin_log_task(payment=payment)
+        enqueue_new_deposit_admin_log_task(deposit=deposit)
 
 
-payment = PaymentService()
+deposit = DepositService()

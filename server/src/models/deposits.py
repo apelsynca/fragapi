@@ -33,7 +33,7 @@ class Deposit(RecordModel):
         ForeignKey("transactions.id"), unique=True
     )
     transaction: Mapped["Transaction | None"] = relationship(
-        back_populates="payment", uselist=False
+        back_populates="deposit", uselist=False
     )
 
     # not sure about that

@@ -7,10 +7,10 @@ from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
 from src.config import settings
+from src.deposit.service import deposit as deposit_service
+from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
-from src.payment.service import payment as payment_service
-from src.payment.ton_payload import TonPaymentPayload
 from src.postgres import AsyncSession
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
@@ -77,7 +77,7 @@ class TonAPIService:
         )
 
         try:
-            ton_payment_payload = TonPaymentPayload.from_tonapi_transaction(
+            ton_dep_payload = TonDepositPayload.from_tonapi_transaction(
                 tonapi_transaction
             )
         except ValueError:
@@ -89,7 +89,7 @@ class TonAPIService:
 
         log.info(
             "tonapi.process_webhook_acc_tx new valid transaction",
-            hash=ton_payment_payload.hash,
+            hash=ton_dep_payload.hash,
             tx_hash=webhook_message.tx_hash,
             account_id=webhook_message.account_id,
         )
@@ -97,10 +97,10 @@ class TonAPIService:
         if webhook_message.lt > self._last_lt:
             self._last_lt = webhook_message.lt
 
-        await payment_service.complete_ton(
+        await deposit_service.complete_ton(
             session=session,
             transaction=transaction,
-            payment_hash=ton_payment_payload.hash,
+            ref_hash=ton_dep_payload.hash,
         )
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:

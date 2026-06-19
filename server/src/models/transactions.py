@@ -26,7 +26,7 @@ class Transaction(RecordModel):
     from_address: Mapped[str] = mapped_column(String(100))  # workchain:init
     to_address: Mapped[str] = mapped_column(String(100))  # workchain:init
 
-    payment: Mapped["Deposit | None"] = relationship(
+    deposit: Mapped["Deposit | None"] = relationship(
         back_populates="transaction", uselist=False, lazy="raise"
     )
     fragment_transaction: Mapped["FragmentTransaction | None"] = relationship(

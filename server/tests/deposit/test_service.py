@@ -6,26 +6,27 @@ from pytest_mock import MockerFixture
 from ton_core import begin_cell, to_amount
 
 from src.config import settings
+from src.deposit.repository import DepositRepository
+from src.deposit.service import deposit as deposit_service
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
 from src.models.deposits import DepositStatus
-from src.payment.repository import PaymentRepository
-from src.payment.service import payment as payment_service
 from src.postgres import AsyncSession
+from tests.deposit.conftest import create_deposit
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_payment, create_transaction, rstr
+from tests.fixtures.random_objects import create_transaction, rstr
 
 
 @pytest.mark.asyncio
 async def test_creates_right(session: AsyncSession, user: User) -> None:
-    payment = await payment_service.create(
+    payment = await deposit_service.create(
         session=session,
         user=user,
         amount=settings.MIN_TON_DEPOSIT_AMOUNT + random.randint(1, 10),
     )
 
-    repository = PaymentRepository.from_session(session)
+    repository = DepositRepository.from_session(session)
     found_pay = await repository.get_by_id(id=payment.id)
 
     assert found_pay is not None
@@ -37,7 +38,7 @@ async def test_raises_if_less_than_min_dep_amount(
     session: AsyncSession, user: User
 ) -> None:
     with pytest.raises(BadRequest):
-        await payment_service.create(
+        await deposit_service.create(
             session=session, user=user, amount=settings.MIN_TON_DEPOSIT_AMOUNT - 0.05
         )
 
@@ -51,8 +52,8 @@ async def test_raises_not_found_if_not_found(
     )
 
     with pytest.raises(ResourceNotFound):
-        await payment_service.complete_ton(
-            session=session, transaction=transaction, payment_hash=rstr("some")
+        await deposit_service.complete_ton(
+            session=session, transaction=transaction, ref_hash=rstr("some")
         )
 
 
@@ -69,15 +70,15 @@ async def test_increases_users_balance(
     payment_amount = amount
 
     hash = rstr("somehash")
-    payment = await create_payment(
+    payment = await create_deposit(
         save_fixture=save_fixture, user=user, amount=payment_amount, hash=hash
     )
     transaction = await create_transaction(
         save_fixture, amount=payment_amount, message_hash="xxx0xxx"
     )
 
-    await payment_service.complete_ton(
-        session=session, transaction=transaction, payment_hash=hash
+    await deposit_service.complete_ton(
+        session=session, transaction=transaction, ref_hash=hash
     )
 
     assert user.balance == payment.amount
@@ -86,8 +87,8 @@ async def test_increases_users_balance(
     # And
     payment.status = DepositStatus.pending
     with pytest.raises(FragError, match="Payment already has transaction"):
-        await payment_service.complete_ton(
-            session=session, transaction=transaction, payment_hash=hash
+        await deposit_service.complete_ton(
+            session=session, transaction=transaction, ref_hash=hash
         )
 
 
@@ -98,7 +99,7 @@ async def test_raises_bad_different_amounts(
     assert user.balance == 0
 
     hash = rstr("somehash")
-    await create_payment(
+    await create_deposit(
         save_fixture=save_fixture,
         user=user,
         amount=settings.MIN_TON_DEPOSIT_AMOUNT + random.randint(1, 10),
@@ -111,8 +112,8 @@ async def test_raises_bad_different_amounts(
     )
 
     with pytest.raises(BadRequest):
-        await payment_service.complete_ton(
-            session=session, transaction=transaction, payment_hash=hash
+        await deposit_service.complete_ton(
+            session=session, transaction=transaction, ref_hash=hash
         )
 
     assert user.balance == 0
@@ -123,22 +124,20 @@ async def test_raises_bad_different_amounts(
 async def test_create_ton_right_payload(
     session: AsyncSession, user: User, mocker: MockerFixture, save_fixture: SaveFixture
 ) -> None:
-    payment_hash = "myhash"
-    payment = await create_payment(
-        save_fixture, user=user, amount=6.251, hash=payment_hash
-    )
+    ref_hash = "SomekingoF-Hashxx"
+    payment = await create_deposit(save_fixture, user=user, amount=6.251, hash=ref_hash)
 
-    mocker.patch.object(payment_service, "create", return_value=payment)
+    mocker.patch.object(deposit_service, "create", return_value=payment)
 
     same_payload_cell = (
         begin_cell()
         .store_uint(0, 32)
-        .store_snake_string(payment_service.TON_COMMENT_TEMPLATE.format(payment_hash))
+        .store_snake_string(deposit_service.TON_COMMENT_TEMPLATE.format(ref_hash))
         .end_cell()
     )
     same_payload = base64.b64encode(same_payload_cell.to_boc()).decode("utf-8")
 
-    payment_req_msg = await payment_service.create_ton(
+    payment_req_msg = await deposit_service.create_ton(
         session=session, user=user, amount=6.251
     )
 
@@ -149,18 +148,18 @@ async def test_create_ton_right_payload(
 async def test_fetch_list_gets_only_completed(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
-    await create_payment(
+    await create_deposit(
         save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=True
     )
-    await create_payment(
+    await create_deposit(
         save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=True
     )
-    await create_payment(
+    await create_deposit(
         save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=False
     )
 
     pagination = PaginationParams(page=1, limit=100)
-    payments, count = await payment_service.fetch_list(
+    payments, count = await deposit_service.fetch_list(
         session=session, user=user, pagination=pagination
     )
 
@@ -175,13 +174,13 @@ async def test_fetch_list_gets_transactions(
     transaction = await create_transaction(
         save_fixture, amount=2.5291, hash="Usual hashiie"
     )
-    await create_payment(
+    await create_deposit(
         save_fixture, user=user, amount=2.5291, completed=True, transaction=transaction
     )
-    await create_payment(save_fixture, user=user, amount=9.25, completed=False)
+    await create_deposit(save_fixture, user=user, amount=9.25, completed=False)
 
     pagination = PaginationParams(page=1, limit=100)
-    payments, _ = await payment_service.fetch_list(
+    payments, _ = await deposit_service.fetch_list(
         session=session, user=user, pagination=pagination
     )
 

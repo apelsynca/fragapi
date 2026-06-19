@@ -6,7 +6,7 @@ from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import begin_cell
 
 
-class TonPaymentPayload:
+class TonDepositPayload:
     COMMENT_TEMPLATE = "FragAPI top-up\n\nRef#{}"
     COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
 
@@ -17,7 +17,7 @@ class TonPaymentPayload:
         payload_cell = (
             begin_cell()
             .store_uint(0, 32)
-            .store_snake_string(TonPaymentPayload.COMMENT_TEMPLATE.format(self.hash))
+            .store_snake_string(TonDepositPayload.COMMENT_TEMPLATE.format(self.hash))
             .end_cell()
         )
         payload_boc = payload_cell.to_boc()

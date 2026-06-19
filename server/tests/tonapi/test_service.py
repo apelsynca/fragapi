@@ -9,11 +9,11 @@ from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
+from src.deposit.service import DepositService
+from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
 from src.models import Transaction
-from src.payment.service import PaymentService
-from src.payment.ton_payload import TonPaymentPayload
 from src.postgres import AsyncSession
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
@@ -30,8 +30,8 @@ def transaction_service_mock(mocker: MockerFixture) -> MagicMock:
 
 
 @pytest.fixture
-def payment_service(mocker: MockerFixture) -> MagicMock:
-    return mocker.patch("src.tonapi.service.payment_service", spec=PaymentService)
+def deposit_service(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch("src.tonapi.service.deposit_service", spec=DepositService)
 
 
 @pytest.fixture(autouse=True)
@@ -155,7 +155,7 @@ async def test_get_bc_trans_retries(
 
 @pytest.mark.asyncio
 async def test_logs_on_get_tx_not_found_and_does_not_call(
-    payment_service: MagicMock,
+    deposit_service: MagicMock,
     session: AsyncSession,
     mocker: MockerFixture,
     tonapi_rest_client_mock: MagicMock,
@@ -171,7 +171,7 @@ async def test_logs_on_get_tx_not_found_and_does_not_call(
         session=session, webhook_message=valid_webhook_message
     )
 
-    payment_service.complete_ton.assert_not_called()
+    deposit_service.complete_ton.assert_not_called()
     log_mock.warning.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction is not found",
         tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
@@ -180,7 +180,7 @@ async def test_logs_on_get_tx_not_found_and_does_not_call(
 
 @pytest.mark.asyncio
 async def test_logs_on_get_tx_bad_request_and_does_not_call(
-    payment_service: MagicMock,
+    deposit_service: MagicMock,
     session: AsyncSession,
     mocker: MockerFixture,
     tonapi_rest_client_mock: MagicMock,
@@ -200,7 +200,7 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
         session=session, webhook_message=webhook_message
     )
 
-    payment_service.complete_ton.assert_not_called()
+    deposit_service.complete_ton.assert_not_called()
     log_mock.warning.assert_called_once_with(
         "tonapi.process_webhook_acc_tx transaction bad request",
         tx_hash="bad_tx_hash",
@@ -209,7 +209,7 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
 
 @pytest.mark.asyncio
 async def test_logs_on_get_tx_any_error_and_does_not_call(
-    payment_service: MagicMock,
+    deposit_service: MagicMock,
     session: AsyncSession,
     mocker: MockerFixture,
     tonapi_rest_client_mock: MagicMock,
@@ -224,7 +224,7 @@ async def test_logs_on_get_tx_any_error_and_does_not_call(
         session=session, webhook_message=valid_webhook_message
     )
 
-    payment_service.complete_ton.assert_not_called()
+    deposit_service.complete_ton.assert_not_called()
     log_mock.error.assert_called_once_with(
         "tonapi.process_webhook_acc_tx unknown exception", str_exc=str(exc)
     )
@@ -233,7 +233,7 @@ async def test_logs_on_get_tx_any_error_and_does_not_call(
 @pytest.mark.asyncio
 async def test_all_good_right_calls_and_sets_lt(
     save_fixture: SaveFixture,
-    payment_service: MagicMock,
+    deposit_service: MagicMock,
     session: AsyncSession,
     mocker: MockerFixture,
     tonapi_rest_client_mock: MagicMock,
@@ -257,9 +257,9 @@ async def test_all_good_right_calls_and_sets_lt(
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
     mocker.patch.object(
-        TonPaymentPayload,
+        TonDepositPayload,
         "from_tonapi_transaction",
-        return_value=TonPaymentPayload(ref_hash),
+        return_value=TonDepositPayload(ref_hash),
     )
 
     # Doing shi
@@ -273,8 +273,8 @@ async def test_all_good_right_calls_and_sets_lt(
     transaction_service_mock.create_as_tonapi_internal.assert_called_once_with(
         session=session, tonapi_transaction=tonapi_tx_mock
     )
-    payment_service.complete_ton.assert_called_once_with(
-        session=session, transaction=usual_transaction, payment_hash=ref_hash
+    deposit_service.complete_ton.assert_called_once_with(
+        session=session, transaction=usual_transaction, ref_hash=ref_hash
     )
 
     assert tonapi_service._last_lt >= 99999999999999999111
@@ -301,7 +301,7 @@ async def test_if_wrong_comment_hash_resolve_logs_and_returns(
 
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
-    from_ta_t_mock = mocker.spy(TonPaymentPayload, "from_tonapi_transaction")
+    from_ta_t_mock = mocker.spy(TonDepositPayload, "from_tonapi_transaction")
     transaction_service_mock.create_as_tonapi_internal.return_value = transaction
 
     await tonapi_service.process_webhook_acc_tx(

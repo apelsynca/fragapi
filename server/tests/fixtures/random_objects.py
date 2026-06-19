@@ -1,7 +1,6 @@
 import random
 import string
 from datetime import datetime, timedelta
-from secrets import token_urlsafe
 from unittest.mock import MagicMock
 
 import pytest_asyncio
@@ -12,8 +11,7 @@ from ton_core import Address, to_nano
 
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import ApiToken, Deposit, Transaction, User
-from src.models.deposits import DepositStatus
+from src.models import ApiToken, Transaction, User
 from src.models.fragment_transactions import (
     FragmentTransaction,
     FragmentTransactionReason,
@@ -168,30 +166,6 @@ async def create_fragment_transaction(
     )
     await save_fixture(frag_trans)
     return frag_trans
-
-
-@pytest_asyncio.fixture
-async def payment(save_fixture: SaveFixture, user: User) -> Deposit:
-    return await create_payment(save_fixture, user, amount=3.252, hash=rstr("phash"))
-
-
-async def create_payment(
-    save_fixture: SaveFixture,
-    user: User,
-    amount: float,
-    hash: str | None = None,
-    completed: bool = False,
-    transaction: Transaction | None = None,
-) -> Deposit:
-    payment = Deposit(
-        user=user,
-        amount=amount,
-        hash=hash if hash is not None else token_urlsafe(32),
-        status=DepositStatus.completed if completed else DepositStatus.pending,
-        transaction=transaction,
-    )
-    await save_fixture(payment)
-    return payment
 
 
 async def create_api_token(
