@@ -5,10 +5,10 @@ import uuid
 from typing import Any
 
 import structlog
+from logtide_sdk.structlog import LogTideProcessor
 
 from src.config import settings
 from src.logtide import LogtideService, logtide_client
-from src.logtide_structlog import LogTideProcessor
 
 Logger = structlog.stdlib.BoundLogger
 
@@ -56,6 +56,13 @@ class Logging[RendererType]:
     @classmethod
     def configure_stdlib(cls, *, logtide_service: LogtideService | None = None) -> None:
         level = cls.get_level()
+
+        optional_logtide_proc = (
+            [LogTideProcessor(client=logtide_client, service=logtide_service)]
+            if logtide_service
+            else []
+        )
+
         logging.config.dictConfig(
             {
                 "version": 1,
@@ -76,15 +83,7 @@ class Logging[RendererType]:
                             cls.timestamper,
                             structlog.processors.UnicodeDecoder(),
                             structlog.processors.StackInfoRenderer(),
-                            *(
-                                [
-                                    LogTideProcessor(
-                                        client=logtide_client, service=logtide_service
-                                    )
-                                ]
-                                if logtide_service
-                                else []
-                            ),
+                            *optional_logtide_proc,
                             structlog.processors.format_exc_info,
                         ],
                     },
