@@ -29,7 +29,7 @@ class Deposit(RecordModel):
     # it is just prettier to be like that
     hash: Mapped[str] = mapped_column(unique=True)
 
-    transaction_id: Mapped[UUID | None] = mapped_column(
+    ton_transaction_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("ton_transactions.id"), unique=True
     )
     ton_transaction: Mapped["TonTransaction | None"] = relationship(

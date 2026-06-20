@@ -291,12 +291,12 @@ async def test_if_wrong_comment_hash_resolve_logs_and_returns(
 ) -> None:
     log_mock = mocker.patch("src.tonapi.service.log", spec=Logger)
 
-    tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
-    tonapi_tx_mock.success = True
-    tonapi_tx_mock.msg_type = "in_msg"
     in_msg = MagicMock(spec=TonAPIMessage)
     in_msg.decoded_body = {"text": "Completily wrong text"}
     in_msg.decoded_op_name = "text_comment"
+    tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
+    tonapi_tx_mock.success = True
+    tonapi_tx_mock.msg_type = "in_msg"
     tonapi_tx_mock.in_msg = in_msg
 
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
