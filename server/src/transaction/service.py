@@ -200,8 +200,6 @@ class TransactionService:
                 result.append(ChartPoint(date=day, stars_spend=0, premium_spend=0))
                 continue
 
-            log.debug("row at the row the row is row", row=row)
-
             result.append(
                 ChartPoint(
                     date=day,
