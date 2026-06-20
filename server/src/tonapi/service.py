@@ -71,6 +71,13 @@ class TonAPIService:
             )
             return
 
+        if (
+            tonapi_transaction.in_msg is None
+            or tonapi_transaction.in_msg.msg_type == "ext_in_msg"
+        ):
+            log.debug("tonapi.process_webhook_acc_tx skip self transaction")
+            return
+
         transaction = await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
