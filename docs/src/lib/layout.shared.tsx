@@ -18,20 +18,13 @@ export const translations = i18n
   });
 
 export function baseOptions(locale: string): BaseLayoutProps {
+  const t = translations.get(locale);
+
   return {
     nav: {
-      // JSX supported
       title: appName,
       url: `/${locale}`,
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
-    links: [
-      {
-        type: "button",
-        text: locale === "ru" ? "В панель" : "To dashboard",
-        url: "https://fragapi.com",
-        secondary: true,
-      },
-    ],
   };
 }

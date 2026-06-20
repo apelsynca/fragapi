@@ -46,7 +46,7 @@ const serverLoader = createServerFn({
     return {
       path: page.path,
       markdownUrl: slugsToMarkdownPath(page.slugs).url,
-      pageTree: await source.serializePageTree(source.getPageTree()),
+      pageTree: await source.serializePageTree(source.getPageTree(lang)),
       openapiData: await openapi.preloadOpenAPIPage(page),
     };
   });

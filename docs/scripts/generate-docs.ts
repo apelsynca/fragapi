@@ -5,6 +5,9 @@ void generateFiles({
   input: openapi,
   output: "./content/docs/api",
   includeDescription: true,
+  // also meta needs
+  // "title": "API Endpoints",
+  // "icon": "Globe",
   meta: true,
   per: "operation",
   name(output) {
