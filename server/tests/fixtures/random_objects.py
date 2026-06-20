@@ -1,7 +1,6 @@
 import random
 import string
 from datetime import datetime, timedelta
-from secrets import token_urlsafe
 from unittest.mock import MagicMock
 
 import pytest_asyncio
@@ -10,14 +9,10 @@ from pytonapi.rest.models import Message as TonAPIMessage
 from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address, to_nano
 
+from src.enums import TransactionReason
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
-from src.models import ApiToken, Payment, Transaction, User
-from src.models.fragment_transactions import (
-    FragmentTransaction,
-    FragmentTransactionReason,
-)
-from src.models.payments import PaymentStatus
+from src.models import ApiToken, TonTransaction, Transaction, User
 from tests.fixtures.database import SaveFixture
 
 
@@ -114,19 +109,26 @@ def create_tonapi_transaction_mock(
 
 
 @pytest_asyncio.fixture
-async def transaction(save_fixture: SaveFixture) -> Transaction:
-    return await create_transaction(save_fixture)
+async def ton_transaction(save_fixture: SaveFixture) -> TonTransaction:
+    return await create_ton_transaction(save_fixture)
 
 
-async def create_transaction(
+# TODO: remove transaction
+@pytest_asyncio.fixture
+async def transaction(save_fixture: SaveFixture) -> TonTransaction:
+    return await create_ton_transaction(save_fixture)
+
+
+async def create_ton_transaction(
     save_fixture: SaveFixture,
     *,
     amount: float | None = None,
     message_hash: str | None = None,
-) -> Transaction:
-    transaction = Transaction(
+    hash: str | None = None,
+) -> TonTransaction:
+    transaction = TonTransaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
-        hash=None,
+        hash=hash,
         message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
         from_address=rstr("someaddress"),
         to_address=rstr("someaddress"),
@@ -135,60 +137,37 @@ async def create_transaction(
     return transaction
 
 
+# TODO: rename it
 @pytest_asyncio.fixture
 async def fragment_transaction(
-    save_fixture: SaveFixture, user: User, transaction: Transaction
-) -> FragmentTransaction:
-    return await create_fragment_transaction(
-        save_fixture, user=user, transaction=transaction
+    save_fixture: SaveFixture, user: User, transaction: TonTransaction
+) -> Transaction:
+    return await create_transaction(
+        save_fixture, user=user, ton_transaction=transaction
     )
 
 
-async def create_fragment_transaction(
+async def create_transaction(
     save_fixture: SaveFixture,
     user: User,
-    transaction: Transaction,
+    ton_transaction: TonTransaction,
     *,
     amount: float | None = None,
     stars_amount: int | None = None,
     premium_months: int | None = None,
-) -> FragmentTransaction:
-    frag_trans = FragmentTransaction(
+) -> Transaction:
+    frag_trans = Transaction(
         user=user,
         recipient=rstr("recipient"),
         recipient_username=rstr("username"),
         amount=amount if amount is not None else random.randint(1, 250) / 100,
-        transaction=transaction,
-        reason=FragmentTransactionReason.premium
-        if premium_months
-        else FragmentTransactionReason.stars,
+        ton_transaction=ton_transaction,
+        reason=TransactionReason.premium if premium_months else TransactionReason.stars,
         stars_amount=stars_amount,
         premium_months=premium_months,
     )
     await save_fixture(frag_trans)
     return frag_trans
-
-
-@pytest_asyncio.fixture
-async def payment(save_fixture: SaveFixture, user: User) -> Payment:
-    return await create_payment(save_fixture, user, amount=3.252, hash=rstr("phash"))
-
-
-async def create_payment(
-    save_fixture: SaveFixture,
-    user: User,
-    amount: float,
-    hash: str | None = None,
-    completed: bool = False,
-) -> Payment:
-    payment = Payment(
-        user=user,
-        amount=amount,
-        hash=hash if hash is not None else token_urlsafe(32),
-        status=PaymentStatus.completed if completed else PaymentStatus.pending,
-    )
-    await save_fixture(payment)
-    return payment
 
 
 async def create_api_token(

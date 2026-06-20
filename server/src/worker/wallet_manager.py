@@ -20,7 +20,6 @@ async def create_wallet_manager(state: TaskiqState):
     log.info("Created WalletManager")
 
 
-# NOTE: can be moved as get_wallet (manager logic outside)
 async def get_wallet_manager(
     context: Annotated[Context, TaskiqDepends()],
 ) -> AsyncGenerator[WalletManager]:

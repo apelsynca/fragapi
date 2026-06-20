@@ -1,11 +1,16 @@
 import asyncio
+import random
 from datetime import timedelta
 from secrets import token_urlsafe
 
+from ton_core import to_nano
+
+from src.enums import TransactionReason
 from src.kit.database.postgres import create_async_sessionmaker
 from src.kit.utils import utc_now
-from src.models import Transaction, UserSession
+from src.models import TonTransaction, Transaction, UserSession
 from src.postgres import AsyncSession, create_async_engine
+from src.ton_transaction.repository import TonTransactionRepository
 from src.transaction.repository import TransactionRepository
 from src.user.repository import UserRepository
 
@@ -21,13 +26,13 @@ async def main() -> None:
 
 async def create_transactions(session: AsyncSession) -> UserSession | None:
     repository = UserRepository.from_session(session)
-    user = await repository.get_by_id(id=7433065810)
+    user = await repository.get_by_id(id=99999)
 
     if user is None:
         print("No user")
         return
 
-    t_repository = TransactionRepository.from_session(session)
+    usual_repo = TonTransactionRepository.from_session(session)
 
     while True:
         offset = input("Days offset (any key to stop): ")
@@ -36,19 +41,37 @@ async def create_transactions(session: AsyncSession) -> UserSession | None:
         except Exception:
             return
 
-        transaction = await t_repository.create(
-            Transaction(
-                amount=float(input(f"Amount for [{offset}]: ")),
-                user=user,
-                reason=TransactionReason.stars,
-                recipient=token_urlsafe(24),
+        amount = float(input(f"Amount for [{offset}]: "))
+        ton_transaction = await usual_repo.create(
+            TonTransaction(
+                nano_amount=to_nano(amount),
+                hash="6ec1e3a7678ce211a44b5a98fbef46f299355a408978104941048e73f5db6cec",
                 message_hash=None,
-                status=TransactionStatus.completed,
                 created_at=utc_now() - timedelta(days=offset),
+                from_address="from_fakeaddress",
+                to_address="to_fakeaddress",
             )
         )
 
-        print("Created transaction", transaction.amount, transaction.created_at)
+        frag_repo = TransactionRepository.from_session(session)
+        frag_transaction = await frag_repo.create(
+            Transaction(
+                user=user,
+                amount=amount,
+                recipient=token_urlsafe(24),
+                recipient_username="recipient_username_here",
+                ton_transaction=ton_transaction,
+                created_at=utc_now() - timedelta(days=offset),
+                reason=TransactionReason.stars,
+                stars_amount=[100, 125, 51, 200, 500][random.randint(1, 5)],
+            )
+        )
+
+        print(
+            "Created transaction + frag transaction",
+            frag_transaction.amount,
+            frag_transaction.created_at,
+        )
 
 
 if __name__ == "__main__":

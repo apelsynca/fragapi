@@ -20,3 +20,8 @@ class RateLimitGroup(StrEnum):
 class TelegramLogSender(StrEnum):
     logger = "logger"
     chat = "chat"
+
+
+class TransactionReason(StrEnum):
+    premium = "premium"
+    stars = "stars"

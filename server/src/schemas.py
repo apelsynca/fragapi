@@ -14,13 +14,7 @@ class BaseRecipient(Schema):
     @computed_field
     @property
     def avatar_url(self) -> str:
-        match = re.search(r'src\s*=\s*"(.+?)"', self.photo)
-
-        if match:
-            return match.group(1)
-
-        # NOTE: fallback, but if i add validator for photo, this could be removed
-        return self.photo
+        return extract_photo(photo_tag=self.photo)
 
 
 class BaseBuyResponse(Schema):
@@ -35,10 +29,11 @@ class BaseBuyResponse(Schema):
     @computed_field
     @property
     def avatar_url(self) -> str:
-        match = re.search(r'src\s*=\s*"(.+?)"', self.photo)
+        return extract_photo(photo_tag=self.photo)
 
-        if match:
-            return match.group(1)
 
-        # NOTE: fallback, but if i add validator for photo, this could be removed
-        return self.photo
+def extract_photo(photo_tag: str) -> str:
+    match = re.search(r'src\s*=\s*"(.+?)"', photo_tag)
+    if match:
+        return match.group(1)
+    return photo_tag

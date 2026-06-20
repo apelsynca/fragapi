@@ -3,18 +3,16 @@ import random
 
 import structlog
 
+from src.enums import TransactionReason
 from src.exceptions import FragError, FragRequestValidationError, ResourceNotFound
-from src.fragment_transaction.models import FTMetadata
-from src.fragment_transaction.service import (
-    fragment_transaction as fragment_transaction_service,
-)
 from src.integrations.fragment import Fragment
 from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
 from src.logging import Logger
 from src.models import User
-from src.models.fragment_transactions import FragmentTransactionReason
 from src.postgres import AsyncSession
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
+from src.transaction.models import FTMetadata
+from src.transaction.service import transaction as transaction_service
 
 log: Logger = structlog.get_logger()
 
@@ -61,11 +59,11 @@ class StarsService:
 
         tc_transaction = buy_link.transaction
 
-        fragment_transaction = await fragment_transaction_service.send_from_tc(
+        transaction = await transaction_service.send_from_tc(
             session=session,
             tc_transaction=tc_transaction,
             user=user,
-            reason=FragmentTransactionReason.stars,
+            reason=TransactionReason.stars,
             metadata=FTMetadata(
                 recipient=recipient_data.recipient,
                 recipient_username=data.username,
@@ -74,11 +72,11 @@ class StarsService:
         )
 
         return BuyStarsResponse(
-            message_hash=fragment_transaction.transaction.message_hash,
-            transaction_id=fragment_transaction.id,
+            message_hash=transaction.ton_transaction.message_hash,
+            transaction_id=transaction.id,
             photo=recipient_data.photo,
             name=recipient_data.name,
-            amount=fragment_transaction.amount,
+            amount=transaction.amount,
         )
 
     async def get_recipient(

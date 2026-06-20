@@ -42,5 +42,8 @@
   "payments_history_title": "Payments history",
   "payments_history_description": "Your balance top-ups history",
   "reason": "Reason",
-  "username": "Username"
+  "username": "Username",
+  "copied_transaction_hash": "Copied transaction hash",
+  "copy_hash": "Copy hash",
+  "actions": "Actions"
 }

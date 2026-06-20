@@ -1,5 +1,4 @@
 import asyncio
-import re
 
 import structlog
 from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
@@ -8,19 +7,19 @@ from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
 from src.config import settings
+from src.deposit.service import deposit as deposit_service
+from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.logging import Logger
-from src.payment.service import payment as payment_service
 from src.postgres import AsyncSession
+from src.ton_transaction.service import ton_transaction as ton_transaction_service
 from src.tonapi.rest import rest_client
 from src.tonapi.schemas import TonAPIWebhookMessage
-from src.transaction.service import transaction as transaction_service
 
 log: Logger = structlog.get_logger()
 
 
 class TonAPIService:
-    TON_COMMENT_PATTERN = r"[\w\-\ ]+\n\nRef#(.+)"
     ACCOUNT_RAW_ADDRESSES = [
         Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
     ]
@@ -31,7 +30,7 @@ class TonAPIService:
     _last_lt: int = 0
 
     def __init__(self) -> None:
-        # TODO: starting value prefetch?! (rethink if multi-wallet)
+        # PERF: starting value prefetch?! (rethink if multi-wallet)
         self._last_lt = 82005139000003
 
     async def process_webhook_acc_tx(
@@ -72,22 +71,24 @@ class TonAPIService:
             )
             return
 
-        transaction = await transaction_service.create_as_tonapi_internal(
+        transaction = await ton_transaction_service.create_as_tonapi_internal(
             session=session, tonapi_transaction=tonapi_transaction
         )
 
-        hash = self.resolve_payment_hash(tonapi_transaction)
-        if hash is None:
+        try:
+            ton_dep_payload = TonDepositPayload.from_tonapi_transaction(
+                tonapi_transaction
+            )
+        except ValueError:
             log.warning(
                 "tonapi.process_webhook_acc_tx transaction with unresolved payload hash",
-                hash=hash,
                 account_id=webhook_message.account_id,
             )
             return
 
         log.info(
             "tonapi.process_webhook_acc_tx new valid transaction",
-            hash=hash,
+            hash=ton_dep_payload.ref_hash,
             tx_hash=webhook_message.tx_hash,
             account_id=webhook_message.account_id,
         )
@@ -95,28 +96,11 @@ class TonAPIService:
         if webhook_message.lt > self._last_lt:
             self._last_lt = webhook_message.lt
 
-        await payment_service.complete_ton(
-            session=session, transaction=transaction, hash=hash
+        await deposit_service.complete_ton(
+            session=session,
+            transaction=transaction,
+            ref_hash=ton_dep_payload.ref_hash,
         )
-
-    # TODO: Move out of this service (probably)
-    def resolve_payment_hash(self, tonapi_transaction: TonAPITransaction) -> str | None:
-        if tonapi_transaction.in_msg is None:
-            return None
-
-        # here test the message type - int_msg ()
-
-        if (
-            tonapi_transaction.in_msg.decoded_body is None
-            or tonapi_transaction.in_msg.decoded_op_name != "text_comment"
-        ):
-            return None
-
-        text: str = tonapi_transaction.in_msg.decoded_body["text"]
-        match = re.match(pattern=self.TON_COMMENT_PATTERN, string=text)
-
-        if match is not None:
-            return match.group(1)
 
     async def get_blockchain_transaction(self, tx_hash: str) -> TonAPITransaction:
         async with rest_client as client:

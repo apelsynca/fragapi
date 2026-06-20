@@ -7,7 +7,7 @@ import {
   fetchTransactionsStats,
 } from '#/server-api/transactions'
 import { fetchApiTokens } from '#/server-api/api-tokens'
-import { fetchTonPaymentHistory } from '#/server-api/payments'
+import { fetchTonPaymentHistory } from '#/server-api/deposits'
 
 export const userMeOptions = () =>
   queryOptions({
