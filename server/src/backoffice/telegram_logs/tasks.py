@@ -5,7 +5,7 @@ from src.worker import broker
 
 from .sender import telegram_log_sender
 
-# WARN: broker from source is probably temporary solution,
+# WARN: broker from 'src.worker' is probably temporary solution,
 # best to move logic of admin logging to some different place (other than backoffice)
 
 log: Logger = structlog.get_logger()

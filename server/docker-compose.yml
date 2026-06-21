@@ -28,6 +28,17 @@ services:
     env_file:
       - .env
 
+  scheduler:
+    build: .
+    command: uv run taskiq scheduler src.worker.run:scheduler
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - dokploy-network
+    env_file:
+      - .env
+
   db:
     image: postgres:17
     restart: always
