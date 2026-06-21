@@ -17,7 +17,7 @@ export const requestTonPayment = createServerFn({ method: 'POST' })
     })
   })
 
-export const fetchTonPaymentHistory = createServerFn({ method: 'GET' })
+export const fetchDeposits = createServerFn({ method: 'GET' })
   .validator((page: number) => page)
   .handler(async ({ data: page }) => {
     const token = await verifySession()

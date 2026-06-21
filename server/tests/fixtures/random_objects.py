@@ -73,39 +73,52 @@ def get_tc_transaction(messages: list[TonConnectMessage] = []) -> TonConnectTran
 def create_tonapi_transaction_mock(
     hash: str = "xxxxxxe0b494f5a8f7c94f8ab37816e98be1a4a95b97c8daeba262e04975cb6c",
     success: bool = True,
-    in_msg_type: str = "int_msg",
+    in_msg_type: str = "in_msg",  # was int_msg
     value: int = 0,
+    *,
     destination_address_raw: str
     | None = "0:69061ad51e1cc3626cc4c589088bdcc68ea57f9e6d33c51447c6bf7a200ebc9f",
     source_address_raw: str | None = None,
     out_msgs: list = [],
+    comment: str | None = None,
+    body_op_name: str | None = None,
 ) -> MagicMock:
-    tonapi_transaction = MagicMock(spec=TonAPITransaction)
-    tonapi_transaction.hash = hash
-    tonapi_transaction.lt = 1
-    tonapi_transaction.success = success  # test that raises
-    tonapi_transaction_in_msg = MagicMock(spec=TonAPIMessage)
-    tonapi_transaction_in_msg.msg_type = in_msg_type  # test that raises
-    tonapi_transaction_in_msg.value = value
+    if comment and in_msg_type != "in_msg":
+        raise RuntimeError("Somethin weird with comment and in_msg")
 
-    tonapi_transaction_in_msg.destination = None
+    in_msg = MagicMock(spec=TonAPIMessage)
+    in_msg.msg_type = in_msg_type
+    in_msg.value = value
+    in_msg.destination = None
+
+    if comment is not None:
+        in_msg.decoded_body = {"text": comment}
+        in_msg.decoded_op_name = body_op_name or "text_comment"
+    elif body_op_name is not None:
+        in_msg.decoded_op_name = body_op_name
+
     if destination_address_raw is not None:
-        tonapi_transaction_in_msg.destination = AccountAddress(
+        in_msg.destination = AccountAddress(
             address=destination_address_raw,
             is_scam=False,
             is_wallet=True,
         )
 
-    tonapi_transaction_in_msg.source = None
+    in_msg.source = None
     if source_address_raw is not None:
-        tonapi_transaction_in_msg.source = AccountAddress(
+        in_msg.source = AccountAddress(
             address=source_address_raw, is_scam=False, is_wallet=True
         )
 
-    tonapi_transaction.in_msg = tonapi_transaction_in_msg
-    tonapi_transaction.out_msgs = out_msgs  # test that raises if not len 0
+    tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
+    tonapi_tx_mock.in_msg = in_msg
+    tonapi_tx_mock.hash = hash
+    tonapi_tx_mock.lt = 1
+    tonapi_tx_mock.success = success
 
-    return tonapi_transaction
+    tonapi_tx_mock.out_msgs = out_msgs
+
+    return tonapi_tx_mock
 
 
 @pytest_asyncio.fixture

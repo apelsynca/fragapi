@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
     TELEGRAM_LOG_SENDER: TelegramLogSender = (
         TelegramLogSender.logger
-    )  # used for admin aswell
+    )  # used for admin log sender aswell
     ADMIN_TELEGRAM_LOGS_CHAT_ID: int | str = ""
 
     # LogTide

@@ -7,16 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import { paymentHistoryOptions } from '#/lib/queries'
+import { depositsOptions } from '#/lib/queries'
 import { useState } from 'react'
 import BreadPagination from '#/layout/BreadPagination'
 import { DataTable } from '../DataTable'
 import { columns } from './columns'
 import { m } from '#/paraglide/messages'
 
-export default function PaymentHistory() {
+export default function DepositHistory() {
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const { data } = useSuspenseQuery(paymentHistoryOptions(currentPage))
+  const { data } = useSuspenseQuery(depositsOptions(currentPage))
 
   if (data.pagination.totalCount < 0) {
     return <p>No transactions.</p>
@@ -28,8 +28,8 @@ export default function PaymentHistory() {
     <Card>
       <CardHeader className="flex items-center gap-2 md:gap-5">
         <div>
-          <CardTitle>{m.payments_history_title()}</CardTitle>
-          <CardDescription>{m.payments_history_description()}</CardDescription>
+          <CardTitle>{m.deposits_history_title()}</CardTitle>
+          <CardDescription>{m.deposits_history_description()}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
