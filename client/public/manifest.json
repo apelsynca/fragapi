@@ -1,6 +1,6 @@
 {
-  "short_name": "TanStack App",
-  "name": "Create TanStack App Sample",
+  "short_name": "FragAPI",
+  "name": "FragAPI - Use fragment without KYC, 24 words, as API",
   "icons": [
     {
       "src": "favicon.ico",

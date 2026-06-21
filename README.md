@@ -1,6 +1,6 @@
 # FragAPI
 
-[![TON](https://img.shields.io/badge/TON-blue?logo=ton)](https://ton.org)
+[![TON](https://img.shields.io/badge/TON-gray?logo=ton)](https://ton.org)
 ![Python Versions](https://img.shields.io/badge/Python-3.13-black?color=FFE873&labelColor=3776AB)
 [![License](https://img.shields.io/github/license/apelsynca/fragapi)](https://github.com/apelsynca/fragapi/blob/universe/LICENSE)
 

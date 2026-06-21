@@ -20,7 +20,6 @@ export const Route = createFileRoute('/bot-login')({
     }
 
     await botHashLoginFn({ data: deps.hash })
-
     throw redirect({ to: '/dashboard' })
   },
   errorComponent: ({ error }) => {
