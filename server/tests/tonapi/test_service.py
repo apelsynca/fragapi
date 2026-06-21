@@ -5,8 +5,6 @@ import pytest
 from pytest_mock import MockerFixture
 from pytonapi.exceptions import TONAPIBadRequestError, TONAPINotFoundError
 from pytonapi.rest import TonapiRestClient
-from pytonapi.rest.models import Message as TonAPIMessage
-from pytonapi.rest.models import Transaction as TonAPITransaction
 from ton_core import Address
 
 from src.deposit.service import DepositService
@@ -19,7 +17,11 @@ from src.ton_transaction.service import TonTransactionService
 from src.tonapi.schemas import TonAPIWebhookMessage
 from src.tonapi.service import tonapi as tonapi_service
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_ton_transaction, rstr
+from tests.fixtures.random_objects import (
+    create_ton_transaction,
+    create_tonapi_transaction_mock,
+    rstr,
+)
 
 
 @pytest.fixture
@@ -253,7 +255,7 @@ async def test_all_good_right_calls_and_sets_lt(
     )
     transaction_service_mock.create_as_tonapi_internal.return_value = usual_transaction
 
-    tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
+    tonapi_tx_mock = create_tonapi_transaction_mock()
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
     mocker.patch.object(
@@ -291,14 +293,7 @@ async def test_if_wrong_comment_hash_resolve_logs_and_returns(
 ) -> None:
     log_mock = mocker.patch("src.tonapi.service.log", spec=Logger)
 
-    in_msg = MagicMock(spec=TonAPIMessage)
-    in_msg.decoded_body = {"text": "Completily wrong text"}
-    in_msg.decoded_op_name = "text_comment"
-    tonapi_tx_mock = MagicMock(spec=TonAPITransaction, autospec=True)
-    tonapi_tx_mock.success = True
-    tonapi_tx_mock.msg_type = "in_msg"
-    tonapi_tx_mock.in_msg = in_msg
-
+    tonapi_tx_mock = create_tonapi_transaction_mock(comment="Completelly wrong text")
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
     from_ta_t_mock = mocker.spy(TonDepositPayload, "from_tonapi_transaction")
