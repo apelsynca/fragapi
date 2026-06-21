@@ -7,7 +7,7 @@ import {
   fetchTransactionsStats,
 } from '#/server-api/transactions'
 import { fetchApiTokens } from '#/server-api/api-tokens'
-import { fetchTonPaymentHistory } from '#/server-api/deposits'
+import { fetchDeposits } from '#/server-api/deposits'
 
 export const userMeOptions = () =>
   queryOptions({
@@ -46,8 +46,8 @@ export const apiTokensOptions = () =>
     queryFn: () => fetchApiTokens(),
   })
 
-export const paymentHistoryOptions = (page: number) =>
+export const depositsOptions = (page: number) =>
   queryOptions({
-    queryKey: ['payments', 'history', page],
-    queryFn: () => fetchTonPaymentHistory({ data: page }),
+    queryKey: ['deposits', page],
+    queryFn: () => fetchDeposits({ data: page }),
   })

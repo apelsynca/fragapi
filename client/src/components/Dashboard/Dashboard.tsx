@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import DashboardChart from '#/components/Dashboard/DashboardChart'
 import DashboardStats from '#/components/Dashboard/DashboardStats'
-import PaymentHistory from '#/components/Payments/PaymentHistory'
+import DepositHistory from '#/components/Deposits/DepositHistory'
 import DashboardChartSkeleton from './DashboardChartSkeleton'
 import DashboardStatsSkeleton from './DashboardStatsSkeleton'
 
@@ -15,7 +15,7 @@ export default function Dashboard({ className }: { className?: string }) {
         <DashboardChart />
       </Suspense>
       <Suspense>
-        <PaymentHistory />
+        <DepositHistory />
       </Suspense>
     </div>
   )
