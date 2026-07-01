@@ -13,10 +13,11 @@ from src.backoffice.transactions.tasks import (
     transactions_log_daily_stats,
 )
 from src.enums import TransactionReason
+from src.fee import approx_before_fee
 from src.kit.utils import utc_now
 from src.models import Transaction, User
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_ton_transaction, rstr
+from tests.fixtures.random_objects import create_ton_transaction, create_user, rstr
 
 
 async def create_transaction(
@@ -81,8 +82,11 @@ async def test_log_daily_stats_right_text(
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             amount=7.75,
+            raw_commission_amount=approx_before_fee(7.75),
             transactions_count=2,
             unique_users=2,
+            new_users_count=0,
+            deposits_count=0,
         ),
         with_notification=False,
     )
@@ -102,8 +106,69 @@ async def test_log_empty_text(
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             amount=0,
+            raw_commission_amount=0,
             transactions_count=0,
             unique_users=0,
+            new_users_count=0,
+            deposits_count=0,
+        ),
+        with_notification=False,
+    )
+
+
+@pytest.mark.asyncio
+async def test_log_right_unique_users(
+    save_fixture: SaveFixture, enqueue_task_mock: MagicMock, session: AsyncSession
+) -> None:
+    yesterday_dt = utc_now() - timedelta(days=1)
+
+    U_COUNT = 3
+    for _ in range(U_COUNT):  # create unique users
+        user = await create_user(save_fixture)
+        await create_transaction(save_fixture, user, amount=5, created_at=yesterday_dt)
+        await create_transaction(save_fixture, user, amount=3, created_at=yesterday_dt)
+
+    await transactions_log_daily_stats(session)
+
+    enqueue_task_mock.assert_called_once_with(
+        telegram_log_send,
+        text=DAILY_LOG_TEXT.format(
+            date=yesterday_dt.date().strftime("%m-%d"),
+            amount=8 * U_COUNT,
+            raw_commission_amount=approx_before_fee(8 * U_COUNT),
+            transactions_count=U_COUNT * 2,
+            unique_users=U_COUNT,
+            new_users_count=0,
+            deposits_count=0,
+        ),
+        with_notification=False,
+    )
+
+
+@pytest.mark.asyncio
+async def test_log_right_new_users(
+    save_fixture: SaveFixture, enqueue_task_mock: MagicMock, session: AsyncSession
+) -> None:
+    yesterday_dt = utc_now() - timedelta(days=1)
+
+    for _ in range(3):  # create unique users
+        user = User(
+            first_name=rstr("Mock"), username=rstr("test_"), created_at=yesterday_dt
+        )
+        await save_fixture(user)
+
+    await transactions_log_daily_stats(session)
+
+    enqueue_task_mock.assert_called_once_with(
+        telegram_log_send,
+        text=DAILY_LOG_TEXT.format(
+            date=yesterday_dt.date().strftime("%m-%d"),
+            amount=0,
+            raw_commission_amount=0,
+            transactions_count=0,
+            unique_users=0,
+            new_users_count=3,
+            deposits_count=0,
         ),
         with_notification=False,
     )
