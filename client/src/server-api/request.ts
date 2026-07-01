@@ -30,7 +30,7 @@ export const apiRequest = async <T>(data: ApiRequest) => {
       await logoutFn()
     }
 
-    throw new Error(`${errorName} ${detail}`)
+    throw new Error(`${errorName} ${JSON.stringify(detail)}`)
   }
 
   return json as T

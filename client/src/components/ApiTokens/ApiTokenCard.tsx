@@ -14,6 +14,7 @@ import {
 } from '../ui/card'
 import { Button } from '../ui/button'
 import { cn } from '#/lib/utils'
+import { format } from 'date-fns'
 
 const ApiTokenCard = ({
   className,
@@ -38,7 +39,12 @@ const ApiTokenCard = ({
       <CardHeader>
         <CardTitle>{apiToken.name}</CardTitle>
         <CardDescription>
-          Активен до: <span className="text-white">Бесконечно</span>
+          Активен до:{' '}
+          <span className="text-white">
+            {apiToken.expiresAt
+              ? format(apiToken.expiresAt, 'ppp')
+              : 'Бесконечно'}
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
