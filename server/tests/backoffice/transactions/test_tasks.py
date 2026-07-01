@@ -16,7 +16,7 @@ from src.enums import TransactionReason
 from src.kit.utils import utc_now
 from src.models import Transaction, User
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import create_ton_transaction, rstr
+from tests.fixtures.random_objects import create_ton_transaction, create_user, rstr
 
 
 async def create_transaction(
@@ -104,6 +104,32 @@ async def test_log_empty_text(
             amount=0,
             transactions_count=0,
             unique_users=0,
+        ),
+        with_notification=False,
+    )
+
+
+@pytest.mark.asyncio
+async def test_log_right_unique_users(
+    save_fixture: SaveFixture, enqueue_task_mock: MagicMock, session: AsyncSession
+) -> None:
+    yesterday_dt = utc_now() - timedelta(days=1)
+
+    U_COUNT = 3
+    for _ in range(U_COUNT):  # create unique users
+        user = await create_user(save_fixture)
+        await create_transaction(save_fixture, user, amount=5, created_at=yesterday_dt)
+        await create_transaction(save_fixture, user, amount=3, created_at=yesterday_dt)
+
+    await transactions_log_daily_stats(session)
+
+    enqueue_task_mock.assert_called_once_with(
+        telegram_log_send,
+        text=DAILY_LOG_TEXT.format(
+            date=yesterday_dt.date().strftime("%m-%d"),
+            amount=(5 + 3) * U_COUNT,
+            transactions_count=U_COUNT * 2,
+            unique_users=U_COUNT,
         ),
         with_notification=False,
     )

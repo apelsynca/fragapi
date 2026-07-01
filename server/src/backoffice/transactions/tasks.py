@@ -30,7 +30,7 @@ async def transactions_log_daily_stats(
     stmt = select(
         func.coalesce(func.sum(Transaction.amount), 0),
         func.count(Transaction.id),
-        func.count(func.distinct(Transaction.amount)),
+        func.count(func.distinct(Transaction.user_id)),
     ).where(func.date(Transaction.created_at) == yesterday_date)
 
     row = await session.execute(stmt)
