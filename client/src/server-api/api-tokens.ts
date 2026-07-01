@@ -16,15 +16,15 @@ export const fetchApiTokens = createServerFn({ method: 'GET' }).handler(
 )
 
 export const createApiTokenFn = createServerFn({ method: 'POST' })
-  .validator((data: { name: string }) => data)
-  .handler(async ({ data: { name } }) => {
+  .validator((data: { name: string; expiresAt?: Date }) => data)
+  .handler(async ({ data: { name, expiresAt } }) => {
     const token = await verifySession()
 
     return await apiRequest<ApiToken>({
       method: 'POST',
       endpoint: '/api-tokens',
       token,
-      payload: { name },
+      payload: { name, expires_at: expiresAt ? expiresAt : null },
     })
   })
 
