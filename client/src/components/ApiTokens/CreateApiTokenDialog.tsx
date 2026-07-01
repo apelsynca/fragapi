@@ -16,6 +16,7 @@ import { Field, FieldGroup, FieldLabel } from '../ui/field'
 import { Input } from '../ui/input'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { DatePicker } from './DatePicker'
 
 const CreateApiTokenDialog = ({
   haveZeroTokens,
@@ -25,17 +26,22 @@ const CreateApiTokenDialog = ({
   const queryClient = useQueryClient()
 
   const [open, setOpen] = useState(false)
+
   const [name, setName] = useState<string>('')
+  const [expiresAt, setExpiresAt] = useState<Date>()
 
   const createApiToken = useServerFn(createApiTokenFn)
 
   const createTokenMutation = useMutation({
-    mutationFn: () => createApiToken({ data: { name } }),
+    mutationFn: () => createApiToken({ data: { name, expiresAt } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['api-tokens'],
       })
       toast.success('Создал апи токен')
+
+      setName('')
+      setExpiresAt(undefined)
     },
     onSettled: () => setOpen(false),
   })
@@ -51,11 +57,17 @@ const CreateApiTokenDialog = ({
         <DialogHeader>
           <DialogTitle>Создание API токена</DialogTitle>
         </DialogHeader>
-        <div>
+        <div className="flex flex-col gap-2">
           <FieldGroup>
             <Field>
               <FieldLabel>Название</FieldLabel>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
+            </Field>
+          </FieldGroup>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Активен до</FieldLabel>
+              <DatePicker date={expiresAt} setDate={setExpiresAt} />
             </Field>
           </FieldGroup>
         </div>
