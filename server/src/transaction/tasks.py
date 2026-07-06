@@ -24,8 +24,8 @@ from src.worker.wallet_manager import get_wallet_manager
 log: Logger = structlog.get_logger()
 
 
-@worker_task_with_queue_manager()
-async def process_fragment_transaction(
+@worker_task_with_queue_manager(task_name="transaction.process")
+async def fragment_transaction_process(
     transaction_id: uuid.UUID,
     tc_transaction: TonConnectTransaction,
     session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
@@ -44,13 +44,13 @@ async def process_fragment_transaction(
 
     if transaction is None:
         log.warning(
-            "process_fragment_transaction.not_found",
+            "transaction.process.not_found",
             transaction_id=transaction_id,
         )
         raise ResourceNotFound()
 
     log.debug(
-        "process_fragment_transaction.start",
+        "transaction.process.start",
         user=transaction.user,
         amount=transaction.amount,
         recipient_username=transaction.recipient_username,
@@ -65,7 +65,7 @@ async def process_fragment_transaction(
 
     if transaction.ton_transaction.message_hash != built_ext_msg.normalized_hash:
         log.warning(
-            "process_fragment_transaction Different transaction message hash and ext_msg hash"
+            "transaction.process different transaction message hash and ext_msg hash"
         )
         raise BadRequest("Hash is bad")
 
@@ -83,18 +83,38 @@ async def process_fragment_transaction(
 
     transaction.ton_transaction.hash = ext_msg.normalized_hash
 
+    log.info(
+        "transaction.process.transfered",
+        destination=tc_msg.address,
+        amount=tc_msg.amount,
+        normalized_hash=ext_msg.normalized_hash,
+    )
+
     try:
         enqueue_transaction_admin_log_task(transaction=transaction)
     except Exception:
-        log.error("Error enqueuing fragment transaction admin log", exc_info=True)
+        log.error(
+            "transaction.process.error_enqueuing_admin_log",
+            exc_info=True,
+        )
 
     try:
         sources = await telegram_log_service.get_all_sources(
             session=session, user=transaction.user
         )
-        if len(sources) == 1:  # PERF: dont forget to change it to > 1 or smth
+        sources_count = len(sources)
+
+        if sources_count == 1:  # PERF: dont forget to change it to > 1 or smth
             enqueue_transaction_telegram_log_task(
                 source=sources[0], transaction=transaction
             )
+        elif sources_count > 1:
+            log.warning(
+                "transaction.process.skip_enqueue_user_log somehow sources number is bigger than 1",
+                sources_count=sources_count,
+            )
     except Exception:
-        log.error("Error enqueuing fragment transaction admin log", exc_info=True)
+        log.error(
+            "transaction.process.error_enqueuing_user_log",
+            exc_info=True,
+        )

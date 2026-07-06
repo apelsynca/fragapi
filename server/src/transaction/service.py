@@ -20,7 +20,7 @@ from src.transaction.models import FTMetadata
 from src.transaction.repository import TransactionRepository
 from src.transaction.schemas import ChartPoint, TransactionStats
 from src.transaction.sorting import TransactionSortProperty
-from src.transaction.tasks import process_fragment_transaction
+from src.transaction.tasks import fragment_transaction_process
 from src.transaction.utils import validate_tc_transaction
 from src.worker import enqueue_task
 
@@ -109,7 +109,7 @@ class TransactionService:
         )
 
         enqueue_task(
-            process_fragment_transaction,
+            fragment_transaction_process,
             transaction_id=transaction.id,
             tc_transaction=tc_transaction,
         )

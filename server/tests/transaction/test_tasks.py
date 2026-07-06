@@ -11,14 +11,10 @@ from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFo
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.models import Transaction, User
 from src.postgres import AsyncSession
-from src.transaction.tasks import process_fragment_transaction
+from src.transaction.tasks import fragment_transaction_process
 from src.wallet.manager import WalletManager
 from tests.fixtures.database import SaveFixture
-from tests.fixtures.random_objects import (
-    create_ton_transaction,
-    create_transaction,
-    rstr,
-)
+from tests.fixtures.random_objects import create_ton_transaction, create_transaction
 from tests.fixtures.worker import FakeWalletManager
 
 
@@ -42,7 +38,7 @@ async def test_process_transaction_raises_if_not_found(
     wallet_manager: WalletManager,
 ) -> None:
     with pytest.raises(ResourceNotFound):
-        await process_fragment_transaction(
+        await fragment_transaction_process(
             transaction_id=uuid.uuid4(),
             tc_transaction=valid_tc_transaction,
             session=session,
@@ -59,14 +55,14 @@ async def test_process_raises_if_transaction_msg_hash_differ_from_tc_transaction
     wallet_manager: WalletManager,
 ) -> None:
     transaction = await create_ton_transaction(
-        save_fixture, message_hash=rstr("completely-wrong-hash")
+        save_fixture, message_hash="completely-wrong-hash"
     )
     frag_trans = await create_transaction(
         save_fixture, user=user, ton_transaction=transaction
     )
 
     with pytest.raises(BadRequest):
-        await process_fragment_transaction(
+        await fragment_transaction_process(
             transaction_id=frag_trans.id,
             tc_transaction=valid_tc_transaction,
             session=session,
@@ -86,7 +82,7 @@ async def test_process_raises_if_tc_msg_len_diff(
     )
 
     with pytest.raises(FragRequestValidationError):
-        await process_fragment_transaction(
+        await fragment_transaction_process(
             transaction_id=valid_transaction.id,
             tc_transaction=valid_tc_transaction,
             session=session,
@@ -114,7 +110,7 @@ async def test_process_calls_transfer(
     wallet_manager_mock.get_wallet_for_amount.return_value = wallet_mock
 
     # When
-    await process_fragment_transaction(
+    await fragment_transaction_process(
         transaction_id=valid_transaction.id,
         tc_transaction=valid_tc_transaction,
         session=session,
@@ -149,7 +145,7 @@ async def test_process_calls_validate_transaction(
     )
 
     with pytest.raises(FragRequestValidationError):
-        await process_fragment_transaction(
+        await fragment_transaction_process(
             transaction_id=valid_transaction.id,
             tc_transaction=valid_tc_transaction,
             session=session,
@@ -171,15 +167,14 @@ async def test_process_sets_hash(
     assert valid_transaction.ton_transaction.hash is None
 
     wallet_mock = MagicMock(spec=WalletV5R1)
-    hash_string = rstr("somehash")
-    wallet_mock.normalized_hash = hash_string
+    wallet_mock.normalized_hash = "MyHash-ThatIt_Sh0uldSet"
     wallet_manager.wallet.transfer.return_value = wallet_mock
 
-    await process_fragment_transaction(
+    await fragment_transaction_process(
         transaction_id=valid_transaction.id,
         tc_transaction=valid_tc_transaction,
         session=session,
         wallet_manager=wallet_manager,
     )
 
-    assert valid_transaction.ton_transaction.hash == hash_string
+    assert valid_transaction.ton_transaction.hash == "MyHash-ThatIt_Sh0uldSet"
