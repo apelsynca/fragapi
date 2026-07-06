@@ -16,7 +16,7 @@ from src.transaction.models import FTMetadata
 from src.transaction.repository import TransactionRepository
 from src.transaction.service import transaction as transaction_service
 from src.transaction.sorting import TransactionSortProperty
-from src.transaction.tasks import process_fragment_transaction
+from src.transaction.tasks import fragment_transaction_process
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_ton_transaction,
@@ -190,7 +190,7 @@ async def test_removes_money_from_user_with_fee(
     assert user.balance == expect
 
     enqueue_task_mock.assert_called_once_with(
-        process_fragment_transaction,
+        fragment_transaction_process,
         transaction_id=transaction.id,
         tc_transaction=tc_transaction,
     )
