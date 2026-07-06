@@ -9,7 +9,7 @@ from src.telegram_log.repository import TelegramLogsSourceRepository
 
 
 def validate_chat_id_or_smth(chat_id: int | str) -> str:
-    # later can validate or smth
+    # later can do a better validation or smth
     return str(chat_id)
 
 

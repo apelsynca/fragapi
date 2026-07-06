@@ -3,11 +3,7 @@ from typing import cast
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (
-    CallbackQuery,
-    InlineKeyboardMarkup,
-    Message,
-)
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 

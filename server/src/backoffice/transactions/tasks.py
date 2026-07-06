@@ -52,7 +52,7 @@ async def transactions_log_daily_stats(
     new_deposits = (
         await session.scalar(
             select(func.count(Deposit.id)).where(
-                func.date(Deposit.created_at == yesterday_date)
+                func.date(Deposit.created_at) == yesterday_date
             )
         )
         or 0
