@@ -42,9 +42,13 @@ async def test_create_cannot_create_more_than_one(
 
 
 @pytest.mark.asyncio
-async def test_set_source_chat_id_if_empty_before(
-    session: AsyncSession, user: User
+async def test_set_source_chat_id_if_empty_before_but_other_sources(
+    session: AsyncSession, user: User, user_second: User
 ) -> None:
+    await telegram_log_service.create_source(
+        session=session, user=user_second, chat_id="anyChatId"
+    )
+
     # just for safety lol
     stmt = select(TelegramLogsSource).where(TelegramLogsSource.user == user)
     telegram_logs_sources = (await session.scalars(stmt)).unique().all()
@@ -60,6 +64,12 @@ async def test_set_source_chat_id_if_empty_before(
     stmt = select(TelegramLogsSource).where(TelegramLogsSource.user == user)
     telegram_logs_sources = (await session.scalars(stmt)).unique().all()
     assert len(telegram_logs_sources) == 1
+    assert telegram_logs_sources[0].chat_id == "someKindOfChatId"
+    assert telegram_logs_sources[0].user_id == user.id
+
+    stmt = select(TelegramLogsSource)
+    telegram_logs_sources = (await session.scalars(stmt)).unique().all()
+    assert len(telegram_logs_sources) == 2
 
 
 @pytest.mark.asyncio
@@ -82,7 +92,10 @@ async def test_set_source_chat_id_if_non_empty_before(
     assert new_source.chat_id == "diffieChatId"
     assert new_source.user == user
 
-    # 2 - then
+    # 2 - then (make sure you can create only one source for now, later can do more)
     stmt = select(TelegramLogsSource).where(TelegramLogsSource.user == user)
     telegram_logs_sources = (await session.scalars(stmt)).unique().all()
     assert len(telegram_logs_sources) == 1
+
+    assert telegram_logs_sources[0].chat_id == "diffieChatId"
+    assert telegram_logs_sources[0].user_id == user.id

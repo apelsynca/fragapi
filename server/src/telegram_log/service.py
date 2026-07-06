@@ -44,7 +44,9 @@ class TelegramLogService:
         chat_id = validate_chat_id_or_smth(chat_id)
         repository = TelegramLogsSourceRepository.from_session(session)
 
-        await session.execute(delete(TelegramLogsSource))
+        await session.execute(
+            delete(TelegramLogsSource).where(TelegramLogsSource.user == user)
+        )
 
         return await repository.create(
             TelegramLogsSource(chat_id=chat_id, user=user), flush=True
