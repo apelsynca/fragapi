@@ -22,7 +22,7 @@ def panel() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="🌐 Панель",
-                    url=settings.generate_panel_url("/dashboard"),
+                    url=settings.generate_panel_url("/"),
                     style="primary",
                 )
             ],
