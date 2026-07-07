@@ -18,7 +18,6 @@ async def telegram_log_send(
         )
     except TelegramLogChatNotFound:
         log.info("telegram_log.send.chat_not_found", chat_id=chat_id)
-        # maybe also log to the user about it here
     except Exception as e:
         log.error("telegram_log.send.error", exc_info=True)
         raise e
