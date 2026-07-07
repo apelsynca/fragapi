@@ -77,13 +77,11 @@ async def on_logs_target_changed(
     )
 
     await state.clear()
-    await message.edit_text(text=texts.CHANGED_TARGET_CHAT_ID)
+    msg = await message.answer(text=texts.CHANGED_TARGET_CHAT_ID)
 
     text, reply_markup = await get_menu_info(session=session, user=user)
 
-    await message.answer(
-        text=text, reply_markup=reply_markup, reply_to_message_id=message.message_id
-    )
+    await msg.reply(text=text, reply_markup=reply_markup)
 
 
 @router.callback_query(F.data == "target_this_chat")

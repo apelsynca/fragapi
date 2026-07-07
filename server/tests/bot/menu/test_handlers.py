@@ -111,7 +111,7 @@ async def test_menu_authorized_answers_right_text_and_keyboard(
                 [
                     InlineKeyboardButton(
                         text="🌐 Панель",
-                        url=settings.generate_panel_url("/dashboard"),
+                        url=settings.generate_panel_url("/"),
                         style="primary",
                     )
                 ],
