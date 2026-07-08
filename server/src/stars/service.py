@@ -4,9 +4,19 @@ import random
 import structlog
 
 from src.enums import TransactionReason
-from src.exceptions import FragError, FragRequestValidationError, ResourceNotFound
+from src.exceptions import (
+    BadRequest,
+    FragError,
+    FragRequestValidationError,
+    ResourceNotFound,
+)
 from src.integrations.fragment import Fragment
-from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.integrations.fragment.exceptions import (
+    FragmentAPIAccessDenied,
+    FragmentAPIError,
+    FragmentAPINotAUser,
+    FragmentAPIUsersNotFound,
+)
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
@@ -89,10 +99,16 @@ class StarsService:
                 if quantity is None
                 else quantity,
             )
-        except FragmentAPIUsersNotFound:
+        except (FragmentAPIUsersNotFound, FragmentAPINotAUser):
             raise ResourceNotFound("User is not found")
-
-        # except FragmentAPIError/FragmentAPIAccessDenied -> raise FragError
+        except FragmentAPIAccessDenied:
+            raise FragError(
+                "Oops, we somehow lost the access to fragment. "
+                "Please wait a little or contact support!"
+            )
+        except FragmentAPIError as exc:
+            log.warning("stars.get_recipient fragment api error", message=exc.message)
+            raise BadRequest("Unknown error for us from fragment side")
 
         return StarsRecipient(
             recipient=recipient.found.recipient,
