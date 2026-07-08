@@ -7,6 +7,7 @@ from typing import Any
 from src.integrations.fragment.exceptions import (
     FragmentAPIAccessDenied,
     FragmentAPIError,
+    FragmentAPINotAUser,
     FragmentAPIUsersNotFound,
     FragmentError,
 )
@@ -73,14 +74,25 @@ class FragmentRestClient:
 
         response_data = json.loads(content)
 
-        if "error" in response_data:
-            if "no telegram users found" in response_data["error"].lower():
-                raise FragmentAPIUsersNotFound(response_data["error"])
-            if "access denied" in response_data["error"].lower():
-                raise FragmentAPIAccessDenied(response_data["error"])
-            raise FragmentAPIError(response_data["error"])
+        self._validate_response_json(data=response_data)
 
         return response_data
+
+    def _validate_response_json(self, data: dict) -> None:
+        if "error" not in data:
+            return
+
+        error_text = data["error"]
+        error_lowered = error_text.lower()
+
+        if "no telegram users found" in error_lowered:
+            raise FragmentAPIUsersNotFound(error_text)
+        if "access denied" in error_lowered:
+            raise FragmentAPIAccessDenied(error_text)
+        if "enter a username assigned to a user" in error_lowered:
+            raise FragmentAPINotAUser(error_text)
+
+        raise FragmentAPIError(error_text)
 
     async def ensure_authorized(self) -> None:
         if self.session_storage.session is None:

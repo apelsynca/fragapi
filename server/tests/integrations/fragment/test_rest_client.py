@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from src.integrations.fragment.exceptions import (
     FragmentAPIError,
+    FragmentAPINotAUser,
     FragmentAPIUsersNotFound,
     FragmentError,
 )
@@ -90,12 +91,36 @@ async def test_detect_users_not_found_error(
         return_json={
             "some": "data",
             "withExternal": "values",
-            "error": "No Telegram users found.",
+            "error": "ABC error No TeLEGRam uSErs found.",
         },
     )
 
     with pytest.raises(FragmentAPIUsersNotFound):
-        await rest_client.api_request(method="doSomeThinkOnFrag", data={"abc": "cde"})
+        await rest_client.api_request(
+            method="doSomeThinkOnFrag", data={"someData": "otherData"}
+        )
+
+
+@pytest.mark.asyncio
+async def test_detect_non_user_found(
+    rest_client: FragmentRestClient,
+    valid_frag_session: FragmentSession,
+) -> None:
+    rest_client.session_storage.session = valid_frag_session
+    rest_client._client = MockClient(
+        return_status_code=200,
+        return_json={
+            "some": "data",
+            "withExternal": "values",
+            "error": "Ple ENTer a usErname assigned to a uSEr.",
+        },
+    )
+
+    with pytest.raises(FragmentAPINotAUser):
+        await rest_client.api_request(
+            method="doSomeThinkOnFrag",
+            data={"someThing": "521", "doesNotMatter": "yes"},
+        )
 
 
 @pytest.mark.asyncio

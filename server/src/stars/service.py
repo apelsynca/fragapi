@@ -92,6 +92,8 @@ class StarsService:
         except FragmentAPIUsersNotFound:
             raise ResourceNotFound("User is not found")
 
+        # except FragmentAPIError/FragmentAPIAccessDenied -> raise FragError
+
         return StarsRecipient(
             recipient=recipient.found.recipient,
             photo=recipient.found.photo,
