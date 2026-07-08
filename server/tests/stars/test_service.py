@@ -4,8 +4,13 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.enums import TransactionReason
-from src.exceptions import FragError, ResourceNotFound
-from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.exceptions import BadRequest, FragError, ResourceNotFound
+from src.integrations.fragment.exceptions import (
+    FragmentAPIAccessDenied,
+    FragmentAPIError,
+    FragmentAPINotAUser,
+    FragmentAPIUsersNotFound,
+)
 from src.integrations.fragment.types import BuyLink, FoundRecipientData, RecipientData
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import User
@@ -154,3 +159,30 @@ async def test_get_recipient_raises_if_fragment_not_found(
     fragment.search_stars_recipient.side_effect = FragmentAPIUsersNotFound()
     with pytest.raises(ResourceNotFound):
         await stars_service.get_recipient(fragment=fragment, username=username)
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_not_found_if_fragment_not_a_user(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_stars_recipient.side_effect = FragmentAPINotAUser()
+    with pytest.raises(ResourceNotFound):
+        await stars_service.get_recipient(fragment=fragment, username="my_username")
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_app_error_if_fragment_api_error(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_stars_recipient.side_effect = FragmentAPIError()
+    with pytest.raises(BadRequest):
+        await stars_service.get_recipient(fragment=fragment, username="Guser007")
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_app_error_if_fragment_access_denied(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_stars_recipient.side_effect = FragmentAPIAccessDenied()
+    with pytest.raises(FragError):
+        await stars_service.get_recipient(fragment=fragment, username="My_usernamik123")

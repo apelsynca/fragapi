@@ -4,8 +4,13 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.enums import PremiumMonths, TransactionReason
-from src.exceptions import FragError, ResourceNotFound
-from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.exceptions import BadRequest, FragError, ResourceNotFound
+from src.integrations.fragment.exceptions import (
+    FragmentAPIAccessDenied,
+    FragmentAPIError,
+    FragmentAPINotAUser,
+    FragmentAPIUsersNotFound,
+)
 from src.integrations.fragment.types import BuyLink, FoundRecipientData, RecipientData
 from src.kit.ton_connect import TonConnectTransaction
 from src.models import User
@@ -143,9 +148,38 @@ async def test_buy_returns_good(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("username", ["someusername", "literrally_Anyusername"])
-async def test_get_recipient_raises_if_fragment_not_found(
+async def test_get_recipient_raises_not_found_if_fragment_not_found(
     fragment: MagicMock, username: str
 ) -> None:
     fragment.search_premium_gift_recipient.side_effect = FragmentAPIUsersNotFound()
     with pytest.raises(ResourceNotFound):
         await premium_service.get_recipient(fragment=fragment, username=username)
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_not_found_if_fragment_not_a_user(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_premium_gift_recipient.side_effect = FragmentAPINotAUser()
+    with pytest.raises(ResourceNotFound):
+        await premium_service.get_recipient(fragment=fragment, username="my_username")
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_app_error_if_fragment_api_error(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_premium_gift_recipient.side_effect = FragmentAPIError()
+    with pytest.raises(BadRequest):
+        await premium_service.get_recipient(fragment=fragment, username="Guser007")
+
+
+@pytest.mark.asyncio
+async def test_get_recipient_raises_app_error_if_fragment_access_denied(
+    fragment: MagicMock,
+) -> None:
+    fragment.search_premium_gift_recipient.side_effect = FragmentAPIAccessDenied()
+    with pytest.raises(FragError):
+        await premium_service.get_recipient(
+            fragment=fragment, username="My_usernamik123"
+        )

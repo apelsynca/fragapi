@@ -3,9 +3,14 @@ import asyncio
 import structlog
 
 from src.enums import PremiumMonths, TransactionReason
-from src.exceptions import FragError, ResourceNotFound
+from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.integrations.fragment import Fragment
-from src.integrations.fragment.exceptions import FragmentAPIUsersNotFound
+from src.integrations.fragment.exceptions import (
+    FragmentAPIAccessDenied,
+    FragmentAPIError,
+    FragmentAPINotAUser,
+    FragmentAPIUsersNotFound,
+)
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
@@ -74,8 +79,16 @@ class PremiumService:
             recipient = await fragment.search_premium_gift_recipient(
                 query=username, months=months.value
             )
-        except FragmentAPIUsersNotFound:
+        except (FragmentAPIUsersNotFound, FragmentAPINotAUser):
             raise ResourceNotFound("User is not found")
+        except FragmentAPIAccessDenied:
+            raise FragError(
+                "Oops, we somehow lost the access to fragment. "
+                "Please wait a little or contact support!"
+            )
+        except FragmentAPIError as exc:
+            log.warning("premium.get_recipient fragment api error", message=exc.message)
+            raise BadRequest("Unknown error for us from fragment side")
 
         return PremiumRecipient(
             recipient=recipient.found.recipient,
