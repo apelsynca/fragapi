@@ -4,13 +4,18 @@ from tonutils.contracts import WalletV5R1
 
 from src.config import Environment, settings
 
+
+def create_toncenter(network: NetworkGlobalID) -> ToncenterClient:
+    return ToncenterClient(network=network, api_key=settings.TONCENTER_API_KEY)
+
+
 NETWORK = (
     NetworkGlobalID.MAINNET
     if settings.is_environment({Environment.production, Environment.sandbox})
     else NetworkGlobalID.TESTNET
 )
 
-toncenter = ToncenterClient(network=NETWORK, api_key=settings.TONCENTER_API_KEY)
+toncenter = create_toncenter(NETWORK)
 
 
 def create_wallet() -> WalletV5R1:
