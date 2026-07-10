@@ -14,10 +14,11 @@ from src.models import Transaction
 from src.postgres import AsyncSession
 from src.telegram_log.service import telegram_log as telegram_log_service
 from src.telegram_log.transaction import enqueue_transaction_telegram_log_task
+from src.ton_transaction.tasks import ton_transaction_find_real_hash
 from src.transaction.repository import TransactionRepository
 from src.transaction.utils import validate_tc_transaction
 from src.wallet.manager import WalletManager
-from src.worker import worker_task_with_queue_manager
+from src.worker import enqueue_task, worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
 from src.worker.wallet_manager import get_wallet_manager
 
@@ -118,3 +119,8 @@ async def fragment_transaction_process(
             "transaction.process.error_enqueuing_user_log",
             exc_info=True,
         )
+
+    enqueue_task(
+        ton_transaction_find_real_hash,
+        ton_transaction_id=transaction.ton_transaction_id,
+    )
