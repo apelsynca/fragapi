@@ -35,7 +35,7 @@ export const columns: ColumnDef<Deposit>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontalIcon className="h-4 w-4" />
@@ -43,11 +43,11 @@ export const columns: ColumnDef<Deposit>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>{m.actions()}</DropdownMenuLabel>
-            {payment.transaction?.hash && (
+            {payment.tonTransaction?.hash && (
               <>
                 <DropdownMenuItem asChild>
                   <a
-                    href={`https://tonscan.org/tx/${payment.transaction.hash}`}
+                    href={`https://tonscan.org/tx/${payment.tonTransaction.hash}`}
                     target="_blank"
                     rel="noreferrer noopener"
                   >
@@ -56,7 +56,7 @@ export const columns: ColumnDef<Deposit>[] = [
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    navigator.clipboard.writeText(payment.transaction!.hash!)
+                    navigator.clipboard.writeText(payment.tonTransaction!.hash!)
                     toast.success(m.copied_transaction_hash())
                   }}
                 >

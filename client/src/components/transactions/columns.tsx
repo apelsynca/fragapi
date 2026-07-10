@@ -1,8 +1,58 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { MoonIcon, StarIcon } from 'lucide-react'
+import {
+  CopyIcon,
+  ExternalLinkIcon,
+  MoonIcon,
+  MoreHorizontalIcon,
+  StarIcon,
+} from 'lucide-react'
 import type { FragmentTransaction } from '#/server-api/models/transactions'
 import { GramRoundedIcon } from '../icons/GramRoundedIcon'
 import { m } from '#/paraglide/messages'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
+import { Button } from '../ui/button'
+import { toast } from 'sonner'
+
+const ActionsCompik = ({ payment }: { payment: FragmentTransaction }) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="ghost" className="h-8 w-8 p-0">
+        <span className="sr-only">Open menu</span>
+        <MoreHorizontalIcon className="h-4 w-4" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuLabel>{m.actions()}</DropdownMenuLabel>
+      {payment.tonTransaction.hash && (
+        <>
+          <DropdownMenuItem asChild>
+            <a
+              href={`https://tonscan.org/tx/${payment.tonTransaction.hash}`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <ExternalLinkIcon /> Scan
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard.writeText(payment.tonTransaction.hash!)
+              toast.success(m.copied_transaction_hash())
+            }}
+          >
+            <CopyIcon /> {m.copy_hash()}
+          </DropdownMenuItem>
+        </>
+      )}
+    </DropdownMenuContent>
+  </DropdownMenu>
+)
 
 export const columns: ColumnDef<FragmentTransaction>[] = [
   {
@@ -14,7 +64,6 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
     ),
   },
   {
-    accessorKey: 'reason',
     header: m.reason(),
     cell: ({ row }) => {
       const reason = row.original.reason
@@ -33,7 +82,6 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
     },
   },
   {
-    accessorKey: 'recipientUsername',
     header: m.username(),
     cell: ({ row }) => `@${row.original.recipientUsername}`,
   },
@@ -54,10 +102,16 @@ export const columns: ColumnDef<FragmentTransaction>[] = [
     ),
   },
   {
-    accessorKey: 'createdAt',
     header: m.created_at(),
     cell: ({ row }) => (
       <span>{new Date(row.original.createdAt).toLocaleString()}</span>
     ),
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const payment = row.original
+      return <ActionsCompik payment={payment} />
+    },
   },
 ]

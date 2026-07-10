@@ -1,3 +1,5 @@
+import type { TonTransaction } from './ton-transaction'
+
 type FragmentTransactionReason = 'stars' | 'premium'
 
 export interface FragmentTransaction {
@@ -8,6 +10,8 @@ export interface FragmentTransaction {
 
   starsAmount: number | null
   premiumMonths: number | null
+
+  tonTransaction: TonTransaction
 
   createdAt: string
 }
