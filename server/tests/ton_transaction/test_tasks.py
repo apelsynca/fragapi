@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
@@ -17,6 +17,12 @@ def toncenter_mock(mocker: MockerFixture) -> MagicMock:
     return mocker.patch(
         "src.ton_transaction.tasks.toncenter_client", spec=ToncenterClient
     )
+
+
+# TODO: remove that in favor of retry or smth
+@pytest.fixture(autouse=True)
+def asyncio_sleep_mock(mocker: MockerFixture) -> AsyncMock:
+    return mocker.patch("src.ton_transaction.tasks.asyncio.sleep", new=AsyncMock())
 
 
 @pytest.mark.asyncio

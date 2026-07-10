@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import structlog
 from sqlalchemy import case, func, select
+from sqlalchemy.orm import selectinload
 from ton_core import to_amount
 
 from src.enums import TransactionReason
@@ -71,7 +72,9 @@ class TransactionService:
         repository = TransactionRepository.from_session(session)
 
         stmt = repository.apply_sorting(
-            stmt=repository.get_base_stmt().where(Transaction.user == user),
+            stmt=repository.get_base_stmt()
+            .where(Transaction.user == user)
+            .options(selectinload(Transaction.ton_transaction)),
             sorting=sorting,
         )
 

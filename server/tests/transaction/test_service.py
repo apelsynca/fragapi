@@ -223,6 +223,7 @@ async def test_lists_transactions_right_user(
 
     assert len(items) == 3
     assert count == len(items)
+    assert items[0].ton_transaction  # test getattr
 
 
 @pytest.mark.asyncio
