@@ -9,6 +9,7 @@ from src.backoffice.telegram_logs.tasks import telegram_log_send
 from src.fee import approx_before_fee
 from src.kit.utils import utc_now
 from src.models import Deposit, Transaction, User
+from src.models.deposits import DepositStatus
 from src.worker import enqueue_task, worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
 
@@ -55,7 +56,10 @@ async def transactions_log_daily_stats(
 
     deposits_stmt = select(
         func.count(Deposit.id), func.coalesce(func.sum(Deposit.amount), 0)
-    ).where(func.date(Deposit.created_at) == yesterday_date)
+    ).where(
+        func.date(Deposit.created_at) == yesterday_date,
+        Deposit.status == DepositStatus.completed,
+    )
 
     d_row = await session.execute(deposits_stmt)
     new_deposits_count, new_deposits_amount = d_row.one()

@@ -29,14 +29,19 @@ async def create_user(save_fixture: SaveFixture, *, balance: float = 0) -> User:
 
 # only for dep test
 async def create_deposit(
-    save_fixture: SaveFixture, user: User, amount: float, created_at: datetime
+    save_fixture: SaveFixture,
+    user: User,
+    amount: float,
+    created_at: datetime,
+    *,
+    is_completed: bool = True,
 ) -> Deposit:
     deposit = Deposit(
         user=user,
         amount=amount,
         hash=rstr("mock_hash"),
         ton_transaction=None,
-        status=DepositStatus.pending,
+        status=DepositStatus.completed if is_completed else DepositStatus.pending,
         created_at=created_at,
     )
     await save_fixture(deposit)
@@ -229,6 +234,13 @@ async def test_log_right_new_deposits(
     )
     await create_deposit(save_fixture, user=users[0], amount=1.85, created_at=utc_now())
     await create_deposit(save_fixture, user=users[2], amount=3, created_at=yesterday_dt)
+    await create_deposit(
+        save_fixture,
+        user=users[1],
+        amount=1.5,
+        created_at=yesterday_dt,
+        is_completed=False,
+    )
     await create_deposit(save_fixture, user=users[1], amount=1.11, created_at=utc_now())
 
     for user in users:
