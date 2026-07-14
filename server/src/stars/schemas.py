@@ -17,7 +17,7 @@ class BuyStars(Schema):
     @field_validator("username", mode="before")
     @classmethod
     def strip_telegram_prefix(cls, v: str) -> str:
-        return v.removeprefix("https://t.me/")
+        return v.removeprefix("https://t.me/").removeprefix("https://telegram.me")
 
 
 class StarsRecipient(BaseRecipient):
