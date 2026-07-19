@@ -4,7 +4,7 @@ from src.auth.dependencies import Authenticator
 from src.auth.scope import Scope
 from src.gifts import sorting
 from src.gifts.service import gift as gift_service
-from src.models.users import User
+from src.models import User
 from src.openapi import APITag
 from src.routing import APIRouter
 from src.thermos.schemas import GiftModel
