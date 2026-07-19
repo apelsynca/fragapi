@@ -5,7 +5,8 @@ from src.worker import enqueue_task
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
     "💎 <b>New deposit</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.2f} GRAM</b>\n\n"
+    "Amount: <b>{amount:.2f} GRAM</b>\n"
+    "Balance change: <b>{prev_balance:.2f} GRAM</b> -> <b>{curr_balance:.2f} GRAM</b>\n\n"
     "Ref-Hash: <code>{ref_hash}</code>{ton_transaction_field}"
 )
 NEW_DEPOSIT_TON_TRANSACTION_TEXT = (
@@ -33,6 +34,8 @@ def enqueue_new_deposit_admin_log_task(deposit: Deposit) -> None:
             user_field=user_field,
             ref_hash=deposit.hash,
             ton_transaction_field=ton_transaction_field,
+            prev_balance=deposit.user.balance - deposit.amount,
+            curr_balance=deposit.user.balance,
         ),
         with_notification=True,
     )

@@ -16,6 +16,8 @@ from tests.fixtures.random_objects import create_ton_transaction
 async def test_enqueue_new_deposit_right_calls(
     save_fixture: SaveFixture, user: User, mocker: MockerFixture
 ) -> None:
+    user.balance = 10
+
     enqueue_task_mock = mocker.patch("src.telegram_log.deposit.enqueue_task")
 
     deposit = Deposit(user=user, amount=5.1259, hash="MyHash1i-ek91_25")
@@ -34,6 +36,8 @@ async def test_enqueue_new_deposit_right_calls(
             user_field=expected_user_field,
             ref_hash="MyHash1i-ek91_25",
             ton_transaction_field="",
+            prev_balance=10 - 5.1259,
+            curr_balance=10,
         ),
         with_notification=True,
     )
@@ -43,6 +47,8 @@ async def test_enqueue_new_deposit_right_calls(
 async def test_enqueue_new_deposit_with_ton_transaction_right_calls(
     save_fixture: SaveFixture, user: User, mocker: MockerFixture
 ) -> None:
+    user.balance = 250
+
     enqueue_task_mock = mocker.patch("src.telegram_log.deposit.enqueue_task")
 
     ton_transaction = await create_ton_transaction(
@@ -76,6 +82,8 @@ async def test_enqueue_new_deposit_with_ton_transaction_right_calls(
             user_field=expected_user_field,
             ref_hash="DiffieHash",
             ton_transaction_field=ton_trans_text,
+            prev_balance=-50,  # yeah, fine for now
+            curr_balance=250,
         ),
         with_notification=True,
     )
