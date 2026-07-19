@@ -9,6 +9,8 @@ from src.ton_transaction.repository import TonTransactionRepository
 
 
 class TonTransactionService:
+    """Dont confuze with TransactionService (prev. FragmentTransactionService)"""
+
     async def create_as_tc(
         self, session: AsyncSession, tc_transaction: TonConnectTransaction
     ) -> TonTransaction:

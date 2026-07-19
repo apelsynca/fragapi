@@ -1,5 +1,5 @@
-from src.backoffice.telegram_logs.tasks import telegram_log_send
 from src.models import Deposit
+from src.telegram_log.tasks import telegram_log_send
 from src.worker import enqueue_task
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (

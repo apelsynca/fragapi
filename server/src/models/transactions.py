@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class Transaction(RecordModel):
+    """Dont confuze with TonTransaction model"""
+
     __tablename__ = "transactions"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

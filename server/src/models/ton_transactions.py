@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class TonTransaction(RecordModel):
+    """Dont confuze with Transaction model (prev FragmentTransaction)"""
+
     __tablename__ = "ton_transactions"
 
     # nano tons transaction amount
