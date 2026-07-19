@@ -140,7 +140,7 @@ DAILY_LOG_TEXT = (
     "Raw commission amount: <b>{raw_commission_amount:.2f} GRAM</b>\n\n"
     "Transactions: <b>{transactions_count}</b> 🧾\n"
     "Transactions unique users: <b>{transactions_unique_users}</b> 👤\n\n"
-    "New users: <b>{new_users_count}</b> 🐣\n"
+    "Users: <b>{new_users_count}</b> 🐣 [<i>{users_total_count}</i>]\n"
     "Deposits: <b>{deposits_count}</b> - <b>{deposits_amount:.2f} GRAM</b> 📊"
 )
 
@@ -173,6 +173,7 @@ async def transactions_log_daily_stats(
         )
         or 0
     )
+    users_total_count = await session.scalar(select(func.count(User.id))) or 0
 
     deposits_stmt = select(
         func.count(Deposit.id), func.coalesce(func.sum(Deposit.amount), 0)
@@ -193,6 +194,7 @@ async def transactions_log_daily_stats(
             new_users_count=new_users,
             deposits_count=new_deposits_count,
             deposits_amount=new_deposits_amount,
+            users_total_count=users_total_count,
         ),
         with_notification=False,
     )

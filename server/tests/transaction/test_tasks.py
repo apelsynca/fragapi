@@ -289,6 +289,7 @@ async def test_log_daily_stats_right_text(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            users_total_count=2,
         ),
         with_notification=False,
     )
@@ -315,6 +316,7 @@ async def test_log_empty_text(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            users_total_count=0,
         ),
         with_notification=False,
     )
@@ -355,6 +357,7 @@ async def test_log_right_unique_users_and_total_balance(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            users_total_count=3,
         ),
         with_notification=False,
     )
@@ -386,6 +389,7 @@ async def test_log_right_new_users(
             new_users_count=3,
             deposits_count=0,
             deposits_amount=0,
+            users_total_count=3,
         ),
         with_notification=False,
     )
@@ -429,6 +433,7 @@ async def test_log_right_new_deposits(
             new_users_count=3,
             deposits_count=2,
             deposits_amount=8.25,
+            users_total_count=3,
         ),
         with_notification=False,
     )
