@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from sqlalchemy import select
 
@@ -29,7 +27,7 @@ async def test_login_by_bot_hash_raises_not_found_if_expired(
         token=rstr("anytoken"),
         bot_hash="mybothash",
         user=user,
-        expires_at=utc_now() - timedelta(minutes=1),
+        expires_at=utc_now(),
     )
     await save_fixture(user_session)
     assert user_session.bot_hash is not None
