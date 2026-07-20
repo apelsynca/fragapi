@@ -26,7 +26,7 @@ class BaseTelegramLogSender(ABC):
 class LoggingTelegramLogSender(BaseTelegramLogSender):
     async def send(self, chat_id: int, text: str, with_notification: bool) -> None:
         log.info(
-            "Sending admin telegram log",
+            "Sending user telegram log",
             chat_id=chat_id,
             text=text,
             with_notification=with_notification,

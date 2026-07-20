@@ -59,10 +59,17 @@ async def test_raises_not_found_if_not_found(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("amount", [0.25, 0.5, 2, 52.25, 102.2125, 999.9, 10000])
-async def test_increases_users_balance(
-    save_fixture: SaveFixture, session: AsyncSession, user: User, amount: float
+async def test_increases_users_balance_and_cannot_call_twice(
+    save_fixture: SaveFixture,
+    session: AsyncSession,
+    user: User,
+    amount: float,
+    mocker: MockerFixture,
 ) -> None:
     assert user.balance == 0
+    enqueue_new_deposit_admin_log_task_mock = mocker.patch(
+        "src.deposit.service.enqueue_new_deposit_admin_log_task"
+    )
 
     if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
         raise RuntimeError("Skipped since too low")  # lol :)
@@ -81,6 +88,7 @@ async def test_increases_users_balance(
 
     assert user.balance == deposit.amount
     assert user.balance == float(to_amount(transaction.nano_amount))
+    enqueue_new_deposit_admin_log_task_mock.assert_called_once_with(deposit=deposit)
 
     # And
     deposit.status = DepositStatus.pending
