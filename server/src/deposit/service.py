@@ -36,7 +36,7 @@ class DepositService:
 
         stmt = (
             repository.get_base_stmt()
-            .where(Deposit.user == user, Deposit.status == DepositStatus.completed)
+            .where(Deposit.user == user, Deposit.status != DepositStatus.pending)
             .options(selectinload(Deposit.ton_transaction))
         )
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)

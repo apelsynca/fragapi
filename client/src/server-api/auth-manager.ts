@@ -15,7 +15,8 @@ export const botHashLoginFn = createServerFn({ method: 'POST' })
     })
 
     if (!response.ok) {
-      throw redirect({ to: '/' })
+      console.warn('Bot hash login request status is not OK')
+      throw redirect({ to: '/' }) // NOTE: can redirect to /bad-login or smth, or just return info about bad login
     }
 
     const { token, success } = (await response.json()) as {
@@ -24,7 +25,8 @@ export const botHashLoginFn = createServerFn({ method: 'POST' })
     }
 
     if (success !== true) {
-      throw redirect({ to: '/' })
+      console.warn('Unsuccessful bot hash login request')
+      throw redirect({ to: '/' }) // Same for this part
     }
 
     const session = await useAppSession()

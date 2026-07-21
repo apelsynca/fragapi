@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 class DepositStatus(StrEnum):
     pending = "pending"
+    failed = "failed"
     completed = "completed"
-    # failed maybe via task to create default failed.
 
 
 class Deposit(RecordModel):

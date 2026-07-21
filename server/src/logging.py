@@ -2,15 +2,17 @@ import contextvars
 import logging.config
 import typing
 import uuid
-from typing import Any
+from typing import Any, Literal
 
 import structlog
 from logtide_sdk.structlog import LogTideProcessor
 
 from src.config import settings
-from src.logtide import LogtideService, logtide_client
+from src.logtide import logtide_client
 
 Logger = structlog.stdlib.BoundLogger
+
+LogtideService = Literal["server", "worker"]
 
 
 class Logging[RendererType]:

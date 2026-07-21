@@ -20,7 +20,9 @@ class AuthService:
         self, session: AsyncSession, bot_hash: str, *, request: Request | None = None
     ) -> LoginResponse:
         stmt = select(UserSession).where(
-            UserSession.bot_hash == bot_hash, UserSession.expires_at > utc_now()
+            # WARN: expires_at somehow not checking
+            UserSession.bot_hash == bot_hash,
+            UserSession.expires_at > utc_now(),
         )
         user_session = await session.scalar(stmt)
 
