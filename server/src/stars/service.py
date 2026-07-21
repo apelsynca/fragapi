@@ -3,6 +3,7 @@ import random
 
 import structlog
 
+from src.caching import recipient_cache
 from src.enums import TransactionReason
 from src.exceptions import (
     BadRequest,
@@ -20,6 +21,7 @@ from src.integrations.fragment.exceptions import (
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
+from src.redis import Redis
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.transaction.models import FTMetadata
 from src.transaction.service import transaction as transaction_service
@@ -34,6 +36,7 @@ class StarsService:
         user: User,
         data: BuyStars,
         fragment: Fragment,
+        redis: Redis,
     ) -> BuyStarsResponse:
         log.debug("stars.buy", quantity=data.quantity, username=data.username)
 
@@ -50,7 +53,10 @@ class StarsService:
             )
 
         recipient_data = await self.get_recipient(
-            fragment=fragment, username=data.username, quantity=data.quantity
+            fragment=fragment,
+            username=data.username,
+            quantity=data.quantity,
+            redis=redis,
         )
         await asyncio.sleep(0.05)
 
@@ -90,8 +96,18 @@ class StarsService:
         )
 
     async def get_recipient(
-        self, fragment: Fragment, username: str, *, quantity: int | None = None
+        self,
+        fragment: Fragment,
+        username: str,
+        redis: Redis,
+        *,
+        quantity: int | None = None,
     ) -> StarsRecipient:
+        recipient = await recipient_cache.get(redis=redis, username=username)
+
+        if recipient is not None:
+            return StarsRecipient.model_validate(recipient)
+
         try:
             recipient = await fragment.search_stars_recipient(
                 query=username,

@@ -33,6 +33,7 @@ from src.middlewares import (
 )
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
+from src.redis import Redis, create_redis
 from src.wallet.ton import create_wallet
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker
@@ -44,6 +45,7 @@ class State(TypedDict):
     async_engine: AsyncEngine
     async_sessionmaker: AsyncSessionMaker
     fragment: Fragment
+    redis: Redis
     bot: Bot
 
 
@@ -53,6 +55,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     async_engine = create_async_engine("app")
     async_sessionmaker = create_async_sessionmaker(async_engine)
+
+    redis = create_redis("app")
 
     ton_connect = TonConnect.from_wallet(
         wallet=create_wallet(), tc_domain="fragment.com"
@@ -77,6 +81,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
             async_engine=async_engine,
             async_sessionmaker=async_sessionmaker,
             fragment=fragment,
+            redis=redis,
             bot=bot,
         )
 
