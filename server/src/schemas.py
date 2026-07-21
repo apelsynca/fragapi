@@ -1,7 +1,7 @@
 import re
 from typing import Annotated
 
-from pydantic import UUID4, Field, computed_field
+from pydantic import UUID4, Field, computed_field, field_validator
 
 from src.kit.schemas import Schema
 
@@ -15,6 +15,18 @@ class BaseRecipient(Schema):
     @property
     def avatar_url(self) -> str:
         return extract_photo(photo_tag=self.photo)
+
+
+class BaseBuyRequest(Schema):
+    username: str
+    show_sender: Annotated[
+        bool, Field(default=False, description="Show telegram sender")
+    ]
+
+    @field_validator("username", mode="before")
+    @classmethod
+    def strip_telegram_prefix(cls, v: str) -> str:
+        return v.removeprefix("https://t.me/")
 
 
 class BaseBuyResponse(Schema):

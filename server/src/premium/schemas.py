@@ -1,22 +1,16 @@
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field
 
 from src.enums import PremiumMonths
-from src.kit.schemas import Schema
-from src.schemas import BaseBuyResponse, BaseRecipient
+from src.schemas import BaseBuyRequest, BaseBuyResponse, BaseRecipient
 
 
-class BuyPremium(Schema):
+class BuyPremium(BaseBuyRequest):
     username: Annotated[
         str, Field(description="Telegram username of the user to whom gift Premium")
     ]
     months: PremiumMonths
-
-    @field_validator("username", mode="before")
-    @classmethod
-    def strip_telegram_prefix(cls, v: str) -> str:
-        return v.removeprefix("https://t.me/")
 
 
 class BuyPremiumResponse(BaseBuyResponse):

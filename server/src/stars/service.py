@@ -37,22 +37,22 @@ class StarsService:
     ) -> BuyStarsResponse:
         log.debug("stars.buy", quantity=data.quantity, username=data.username)
 
-        recipient_data = await self.get_recipient(
-            fragment=fragment, username=data.username, quantity=data.quantity
-        )
-        await asyncio.sleep(0.05)
-
         if len(data.username) < 3:
             raise FragRequestValidationError(
                 [
                     {
                         "type": "value_error",
                         "loc": ("body", "username"),
-                        "msg": "stars buy request must have a username with lenght bigger than 3",
+                        "msg": "stars buy request must have a username with length bigger than 3",
                         "input": data.username,
                     }
                 ]
             )
+
+        recipient_data = await self.get_recipient(
+            fragment=fragment, username=data.username, quantity=data.quantity
+        )
+        await asyncio.sleep(0.05)
 
         buy_request = await fragment.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=data.quantity
@@ -60,7 +60,7 @@ class StarsService:
         await asyncio.sleep(0.05)
 
         buy_link = await fragment.get_buy_stars_link(
-            req_id=buy_request.req_id, show_sender=False
+            req_id=buy_request.req_id, show_sender=data.show_sender
         )
         log.debug("stars.buy got link", buy_link=buy_link)
 

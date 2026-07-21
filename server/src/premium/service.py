@@ -40,7 +40,9 @@ class PremiumService:
         )
         await asyncio.sleep(0.05)
 
-        buy_link = await fragment.get_gift_premium_link(req_id=buy_request.req_id)
+        buy_link = await fragment.get_gift_premium_link(
+            req_id=buy_request.req_id, show_sender=data.show_sender
+        )
         log.debug("premium.buy got link", buy_link=buy_link)
 
         if not buy_link.ok:
