@@ -12,7 +12,7 @@ GIFT_EMOJI = "🎁"
 USER_TELEGRAM_LOG_TEXT = (
     "{head_emoji} <b>Новая транзакция</b>\n\n"
     "Тип: {reason}\n"
-    "Сумма: <b>{amount:.2f} TON</b>\n\n"
+    "Сумма: <b>{amount:.4f} TON</b>\n\n"
     "Юзернейм получателя: @{username}\n"
     "Нагрузка транзакции: {value}"
 )

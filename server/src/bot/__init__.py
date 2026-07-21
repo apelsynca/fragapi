@@ -8,7 +8,11 @@ from src.config import settings
 def create_bot() -> Bot:
     return Bot(
         token=settings.BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.HTML,
+            disable_notification=True,
+            link_preview_is_disabled=True,
+        ),
     )
 
 
