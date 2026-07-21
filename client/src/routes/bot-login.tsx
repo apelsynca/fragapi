@@ -19,7 +19,7 @@ export const Route = createFileRoute('/bot-login')({
       throw new Error('Missing hash')
     }
 
-    await botHashLoginFn({ data: deps.hash })
+    await botHashLoginFn({ data: deps.hash }) // should throw redirect on success
     throw redirect({ to: '/dashboard' })
   },
   errorComponent: ({ error }) => {

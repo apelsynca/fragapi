@@ -1,8 +1,10 @@
 import asyncio
 import secrets
+from datetime import timedelta
 
 from src.kit.crypto import generate_token
 from src.kit.database.postgres import create_async_sessionmaker
+from src.kit.utils import utc_now
 from src.models.user_sessions import USER_SESSION_PREFIX, UserSession
 from src.postgres import AsyncSession, create_async_engine
 from src.user.repository import UserRepository
@@ -26,6 +28,8 @@ async def main() -> None:
 
 
 async def create_user_session(session: AsyncSession) -> UserSession | None:
+    """Creates a fake user session (to login on dev) with 5 min expo"""
+
     repository = UserRepository.from_session(session)
 
     user_id_input = input("Enter user_id, or default [99999]: ")
@@ -45,6 +49,7 @@ async def create_user_session(session: AsyncSession) -> UserSession | None:
         user_agent=None,
         token=generate_token(prefix=USER_SESSION_PREFIX),
         bot_hash=secrets.token_urlsafe(24),
+        expires_at=utc_now() + timedelta(minutes=15),
     )
     session.add(user_session)
 

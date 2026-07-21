@@ -11,7 +11,7 @@ from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
-from src.models.deposits import DepositStatus
+from src.models.deposits import Deposit, DepositStatus
 from src.postgres import AsyncSession
 from tests.deposit.conftest import create_deposit
 from tests.fixtures.database import SaveFixture
@@ -143,7 +143,7 @@ async def test_create_ton_right_payload(
 
 
 @pytest.mark.asyncio
-async def test_fetch_list_gets_only_completed(
+async def test_fetch_list_gets_only_completed_and_failed(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
     await create_deposit(
@@ -155,13 +155,21 @@ async def test_fetch_list_gets_only_completed(
     await create_deposit(
         save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=False
     )
+    # I know it is shit.
+    deposit = Deposit(
+        user=user,
+        amount=42.42,
+        hash="randomHashDoesNotMatter",
+        status=DepositStatus.failed,
+    )
+    await save_fixture(deposit)
 
     pagination = PaginationParams(page=1, limit=100)
     deposits, count = await deposit_service.fetch_list(
         session=session, user=user, pagination=pagination
     )
 
-    assert len(deposits) == 2
+    assert len(deposits) == 3
     assert count == len(deposits)
 
 

@@ -17,7 +17,9 @@ export const columns: ColumnDef<Deposit>[] = [
   {
     header: m.amount(),
     cell: ({ row }) => (
-      <span className="text-green-300 flex items-center gap-1.5 [&_svg]:size-3.5 font-medium">
+      <span
+        className={`${row.original.status === 'completed' ? 'text-green-300' : 'text-red-100 opacity-70'} flex items-center gap-1.5 [&_svg]:size-3.5 font-medium`}
+      >
         +{parseFloat(row.original.amount.toFixed(2))} GRAM <GramRoundedIcon />
       </span>
     ),
@@ -25,7 +27,11 @@ export const columns: ColumnDef<Deposit>[] = [
   {
     header: m.created_at(),
     cell: ({ row }) => (
-      <span>{new Date(row.original.createdAt).toLocaleString()}</span>
+      <span
+        className={`${row.original.status === 'completed' ? 'text-green-300' : 'text-red-100 opacity-70'}`}
+      >
+        {new Date(row.original.createdAt).toLocaleString()}
+      </span>
     ),
   },
   {
