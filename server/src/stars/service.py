@@ -3,7 +3,7 @@ import random
 
 import structlog
 
-from src.caching import recipient_cache
+from src.caching import stars_recipient_cache
 from src.enums import TransactionReason
 from src.exceptions import (
     BadRequest,
@@ -103,7 +103,7 @@ class StarsService:
         *,
         quantity: int | None = None,
     ) -> StarsRecipient:
-        recipient = await recipient_cache.get(redis=redis, username=username)
+        recipient = await stars_recipient_cache.get(redis=redis, username=username)
 
         if recipient is not None:
             return StarsRecipient.model_validate(recipient)
@@ -126,11 +126,16 @@ class StarsService:
             log.warning("stars.get_recipient fragment api error", message=exc.message)
             raise BadRequest("Unknown error for us from fragment side")
 
-        return StarsRecipient(
+        recipient = StarsRecipient(
             recipient=recipient.found.recipient,
             photo=recipient.found.photo,
             name=recipient.found.name,
         )
+
+        # TODO: test right set data here
+        await stars_recipient_cache.set()
+
+        return recipient
 
 
 stars = StarsService()

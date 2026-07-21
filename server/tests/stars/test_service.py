@@ -220,7 +220,7 @@ async def test_get_recipient_returns_cached_when_exists(
     )
 
     recipient_cache_mock = mocker.patch(
-        "src.stars.service.recipient_cache", spec=RecipientCache
+        "src.stars.service.stars_recipient_cache", spec=RecipientCache
     )
     recipient_cache_mock.get.return_value = BaseRecipient(
         name="CachedName",
@@ -257,7 +257,7 @@ async def test_get_recipient_fetches_when_uncached(
     )
 
     recipient_cache_mock = mocker.patch(
-        "src.stars.service.recipient_cache", spec=RecipientCache
+        "src.stars.service.stars_recipient_cache", spec=RecipientCache
     )
     recipient_cache_mock.get.return_value = None
 
@@ -269,6 +269,7 @@ async def test_get_recipient_fetches_when_uncached(
     recipient_cache_mock.get.assert_awaited_once_with(
         redis=redis, username="some_user91"
     )
+    recipient_cache_mock.set.assert_awaited_once()
 
     assert recipient_data.name == "Name NonCached"
     assert (
