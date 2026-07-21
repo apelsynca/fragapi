@@ -5,7 +5,6 @@ import structlog
 from sqlalchemy.orm import selectinload
 from ton_core import to_amount, to_nano
 
-from src.backoffice.telegram_logs.deposits import enqueue_new_deposit_admin_log_task
 from src.config import settings
 from src.deposit.repository import DepositRepository
 from src.deposit.schemas import DepositTonRequestMessage
@@ -18,6 +17,7 @@ from src.logging import Logger
 from src.models import Deposit, TonTransaction, User
 from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
+from src.telegram_log.deposit import enqueue_new_deposit_admin_log_task
 
 log: Logger = structlog.get_logger()
 
@@ -36,7 +36,7 @@ class DepositService:
 
         stmt = (
             repository.get_base_stmt()
-            .where(Deposit.user == user, Deposit.status == DepositStatus.completed)
+            .where(Deposit.user == user, Deposit.status != DepositStatus.pending)
             .options(selectinload(Deposit.ton_transaction))
         )
         stmt = repository.apply_sorting(stmt=stmt, sorting=sorting)

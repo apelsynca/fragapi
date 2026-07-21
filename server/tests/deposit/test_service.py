@@ -11,7 +11,7 @@ from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.kit.pagination import PaginationParams
 from src.models import User
-from src.models.deposits import DepositStatus
+from src.models.deposits import Deposit, DepositStatus
 from src.postgres import AsyncSession
 from tests.deposit.conftest import create_deposit
 from tests.fixtures.database import SaveFixture
@@ -59,10 +59,17 @@ async def test_raises_not_found_if_not_found(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("amount", [0.25, 0.5, 2, 52.25, 102.2125, 999.9, 10000])
-async def test_increases_users_balance(
-    save_fixture: SaveFixture, session: AsyncSession, user: User, amount: float
+async def test_increases_users_balance_and_cannot_call_twice(
+    save_fixture: SaveFixture,
+    session: AsyncSession,
+    user: User,
+    amount: float,
+    mocker: MockerFixture,
 ) -> None:
     assert user.balance == 0
+    enqueue_new_deposit_admin_log_task_mock = mocker.patch(
+        "src.deposit.service.enqueue_new_deposit_admin_log_task"
+    )
 
     if amount < settings.MIN_TON_DEPOSIT_AMOUNT:
         raise RuntimeError("Skipped since too low")  # lol :)
@@ -81,6 +88,7 @@ async def test_increases_users_balance(
 
     assert user.balance == deposit.amount
     assert user.balance == float(to_amount(transaction.nano_amount))
+    enqueue_new_deposit_admin_log_task_mock.assert_called_once_with(deposit=deposit)
 
     # And
     deposit.status = DepositStatus.pending
@@ -135,7 +143,7 @@ async def test_create_ton_right_payload(
 
 
 @pytest.mark.asyncio
-async def test_fetch_list_gets_only_completed(
+async def test_fetch_list_gets_only_completed_and_failed(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
     await create_deposit(
@@ -147,13 +155,21 @@ async def test_fetch_list_gets_only_completed(
     await create_deposit(
         save_fixture, user=user, amount=random.randint(1, 100) / 10, completed=False
     )
+    # I know it is shit.
+    deposit = Deposit(
+        user=user,
+        amount=42.42,
+        hash="randomHashDoesNotMatter",
+        status=DepositStatus.failed,
+    )
+    await save_fixture(deposit)
 
     pagination = PaginationParams(page=1, limit=100)
     deposits, count = await deposit_service.fetch_list(
         session=session, user=user, pagination=pagination
     )
 
-    assert len(deposits) == 2
+    assert len(deposits) == 3
     assert count == len(deposits)
 
 

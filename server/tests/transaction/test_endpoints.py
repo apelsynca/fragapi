@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient
 
 from src.kit.utils import utc_now
-from src.models.users import User
+from src.models import User
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_ton_transaction, create_transaction
 

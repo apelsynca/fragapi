@@ -26,7 +26,7 @@ from tests.fixtures.random_objects import (
 )
 from tests.fixtures.ton_connect import get_valid_tc_msg
 
-# maybe more tests here
+# NOTE: maybe more tests here
 
 
 @pytest.fixture

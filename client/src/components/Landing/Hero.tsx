@@ -52,7 +52,7 @@ export default function Hero({
               ) : (
                 <Button asChild size="lg" className="w-full">
                   <a
-                    href={`https://telegram.me/${import.meta.env.VITE_BOT_USERNAME}?start=login`}
+                    href={`https://t.me/${siteConfig.botUsername}?start=login`}
                   >
                     <BotIcon /> {m.land_bot_login()}
                   </a>
