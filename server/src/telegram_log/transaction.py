@@ -3,7 +3,7 @@ from ton_core import to_amount
 from src.config import settings
 from src.enums import TransactionReason
 from src.models import TelegramLogsSource, Transaction
-from src.telegram_log.tasks import telegram_log_send
+from src.telegram_log.tasks import admin_telegram_log_send, telegram_log_send
 from src.worker import enqueue_task
 
 STAR_EMOJI = "⭐️"
@@ -92,4 +92,7 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
 
     with_notification = transaction.amount > settings.MIN_NON_SILENT_AMOUNT
 
-    enqueue_task(telegram_log_send, text=text, with_notification=with_notification)
+    # TODO: admin_telegram_log_send was not tested and worked for usual telegram_log_send
+    enqueue_task(
+        admin_telegram_log_send, text=text, with_notification=with_notification
+    )

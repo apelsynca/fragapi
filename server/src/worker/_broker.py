@@ -9,9 +9,9 @@ from taskiq import (
 from taskiq_aio_pika import AioPikaBroker
 
 from src.config import settings
-from src.logging import TraceID
+from src.logging import Logger, TraceID
 
-log = structlog.get_logger()
+log: Logger = structlog.get_logger()
 
 
 class StructlogMiddleware(TaskiqMiddleware):
@@ -35,7 +35,7 @@ class StructlogMiddleware(TaskiqMiddleware):
     async def on_error(
         self, message: TaskiqMessage, result: "TaskiqResult", exception: BaseException
     ):
-        log.exception(
+        log.error(
             "app.worker.task_failed",
             task_name=message.task_name,
             task_id=message.task_id,
