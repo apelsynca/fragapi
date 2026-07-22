@@ -103,13 +103,13 @@ class StarsService:
         *,
         quantity: int | None = None,
     ) -> StarsRecipient:
-        recipient = await stars_recipient_cache.get(redis=redis, username=username)
+        base_recipient = await stars_recipient_cache.get(redis=redis, username=username)
 
-        if recipient is not None:
-            return StarsRecipient.model_validate(recipient)
+        if base_recipient is not None:
+            return StarsRecipient.model_validate(base_recipient)
 
         try:
-            recipient = await fragment.search_stars_recipient(
+            recipient_data = await fragment.search_stars_recipient(
                 query=username,
                 quantity=random.choice([50, 75, 500, 2500])
                 if quantity is None
@@ -127,12 +127,11 @@ class StarsService:
             raise BadRequest("Unknown error for us from fragment side")
 
         recipient = StarsRecipient(
-            recipient=recipient.found.recipient,
-            photo=recipient.found.photo,
-            name=recipient.found.name,
+            recipient=recipient_data.found.recipient,
+            photo=recipient_data.found.photo,
+            name=recipient_data.found.name,
         )
 
-        # TODO: test right set data here
         await stars_recipient_cache.set(
             redis=redis, recipient=recipient, username=username
         )

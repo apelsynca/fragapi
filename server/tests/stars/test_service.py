@@ -236,6 +236,7 @@ async def test_get_recipient_returns_cached_when_exists(
         redis=redis, username="userUsernamik"
     )
 
+    fragment.search_stars_recipient.assert_not_called()
     assert recipient_data.name == "CachedName"
     assert recipient_data.photo == '<img src="https://cached-url.com/abc" />'
     assert recipient_data.recipient == "doesNotMatter"

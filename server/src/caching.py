@@ -23,6 +23,8 @@ class RecipientCache:
         if redis_data is None:
             return None
 
+        log.debug("Pulled recipient data from cache", username=username)
+
         try:
             return BaseRecipient.model_validate_json(redis_data)
         except Exception:
@@ -32,11 +34,14 @@ class RecipientCache:
         json_dump = BaseRecipient(**recipient.model_dump()).model_dump_json(
             exclude_unset=True
         )
-        await redis.set(
-            name=self._get_name(username),
-            value=json_dump,
-            ex=self.expiration_time,
-        )
+        try:
+            await redis.set(
+                name=self._get_name(username),
+                value=json_dump,
+                ex=self.expiration_time,
+            )
+        except Exception:
+            log.error("Error setting the recipient cache")
 
     def _get_name(self, username: str) -> str:
         return f"{self.caching_key}:{username}"
