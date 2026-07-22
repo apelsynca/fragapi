@@ -3,6 +3,7 @@ import random
 
 import structlog
 
+from src.caching import stars_recipient_cache
 from src.enums import TransactionReason
 from src.exceptions import (
     BadRequest,
@@ -20,6 +21,7 @@ from src.integrations.fragment.exceptions import (
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
+from src.redis import Redis
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.transaction.models import FTMetadata
 from src.transaction.service import transaction as transaction_service
@@ -34,13 +36,9 @@ class StarsService:
         user: User,
         data: BuyStars,
         fragment: Fragment,
+        redis: Redis,
     ) -> BuyStarsResponse:
         log.debug("stars.buy", quantity=data.quantity, username=data.username)
-
-        recipient_data = await self.get_recipient(
-            fragment=fragment, username=data.username, quantity=data.quantity
-        )
-        await asyncio.sleep(0.05)
 
         if len(data.username) < 3:
             raise FragRequestValidationError(
@@ -48,11 +46,19 @@ class StarsService:
                     {
                         "type": "value_error",
                         "loc": ("body", "username"),
-                        "msg": "stars buy request must have a username with lenght bigger than 3",
+                        "msg": "stars buy request must have a username with length bigger than 3",
                         "input": data.username,
                     }
                 ]
             )
+
+        recipient_data = await self.get_recipient(
+            fragment=fragment,
+            username=data.username,
+            quantity=data.quantity,
+            redis=redis,
+        )
+        await asyncio.sleep(0.05)
 
         buy_request = await fragment.init_buy_stars_request(
             recipient=recipient_data.recipient, quantity=data.quantity
@@ -60,7 +66,7 @@ class StarsService:
         await asyncio.sleep(0.05)
 
         buy_link = await fragment.get_buy_stars_link(
-            req_id=buy_request.req_id, show_sender=False
+            req_id=buy_request.req_id, show_sender=data.show_sender
         )
         log.debug("stars.buy got link", buy_link=buy_link)
 
@@ -90,10 +96,20 @@ class StarsService:
         )
 
     async def get_recipient(
-        self, fragment: Fragment, username: str, *, quantity: int | None = None
+        self,
+        fragment: Fragment,
+        username: str,
+        redis: Redis,
+        *,
+        quantity: int | None = None,
     ) -> StarsRecipient:
+        base_recipient = await stars_recipient_cache.get(redis=redis, username=username)
+
+        if base_recipient is not None:
+            return StarsRecipient.model_validate(base_recipient)
+
         try:
-            recipient = await fragment.search_stars_recipient(
+            recipient_data = await fragment.search_stars_recipient(
                 query=username,
                 quantity=random.choice([50, 75, 500, 2500])
                 if quantity is None
@@ -110,11 +126,17 @@ class StarsService:
             log.warning("stars.get_recipient fragment api error", message=exc.message)
             raise BadRequest("Unknown error for us from fragment side")
 
-        return StarsRecipient(
-            recipient=recipient.found.recipient,
-            photo=recipient.found.photo,
-            name=recipient.found.name,
+        recipient = StarsRecipient(
+            recipient=recipient_data.found.recipient,
+            photo=recipient_data.found.photo,
+            name=recipient_data.found.name,
         )
+
+        await stars_recipient_cache.set(
+            redis=redis, recipient=recipient, username=username
+        )
+
+        return recipient
 
 
 stars = StarsService()

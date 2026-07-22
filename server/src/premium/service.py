@@ -2,6 +2,7 @@ import asyncio
 
 import structlog
 
+from src.caching import premium_recipient_cache
 from src.enums import PremiumMonths, TransactionReason
 from src.exceptions import BadRequest, FragError, ResourceNotFound
 from src.integrations.fragment import Fragment
@@ -15,6 +16,7 @@ from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
 from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
+from src.redis import Redis
 from src.transaction.models import FTMetadata
 from src.transaction.service import transaction as transaction_service
 
@@ -28,11 +30,12 @@ class PremiumService:
         user: User,
         data: BuyPremium,
         fragment: Fragment,
+        redis: Redis,
     ) -> BuyPremiumResponse:
         log.debug("premium.buy called", months=data.months, username=data.username)
 
         recipient_data = await self.get_recipient(
-            fragment, username=data.username, months=data.months
+            fragment, username=data.username, redis=redis, months=data.months
         )
 
         buy_request = await fragment.init_gift_premium_request(
@@ -40,7 +43,9 @@ class PremiumService:
         )
         await asyncio.sleep(0.05)
 
-        buy_link = await fragment.get_gift_premium_link(req_id=buy_request.req_id)
+        buy_link = await fragment.get_gift_premium_link(
+            req_id=buy_request.req_id, show_sender=data.show_sender
+        )
         log.debug("premium.buy got link", buy_link=buy_link)
 
         if not buy_link.ok:
@@ -72,11 +77,19 @@ class PremiumService:
         self,
         fragment: Fragment,
         username: str,
+        redis: Redis,
         *,
         months: PremiumMonths = PremiumMonths.YEAR,
     ) -> PremiumRecipient:
+        base_recipient = await premium_recipient_cache.get(
+            redis=redis, username=username
+        )
+
+        if base_recipient is not None:
+            return PremiumRecipient.model_validate(base_recipient)
+
         try:
-            recipient = await fragment.search_premium_gift_recipient(
+            recipient_data = await fragment.search_premium_gift_recipient(
                 query=username, months=months.value
             )
         except (FragmentAPIUsersNotFound, FragmentAPINotAUser):
@@ -90,11 +103,17 @@ class PremiumService:
             log.warning("premium.get_recipient fragment api error", message=exc.message)
             raise BadRequest("Unknown error for us from fragment side")
 
-        return PremiumRecipient(
-            recipient=recipient.found.recipient,
-            photo=recipient.found.photo,
-            name=recipient.found.name,
+        recipient = PremiumRecipient(
+            recipient=recipient_data.found.recipient,
+            photo=recipient_data.found.photo,
+            name=recipient_data.found.name,
         )
+
+        await premium_recipient_cache.set(
+            redis=redis, recipient=recipient, username=username
+        )
+
+        return recipient
 
 
 premium = PremiumService()

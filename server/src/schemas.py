@@ -1,9 +1,19 @@
 import re
 from typing import Annotated
 
-from pydantic import UUID4, Field, computed_field
+from pydantic import UUID4, Field, computed_field, field_validator
 
 from src.kit.schemas import Schema
+
+
+class BaseBuyRequest(Schema):
+    username: str
+    show_sender: bool = Field(default=False, description="Show telegram sender")
+
+    @field_validator("username", mode="before")
+    @classmethod
+    def strip_telegram_prefix(cls, v: str) -> str:
+        return v.removeprefix("https://t.me/").removeprefix("https://telegram.me/")
 
 
 class BaseRecipient(Schema):

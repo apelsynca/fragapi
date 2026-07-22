@@ -5,6 +5,7 @@ from src.integrations.fragment import Fragment, get_fragment
 from src.logging import Logger
 from src.openapi import APITag
 from src.postgres import AsyncSession, get_db_session
+from src.redis import Redis, get_redis
 from src.routing import APIRouter
 from src.stars import auth
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
@@ -23,6 +24,7 @@ async def get_recipient(
     auth_subject: auth.StarsGlobal,
     username: str,
     fragment: Fragment = Depends(get_fragment),
+    redis: Redis = Depends(get_redis),
     quantity: int | None = Query(default=None),
 ) -> StarsRecipient:
     log.debug(
@@ -33,9 +35,7 @@ async def get_recipient(
     )
 
     return await stars_service.get_recipient(
-        fragment=fragment,
-        username=username,
-        quantity=quantity,
+        fragment=fragment, username=username, redis=redis, quantity=quantity
     )
 
 
@@ -45,10 +45,12 @@ async def buy_stars(
     data: BuyStars,
     session: AsyncSession = Depends(get_db_session),
     fragment: Fragment = Depends(get_fragment),
+    redis: Redis = Depends(get_redis),
 ) -> BuyStarsResponse:
     return await stars_service.buy(
         session=session,
         user=auth_subject.subject,
         data=data,
         fragment=fragment,
+        redis=redis,
     )

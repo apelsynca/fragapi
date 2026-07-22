@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
 
 import structlog
-from aiogram import Bot
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramNotFound
 
+from src.bot import create_bot
 from src.config import settings
 from src.enums import TelegramLogSender as TelegramLogSenderType
 from src.logging import Logger
@@ -35,10 +33,7 @@ class LoggingTelegramLogSender(BaseTelegramLogSender):
 
 class TelegramLogSender(BaseTelegramLogSender):
     def __init__(self) -> None:
-        self.bot = Bot(
-            token=settings.BOT_TOKEN,
-            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-        )
+        self.bot = create_bot()
 
     async def send(self, chat_id: int, text: str, with_notification: bool) -> None:
         try:
