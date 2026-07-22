@@ -13,11 +13,13 @@ function Home() {
     <HomeLayout {...baseOptions(lang)}>
       <div className="flex flex-col flex-1 justify-center px-4 py-8 text-center">
         <div className="mb-4 flex flex-col gap-1">
-          <h1 className="font-medium text-xl ">Документация FragAPI</h1>
-          <p className="text-center italic text-sm">
+          <h1 className="font-semibold text-2xl">
+            {lang === "ru" ? "Документация FragAPI" : "FragAPI Documentation"}
+          </h1>
+          <p className="text-center italic text-xs">
             {lang === "ru"
-              ? "Тут будет красивое оформление (надеюсь)"
-              : "Here will be nice page (we hope)"}
+              ? "Тут будет красивое оформление скоро (надеемся)"
+              : "Here will be a nice animated page soon (we hope)"}
           </p>
         </div>
         <Link
