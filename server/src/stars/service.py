@@ -133,7 +133,9 @@ class StarsService:
         )
 
         # TODO: test right set data here
-        await stars_recipient_cache.set()
+        await stars_recipient_cache.set(
+            redis=redis, recipient=recipient, username=username
+        )
 
         return recipient
 

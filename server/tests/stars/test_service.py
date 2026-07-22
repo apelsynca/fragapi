@@ -18,7 +18,7 @@ from src.models import User
 from src.postgres import AsyncSession
 from src.redis import Redis
 from src.schemas import BaseRecipient
-from src.stars.schemas import BuyStars
+from src.stars.schemas import BuyStars, StarsRecipient
 from src.stars.service import stars as stars_service
 from src.transaction.models import FTMetadata
 from src.transaction.service import TransactionService
@@ -269,15 +269,13 @@ async def test_get_recipient_fetches_when_uncached(
     recipient_cache_mock.get.assert_awaited_once_with(
         redis=redis, username="some_user91"
     )
-    recipient_cache_mock.set.assert_awaited_once()
 
-    assert recipient_data.name == "Name NonCached"
-    assert (
-        recipient_data.photo
-        == '<img src="https://somestupid.domain.com/5123akakakakasdasd.jpg" />'
+    expected_recipient_data = StarsRecipient(
+        name="Name NonCached",
+        photo='<img src="https://somestupid.domain.com/5123akakakakasdasd.jpg" />',
+        recipient="Found-Some_Recipient8123Hash",
     )
-    assert recipient_data.recipient == "Found-Some_Recipient8123Hash"
-    assert (
-        recipient_data.avatar_url
-        == "https://somestupid.domain.com/5123akakakakasdasd.jpg"
+    assert recipient_data == expected_recipient_data
+    recipient_cache_mock.set.assert_awaited_once_with(
+        redis=redis, recipient=expected_recipient_data, username="some_user91"
     )
