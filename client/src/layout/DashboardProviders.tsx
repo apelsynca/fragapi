@@ -12,7 +12,10 @@ export default function DashboardProviders({
     <ThemeProvider defaultTheme="system" storageKey="theme">
       <TooltipProvider>
         <SidebarProvider>
-          <TonConnectUIProvider manifestUrl={import.meta.env.VITE_MANIFEST_URL}>
+          <TonConnectUIProvider
+            manifestUrl={import.meta.env.VITE_MANIFEST_URL}
+            analytics={{ mode: 'off' }}
+          >
             {children}
           </TonConnectUIProvider>
         </SidebarProvider>

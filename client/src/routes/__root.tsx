@@ -16,6 +16,7 @@ import utilsCss from '#/styles/utils.css?url'
 import { seo } from '#/utils/seo'
 import { getLocale } from '#/paraglide/runtime'
 import { m } from '#/paraglide/messages'
+import NotFoundPage from '#/layout/NotFound'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -59,9 +60,7 @@ export const Route = createRootRouteWithContext<{
       </div>
     )
   },
-  notFoundComponent: () => {
-    return <div>Basic not found</div>
-  },
+  notFoundComponent: NotFoundPage,
 })
 
 function RootComponent() {

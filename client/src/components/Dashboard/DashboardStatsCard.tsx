@@ -36,7 +36,7 @@ export default function DashboardStatsCard({
         <CardDescription>{name}</CardDescription>
         <CardTitle className="flex flex-col text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           <span className="flex gap-1.5 items-center">
-            {parseFloat(amount.toFixed(2))} <GramIcon size={28} />
+            {parseFloat(amount.toFixed(2))} <GramIcon size={24} />
           </span>
           <span className="text-sm text-muted-foreground">
             ~${parseFloat(fiatAmount.toFixed(2))}
