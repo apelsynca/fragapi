@@ -37,5 +37,17 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # TODO ...
-    pass
+    op.rename_table("transactions", "fragment_transactions")
+
+    op.execute(
+        "ALTER INDEX transactions_created_at RENAME TO ix_fragment_transactions_created_at"
+    )
+    op.execute(
+        "ALTER INDEX transactions_transaction_id RENAME TO fragment_transactions_transaction_id_key"
+    )
+    op.execute("ALTER INDEX transactions_pkey RENAME TO fragment_transactions_pkey")
+
+    op.alter_column(
+        "fragment_transactions", "ton_transaction_id", new_column_name="transaction_id"
+    )
+    op.alter_column("deposits", "ton_transaction_id", new_column_name="transaction_id")

@@ -23,7 +23,6 @@ async def ton_transaction_find_real_hash(
     ton_transaction_id: UUID4,
     session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
 ) -> None:
-    # WARN: remove later, replace with some retry logic.
     await asyncio.sleep(3)
 
     repository = TonTransactionRepository.from_session(session=session)

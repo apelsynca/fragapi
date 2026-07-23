@@ -18,6 +18,3 @@ def test_save_cookies() -> None:
         "money": "power",
         "override": "diff",
     }
-
-
-# TODO: tests for the saving cookies

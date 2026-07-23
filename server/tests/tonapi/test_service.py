@@ -146,7 +146,6 @@ async def test_get_bc_trans_retries(
         tonapi_service, "_search_bc_trans_with_retry"
     )
 
-    # Raises, but calls retries
     with pytest.raises(ResourceNotFound):
         await tonapi_service.get_blockchain_transaction(
             tx_hash=rstr("good hash need here")
