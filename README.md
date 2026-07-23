@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/apelsynca/fragapi)](https://github.com/apelsynca/fragapi/blob/universe/LICENSE)
 
 <a href="https://fragapi.com">
-    <img src="docs/public/banner_en.png" width="500" alt="example alt" />
+    <img src="docs/public/banner_en.png" alt="Banner" />
 </a>
 
 
