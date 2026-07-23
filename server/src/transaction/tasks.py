@@ -14,6 +14,7 @@ from src.kit.ton_connect import TonConnectTransaction
 from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import Deposit, Transaction, User
+from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
 from src.telegram_log.service import telegram_log as telegram_log_service
 from src.telegram_log.tasks import admin_telegram_log_send
@@ -141,7 +142,7 @@ DAILY_LOG_TEXT = (
     "Transactions: <b>{transactions_count}</b> 🧾\n"
     "Transactions unique users: <b>{transactions_unique_users}</b> 👤\n\n"
     "Users: <b>{new_users_count}</b> 🐣 [<i>{users_total_count}</i>]\n"
-    "Deposits: <b>{deposits_count}</b> - <b>{deposits_amount:.2f} GRAM</b> 📊"
+    "Deposits: [<i>Req{deposit_requests_count}</i>] <b>{deposits_count}</b> - <b>{deposits_amount:.2f} GRAM</b> 📊"
 )
 
 
@@ -175,12 +176,19 @@ async def transactions_log_daily_stats(
     )
     users_total_count = await session.scalar(select(func.count(User.id))) or 0
 
-    deposits_stmt = select(
+    deposit_stmt = select(
         func.count(Deposit.id), func.coalesce(func.sum(Deposit.amount), 0)
-    ).where(func.date(Deposit.created_at) == yesterday_date)
+    ).where(
+        func.date(Deposit.created_at) == yesterday_date,
+        Deposit.status == DepositStatus.completed,
+    )
+    dep_result = await session.execute(deposit_stmt)
+    deposits_count, deposits_amount = dep_result.one()
 
-    d_row = await session.execute(deposits_stmt)
-    new_deposits_count, new_deposits_amount = d_row.one()
+    dep_req_stmt = select(func.count(Deposit.id)).where(
+        func.date(Deposit.created_at) == yesterday_date
+    )
+    deposit_requests_count = await session.scalar(dep_req_stmt) or 0
 
     enqueue_task(
         admin_telegram_log_send,
@@ -192,9 +200,10 @@ async def transactions_log_daily_stats(
             transactions_count=should_be_count,
             transactions_unique_users=transactions_unique_users,
             new_users_count=new_users,
-            deposits_count=new_deposits_count,
-            deposits_amount=new_deposits_amount,
+            deposits_count=deposits_count,
+            deposits_amount=deposits_amount,
             users_total_count=users_total_count,
+            deposit_requests_count=deposit_requests_count,
         ),
         with_notification=False,
     )

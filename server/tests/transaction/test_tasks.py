@@ -209,14 +209,19 @@ async def create_user(save_fixture: SaveFixture, *, balance: float = 0) -> User:
 
 # only for dep test
 async def create_deposit(
-    save_fixture: SaveFixture, user: User, amount: float, created_at: datetime
+    save_fixture: SaveFixture,
+    user: User,
+    amount: float,
+    created_at: datetime,
+    *,
+    completed: bool = True,
 ) -> Deposit:
     deposit = Deposit(
         user=user,
         amount=amount,
         hash=rstr("mock_hash"),
         ton_transaction=None,
-        status=DepositStatus.pending,
+        status=DepositStatus.completed if completed else DepositStatus.pending,
         created_at=created_at,
     )
     await save_fixture(deposit)
@@ -289,6 +294,7 @@ async def test_log_daily_stats_right_text(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            deposit_requests_count=0,
             users_total_count=2,
         ),
         with_notification=False,
@@ -316,6 +322,7 @@ async def test_log_empty_text(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            deposit_requests_count=0,
             users_total_count=0,
         ),
         with_notification=False,
@@ -357,6 +364,7 @@ async def test_log_right_unique_users_and_total_balance(
             new_users_count=0,
             deposits_count=0,
             deposits_amount=0,
+            deposit_requests_count=0,
             users_total_count=3,
         ),
         with_notification=False,
@@ -389,6 +397,7 @@ async def test_log_right_new_users(
             new_users_count=3,
             deposits_count=0,
             deposits_amount=0,
+            deposit_requests_count=0,
             users_total_count=3,
         ),
         with_notification=False,
@@ -415,6 +424,13 @@ async def test_log_right_new_deposits(
     await create_deposit(save_fixture, user=users[0], amount=1.85, created_at=utc_now())
     await create_deposit(save_fixture, user=users[2], amount=3, created_at=yesterday_dt)
     await create_deposit(save_fixture, user=users[1], amount=1.11, created_at=utc_now())
+    await create_deposit(
+        save_fixture,
+        user=users[1],
+        amount=3.22,
+        created_at=yesterday_dt,
+        completed=False,
+    )
 
     for user in users:
         await save_fixture(user)
@@ -433,6 +449,7 @@ async def test_log_right_new_deposits(
             new_users_count=3,
             deposits_count=2,
             deposits_amount=8.25,
+            deposit_requests_count=3,
             users_total_count=3,
         ),
         with_notification=False,
