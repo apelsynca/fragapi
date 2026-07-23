@@ -4,12 +4,9 @@
 ![Python Versions](https://img.shields.io/badge/Python-3.13-black?color=FFE873&labelColor=3776AB)
 [![License](https://img.shields.io/github/license/apelsynca/fragapi)](https://github.com/apelsynca/fragapi/blob/universe/LICENSE)
 
-<a href="https://fragapi.com">
-    <img src="docs/public/banner_en.png" alt="Banner" />
-</a>
-
-
-FragAPI is a service to automate [Fragment](https://fragment.com) functionality (via API). Fully open source.
+<p align="center">
+  FragAPI is a service to automate [Fragment](https://fragment.com) functionality (via API). Fully open source.
+</p>
 
 <div align="center">
 <a href="https://fragapi.com">Website</a>
@@ -36,8 +33,9 @@ Our [`DEVELOPMENT.md`](./DEVELOPMENT.md) file contains everything you need to kn
 
 ### Contributors
 
+
 <a href="https://github.com/apelsynca/fragapi/graphs/contributors">
-    Github Graph
+  <img src="https://contrib.rocks/image?repo=apelsynca/fragapi" />
 </a>
 
 ## License
