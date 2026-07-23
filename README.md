@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/apelsynca/fragapi)](https://github.com/apelsynca/fragapi/blob/universe/LICENSE)
 
 <p align="center">
-  FragAPI is a service to automate [Fragment](https://fragment.com) functionality (via API). Fully open source.
+  FragAPI is a service to automate <a href="https://fragment.com">Fragment</a> functionality (via API). Fully open source.
 </p>
 
 <div align="center">
