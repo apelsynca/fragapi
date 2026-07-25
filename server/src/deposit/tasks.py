@@ -1,18 +1,23 @@
 from datetime import timedelta
+from typing import Annotated
 
 from sqlalchemy import update
+from taskiq import TaskiqDepends
 
 from src.kit.utils import utc_now
 from src.models import Deposit
 from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
 from src.worker import broker
+from src.worker.sqlalchemy import get_async_session
 
 
 @broker.task(
     task_name="deposit.set_failed_to_expired_ones", schedule=[{"cron": "30 * * * *"}]
 )
-async def deposit_set_failed_to_expired_ones(session: AsyncSession) -> None:
+async def deposit_set_failed_to_expired_ones(
+    session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
+) -> None:
     await session.execute(
         update(Deposit)
         .values(status=DepositStatus.failed)
