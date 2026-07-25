@@ -283,7 +283,7 @@ async def test_all_good_right_calls_and_sets_lt(
 
 @pytest.mark.asyncio
 async def test_if_wrong_comment_hash_resolve_logs_and_returns(
-    transaction: TonTransaction,
+    ton_transaction: TonTransaction,
     transaction_service_mock: MagicMock,
     session: AsyncSession,
     valid_webhook_message: TonAPIWebhookMessage,
@@ -296,7 +296,7 @@ async def test_if_wrong_comment_hash_resolve_logs_and_returns(
     tonapi_rest_client_mock.blockchain.get_transaction.return_value = tonapi_tx_mock
 
     from_ta_t_mock = mocker.spy(TonDepositPayload, "from_tonapi_transaction")
-    transaction_service_mock.create_as_tonapi_internal.return_value = transaction
+    transaction_service_mock.create_as_tonapi_internal.return_value = ton_transaction
 
     await tonapi_service.process_webhook_acc_tx(
         session=session, webhook_message=valid_webhook_message

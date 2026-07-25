@@ -100,3 +100,7 @@ exclude_lines = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+# NOTE: will be enabled after some time
+# [tool.uv]
+# exclude-newer = "1 week"

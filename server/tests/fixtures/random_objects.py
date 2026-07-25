@@ -126,12 +126,6 @@ async def ton_transaction(save_fixture: SaveFixture) -> TonTransaction:
     return await create_ton_transaction(save_fixture)
 
 
-# TODO: remove transaction
-@pytest_asyncio.fixture
-async def transaction(save_fixture: SaveFixture) -> TonTransaction:
-    return await create_ton_transaction(save_fixture)
-
-
 async def create_ton_transaction(
     save_fixture: SaveFixture,
     *,
@@ -153,10 +147,10 @@ async def create_ton_transaction(
 # TODO: rename it
 @pytest_asyncio.fixture
 async def fragment_transaction(
-    save_fixture: SaveFixture, user: User, transaction: TonTransaction
+    save_fixture: SaveFixture, user: User, ton_transaction: TonTransaction
 ) -> Transaction:
     return await create_transaction(
-        save_fixture, user=user, ton_transaction=transaction
+        save_fixture, user=user, ton_transaction=ton_transaction
     )
 
 

@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
-    MIN_NON_SILENT_AMOUNT: float = 3
+    MIN_NON_SILENT_AMOUNT: float = 5
 
     FRAGMENT_SESSION_PATH: str = ""
 
