@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+import freezegun
 import pytest
 from sqlalchemy import select
 
@@ -63,7 +66,7 @@ async def test_login_by_bot_hash_deletes_old_and_creates_new_us(
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_api_token_gets_user(
+async def test_authenticate_by_api_token_gets_user_when_no_expiry(
     save_fixture: SaveFixture, session: AsyncSession, user: User
 ) -> None:
     api_token = await create_api_token(save_fixture, user=user)
@@ -72,3 +75,32 @@ async def test_authenticate_by_api_token_gets_user(
     )
 
     assert returned_user == user
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_api_token_gets_user_when_valid_expiry(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    api_token = await create_api_token(
+        save_fixture, user=user, expires_at=utc_now() + timedelta(days=1)
+    )
+    returned_user = await auth_service.authenticate_by_api_token(
+        session=session, token=api_token.token
+    )
+
+    assert returned_user == user
+
+
+@pytest.mark.asyncio
+@freezegun.freeze_time("2026-06-26 00:00:00")
+async def test_authenticate_by_api_token_respects_expired(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    api_token = await create_api_token(
+        save_fixture, user=user, expires_at=utc_now() - timedelta(seconds=1)
+    )
+    returned_user = await auth_service.authenticate_by_api_token(
+        session=session, token=api_token.token
+    )
+
+    assert returned_user is None

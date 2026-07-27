@@ -1,6 +1,6 @@
 import structlog
 from fastapi import Request
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import selectinload
 
 from src.auth.schemas import LoginResponse
@@ -57,7 +57,10 @@ class AuthService:
     ) -> User | None:
         api_token = await session.scalar(
             select(ApiToken)
-            .where(ApiToken.token == token)
+            .where(
+                ApiToken.token == token,
+                or_(ApiToken.expires_at > utc_now(), ApiToken.expires_at.is_(None)),
+            )
             .options(selectinload(ApiToken.user))
         )
 
