@@ -4,6 +4,12 @@
 ![Python Versions](https://img.shields.io/badge/Python-3.13-black?color=FFE873&labelColor=3776AB)
 [![License](https://img.shields.io/github/license/apelsynca/fragapi)](https://github.com/apelsynca/fragapi/blob/universe/LICENSE)
 
+<div align="center">
+    <a href="https://fragapi.com">
+        <img src="assets/banner.webp" />
+    </a>
+</div>
+
 <p align="center">
   FragAPI is a service to automate <a href="https://fragment.com">Fragment</a> functionality (via API). Fully open source.
 </p>
@@ -32,7 +38,6 @@ Show stats about transactions, spending
 Our [`DEVELOPMENT.md`](./DEVELOPMENT.md) file contains everything you need to know to configure your development environment.
 
 ### Contributors
-
 
 <a href="https://github.com/apelsynca/fragapi/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=apelsynca/fragapi" />
