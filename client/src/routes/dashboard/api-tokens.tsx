@@ -38,6 +38,10 @@ function ApiTokensRouteComp() {
           />
         ))}
       </div>
+
+      <p className="md:hidden mt-4 px-2 items-center [&_svg]:size-4 text-yellow-200/80 dark:text-yellow-500/80 text-xs">
+        Не показывайте токены недоверенным лицам, токен дает доступ к покупкам!
+      </p>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { toast } from 'sonner'
-import { TrashIcon } from 'lucide-react'
+import { TrashIcon, TriangleAlertIcon } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { deleteApiTokenFn } from '#/server-api/api-tokens'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -15,6 +15,7 @@ import {
 import { Button } from '../ui/button'
 import { cn } from '#/lib/utils'
 import { format } from 'date-fns'
+import { m } from '#/paraglide/messages'
 
 const ApiTokenCard = ({
   className,
@@ -39,7 +40,8 @@ const ApiTokenCard = ({
       <CardHeader>
         <CardTitle>{apiToken.name}</CardTitle>
         <CardDescription>
-          Активен до:{' '}
+          {m.api_tokens_valid_until()}
+          {': '}
           <span className="text-white">
             {apiToken.expiresAt
               ? format(apiToken.expiresAt, 'dd.MM.yyyy')

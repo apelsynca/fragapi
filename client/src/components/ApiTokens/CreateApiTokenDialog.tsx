@@ -68,7 +68,7 @@ const CreateApiTokenDialog = ({
           </FieldGroup>
           <FieldGroup>
             <Field>
-              <FieldLabel>Активен до</FieldLabel>
+              <FieldLabel>{m.api_tokens_valid_until()}</FieldLabel>
               <DatePicker date={expiresAt} setDate={setExpiresAt} />
             </Field>
           </FieldGroup>

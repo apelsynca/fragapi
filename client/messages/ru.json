@@ -50,5 +50,6 @@
   "api_tokens_title": "Ваши API Токены",
   "api_tokens_description": "Каждый из этих токенов предоставляет доступ к нашему сервису",
   "api_tokens_create": "Создать токен",
-  "api_tokens_add": "Добавить токен"
+  "api_tokens_add": "Добавить токен",
+  "api_tokens_valid_until": "Активен до"
 }
