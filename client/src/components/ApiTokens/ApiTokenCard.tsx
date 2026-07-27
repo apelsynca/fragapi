@@ -42,7 +42,7 @@ const ApiTokenCard = ({
           Активен до:{' '}
           <span className="text-white">
             {apiToken.expiresAt
-              ? format(apiToken.expiresAt, 'ppp')
+              ? format(apiToken.expiresAt, 'dd.MM.yyyy')
               : 'Бесконечно'}
           </span>
         </CardDescription>

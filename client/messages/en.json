@@ -37,6 +37,7 @@
   "deposit_title": "Balance deposit",
   "deposit_description": "Depositing via TON wallet",
   "amount": "Amount",
+  "create": "Create",
   "deposit_enter_right_amount": "Enter right deposit amount",
   "created_at": "Created at",
   "deposits_history_title": "Deposits history",
@@ -45,5 +46,9 @@
   "username": "Username",
   "copied_transaction_hash": "Copied transaction hash",
   "copy_hash": "Copy hash",
-  "actions": "Actions"
+  "actions": "Actions",
+  "api_tokens_title": "Your API Tokens",
+  "api_tokens_description": "Each of this tokens grant's access to our service",
+  "api_tokens_create": "Create token",
+  "api_tokens_add": "Add token"
 }

@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import CreateApiTokenDialog from '#/components/ApiTokens/CreateApiTokenDialog'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import CreateApiTokenDialog from '#/components/ApiTokens/CreateApiTokenDialog'
 import { apiTokensOptions } from '#/lib/queries'
 import ApiTokenCard from '#/components/ApiTokens/ApiTokenCard'
+import { m } from '#/paraglide/messages'
 
 export const Route = createFileRoute('/dashboard/api-tokens')({
   loader: ({ context }) => {
@@ -10,8 +11,6 @@ export const Route = createFileRoute('/dashboard/api-tokens')({
   },
   component: ApiTokensRouteComp,
 })
-
-// TODO: locale
 
 function ApiTokensRouteComp() {
   const { data: apiTokens } = useSuspenseQuery(apiTokensOptions())
@@ -21,10 +20,10 @@ function ApiTokensRouteComp() {
       <div className="flex flex-col items-center md:items-start gap-4 mb-4 md:mb-8">
         <div>
           <h2 className="text-center md:text-left text-xl font-medium">
-            Ваши API Токены
+            {m.api_tokens_title()}
           </h2>
           <p className="text-sm text-center text-muted-foreground">
-            Каждый из этих ключей предоставляет доступ к нашему сервису
+            {m.api_tokens_description()}
           </p>
         </div>
         <CreateApiTokenDialog haveZeroTokens={apiTokens.length === 0} />

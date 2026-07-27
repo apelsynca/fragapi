@@ -17,6 +17,7 @@ import { Input } from '../ui/input'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { DatePicker } from './DatePicker'
+import { m } from '#/paraglide/messages'
 
 const CreateApiTokenDialog = ({
   haveZeroTokens,
@@ -50,7 +51,8 @@ const CreateApiTokenDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={haveZeroTokens ? 'default' : 'secondary'}>
-          <PlusIcon /> {haveZeroTokens ? 'Создать токен' : 'Добавить токен'}
+          <PlusIcon />{' '}
+          {haveZeroTokens ? m.api_tokens_create() : m.api_tokens_add()}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -79,7 +81,7 @@ const CreateApiTokenDialog = ({
             disabled={name.length < 3}
             onClick={async () => createTokenMutation.mutateAsync()}
           >
-            Создать
+            {m.create()}
           </Button>
         </DialogFooter>
       </DialogContent>

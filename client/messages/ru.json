@@ -37,6 +37,7 @@
   "deposit_title": "Пополнение баланса",
   "deposit_description": "Пополнение баланса с TON кошелька",
   "amount": "Сумма",
+  "create": "Создать",
   "deposit_enter_right_amount": "Введите правильную сумму пополнения",
   "created_at": "Дата создания",
   "deposits_history_title": "История пополнений",
@@ -45,5 +46,9 @@
   "username": "Юзернейм",
   "copied_transaction_hash": "Скопировал хэш транзакции",
   "copy_hash": "Коп. хэш",
-  "actions": "Действия"
+  "actions": "Действия",
+  "api_tokens_title": "Ваши API Токены",
+  "api_tokens_description": "Каждый из этих токенов предоставляет доступ к нашему сервису",
+  "api_tokens_create": "Создать токен",
+  "api_tokens_add": "Добавить токен"
 }
