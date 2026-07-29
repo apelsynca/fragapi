@@ -11,11 +11,12 @@
 - feat: prettier landing page
 - fix: next-i18n causing hydration issues, switched to paraglide
 
-# v1.1.0 (10.07.2026)
+# v1.1.0 (x.07.2026)
 
 - feat: setting (non-ext) transaction hashes after the transaction is send
-- feat: setting transaction hashes for TON deposits
+- feat: setting transaction hashes for TON deposits (via task at later stage)
 - feat: redis recipient caching
 - feat: improved admin logs
 - fix: api tokens `expires_in` field
 - docs: better documentation for the project
+- feat: `show_sender` field in the stars/premium buy requests

@@ -75,7 +75,7 @@ extend-select = [
   "RUF10",  # RUF10x
   "RUF20",  # RUF200
 ]
-ignore = ["F841", "PT012"]
+ignore = ["F841", "PT012", "B0008"]
 
 [tool.ruff.lint.per-file-ignores]
 "migrations/*" = [
