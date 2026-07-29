@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     TELEGRAM_LOG_SENDER: TelegramLogSender = (
         TelegramLogSender.logger
     )  # used for admin log sender aswell
+    ADMIN_TELEGRAM_NOTIFICATIONS_CHAT_ID: int | str = ""
     ADMIN_TELEGRAM_LOGS_CHAT_ID: int | str = ""
 
     # LogTide

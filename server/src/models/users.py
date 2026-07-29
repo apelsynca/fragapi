@@ -29,3 +29,9 @@ class User(TimestampedModel):
     telegram_logs_sources: Mapped[list["TelegramLogsSource"]] = relationship(
         back_populates="user"
     )
+
+    @property
+    def full_name(self) -> str:
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.first_name

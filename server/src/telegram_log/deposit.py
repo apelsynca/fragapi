@@ -1,5 +1,5 @@
 from src.models import Deposit
-from src.telegram_log.tasks import admin_telegram_log_send
+from src.telegram_log.tasks import admin_telegram_notification_send
 from src.worker import enqueue_task
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
@@ -28,7 +28,7 @@ def enqueue_new_deposit_admin_log_task(deposit: Deposit) -> None:
     )
 
     enqueue_task(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
             amount=deposit.amount,
             user_field=user_field,

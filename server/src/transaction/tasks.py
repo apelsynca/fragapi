@@ -17,7 +17,7 @@ from src.models import Deposit, Transaction, User
 from src.models.deposits import DepositStatus
 from src.postgres import AsyncSession
 from src.telegram_log.service import telegram_log as telegram_log_service
-from src.telegram_log.tasks import admin_telegram_log_send
+from src.telegram_log.tasks import admin_telegram_notification_send
 from src.telegram_log.transaction import (
     enqueue_transaction_admin_log_task,
     enqueue_transaction_telegram_log_task,
@@ -191,7 +191,7 @@ async def transactions_log_daily_stats(
     deposit_requests_count = await session.scalar(dep_req_stmt) or 0
 
     enqueue_task(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_date.strftime("%m-%d"),
             total_balance=total_balance,

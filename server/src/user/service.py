@@ -5,12 +5,19 @@ from src.exceptions import BadRequest, ResourceNotFound
 from src.logging import Logger
 from src.models import User
 from src.postgres import AsyncSession
+from src.telegram_log.tasks import admin_telegram_log_send
 from src.user.repository import UserRepository
+from src.worker import enqueue_task
 
 log: Logger = structlog.get_logger()
 
 
 class UserService:
+    NEW_USER_LOG = (
+        "New user: [<code>{id}</code>] "
+        "<a href='tg://user?id={id}'>{full_name}</a> {username}"
+    )
+
     async def get_by_id(self, session: AsyncSession, id: int) -> User:
         repository = UserRepository.from_session(session)
         user = await repository.get_by_id(id=id)
@@ -30,7 +37,7 @@ class UserService:
 
         repository = UserRepository.from_session(session)
 
-        return await repository.create(
+        user = await repository.create(
             User(
                 id=tg_user.id,
                 first_name=tg_user.first_name,
@@ -40,6 +47,18 @@ class UserService:
             ),
             flush=True,
         )
+
+        enqueue_task(
+            admin_telegram_log_send,
+            text=self.NEW_USER_LOG.format(
+                id=user.id,
+                full_name=user.full_name,
+                username=f"@{user.username}" if user.username else "--",
+            ),
+            with_notification=False,
+        )
+
+        return user
 
     async def update_by_tg_user(
         self, session: AsyncSession, user: User, tg_user: TGUser

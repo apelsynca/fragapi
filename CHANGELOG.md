@@ -14,5 +14,8 @@
 # v1.1.0 (10.07.2026)
 
 - feat: setting (non-ext) transaction hashes after the transaction is send
-- [ ] feat: setting transaction hashes for TON deposits
-- [ ] feat: redis recipient caching
+- feat: setting transaction hashes for TON deposits
+- feat: redis recipient caching
+- feat: improved admin logs
+- fix: api tokens `expires_in` field
+- docs: better documentation for the project

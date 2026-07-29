@@ -1,24 +1,42 @@
 import pytest
 from aiogram.types import User as TGUser
+from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import BadRequest
 from src.models import User
+from src.telegram_log.tasks import admin_telegram_log_send
 from src.user.service import user as user_service
 
 
 @pytest.mark.asyncio
-async def test_creates_from_tg_user(session: AsyncSession) -> None:
+async def test_creates_from_tg_user(
+    session: AsyncSession, mocker: MockerFixture
+) -> None:
+    enqueue_task_mock = mocker.patch("src.user.service.enqueue_task")
+
     tg_user = TGUser(
-        id=99299, is_bot=False, first_name="Homo Citrus", username="homocitrus"
+        id=99299, is_bot=False, first_name="Some_WeirdName", username="homocitrus"
     )
 
     user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
 
     assert user.id == 99299
-    assert user.first_name == "Homo Citrus"
+    assert user.first_name == "Some_WeirdName"
     assert user.username == "homocitrus"
     assert user.balance == 0
+
+    # and
+    enqueue_task_mock.assert_called_once_with(
+        admin_telegram_log_send,
+        text=user_service.NEW_USER_LOG.format(
+            id=99299,
+            full_name="Some_WeirdName",
+            username="@homocitrus",
+            url="tg://user?id=99299",
+        ),
+        with_notification=False,
+    )
 
 
 @pytest.mark.asyncio

@@ -18,7 +18,7 @@ from src.kit.utils import utc_now
 from src.models import Transaction, User
 from src.models.deposits import Deposit, DepositStatus
 from src.postgres import AsyncSession
-from src.telegram_log.tasks import admin_telegram_log_send
+from src.telegram_log.tasks import admin_telegram_notification_send
 from src.transaction.tasks import (
     DAILY_LOG_TEXT,
     fragment_transaction_process,
@@ -283,7 +283,7 @@ async def test_log_daily_stats_right_text(
     await transactions_log_daily_stats(session)
 
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=0,
@@ -311,7 +311,7 @@ async def test_log_empty_text(
     await transactions_log_daily_stats(session)
 
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=0,
@@ -353,7 +353,7 @@ async def test_log_right_unique_users_and_total_balance(
 
     users_count = len(users)
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=5.12,
@@ -386,7 +386,7 @@ async def test_log_right_new_users(
     await transactions_log_daily_stats(session)
 
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=0,
@@ -438,7 +438,7 @@ async def test_log_right_new_deposits(
     await transactions_log_daily_stats(session)
 
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=DAILY_LOG_TEXT.format(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=0,

@@ -7,7 +7,7 @@ from src.telegram_log.deposit import (
     NEW_DEPOSIT_TON_TRANSACTION_TEXT,
     enqueue_new_deposit_admin_log_task,
 )
-from src.telegram_log.tasks import admin_telegram_log_send
+from src.telegram_log.tasks import admin_telegram_notification_send
 from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_ton_transaction
 
@@ -30,7 +30,7 @@ async def test_enqueue_new_deposit_right_calls(
         else f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
     )
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
             amount=5.1259,
             user_field=expected_user_field,
@@ -76,7 +76,7 @@ async def test_enqueue_new_deposit_with_ton_transaction_right_calls(
         in ton_trans_text
     )
     enqueue_task_mock.assert_called_once_with(
-        admin_telegram_log_send,
+        admin_telegram_notification_send,
         text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
             amount=300,
             user_field=expected_user_field,

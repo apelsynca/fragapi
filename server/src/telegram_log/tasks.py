@@ -3,7 +3,7 @@ import structlog
 from src.logging import Logger
 from src.worker import broker
 
-from .admin_sender import admin_telegram_log_sender
+from .admin_sender import admin_telegram_log_sender, admin_telegram_notification_sender
 from .sender import TelegramLogChatNotFound, telegram_log_sender
 
 log: Logger = structlog.get_logger()
@@ -19,9 +19,20 @@ async def telegram_log_send(
         )
     except TelegramLogChatNotFound:
         log.info("telegram_log.send.chat_not_found", chat_id=chat_id)
-    except Exception as e:
-        log.error("telegram_log.send.error", exc_info=True)
-        raise e
+    except Exception:
+        log.exception("telegram_log.send.error")
+        raise
+
+
+@broker.task(task_name="admin_telegram_notification.send")
+async def admin_telegram_notification_send(text: str, with_notification: bool) -> None:
+    try:
+        await admin_telegram_notification_sender.send(
+            text=text, with_notification=with_notification
+        )
+    except Exception:
+        log.exception("admin_telegram_notification.send.error")
+        raise
 
 
 @broker.task(task_name="admin_telegram_log.send")
@@ -30,6 +41,6 @@ async def admin_telegram_log_send(text: str, with_notification: bool) -> None:
         await admin_telegram_log_sender.send(
             text=text, with_notification=with_notification
         )
-    except Exception as e:
-        log.error("admin_telegram_log.send.error", exc_info=True)
-        raise e
+    except Exception:
+        log.exception("admin_telegram_log.send.error")
+        raise

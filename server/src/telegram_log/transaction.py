@@ -3,7 +3,7 @@ from ton_core import to_amount
 from src.config import settings
 from src.enums import TransactionReason
 from src.models import TelegramLogsSource, Transaction
-from src.telegram_log.tasks import admin_telegram_log_send, telegram_log_send
+from src.telegram_log.tasks import admin_telegram_notification_send, telegram_log_send
 from src.worker import enqueue_task
 
 STAR_EMOJI = "⭐️"
@@ -14,7 +14,7 @@ USER_TELEGRAM_LOG_TEXT = (
     "Тип: {reason}\n"
     "Сумма: <b>{amount:.4f} TON</b>\n\n"
     "Юзернейм получателя: @{username}\n"
-    "Нагрузка транзакции: {value}"
+    "Payload: {value}"
 )
 
 
@@ -26,7 +26,7 @@ def enqueue_transaction_telegram_log_task(
         STAR_EMOJI if transaction.reason == TransactionReason.stars else GIFT_EMOJI
     )
 
-    value_str = "Без подгрузочки"
+    value_str = "Без payload"
     if transaction.premium_months:
         value_str = f"{transaction.premium_months} месяцев"
     elif transaction.stars_amount:
@@ -46,16 +46,13 @@ def enqueue_transaction_telegram_log_task(
     )
 
 
-STAR_EMOJI = "⭐️"
-GIFT_EMOJI = "🎁"
-
-ADMIN_TELEGRAM_LOG_TEXT = (
+ADMIN_TELEGRAM_TRANSACTION_TEXT = (
     "{head_emoji} <b>New transaction</b>\n\n"
     "User: {user_field}\n"
     "Amount: <b>{amount:.4f} GRAM</b> (<i>+{fee_amount:.4f} GRAM</i>)\n"
     "Type: {reason}\n\n"
-    "Rec-Username: {username}\n"
-    "Rec-Value: {value_str}"
+    "To username: <i>{username}</i>\n"
+    "Payload: <i>{value_str}</i>"
 )
 
 
@@ -80,7 +77,7 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
         else f"<a href='tg://user?id={transaction.user_id}'>{transaction.user.first_name}</a>"
     )
 
-    text = ADMIN_TELEGRAM_LOG_TEXT.format(
+    text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=head_emoji,
         user_field=user_field,
         amount=transaction.amount,
@@ -92,7 +89,7 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
 
     with_notification = transaction.amount > settings.MIN_NON_SILENT_AMOUNT
 
-    # TODO: admin_telegram_log_send was not tested and worked for usual telegram_log_send
+    # TODO: tests for this part of the file
     enqueue_task(
-        admin_telegram_log_send, text=text, with_notification=with_notification
+        admin_telegram_notification_send, text=text, with_notification=with_notification
     )
