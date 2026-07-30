@@ -133,15 +133,15 @@ async def create_ton_transaction(
     message_hash: str | None = None,
     hash: str | None = None,
 ) -> TonTransaction:
-    transaction = TonTransaction(
+    ton_transaction = TonTransaction(
         nano_amount=to_nano(random.randint(1, 100) / 10 if amount is None else amount),
         hash=hash,
-        message_hash=message_hash if message_hash is not None else rstr("somemsghash"),
+        message_hash=message_hash if message_hash else rstr("somemsghash"),
         from_address=rstr("someaddress"),
         to_address=rstr("someaddress"),
     )
-    await save_fixture(transaction)
-    return transaction
+    await save_fixture(ton_transaction)
+    return ton_transaction
 
 
 # TODO: rename it
@@ -162,11 +162,13 @@ async def create_transaction(
     amount: float | None = None,
     stars_amount: int | None = None,
     premium_months: int | None = None,
+    recipient_username: str | None = None,
 ) -> Transaction:
+    recipient_username = recipient_username if recipient_username else rstr("username")
     frag_trans = Transaction(
         user=user,
         recipient=rstr("recipient"),
-        recipient_username=rstr("username"),
+        recipient_username=recipient_username,
         amount=amount if amount is not None else random.randint(1, 250) / 100,
         ton_transaction=ton_transaction,
         reason=TransactionReason.premium if premium_months else TransactionReason.stars,

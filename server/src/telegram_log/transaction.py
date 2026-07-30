@@ -47,10 +47,9 @@ def enqueue_transaction_telegram_log_task(
 
 
 ADMIN_TELEGRAM_TRANSACTION_TEXT = (
-    "{head_emoji} <b>New transaction</b>\n\n"
+    "{head_emoji} <b>New <a href='{url}'>transaction</a></b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.4f} GRAM</b> (<i>+{fee_amount:.4f} GRAM</i>)\n"
-    "Type: {reason}\n\n"
+    "Amount: <b>{amount:.4f} GRAM</b> <i>+{fee_amount} GRAM</i>\n\n"
     "To username: <i>{username}</i>\n"
     "Payload: <i>{value_str}</i>"
 )
@@ -79,17 +78,16 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=head_emoji,
+        url=f"https://tonscan.org/tx/{transaction.ton_transaction.message_hash}",
         user_field=user_field,
         amount=transaction.amount,
         fee_amount=fee_amount,
-        reason=transaction.reason,
         username=f"@{transaction.recipient_username}",
         value_str=value_str,
     )
 
     with_notification = transaction.amount > settings.MIN_NON_SILENT_AMOUNT
 
-    # TODO: tests for this part of the file
     enqueue_task(
         admin_telegram_notification_send, text=text, with_notification=with_notification
     )
