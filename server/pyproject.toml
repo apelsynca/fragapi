@@ -101,6 +101,5 @@ exclude_lines = [
 venvPath = "."
 venv = ".venv"
 
-# NOTE: will be enabled after some time
-# [tool.uv]
-# exclude-newer = "1 week"
+[tool.uv]
+exclude-newer = "1 week"

@@ -24,6 +24,14 @@ else:
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="frag_",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        env_file=env_file,
+        extra="allow",
+    )
+
     ENV: Environment = Environment.development
     LOG_LEVEL: str = "DEBUG"
 
@@ -118,14 +126,6 @@ class Settings(BaseSettings):
 
     def is_environment(self, environments: set[Environment]) -> bool:
         return self.ENV in environments
-
-    model_config = SettingsConfigDict(
-        env_prefix="frag_",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        env_file=env_file,
-        extra="allow",
-    )
 
 
 settings = Settings()
