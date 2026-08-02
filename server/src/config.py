@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     API_PAGINATION_MAX_LIMIT: int = 100
     MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
     MIN_NON_SILENT_AMOUNT: float = 5
+    RECIPIENT_CACHE_TIME: timedelta = timedelta(minutes=10)
 
     FRAGMENT_SESSION_PATH: str = ""
 
