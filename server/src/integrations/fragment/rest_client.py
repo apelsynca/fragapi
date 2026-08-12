@@ -125,10 +125,8 @@ class FragmentRestClient:
         main_page_tokens = await self.get_main_page_tokens()
         if main_page_tokens.hash != session.hash:
             return False
-        if main_page_tokens.ton_proof_payload != session.ton_proof_payload:
-            return False
 
-        return True
+        return main_page_tokens.ton_proof_payload == session.ton_proof_payload
 
     async def get_main_page_tokens(self) -> MainPageTokens:
         status_code, content = await self._client.do_request(
