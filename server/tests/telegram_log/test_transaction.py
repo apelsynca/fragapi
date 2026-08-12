@@ -46,7 +46,11 @@ async def test_enqueue_transaction_admin_log_task_right_data(
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=STAR_EMOJI,
-        url="https://tonscan.org/tx/someMessageHash",  # yep, message hash, not usual hash
+        head_title_url=ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
+            hash=transaction.ton_transaction.hash
+        )
+        if transaction.ton_transaction.hash
+        else "transaction",
         user_field=user_field,
         amount=5.28,
         fee_amount=fee_amount,

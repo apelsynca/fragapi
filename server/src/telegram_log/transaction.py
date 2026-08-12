@@ -46,10 +46,13 @@ def enqueue_transaction_telegram_log_task(
     )
 
 
+ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE = (
+    "<a href='https://tonscan.org/tx/{hash}'>transaction</a>"
+)
 ADMIN_TELEGRAM_TRANSACTION_TEXT = (
-    "{head_emoji} <b>New <a href='{url}'>transaction</a></b>\n\n"
+    "{head_emoji} <b>New {head_title_url}</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.4f} GRAM</b> <i>+{fee_amount} GRAM</i>\n\n"
+    "Amount: <b>{amount:.4f} GRAM</b> <i>+{fee_amount:.5f} GRAM</i>\n\n"
     "To username: <i>{username}</i>\n"
     "Payload: <i>{value_str}</i>"
 )
@@ -78,7 +81,11 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=head_emoji,
-        url=f"https://tonscan.org/tx/{transaction.ton_transaction.message_hash}",
+        head_title_url=ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
+            hash=transaction.ton_transaction.hash
+        )
+        if transaction.ton_transaction.hash
+        else "transaction",
         user_field=user_field,
         amount=transaction.amount,
         fee_amount=fee_amount,
