@@ -24,6 +24,14 @@ else:
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="frag_",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        env_file=env_file,
+        extra="allow",
+    )
+
     ENV: Environment = Environment.development
     LOG_LEVEL: str = "DEBUG"
 
@@ -63,15 +71,6 @@ class Settings(BaseSettings):
     # LogTide
     LOGTIDE_TOKEN: str | None = None
 
-    # Application behaviours
-    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
-    API_PAGINATION_MAX_LIMIT: int = 100
-    MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
-    MIN_NON_SILENT_AMOUNT: float = 5
-
-    FRAGMENT_SESSION_PATH: str = ""
-
-    # Redis
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
@@ -80,6 +79,18 @@ class Settings(BaseSettings):
     AMQP_USER: str = "guest"
     AMQP_PWD: str = "guest"
     AMQP_PORT: int = 5672
+
+    # Application behaviours
+    API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
+    API_PAGINATION_MAX_LIMIT: int = 100
+    MIN_TON_DEPOSIT_AMOUNT: float = Field(gt=0, default=0.25)
+    MIN_NON_SILENT_AMOUNT: float = 5
+    RECIPIENT_CACHE_TIME: timedelta = timedelta(minutes=10)
+
+    FRAGMENT_SESSION_PATH: str = ""
+
+    TELEGRAM_CHANNEL_URL: str = "https://t.me/frag_api"
+    TELEGRAM_CHAT_URL: str = "https://t.me/fragapichat"
 
     def generate_panel_url(self, path: str) -> str:
         return f"{self.PANEL_URL}{path}"
@@ -118,14 +129,6 @@ class Settings(BaseSettings):
 
     def is_environment(self, environments: set[Environment]) -> bool:
         return self.ENV in environments
-
-    model_config = SettingsConfigDict(
-        env_prefix="frag_",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        env_file=env_file,
-        extra="allow",
-    )
 
 
 settings = Settings()

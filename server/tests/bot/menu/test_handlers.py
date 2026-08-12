@@ -9,6 +9,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.bot import custom_emoji
 from src.bot.menu import texts
 from src.bot.menu.handlers import command_start, login, user_service
 from src.config import settings
@@ -105,7 +106,13 @@ async def test_menu_authorized_answers_right_text_and_keyboard(
     await command_start(message, session, CommandObject(command="start"))
 
     message.answer.assert_called_once_with(
-        text=texts.MENU.format(full_name="Firstiie", balance=user.balance),
+        text=texts.MENU.format(
+            emoji=custom_emoji.FRAGMENT_ANIMATED.html,
+            full_name="Firstiie",
+            balance=user.balance,
+            channel_url=settings.TELEGRAM_CHANNEL_URL,
+            chat_url=settings.TELEGRAM_CHAT_URL,
+        ),
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [

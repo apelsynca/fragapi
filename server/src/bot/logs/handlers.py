@@ -65,7 +65,7 @@ async def on_logs_target_changed(
 ) -> None:
     if message.text is None:
         await message.answer(
-            text=texts.ENTER_TEXT_LOL, reply_to_message_id=message.message_id
+            text=texts.NO_TEXT_WAS_ENTERED, reply_to_message_id=message.message_id
         )
         return
 

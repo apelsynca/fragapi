@@ -10,6 +10,7 @@ from aiogram.types import (
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.bot import custom_emoji
 from src.bot.menu import keyboards, texts
 from src.config import settings
 from src.exceptions import ResourceNotFound
@@ -45,7 +46,13 @@ async def command_start(
         return await login(message=message, session=session, user=user)
 
     await message.answer(
-        text=texts.MENU.format(full_name=tg_user.full_name, balance=user.balance),
+        text=texts.MENU.format(
+            emoji=custom_emoji.FRAGMENT_ANIMATED.html,
+            full_name=tg_user.full_name,
+            balance=user.balance,
+            channel_url=settings.TELEGRAM_CHANNEL_URL,
+            chat_url=settings.TELEGRAM_CHAT_URL,
+        ),
         reply_markup=keyboards.panel(),
     )
 

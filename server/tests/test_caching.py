@@ -1,9 +1,9 @@
-from datetime import timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from src.caching import premium_recipient_cache, stars_recipient_cache
+from src.config import settings
 from src.premium.schemas import PremiumRecipient
 from src.redis import Redis
 from src.schemas import BaseRecipient
@@ -97,7 +97,7 @@ async def test_sets_stars_recipient_with_right_data_expiration(
     redis_mock.set.assert_awaited_once_with(
         name=f"{stars_recipient_cache.caching_key}:my_username1337",
         value=stars_recipient.model_dump_json(),
-        ex=timedelta(minutes=10),
+        ex=settings.RECIPIENT_CACHE_TIME,
     )
 
 
@@ -120,7 +120,7 @@ async def test_sets_premium_recipient_with_right_data_and_expiration(
     redis_mock.set.assert_awaited_once_with(
         name=f"{premium_recipient_cache.caching_key}:devsynca",
         value=premium_recipient.model_dump_json(),
-        ex=timedelta(minutes=10),
+        ex=settings.RECIPIENT_CACHE_TIME,
     )
 
 

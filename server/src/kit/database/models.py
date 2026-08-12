@@ -17,8 +17,8 @@ class IDModel(Model):
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=generate_uuid)
 
-    def __eq__(self, __value: object) -> bool:
-        return isinstance(__value, self.__class__) and self.id == __value.id
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, self.__class__) and self.id == other.id
 
     def __hash__(self) -> int:
         return self.id.int

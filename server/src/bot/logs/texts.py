@@ -20,4 +20,4 @@ GIVE_CHAT_ID = (
 LOGS_WILL_BE_HERE = "Логи о транзакциях будут приходить в этот чат (от бота)"
 CHANGED_TARGET_CHAT_ID = "Changed target to a new one!"
 
-ENTER_TEXT_LOL = "Enter text lol"
+NO_TEXT_WAS_ENTERED = "No text war entered"
