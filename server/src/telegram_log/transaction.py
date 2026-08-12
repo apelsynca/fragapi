@@ -78,14 +78,17 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
         if transaction.user.username
         else f"<a href='tg://user?id={transaction.user_id}'>{transaction.user.first_name}</a>"
     )
-
-    text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
-        head_emoji=head_emoji,
-        head_title_url=ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
+    head_title_url = (
+        ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE.format(
             hash=transaction.ton_transaction.hash
         )
         if transaction.ton_transaction.hash
-        else "transaction",
+        else "transaction"
+    )
+
+    text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
+        head_emoji=head_emoji,
+        head_title_url=head_title_url,
         user_field=user_field,
         amount=transaction.amount,
         fee_amount=fee_amount,

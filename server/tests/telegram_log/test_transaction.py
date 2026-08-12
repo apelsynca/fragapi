@@ -7,6 +7,7 @@ from src.models import User
 from src.telegram_log.tasks import admin_telegram_notification_send
 from src.telegram_log.transaction import (
     ADMIN_TELEGRAM_TRANSACTION_TEXT,
+    ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE,
     STAR_EMOJI,
     enqueue_transaction_admin_log_task,
 )
@@ -46,7 +47,7 @@ async def test_enqueue_transaction_admin_log_task_right_data(
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=STAR_EMOJI,
-        head_title_url=ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
+        head_title_url=ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE.format(
             hash=transaction.ton_transaction.hash
         )
         if transaction.ton_transaction.hash
