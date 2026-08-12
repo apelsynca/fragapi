@@ -71,6 +71,15 @@ class Settings(BaseSettings):
     # LogTide
     LOGTIDE_TOKEN: str | None = None
 
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+
+    AMQP_HOST: str = "127.0.0.1"
+    AMQP_USER: str = "guest"
+    AMQP_PWD: str = "guest"
+    AMQP_PORT: int = 5672
+
     # Application behaviours
     API_PRICE_MARKUP: float = Field(gt=0, default=0.01)
     API_PAGINATION_MAX_LIMIT: int = 100
@@ -80,15 +89,8 @@ class Settings(BaseSettings):
 
     FRAGMENT_SESSION_PATH: str = ""
 
-    # Redis
-    REDIS_HOST: str = "127.0.0.1"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
-
-    AMQP_HOST: str = "127.0.0.1"
-    AMQP_USER: str = "guest"
-    AMQP_PWD: str = "guest"
-    AMQP_PORT: int = 5672
+    TELEGRAM_CHANNEL_URL: str = "https://t.me/frag_api"
+    TELEGRAM_CHAT_URL: str = "https://t.me/fragapichat"
 
     def generate_panel_url(self, path: str) -> str:
         return f"{self.PANEL_URL}{path}"
