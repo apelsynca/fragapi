@@ -147,7 +147,7 @@ class Production(Logging[structlog.dev.ConsoleRenderer]):
 def configure(*, logtide_service: LogtideService | None = None) -> None:
     if settings.is_testing():
         Development.configure(logtide_service=None)
-    if settings.is_development():
+    elif settings.is_development():
         Development.configure(logtide_service=logtide_service)
     else:
         Production.configure(logtide_service=logtide_service)
