@@ -20,7 +20,7 @@ class Transaction(RecordModel):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", back_populates="transactions")
 
-    amount: Mapped[float]  # amount in TON with fee
+    amount: Mapped[float]  # amount in GRAM with fee
     recipient: Mapped[str]  # later can be nullable
     recipient_username: Mapped[str]  # later can be nullable
 

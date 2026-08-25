@@ -1,6 +1,6 @@
 from src.config import settings
 
-TON_FEE = 0.00582  # 0.00582 TON in general
+TON_FEE = 0.00582  # 0.00582 GRAM in general
 
 
 def after_fee(amount: float) -> float:
@@ -14,5 +14,5 @@ def approx_before_fee(amount: float) -> float:
 
 
 def after_ton_network_fee(amount: float) -> float:
-    """Calculate amount with TON blockchain fee's"""
+    """Calculate amount with TON blockchains fee"""
     return amount + TON_FEE

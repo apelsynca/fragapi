@@ -25,7 +25,7 @@ class TonDepositPayload:
 
     def get_memo(self) -> str:
         """Get memo (comment) for payload"""
-        return self.COMMENT_PATTERN.format(self.ref_hash)
+        return self.COMMENT_TEMPLATE.format(self.ref_hash)
 
     @classmethod
     def from_tonapi_transaction(cls, tonapi_transaction: TonAPITransaction) -> Self:

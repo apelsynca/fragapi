@@ -23,6 +23,12 @@ def test_generates_ton_ref_hash(ref_hash: str) -> None:
     assert ton_deposit_payload.get_base64() == payload
 
 
+def test_get_memo_right_data() -> None:
+    ref_hash = "Some1_aRefHash"
+    expected = TonDepositPayload.COMMENT_TEMPLATE.format(ref_hash)
+    assert TonDepositPayload(ref_hash).get_memo() == expected
+
+
 @pytest.mark.parametrize("ref_hash", ["SomePayload", "And_Aother-WeirdPaylo1ad12"])
 def test_parses_right_payload(ref_hash: str) -> None:
     tonapi_transaction = create_tonapi_transaction_mock(
