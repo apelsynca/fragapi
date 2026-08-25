@@ -36,7 +36,7 @@ class AuthSubject[S]:
                 return f"user:{self.subject.id}"
             case Anonymous():
                 return "anonymous"
-        raise
+        raise  # JIC
 
     @cached_property
     def rate_limit_group(self) -> RateLimitGroup:

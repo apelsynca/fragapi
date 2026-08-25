@@ -41,9 +41,9 @@ async def get_auth_subject(
                         Scope.web,
                         Scope.transactions_read,
                         Scope.ton_rate_read,
-                        # Scope.api_tokens_read,
                         Scope.api_tokens_read,
                         Scope.read_user,
+                        Scope.deposit,
                     },
                     user_session,
                 )
@@ -58,6 +58,7 @@ async def get_auth_subject(
                     Scope.premium,
                     Scope.ton_rate_read,
                     Scope.read_user,
+                    Scope.deposit,
                 },
                 None,
             )

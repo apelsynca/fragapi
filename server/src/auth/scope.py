@@ -4,7 +4,6 @@ from enum import StrEnum
 class Scope(StrEnum):
     web = "web"
     api = "api"
-    admin = "admin"
 
     read_user = "user:read"
 
@@ -16,3 +15,5 @@ class Scope(StrEnum):
     premium = "premium"
 
     api_tokens_read = "api_tokens:read"
+
+    deposit = "deposit"

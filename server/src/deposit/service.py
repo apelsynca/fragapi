@@ -7,7 +7,7 @@ from ton_core import to_amount, to_nano
 
 from src.config import settings
 from src.deposit.repository import DepositRepository
-from src.deposit.schemas import DepositTonRequestMessage
+from src.deposit.schemas import DepositTonMemoResponse, DepositTonRequestMessage
 from src.deposit.sorting import DepositSortProperty
 from src.deposit.ton_payload import TonDepositPayload
 from src.exceptions import BadRequest, FragError, ResourceNotFound
@@ -28,10 +28,11 @@ class DepositService:
         session: AsyncSession,
         user: User,
         pagination: PaginationParams,
-        sorting: list[Sorting[DepositSortProperty]] = [
-            (DepositSortProperty.created_at, True)
-        ],
+        sorting: list[Sorting[DepositSortProperty]] | None = None,
     ) -> tuple[Sequence[Deposit], int]:
+        if sorting is None:
+            sorting = [(DepositSortProperty.created_at, True)]
+
         repository = DepositRepository.from_session(session)
 
         stmt = (
@@ -54,6 +55,17 @@ class DepositService:
             address=settings.TON_ADDRESS,
             amount=str(to_nano(deposit.amount)),
             payload=TonDepositPayload(ref_hash=deposit.hash).get_base64(),
+        )
+
+    async def create_ton_memo(
+        self, session: AsyncSession, user: User, amount: float
+    ) -> DepositTonMemoResponse:
+        deposit = await self.create(session=session, user=user, amount=amount)
+
+        return DepositTonMemoResponse(
+            address=settings.TON_ADDRESS,
+            amount=deposit.amount,
+            memo=TonDepositPayload(ref_hash=deposit.hash).get_memo(),
         )
 
     async def create(

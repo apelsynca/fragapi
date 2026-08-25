@@ -125,9 +125,8 @@ async def test_raises_bad_different_amounts(
     assert user.balance == 0
 
 
-# creating stuff
 @pytest.mark.asyncio
-async def test_create_ton_right_payload(
+async def test_create_ton_right_payload_and_address(
     session: AsyncSession, user: User, mocker: MockerFixture, save_fixture: SaveFixture
 ) -> None:
     ref_hash = "SomekingoF-Hashxx"
@@ -140,6 +139,24 @@ async def test_create_ton_right_payload(
     )
 
     assert deposit_req_msg.payload == TonDepositPayload(ref_hash=ref_hash).get_base64()
+    assert deposit_req_msg.address == settings.TON_ADDRESS
+
+
+@pytest.mark.asyncio
+async def test_create_ton_memo_right_memo_and_address(
+    session: AsyncSession, user: User, mocker: MockerFixture, save_fixture: SaveFixture
+) -> None:
+    ref_hash = "Other Ref_hash"
+    deposit = await create_deposit(save_fixture, user=user, amount=6.251, hash=ref_hash)
+
+    mocker.patch.object(deposit_service, "create", return_value=deposit)
+
+    deposit_memo_resp = await deposit_service.create_ton_memo(
+        session=session, user=user, amount=6.251
+    )
+
+    assert deposit_memo_resp.memo == TonDepositPayload(ref_hash=ref_hash).get_memo()
+    assert deposit_memo_resp.address == settings.TON_ADDRESS
 
 
 @pytest.mark.asyncio

@@ -13,22 +13,24 @@ class TonDepositPayload:
     def __init__(self, ref_hash: str) -> None:
         self.ref_hash = ref_hash
 
-    def get_base64(self):
+    def get_base64(self) -> str:
         payload_cell = (
             begin_cell()
             .store_uint(0, 32)
-            .store_snake_string(
-                TonDepositPayload.COMMENT_TEMPLATE.format(self.ref_hash)
-            )
+            .store_snake_string(self.COMMENT_TEMPLATE.format(self.ref_hash))
             .end_cell()
         )
         payload_boc = payload_cell.to_boc()
         return base64.b64encode(payload_boc).decode("utf-8")
 
+    def get_memo(self) -> str:
+        """Get memo (comment) for payload"""
+        return self.COMMENT_PATTERN.format(self.ref_hash)
+
     @classmethod
     def from_tonapi_transaction(cls, tonapi_transaction: TonAPITransaction) -> Self:
         if tonapi_transaction.in_msg is None:
-            raise
+            raise ValueError("no in_msg provided")
 
         if (
             tonapi_transaction.in_msg.decoded_body is None

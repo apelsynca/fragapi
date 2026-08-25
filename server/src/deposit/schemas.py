@@ -11,6 +11,12 @@ class DepositTonRequestMessage(Schema):
     payload: str
 
 
+class DepositTonMemoResponse(Schema):
+    address: str
+    amount: float
+    memo: str
+
+
 class BaseDeposit(Schema):
     amount: float
     created_at: datetime
