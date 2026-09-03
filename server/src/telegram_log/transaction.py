@@ -73,11 +73,6 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
         to_amount(transaction.ton_transaction.nano_amount)
     )
 
-    user_field = (
-        f"<a href='tg://resolve?domain={transaction.user.username}'>{transaction.user.first_name}</a>"
-        if transaction.user.username
-        else f"<a href='tg://user?id={transaction.user_id}'>{transaction.user.first_name}</a>"
-    )
     head_title_url = (
         ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE.format(
             hash=transaction.ton_transaction.hash
@@ -89,7 +84,7 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=head_emoji,
         head_title_url=head_title_url,
-        user_field=user_field,
+        user_field=transaction.user.html_telegram_link,
         amount=transaction.amount,
         fee_amount=fee_amount,
         username=f"@{transaction.recipient_username}",

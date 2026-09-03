@@ -226,8 +226,8 @@ async def test_logs_on_get_tx_any_error_and_does_not_call(
     )
 
     deposit_service.complete_ton.assert_not_called()
-    log_mock.error.assert_called_once_with(
-        "tonapi.process_webhook_acc_tx unknown exception", str_exc=str(exc)
+    log_mock.exception.assert_called_once_with(
+        "tonapi.process_webhook_acc_tx unknown exception"
     )
 
 

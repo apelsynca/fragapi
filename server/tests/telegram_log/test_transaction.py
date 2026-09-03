@@ -39,12 +39,6 @@ async def test_enqueue_transaction_admin_log_task_right_data(
         to_amount(transaction.ton_transaction.nano_amount)
     )
 
-    user_field = (
-        f"<a href='tg://resolve?domain={user.username}'>{user.first_name}</a>"
-        if user.username
-        else f"<a href='tg://user?id={user.id}'>{user.first_name}</a>"
-    )
-
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
         head_emoji=STAR_EMOJI,
         head_title_url=ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE.format(
@@ -52,7 +46,7 @@ async def test_enqueue_transaction_admin_log_task_right_data(
         )
         if transaction.ton_transaction.hash
         else "transaction",
-        user_field=user_field,
+        user_field=user.html_telegram_link,
         amount=5.28,
         fee_amount=fee_amount,
         username="@dedushka",

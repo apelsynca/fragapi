@@ -15,12 +15,6 @@ NEW_DEPOSIT_TON_TRANSACTION_TEXT = (
 
 
 def enqueue_new_deposit_admin_log_task(deposit: Deposit) -> None:
-    user_field = (
-        f"<a href='tg://resolve?domain={deposit.user.username}'>{deposit.user.first_name}</a>"
-        if deposit.user.username
-        else f"<a href='tg://user?id={deposit.user_id}'>{deposit.user.first_name}</a>"
-    )
-
     ton_transaction_field = (
         NEW_DEPOSIT_TON_TRANSACTION_TEXT.format(deposit.ton_transaction.hash)
         if deposit.ton_transaction
@@ -31,7 +25,7 @@ def enqueue_new_deposit_admin_log_task(deposit: Deposit) -> None:
         admin_telegram_notification_send,
         text=NEW_DEPOSIT_NOTIFICATION_TEXT.format(
             amount=deposit.amount,
-            user_field=user_field,
+            user_field=deposit.user.html_telegram_link,
             ref_hash=deposit.hash,
             ton_transaction_field=ton_transaction_field,
             prev_balance=deposit.user.balance - deposit.amount,
