@@ -56,7 +56,7 @@ def tonapi_rest_client_mock(mocker: MockerFixture) -> MagicMock:
 def valid_webhook_message() -> TonAPIWebhookMessage:
     return get_webhook_message(
         event_type="account_tx",
-        account_id=tonapi_service.ACCOUNT_RAW_ADDRESSES[0],
+        account_id=tonapi_service.account_raw_addresses[0],
         tx_hash="97264395BD65A255A429B11326C84128B7D70FFED7949ABAE3036D506BA38621",
     )
 
@@ -91,7 +91,7 @@ async def test_raises_wrong_account_id(session: AsyncSession) -> None:
     wrong_account_id = Address(
         "UQBKDU9Ws58AyUg32EFMliW2eTNloL6wKXcWnZu-hZMiN-Do"
     ).to_str(is_user_friendly=False)
-    assert wrong_account_id not in tonapi_service.ACCOUNT_RAW_ADDRESSES
+    assert wrong_account_id not in tonapi_service.account_raw_addresses
 
     webhook_message = get_webhook_message(
         event_type="account_tx", account_id=wrong_account_id
@@ -188,7 +188,7 @@ async def test_logs_on_get_tx_bad_request_and_does_not_call(
 ) -> None:
     webhook_message = get_webhook_message(
         tx_hash="bad_tx_hash",
-        account_id=tonapi_service.ACCOUNT_RAW_ADDRESSES[0],
+        account_id=tonapi_service.account_raw_addresses[0],
     )
 
     log_mock = mocker.patch("src.tonapi.service.log")
@@ -244,7 +244,7 @@ async def test_all_good_right_calls_and_sets_lt(
 
     webhook_message = get_webhook_message(
         event_type="account_tx",
-        account_id=tonapi_service.ACCOUNT_RAW_ADDRESSES[0],
+        account_id=tonapi_service.account_raw_addresses[0],
         lt=99999999999999999111,
         tx_hash="my_tx_hash_SHOULD_REDO",
     )

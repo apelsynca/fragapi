@@ -20,18 +20,17 @@ log: Logger = structlog.get_logger()
 
 
 class TonAPIService:
-    ACCOUNT_RAW_ADDRESSES = [
-        Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
-    ]
-
     RETRY_LIMIT: int = 3
     SEARCH_RETRY_SLEEP_FOR: float = 2.5
 
     _last_lt: int = 0
 
     def __init__(self) -> None:
-        # PERF: starting value prefetch?! (rethink if multi-wallet)
-        self._last_lt = 82005139000003
+        # PERF: starting value prefetch?! (rethink when multi-wallet)
+        self._last_lt = 100_000_000_000_000
+        self.account_raw_addresses = [
+            Address(settings.TON_ADDRESS).to_str(is_user_friendly=False)
+        ]
 
     async def process_webhook_acc_tx(
         self, session: AsyncSession, webhook_message: TonAPIWebhookMessage
@@ -45,7 +44,7 @@ class TonAPIService:
         if webhook_message.event_type != "account_tx":
             raise FragError("Wrong event type")
 
-        if webhook_message.account_id not in self.ACCOUNT_RAW_ADDRESSES:
+        if webhook_message.account_id not in self.account_raw_addresses:
             raise FragError("Wrong account id")
 
         try:
@@ -65,10 +64,8 @@ class TonAPIService:
                 tx_hash=webhook_message.tx_hash,
             )
             return
-        except Exception as exc:
-            log.error(
-                "tonapi.process_webhook_acc_tx unknown exception", str_exc=str(exc)
-            )
+        except Exception:
+            log.exception("tonapi.process_webhook_acc_tx unknown exception")
             return
 
         if (
@@ -82,6 +79,7 @@ class TonAPIService:
             session=session, tonapi_transaction=tonapi_transaction
         )
 
+        # TODO: move TonDepositPayload resolving to `complete_ton` method
         try:
             ton_dep_payload = TonDepositPayload.from_tonapi_transaction(
                 tonapi_transaction
@@ -100,8 +98,7 @@ class TonAPIService:
             account_id=webhook_message.account_id,
         )
 
-        if webhook_message.lt > self._last_lt:
-            self._last_lt = webhook_message.lt
+        self._last_lt = max(self._last_lt, webhook_message.lt)
 
         await deposit_service.complete_ton(
             session=session,

@@ -102,10 +102,7 @@ async def fragment_transaction_process(
     try:
         enqueue_transaction_admin_log_task(transaction=transaction)
     except Exception:
-        log.error(
-            "transaction.process.error_enqueuing_admin_log",
-            exc_info=True,
-        )
+        log.exception("transaction.process.error_enqueuing_admin_log")
 
     try:
         sources = await telegram_log_service.get_all_sources(
@@ -123,10 +120,7 @@ async def fragment_transaction_process(
                 sources_count=sources_count,
             )
     except Exception:
-        log.error(
-            "transaction.process.error_enqueuing_user_log",
-            exc_info=True,
-        )
+        log.exception("transaction.process.error_enqueuing_user_log")
 
     enqueue_task(
         ton_transaction_find_real_hash,

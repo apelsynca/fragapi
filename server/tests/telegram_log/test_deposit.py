@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -12,13 +14,16 @@ from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import create_ton_transaction
 
 
+@pytest.fixture
+def enqueue_task_mock(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch("src.telegram_log.deposit.enqueue_task")
+
+
 @pytest.mark.asyncio
 async def test_enqueue_new_deposit_right_calls(
-    save_fixture: SaveFixture, user: User, mocker: MockerFixture
+    save_fixture: SaveFixture, user: User, enqueue_task_mock: MagicMock
 ) -> None:
     user.balance = 10
-
-    enqueue_task_mock = mocker.patch("src.telegram_log.deposit.enqueue_task")
 
     deposit = Deposit(user=user, amount=5.1259, hash="MyHash1i-ek91_25")
     await save_fixture(deposit)
@@ -45,11 +50,9 @@ async def test_enqueue_new_deposit_right_calls(
 
 @pytest.mark.asyncio
 async def test_enqueue_new_deposit_with_ton_transaction_right_calls(
-    save_fixture: SaveFixture, user: User, mocker: MockerFixture
+    save_fixture: SaveFixture, user: User, enqueue_task_mock: MagicMock
 ) -> None:
     user.balance = 250
-
-    enqueue_task_mock = mocker.patch("src.telegram_log.deposit.enqueue_task")
 
     ton_transaction = await create_ton_transaction(
         save_fixture,
