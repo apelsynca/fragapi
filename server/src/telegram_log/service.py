@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.exceptions import BadRequest
+from src.exceptions import BadRequest, ResourceNotFound
 from src.models import TelegramLogsSource, User
 from src.telegram_log.repository import TelegramLogsSourceRepository
 
@@ -25,6 +25,10 @@ class TelegramLogService:
     async def create_source(
         self, session: AsyncSession, user: User, chat_id: int | str
     ) -> TelegramLogsSource:
+        """
+        NOTE: not used yet. meant to be used when 1+ sources allowed.
+        """
+
         chat_id = validate_chat_id_or_smth(chat_id)
         repository = TelegramLogsSourceRepository.from_session(session)
 
@@ -37,6 +41,19 @@ class TelegramLogService:
         return await repository.create(
             TelegramLogsSource(chat_id=chat_id, user=user), flush=True
         )
+
+    async def get_source_by_chat_id(
+        self, session: AsyncSession, chat_id: int | str
+    ) -> TelegramLogsSource:
+        chat_id = validate_chat_id_or_smth(chat_id)
+        repository = TelegramLogsSourceRepository.from_session(session)
+
+        source = await repository.get_by_chat_id(chat_id=chat_id)
+
+        if source is None:
+            raise ResourceNotFound("Source is not found by chat_id")
+
+        return source
 
     async def set_source(
         self, session: AsyncSession, user: User, chat_id: int | str
@@ -51,6 +68,10 @@ class TelegramLogService:
         return await repository.create(
             TelegramLogsSource(chat_id=chat_id, user=user), flush=True
         )
+
+    async def delete(self, session: AsyncSession, source: TelegramLogsSource) -> None:
+        repository = TelegramLogsSourceRepository.from_session(session)
+        await repository.delete(source)
 
 
 telegram_log = TelegramLogService()

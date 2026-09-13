@@ -18,6 +18,7 @@ GIVE_CHAT_ID = (
 )
 
 LOGS_WILL_BE_HERE = "Логи о транзакциях будут приходить в этот чат (от бота)"
-CHANGED_TARGET_CHAT_ID = "Changed target to a new one!"
+CHANGED_TARGET_CHAT_ID = "Заменил chat_id telegram чата!"
 
-NO_TEXT_WAS_ENTERED = "No text war entered"
+NO_TEXT_WAS_ENTERED = "Никакой текст не был отправлен"
+THIS_CHAT_ID_ALREADY_OCCUPIED = "Такой айди уже занят"

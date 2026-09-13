@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.bot.helper import get_fresh_user_from_tg_user
 from src.bot.logs import keyboards, texts
+from src.exceptions import ResourceNotFound
 from src.models import User
 from src.telegram_log.service import telegram_log as telegram_log_service
 
@@ -72,9 +73,18 @@ async def on_logs_target_changed(
     user = await get_fresh_user_from_tg_user(
         session=session, tg_user=cast(TGUser, message.from_user)
     )
-    await telegram_log_service.set_source(
-        session=session, user=user, chat_id=message.text
-    )
+
+    try:
+        source = await telegram_log_service.get_source_by_chat_id(
+            session=session, chat_id=message.chat.id
+        )
+        if source.user != user:
+            await message.answer(text=texts.THIS_CHAT_ID_ALREADY_OCCUPIED)
+            return
+    except ResourceNotFound:
+        await telegram_log_service.set_source(
+            session=session, user=user, chat_id=message.text
+        )
 
     await state.clear()
     msg = await message.answer(text=texts.CHANGED_TARGET_CHAT_ID)
@@ -94,6 +104,15 @@ async def set_logs_target_as_this_chat(
     )
 
     await state.clear()
+
+    try:
+        source = await telegram_log_service.get_source_by_chat_id(
+            session=session, chat_id=message.chat.id
+        )
+        await telegram_log_service.delete(session, source=source)
+    except ResourceNotFound:
+        pass
+
     await telegram_log_service.set_source(
         session=session, user=user, chat_id=message.chat.id
     )
