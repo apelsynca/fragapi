@@ -27,8 +27,8 @@ export default function FAQ({
       question: 'Почему FragAPI?',
       answer: (
         <p className="text-muted-foreground mb-4 max-w-160 text-balance">
-          Полная автоматизация, Не нужно KYC, низкая коммисия 0.5% (не 50%),
-          открытый исходный код, cтатистика, оповещения и многое другое.
+          Полная автоматизация Fragment через API, Не нужно KYC, низкая коммисия
+          1.8%, открытый исходный код, cтатистика, оповещения и многое другое.
         </p>
       ),
     },
@@ -36,7 +36,7 @@ export default function FAQ({
       question: 'Берет ли сервис коммисию?',
       answer: (
         <p className="text-muted-foreground mb-4 max-w-160 text-balance">
-          Да, 0.5%, тоесть с транзакций на 1000 USD мы снимаем 5 USD
+          Да, 1.8%, тоесть с транзакций на 1000 USD мы забираем 18 USD
         </p>
       ),
     },
