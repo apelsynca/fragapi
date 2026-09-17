@@ -31,7 +31,8 @@ Show stats about transactions, spending
 
 ## Pricing
 
-- Only 0.5% + GRAM network fee (`+- $0.01`) for every transaction.
+- Cloud solution 1.8% + GRAM network fee (`+- $0.001`) for every transaction type.
+- Self-hosted 0% + GRAM network fee (`+- $0.001`) for every transaction type.
 
 ## Contributions
 

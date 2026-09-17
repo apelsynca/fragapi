@@ -4,9 +4,7 @@ from typing import cast
 import structlog
 from aiogram import Router
 from aiogram.filters import CommandObject, CommandStart
-from aiogram.types import (
-    Message,
-)
+from aiogram.types import Message
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
