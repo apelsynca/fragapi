@@ -35,9 +35,9 @@ export const Route = createRootRouteWithContext<{
         content: 'width=device-width, initial-scale=1',
       },
       ...seo({
-        title: 'FragAPI',
+        title: 'Fragment API',
         description: m.seo_description(),
-        keywords: 'fragapi,fragment,frag',
+        keywords: 'fragment,api,ton,stars',
         image: 'https://storage.apelsynca.pro/fragapi/fraga.png',
       }),
     ],

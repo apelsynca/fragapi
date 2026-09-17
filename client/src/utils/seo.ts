@@ -6,7 +6,6 @@ export const seo = ({
 }: {
   title: string
   description?: string
-  description_ru?: string
   image?: string
   keywords?: string
 }) => {

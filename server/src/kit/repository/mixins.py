@@ -36,6 +36,3 @@ class RepositorySortingMixin[M, PE: StrEnum]:
 
     def get_sorting_clause(self, property: PE) -> SortingClause:
         raise NotImplementedError()
-
-
-# NOTE: can add here TimeStampRepository mixin or smth if needed
