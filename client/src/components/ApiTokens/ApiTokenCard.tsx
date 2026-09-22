@@ -33,6 +33,9 @@ const ApiTokenCard = ({
       queryClient.invalidateQueries({ queryKey: ['api-tokens'] })
       toast.success('API Токен удален!')
     },
+    onError: (error) => {
+      toast.error(error.message)
+    },
   })
 
   return (

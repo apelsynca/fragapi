@@ -20,7 +20,7 @@ export const verifySession = createServerFn({ method: 'GET' }).handler(
     const token = await fetchSessionToken()
 
     if (!token) {
-      throw redirect({ href: '/' })
+      throw redirect({ to: '/' })
     }
 
     return token

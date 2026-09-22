@@ -51,7 +51,7 @@ export default function AppSidebarBottom() {
   const { data: user } = useSuspenseQuery(userMeOptions())
 
   const handleLogout = async () => {
-    queryClient.invalidateQueries()
+    queryClient.clear()
     await logout()
   }
 

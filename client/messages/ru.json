@@ -51,5 +51,12 @@
   "api_tokens_description": "Каждый из этих токенов предоставляет доступ к нашему сервису",
   "api_tokens_create": "Создать токен",
   "api_tokens_add": "Добавить токен",
-  "api_tokens_valid_until": "Активен до"
+  "api_tokens_valid_until": "Активен до",
+  "session_expired_title": "Сессия истекла",
+  "session_expired_desc": "Пожалуйста, войдите снова через бота",
+  "bot_login_missing_hash": "Ссылка для входа не указана",
+  "bot_login_invalid_link": "Недействительная или истёкшая ссылка",
+  "bot_login_server_error": "Что-то пошло не так",
+  "bot_login_try_again": "Пожалуйста, попробуйте ещё раз или получите новую ссылку у бота",
+  "bot_login_get_new_link": "Получить новую ссылку"
 }

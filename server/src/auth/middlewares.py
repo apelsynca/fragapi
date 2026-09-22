@@ -82,5 +82,8 @@ class AuthSubjectMiddleware:
 
         scope["state"]["auth_subject"] = auth_subject
 
-        log.info("Authenticated subject", **auth_subject.log_context)
+        log.debug("Authenticated subject", **auth_subject.log_context)
+
+        await session.commit()
+
         await self.app(scope, receive, send)

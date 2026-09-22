@@ -44,6 +44,9 @@ const CreateApiTokenDialog = ({
       setName('')
       setExpiresAt(undefined)
     },
+    onError: (error) => {
+      toast.error(error.message)
+    },
     onSettled: () => setOpen(false),
   })
 

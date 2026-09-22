@@ -1,9 +1,11 @@
 import structlog
+from datetime import timedelta
 from fastapi import Request
 from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import selectinload
 
 from src.auth.schemas import LoginResponse
+from src.config import settings
 from src.exceptions import ResourceNotFound
 from src.kit.crypto import generate_token
 from src.kit.utils import utc_now
@@ -15,12 +17,14 @@ from src.postgres import AsyncSession
 log: Logger = structlog.get_logger()
 
 
+SESSION_REFRESH_THRESHOLD = timedelta(hours=1)
+
+
 class AuthService:
     async def login_by_bot_hash(
         self, session: AsyncSession, bot_hash: str, *, request: Request | None = None
     ) -> LoginResponse:
         stmt = select(UserSession).where(
-            # WARN: expires_at somehow not checking
             UserSession.bot_hash == bot_hash,
             UserSession.expires_at > utc_now(),
         )
@@ -50,7 +54,28 @@ class AuthService:
         stmt = select(UserSession).where(
             UserSession.token == session_token, UserSession.expires_at > utc_now()
         )
-        return await session.scalar(stmt)
+        user_session = await session.scalar(stmt)
+
+        if user_session is not None:
+            await self._maybe_slide_expiration(session, user_session)
+
+        return user_session
+
+    async def _maybe_slide_expiration(
+        self, session: AsyncSession, user_session: UserSession
+    ) -> None:
+        """Sliding expiration, throttled: renew the TTL once the session has
+        aged past SESSION_REFRESH_THRESHOLD, so active users are not logged
+        out while idle sessions still expire on schedule."""
+        now = utc_now()
+        if (
+            user_session.expires_at - now
+            >= settings.USER_SESSION_TTL - SESSION_REFRESH_THRESHOLD
+        ):
+            return
+
+        user_session.expires_at = now + settings.USER_SESSION_TTL
+        await session.flush()
 
     async def authenticate_by_api_token(
         self, session: AsyncSession, token: str

@@ -1,7 +1,29 @@
 # SESSION / AUTH FIX PLAN
 
-Investigation of the "session dies after ~12h and dashboard shows an error" bug,
-plus every other auth-related defect found along the way.
+> **Implementation status (Sep 2026):**
+>
+> | Phase | Item | Status |
+> |---|---|---|
+> | 1 | Client cookie `maxAge` (7d) + `SameSite=Lax` | ✅ done in `client/src/lib/session.ts` |
+> | 2 | `beforeLoad` throws `redirect` directly; no more `errorComponent` hack | ✅ done in `client/src/routes/dashboard/route.tsx` |
+> | 2 | Friendly "Session expired" error component for open tabs | ✅ done in `client/src/routes/dashboard/route.tsx` (`SessionExpired`) |
+> | 3 | `apiRequest` JSON guard, status-based 401, conditional body, 15s timeout, `ApiError` class | ✅ done in `client/src/server-api/request.ts` |
+> | 4 | Structured `botHashLoginFn` result + friendly expired/invalid link page | ✅ done in `client/src/server-api/auth-manager.ts` and `client/src/routes/bot-login.tsx` |
+> | 5 | Server sliding expiration (throttled, 1h refresh window) | ✅ done in `server/src/auth/service.py` (`_maybe_slide_expiration`) |
+> | 5 | Removed stale `# WARN` comment; demoted per-request auth log to `debug` | ✅ done in `server/src/auth/service.py` and `server/src/auth/middlewares.py` |
+> | 6 | `await session.clear()` in `logoutFn` | ✅ done in `client/src/server-api/auth-manager.ts` |
+> | 6 | `queryClient.clear()` instead of `invalidateQueries()` on logout | ✅ done in `client/src/components/AppSidebar/AppSidebarBottom.tsx` |
+> | 6 | `onError` toasts on API-token create/delete mutations | ✅ done in `client/src/components/ApiTokens/CreateApiTokenDialog.tsx` and `ApiTokenCard.tsx` |
+> | 6 | Unify `redirect({ to: ... })` (drop `href`) | ✅ done in `client/src/lib/auth.ts` |
+>
+> Not yet addressed (deliberately): stricter `maxAge`/`sameSite` hardening
+> (`__Host-start` cookie name), TanStack CSRF middleware, `staleTime`
+> adjustment, new `FRAG_USER_SESSION_TTL`/`SESSION_REFRESH_THRESHOLD`
+> `.env.template` entries, and full CI/test matrix. See "Not yet done" at the
+> bottom for details.
+
+Investigation of the "session dies after ~12h and dashboard shows an error"
+bug, plus every other auth-related defect found along the way.
 Scope: `client/` (TanStack Start) and `server/` (FastAPI).
 
 ---
@@ -329,3 +351,21 @@ Server:
   it. (If stricter posture is wanted later: TanStack's `createCsrfMiddleware`
   or `sameSite: 'strict'` — note 'strict' would break the Telegram-in-app
   browser deep-link into `/bot-login`, so Lax is correct here.)
+
+---
+
+## 7. Not yet done (follow-ups)
+
+- **Startup validation of `SESSION_PASSWORD`** (fail fast on missing / < 32
+  chars) — the non-null assertion still silently produces an empty password.
+- **`.env.template` entries** for `SESSION_PASSWORD`, `SESSION_MAX_AGE` and
+  `FRAG_USER_SESSION_TTL` so ops knows they exist and stay in sync.
+- **`__Host-` cookie prefix** (requires HTTPS in dev) and TanStack's
+  `createCsrfMiddleware` — defense in depth; not strictly needed while the
+  cookie is `SameSite=Lax` and `HttpOnly`.
+- **`staleTime`/`gcTime` tuning** in `client/src/lib/query.ts` (still 15s/15m).
+- **Dedicated sliding-expiration pytest** (verify `_maybe_slide_expiration`
+  renews once inside the 1h threshold and skips otherwise).
+- Pre-existing, out of scope: `tsconfig.json` `baseUrl` deprecation warning
+  under TS 6 (`tsc --noEmit` needs `--ignoreDeprecations 6.0` until nitro's
+  base config is updated).

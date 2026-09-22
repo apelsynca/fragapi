@@ -51,5 +51,12 @@
   "api_tokens_description": "Each of this tokens grant's access to our service",
   "api_tokens_create": "Create token",
   "api_tokens_add": "Add token",
-  "api_tokens_valid_until": "Valid until"
+  "api_tokens_valid_until": "Valid until",
+  "session_expired_title": "Session expired",
+  "session_expired_desc": "Please log in again via the bot",
+  "bot_login_missing_hash": "No login link provided",
+  "bot_login_invalid_link": "Invalid or expired link",
+  "bot_login_server_error": "Something went wrong",
+  "bot_login_try_again": "Please try again or get a new link from the bot",
+  "bot_login_get_new_link": "Get new login link"
 }

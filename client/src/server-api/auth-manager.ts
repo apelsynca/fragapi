@@ -3,9 +3,13 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { useAppSession } from '../lib/session'
 
+export type BotLoginResult =
+  | { ok: true }
+  | { ok: false; reason: 'invalid' | 'server_error' }
+
 export const botHashLoginFn = createServerFn({ method: 'POST' })
   .validator((hash: string) => hash)
-  .handler(async ({ data: hash }) => {
+  .handler(async ({ data: hash }): Promise<BotLoginResult> => {
     const defaultHeaders = { 'Content-Type': 'application/json' }
 
     const response = await fetch(`${process.env.BACKEND_ENDPOINT}/auth/tgbot`, {
@@ -15,29 +19,32 @@ export const botHashLoginFn = createServerFn({ method: 'POST' })
     })
 
     if (!response.ok) {
-      console.warn('Bot hash login request status is not OK')
-      throw redirect({ to: '/' }) // NOTE: can redirect to /bad-login or smth, or just return info about bad login
+      return {
+        ok: false,
+        reason: response.status === 404 ? 'invalid' : 'server_error',
+      }
     }
 
-    const { token, success } = (await response.json()) as {
+    const json = (await response.json().catch(() => null)) as {
       token: string
       success: boolean
-    }
+    } | null
 
-    if (success !== true) {
-      console.warn('Unsuccessful bot hash login request')
-      throw redirect({ to: '/' }) // Same for this part
+    if (json?.success !== true) {
+      return { ok: false, reason: 'invalid' }
     }
 
     const session = await useAppSession()
-    await session.update({ token })
+    await session.update({ token: json.token })
+
+    return { ok: true }
   })
 
 export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   const session = await useAppSession()
-  session.clear()
+  await session.clear()
 
   throw redirect({
-    href: '/',
+    to: '/',
   })
 })
