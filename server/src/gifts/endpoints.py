@@ -21,27 +21,31 @@ router = APIRouter(
 
 @router.get(
     "/{short_name}/short-models",
-    description="List gift models short names by short_name",
+    description="List gift model short names by collection short_name",
 )
 async def get_gift_models_short_names(short_name: str) -> list[str]:
-    return await gift_service.get_models_by_shortname(short_name)
+    return await gift_service.get_all_gift_model_strings_by_shortname(
+        short_name=short_name
+    )
 
 
-@router.get("/{short_name}/models", description="Get gift collection models")
-async def get_collection_models(
+@router.get("/{short_name}/models", description="Get collection giftmodels")
+async def get_gift_models_by_collection(
     short_name: str, sorting: sorting.ListSorting
 ) -> list[GiftModel]:
     data = await thermos_service.get_collection_models(short_name)
 
-    # yeah i know, redo later ofc.
+    # TODO: yeah i know its shit, redo later ofc.
     if len(sorting) > 1:
         data = sorted(data, key=lambda p: p.floor, reverse=sorting[0][1])
 
     return data
 
 
-@router.get("/{short_name}/models/{name}", description="Get gift collection model")
-async def get_model(
+@router.get(
+    "/{short_name}/models/{name}", description="Get gift model by collection and name"
+)
+async def get_gift_model_by_collection_and_name(
     short_name: str,
     name: str,
 ) -> GiftModel:
