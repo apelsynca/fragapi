@@ -87,6 +87,9 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[State]:
 
     await broker.shutdown()
 
+    await bot.delete_webhook()
+    await bot.session.close()
+
     log.info("FragAPI stopped")
 
 
