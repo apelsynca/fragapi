@@ -21,4 +21,4 @@ LOGS_WILL_BE_HERE = "Логи о транзакциях будут приход�
 CHANGED_TARGET_CHAT_ID = "Заменил chat_id telegram чата!"
 
 NO_TEXT_WAS_ENTERED = "Никакой текст не был отправлен"
-THIS_CHAT_ID_ALREADY_OCCUPIED = "Такой айди уже занят"
+THIS_CHAT_ID_ALREADY_OCCUPIED = "Такой айди уже занят.\n\nПожалуйста введите другой:"

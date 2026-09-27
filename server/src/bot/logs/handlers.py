@@ -76,7 +76,7 @@ async def on_logs_target_changed(
 
     try:
         source = await telegram_log_service.get_source_by_chat_id(
-            session=session, chat_id=message.chat.id
+            session=session, chat_id=message.text
         )
         if source.user != user:
             await message.answer(text=texts.THIS_CHAT_ID_ALREADY_OCCUPIED)

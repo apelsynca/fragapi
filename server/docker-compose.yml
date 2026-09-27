@@ -23,6 +23,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - redis
     networks:
       - dokploy-network
     env_file:
@@ -34,6 +35,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - redis
     networks:
       - dokploy-network
     env_file:
@@ -79,6 +81,8 @@ services:
       - "${FRAG_REDIS_PORT}"
     volumes:
       - redis_data:/data
+    networks:
+      - dokploy-network
 
 
 volumes:
