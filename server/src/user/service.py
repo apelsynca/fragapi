@@ -1,5 +1,7 @@
 import structlog
 from aiogram.types import User as TGUser
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from src.exceptions import BadRequest, ResourceNotFound
 from src.logging import Logger
@@ -37,16 +39,44 @@ class UserService:
 
         repository = UserRepository.from_session(session)
 
-        user = await repository.create(
-            User(
-                id=tg_user.id,
-                first_name=tg_user.first_name,
-                last_name=tg_user.last_name,
-                username=tg_user.username,
-                is_premium=tg_user.is_premium or False,
-            ),
-            flush=True,
-        )
+        user_data = {
+            "id": tg_user.id,
+            "first_name": tg_user.first_name,
+            "last_name": tg_user.last_name,
+            "username": tg_user.username,
+            "is_premium": tg_user.is_premium or False,
+        }
+
+        try:
+            async with session.begin_nested():
+                user = await repository.create(User(**user_data), flush=True)
+        except IntegrityError as error:
+            constraint_name = getattr(error.orig, "constraint_name", None)
+
+            # Two updates can both observe a missing Telegram user before either
+            # transaction commits. Reuse the row created by the other update.
+            if constraint_name == "users_pkey":
+                user = await repository.get_by_id(id=tg_user.id)
+                if user is None:
+                    raise
+                log.warning(
+                    "User already exists while creating from Telegram user",
+                    user_id=tg_user.id,
+                )
+            elif constraint_name == "users_username_key":
+                # Telegram can recycle usernames while an old row still has the
+                # value. Release it from the old row before creating the new one.
+                previous_user = await session.scalar(
+                    select(User).where(User.username == tg_user.username)
+                )
+                if previous_user is None:
+                    raise
+
+                previous_user.username = None
+                await session.flush()
+                user = await repository.create(User(**user_data), flush=True)
+            else:
+                raise
 
         enqueue_task(
             admin_telegram_log_send,
