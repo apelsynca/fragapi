@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params
+from tonutils.contracts.wallet.messages import TONTransferBuilder
 
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fee import approx_before_fee
@@ -26,9 +27,11 @@ from src.ton_transaction.tasks import ton_transaction_find_real_hash
 from src.transaction.repository import TransactionRepository
 from src.transaction.utils import validate_tc_transaction
 from src.wallet.manager import WalletManager
+from src.wallet.send_gate import WalletSendGate
 from src.worker import enqueue_task, worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
 from src.worker.wallet_manager import get_wallet_manager
+from src.worker.wallet_send_gate import get_wallet_send_gate
 
 log: Logger = structlog.get_logger()
 
@@ -39,6 +42,7 @@ async def fragment_transaction_process(
     tc_transaction: TonConnectTransaction,
     session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
     wallet_manager: Annotated[WalletManager, TaskiqDepends(get_wallet_manager)],
+    send_gate: Annotated[WalletSendGate, TaskiqDepends(get_wallet_send_gate)],
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)
 
@@ -78,19 +82,61 @@ async def fragment_transaction_process(
         )
         raise BadRequest("Hash is bad")
 
-    wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
-
     body = tc_msg.get_payload_cell()
     valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
-    ext_msg = await wallet.transfer(
-        destination=Address(tc_msg.address),
-        body=body,
-        amount=tc_msg.amount,
-        params=WalletV5Params(valid_until=valid_until),
-    )
+    async with send_gate.attempt():
+        # Reload after waiting: another delivery of this same job may have sent it.
+        await session.refresh(
+            transaction,
+            attribute_names=["outgoing_message_hash"],
+        )
+        if transaction.outgoing_message_hash:
+            log.info("transaction.process.skip_already_submitted")
+            enqueue_task(
+                ton_transaction_find_real_hash,
+                ton_transaction_id=transaction.ton_transaction_id,
+            )
+            return
 
-    transaction.ton_transaction.hash = ext_msg.normalized_hash
+        broadcast_started = False
+        try:
+            if utc_now().timestamp() >= valid_until:
+                raise BadRequest("Queued transaction has expired")
+
+            # Refresh/select/build inside the gate; doing this before waiting
+            # could sign multiple sends with the same stale wallet seqno.
+            wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+            ext_msg = await wallet.build_external_message(
+                [
+                    TONTransferBuilder(
+                        destination=Address(tc_msg.address),
+                        body=body,
+                        amount=tc_msg.amount,
+                    )
+                ],
+                params=WalletV5Params(valid_until=valid_until),
+            )
+            transaction.outgoing_message_hash = ext_msg.normalized_hash
+            # Commit the exact outgoing identifier BEFORE any network submission.
+            await session.commit()
+            broadcast_started = True
+            await wallet.client.send_message(ext_msg.as_hex)
+            transaction.ton_transaction.hash = ext_msg.normalized_hash
+            transaction.sent_at = utc_now()
+            await session.commit()
+        except BaseException as exc:
+            await session.commit()
+            log.exception("transaction.process.send_failed")
+            if not isinstance(exc, Exception):
+                raise
+            # Ambiguous sends are reconciled, never blindly broadcast again.
+            if broadcast_started:
+                enqueue_task(
+                    ton_transaction_find_real_hash,
+                    ton_transaction_id=transaction.ton_transaction_id,
+                )
+            return
 
     log.info(
         "transaction.process.transfered",

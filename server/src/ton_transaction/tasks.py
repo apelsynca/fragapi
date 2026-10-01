@@ -3,13 +3,16 @@ from typing import Annotated
 
 import structlog
 from pydantic import UUID4
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from taskiq import TaskiqDepends
 from ton_core import Cell, Transaction, normalize_hash
 
 from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
+from src.kit.utils import utc_now
 from src.logging import Logger
+from src.models import Transaction as PurchaseTransaction
 from src.ton_transaction.repository import TonTransactionRepository
 from src.wallet.ton import toncenter as toncenter_client
 from src.worker import broker
@@ -31,13 +34,21 @@ async def ton_transaction_find_real_hash(
     if ton_transaction is None:
         raise ResourceNotFound()
 
-    if ton_transaction.hash is None:
+    purchase = await session.scalar(
+        select(PurchaseTransaction).where(
+            PurchaseTransaction.ton_transaction_id == ton_transaction_id
+        )
+    )
+    expected_hash = (
+        purchase.outgoing_message_hash if purchase else None
+    ) or ton_transaction.hash
+    if expected_hash is None:
         log.error("ton_transaction.find_real_hash")
         raise BadRequest("No hash for the transaction")
 
     async with toncenter_client:
         bc_trans_result = await toncenter_client.provider.get_transactions(
-            address=settings.TON_ADDRESS, limit=10
+            address=settings.TON_ADDRESS, limit=100
         )
         if bc_trans_result.result is None:
             log.warning("No transactions found.")
@@ -60,11 +71,13 @@ async def ton_transaction_find_real_hash(
 
             ext_msg_hash = normalize_hash(bc_transaction.in_msg)
 
-            if ton_transaction.hash != ext_msg_hash:
+            if expected_hash != ext_msg_hash:
                 continue
 
             tx_hash = bc_transaction.cell.hash.hex()
             ton_transaction.hash = tx_hash
+            if purchase:
+                purchase.sent_at = purchase.sent_at or utc_now()
 
             log.info(
                 "ton_transaction.find_real_hash.found",
