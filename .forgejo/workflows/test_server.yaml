@@ -9,9 +9,9 @@ on:
       - 'server/**'
 
 env:
-  KING_ENV: testing
-  KING_POSTGRES_HOST: postgres
-  KING_REDIS_HOST: redis
+  FRAG_ENV: testing
+  FRAG_POSTGRES_HOST: postgres
+  FRAG_REDIS_HOST: redis
 
 jobs:
   test:
@@ -70,9 +70,6 @@ jobs:
 
       - name: ⚗️ Alembic check
         run: uv run alembic check
-
-      - name: Compile locales
-        run: uv run task loc_cmp
 
       - name: 🐍 Run tests (pytest)
         run: uv run pytest -n auto --dist=loadgroup --no-cov --durations=0
