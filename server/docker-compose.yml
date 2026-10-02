@@ -18,7 +18,7 @@ services:
   
   worker:
     build: .
-     command: uv run taskiq worker -w 1 src.worker.run:broker
+    command: uv run taskiq worker -w 1 src.worker.run:broker
     restart: always
     depends_on:
       - db
