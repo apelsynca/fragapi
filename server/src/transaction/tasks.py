@@ -130,6 +130,7 @@ async def _send_purchase(
 
     body = tc_msg.get_payload_cell()
     valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+    reserved_seqno: int | None = None
 
     async with send_gate.attempt():
         # Reload after waiting: another delivery of this same job may have sent it.
@@ -137,9 +138,14 @@ async def _send_purchase(
             transaction,
             attribute_names=["outgoing_message_hash"],
         )
-        if transaction.outgoing_message_hash:
+        # Check BOTH outgoing hash AND blockchain hash for historical safety
+        if transaction.outgoing_message_hash or transaction.ton_transaction.hash:
             await session.commit()
-            log.info("transaction.process.skip_already_submitted")
+            log.info(
+                "transaction.process.skip_already_submitted",
+                outgoing_hash=transaction.outgoing_message_hash,
+                blockchain_hash=transaction.ton_transaction.hash,
+            )
             _enqueue_hash_lookup(transaction)
             return False
 
@@ -170,6 +176,7 @@ async def _send_purchase(
                 return False
 
             await send_gate.reserve_seqno(seqno)
+            reserved_seqno = seqno  # Track successful reservation
             transaction.outgoing_message_hash = ext_msg.normalized_hash
             # Commit the exact outgoing identifier BEFORE any network submission.
             await session.commit()
@@ -180,6 +187,12 @@ async def _send_purchase(
             await session.commit()
         except BaseException:
             await session.rollback()
+            # Release reservation if we know we reserved but didn't broadcast
+            if reserved_seqno is not None and not transaction.sent_at:
+                try:
+                    await send_gate.release_seqno_if_owned(reserved_seqno)
+                except Exception:
+                    log.exception("transaction.process.cleanup_failed")
             log.exception("transaction.process.send_failed")
             # Taskiq retries reload the committed hash. A possibly submitted
             # payment is reconciled on retry, never rebuilt or broadcast twice.

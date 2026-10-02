@@ -48,6 +48,7 @@ class WalletSendGate:
         self.lock_key = f"wallet:{{{wallet_id}}}:send-lock"
         self.next_key = f"wallet:{{{wallet_id}}}:next-send-at"
         self.pending_key = f"wallet:{{{wallet_id}}}:pending-seqno"
+        self.pending_owner_key = f"wallet:{{{wallet_id}}}:pending-owner"
         self._token: str | None = None
         self.interval = interval
         self.attempt_timeout = attempt_timeout
@@ -93,18 +94,32 @@ class WalletSendGate:
 
         The reservation intentionally has no TTL. A timeout is not evidence that
         the prior payment failed; unresolved seqnos require chain/manual recovery.
+        
+        Idempotent: if this token already reserved this seqno, returns success.
         """
         result = await self.redis.eval(
             """
             if redis.call('GET', KEYS[1]) ~= ARGV[1] then return -1 end
             local pending = redis.call('GET', KEYS[2])
+            local pending_owner = redis.call('GET', KEYS[3])
+            
+            -- Already reserved by this token: idempotent success
+            if pending and pending_owner == ARGV[1] and tonumber(pending) == tonumber(ARGV[2]) then
+                return 2
+            end
+            
+            -- Blocked by different seqno
             if pending and tonumber(pending) >= tonumber(ARGV[2]) then return 0 end
+            
+            -- Reserve
             redis.call('SET', KEYS[2], ARGV[2])
+            redis.call('SET', KEYS[3], ARGV[1])
             return 1
             """,
-            2,
+            3,
             self.lock_key,
             self.pending_key,
+            self.pending_owner_key,
             self._token or "",
             seqno,
         )
@@ -112,10 +127,35 @@ class WalletSendGate:
             raise RuntimeError("Wallet send lease lost before signing")
         if result == 0:
             raise RuntimeError("Previous wallet seqno is unresolved; defer signing")
+        # result == 1 (new reservation) or 2 (already reserved by me)
 
     async def assert_owned(self) -> None:
         if not self._token or await self.redis.get(self.lock_key) != self._token:
             raise RuntimeError("Wallet send lease lost before broadcast")
+
+    async def release_seqno_if_owned(self, seqno: int) -> bool:
+        """Release a seqno reservation only if this token owns it.
+
+        Used for cleanup after reservation but before broadcast.
+        Returns True if released, False if not owned.
+        """
+        result = await self.redis.eval(
+            """
+            local pending_owner = redis.call('GET', KEYS[2])
+            local pending = redis.call('GET', KEYS[1])
+            if pending_owner ~= ARGV[1] then return 0 end
+            if not pending or tonumber(pending) ~= tonumber(ARGV[2]) then return 0 end
+            redis.call('DEL', KEYS[1])
+            redis.call('DEL', KEYS[2])
+            return 1
+            """,
+            2,
+            self.pending_key,
+            self.pending_owner_key,
+            self._token or "",
+            seqno,
+        )
+        return bool(result)
 
 
 def create_wallet_send_redis() -> Redis:

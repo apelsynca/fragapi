@@ -102,3 +102,68 @@ async def test_stale_owner_cannot_reserve_or_broadcast_after_lease_loss():
                 with pytest.raises(RuntimeError, match="lease lost"):
                     await gate.assert_owned()
         assert await redis.get(gate.lock_key) == "replacement-owner"
+
+
+@pytest.mark.asyncio
+async def test_reservation_survives_response_loss():
+    """Redis applies reservation but connection drops before Python receives response."""
+    async with FakeRedis(decode_responses=True) as redis:
+        gate = WalletSendGate(redis, "wallet", interval=0)
+
+        async with gate.attempt():
+            # Simulate connection drop after Redis applies the reservation
+            original_eval = redis.eval
+            call_count = 0
+
+            async def failing_eval(script, num_keys, *args, **kwargs):
+                nonlocal call_count
+                result = await original_eval(script, num_keys, *args, **kwargs)
+                # Fail only on the reserve_seqno call (which uses pending_key)
+                if call_count == 0 and num_keys == 3 and "pending" in str(args):
+                    call_count += 1
+                    raise ConnectionError("response lost")
+                return result
+
+            # Temporarily patch eval to simulate connection drop
+            redis.eval = failing_eval
+
+            # First attempt: connection drops after Redis applies
+            with pytest.raises(ConnectionError, match="response lost"):
+                await gate.reserve_seqno(5)
+
+            # Restore original eval
+            redis.eval = original_eval
+
+            # Despite exception, reservation was applied
+            assert await redis.get(gate.pending_key) == "5"
+            assert await redis.get(gate.pending_owner_key) == gate._token
+
+            # Retry should recognize "already reserved by me" and succeed (idempotent)
+            await gate.reserve_seqno(5)
+
+            # Can still proceed with broadcast
+            await gate.assert_owned()
+
+
+@pytest.mark.asyncio
+async def test_cleanup_releases_reservation_on_pre_broadcast_failure():
+    """If reservation succeeds but broadcast fails, cleanup should release the seqno."""
+    async with FakeRedis(decode_responses=True) as redis:
+        gate = WalletSendGate(redis, "wallet", interval=0)
+
+        async with gate.attempt():
+            await gate.reserve_seqno(7)
+            assert await redis.get(gate.pending_key) == "7"
+
+            # Simulate cleanup after failure before broadcast
+            released = await gate.release_seqno_if_owned(7)
+            assert released is True
+
+            # Reservation should be cleared
+            assert await redis.get(gate.pending_key) is None
+            assert await redis.get(gate.pending_owner_key) is None
+
+        # Next attempt can reserve the same seqno
+        async with gate.attempt():
+            await gate.reserve_seqno(7)
+            assert await redis.get(gate.pending_key) == "7"
