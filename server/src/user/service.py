@@ -1,3 +1,5 @@
+import html
+
 import structlog
 from aiogram.types import User as TGUser
 from sqlalchemy.exc import IntegrityError
@@ -62,7 +64,7 @@ class UserService:
             admin_telegram_log_send,
             text=texts.NEW_USER_LOG.format(
                 id=user.id,
-                full_name=user.full_name,
+                full_name=html.escape(user.full_name),
                 username=f"@{user.username}" if user.username else "--",
             ),
             with_notification=False,

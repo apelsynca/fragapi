@@ -17,13 +17,17 @@ async def test_creates_from_tg_user(
     enqueue_task_mock = mocker.patch("src.user.service.enqueue_task")
 
     tg_user = TGUser(
-        id=99299, is_bot=False, first_name="Some_WeirdName", username="homocitrus"
+        id=99299,
+        is_bot=False,
+        first_name="Some_Weird<Name>",
+        last_name="Last & Name",
+        username="homocitrus",
     )
 
     user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
 
     assert user.id == 99299
-    assert user.first_name == "Some_WeirdName"
+    assert user.first_name == "Some_Weird<Name>"
     assert user.username == "homocitrus"
     assert user.balance == 0
 
@@ -32,7 +36,7 @@ async def test_creates_from_tg_user(
         admin_telegram_log_send,
         text=texts.NEW_USER_LOG.format(
             id=99299,
-            full_name="Some_WeirdName",
+            full_name="Some_Weird&lt;Name&gt; Last &amp; Name",
             username="@homocitrus",
             url="tg://user?id=99299",
         ),
