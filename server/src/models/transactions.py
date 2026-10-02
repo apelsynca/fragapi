@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import DateTime, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.enums import TransactionReason
@@ -37,3 +38,6 @@ class Transaction(RecordModel):
 
     stars_amount: Mapped[int | None]
     premium_months: Mapped[int | None]
+
+    outgoing_message_hash: Mapped[str | None]
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

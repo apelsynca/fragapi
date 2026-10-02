@@ -1,7 +1,8 @@
 import random
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 import pytest_asyncio
@@ -32,6 +33,30 @@ from tests.fixtures.random_objects import (
     rstr,
 )
 from tests.fixtures.worker import FakeWalletManager
+
+
+class ImmediateGate:
+    async def assert_owned(self):
+        pass
+
+    async def reserve_seqno(self, seqno):
+        pass
+
+    @asynccontextmanager
+    async def attempt(self):
+        yield
+
+
+@pytest.fixture(autouse=True)
+def inject_send_gate(mocker: MockerFixture):
+    # Direct task calls bypass Taskiq's dependency injection.
+    original = fragment_transaction_process.original_func
+
+    async def with_gate(*args, **kwargs):
+        kwargs.setdefault("send_gate", ImmediateGate())
+        return await original(*args, **kwargs)
+
+    mocker.patch.object(fragment_transaction_process, "original_func", with_gate)
 
 
 @pytest.fixture
@@ -123,10 +148,13 @@ async def test_process_calls_transfer(
     wallet_manager_mock = MagicMock(spec=WalletManager)
     wallet_mock = MagicMock(spec=WalletV5R1)
     wallet_mock.balance = to_nano(25.2)
+    wallet_mock.seqno.return_value = 1
 
     external_message_mock = MagicMock()
     external_message_mock.normalized_hash = "anyhash"
-    wallet_mock.transfer.return_value = external_message_mock
+    wallet_mock.build_external_message.return_value = external_message_mock
+    wallet_mock.client = MagicMock()
+    wallet_mock.client.send_message = mocker_send = AsyncMock()
 
     wallet_manager_mock.get_wallet_for_amount.return_value = wallet_mock
 
@@ -142,14 +170,17 @@ async def test_process_calls_transfer(
     padded_payload = tc_msg.payload + "=" * (-len(tc_msg.payload) % 4)
     body = Cell.one_from_boc(padded_payload)
 
-    wallet_mock.transfer.assert_called_once_with(
-        destination=Address(tc_msg.address),
-        body=body,
-        amount=tc_msg.amount,
-        params=WalletV5Params(
-            valid_until=int(valid_tc_transaction.valid_until.timestamp()) + 10
-        ),
+    wallet_mock.build_external_message.assert_awaited_once()
+    builder = wallet_mock.build_external_message.call_args.args[0][0]
+    assert builder.destination == Address(tc_msg.address)
+    assert builder.amount == tc_msg.amount
+    assert builder.body == body
+    assert wallet_mock.build_external_message.call_args.kwargs[
+        "params"
+    ] == WalletV5Params(
+        valid_until=int(valid_tc_transaction.valid_until.timestamp()) + 10, seqno=1
     )
+    mocker_send.assert_awaited_once_with(external_message_mock.as_hex)
 
 
 @pytest.mark.asyncio
@@ -187,9 +218,9 @@ async def test_process_sets_hash(
 
     assert valid_transaction.ton_transaction.hash is None
 
-    wallet_mock = MagicMock(spec=WalletV5R1)
+    wallet_mock = MagicMock()
     wallet_mock.normalized_hash = "MyHash-ThatIt_Sh0uldSet"
-    wallet_manager.wallet.transfer.return_value = wallet_mock
+    wallet_manager.wallet.build_external_message.return_value = wallet_mock
 
     await fragment_transaction_process(
         transaction_id=valid_transaction.id,
@@ -199,6 +230,114 @@ async def test_process_sets_hash(
     )
 
     assert valid_transaction.ton_transaction.hash == "MyHash-ThatIt_Sh0uldSet"
+
+
+@pytest.mark.asyncio
+async def test_completed_job_is_not_broadcast_twice(
+    valid_tc_transaction: TonConnectTransaction,
+    valid_transaction: Transaction,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+) -> None:
+    manager = FakeWalletManager()
+    for _ in range(2):
+        await fragment_transaction_process(
+            transaction_id=valid_transaction.id,
+            tc_transaction=valid_tc_transaction,
+            session=session,
+            wallet_manager=manager,
+        )
+    manager.wallet.client.send_message.assert_awaited_once()
+    assert valid_transaction.outgoing_message_hash == "fake-outgoing-hash"
+
+
+@pytest.mark.asyncio
+async def test_timeout_persists_identifier_and_does_not_rebroadcast(
+    valid_tc_transaction: TonConnectTransaction,
+    valid_transaction: Transaction,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+) -> None:
+    manager = FakeWalletManager()
+    manager.wallet.client.send_message.side_effect = TimeoutError("response lost")
+    transaction_id = valid_transaction.id
+    with pytest.raises(TimeoutError, match="response lost"):
+        await fragment_transaction_process(
+            transaction_id=transaction_id,
+            tc_transaction=valid_tc_transaction,
+            session=session,
+            wallet_manager=manager,
+        )
+    await session.refresh(valid_transaction)
+    assert valid_transaction.outgoing_message_hash == "fake-outgoing-hash"
+    await fragment_transaction_process(
+        transaction_id=valid_transaction.id,
+        tc_transaction=valid_tc_transaction,
+        session=session,
+        wallet_manager=manager,
+    )
+    manager.wallet.client.send_message.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_expired_queued_job_is_not_sent(
+    valid_tc_transaction: TonConnectTransaction,
+    valid_transaction: Transaction,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+) -> None:
+    valid_tc_transaction.valid_until = utc_now() - timedelta(seconds=30)
+    manager = FakeWalletManager()
+    await fragment_transaction_process(
+        transaction_id=valid_transaction.id,
+        tc_transaction=valid_tc_transaction,
+        session=session,
+        wallet_manager=manager,
+    )
+    manager.wallet.client.send_message.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_no_open_database_transaction_while_waiting_or_broadcasting(
+    valid_tc_transaction, valid_transaction, session, enqueue_task_mock
+):
+    class CheckingGate(ImmediateGate):
+        @asynccontextmanager
+        async def attempt(self):
+            assert not session.in_transaction()
+            yield
+
+    manager = FakeWalletManager()
+
+    async def broadcast(message):
+        assert not session.in_transaction()
+
+    manager.wallet.client.send_message.side_effect = broadcast
+    await fragment_transaction_process(
+        transaction_id=valid_transaction.id,
+        tc_transaction=valid_tc_transaction,
+        session=session,
+        wallet_manager=manager,
+        send_gate=CheckingGate(),
+    )
+
+
+@pytest.mark.asyncio
+async def test_pre_broadcast_failure_propagates_and_rolls_back(
+    valid_tc_transaction, valid_transaction, session, enqueue_task_mock
+):
+    manager = FakeWalletManager()
+    manager.wallet.build_external_message.side_effect = ConnectionError("provider down")
+    with pytest.raises(ConnectionError, match="provider down"):
+        await fragment_transaction_process(
+            transaction_id=valid_transaction.id,
+            tc_transaction=valid_tc_transaction,
+            session=session,
+            wallet_manager=manager,
+        )
+    assert not session.in_transaction()
+    manager.wallet.client.send_message.assert_not_awaited()
+    assert fragment_transaction_process.labels["retry_on_error"] is True
 
 
 async def create_user(save_fixture: SaveFixture, *, balance: float = 0) -> User:
