@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.exceptions import BadRequest
 from src.models import User
 from src.telegram_log.tasks import admin_telegram_log_send
+from src.user import texts
 from src.user.service import user as user_service
 
 
@@ -29,7 +30,7 @@ async def test_creates_from_tg_user(
     # and
     enqueue_task_mock.assert_called_once_with(
         admin_telegram_log_send,
-        text=user_service.NEW_USER_LOG.format(
+        text=texts.NEW_USER_LOG.format(
             id=99299,
             full_name="Some_WeirdName",
             username="@homocitrus",
