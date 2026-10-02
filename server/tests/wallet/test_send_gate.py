@@ -75,3 +75,30 @@ async def test_timed_out_attempt_releases_lock_and_consumes_cooldown():
         ended = asyncio.get_running_loop().time()
         async with gate.attempt():
             assert asyncio.get_running_loop().time() - ended >= 0.019
+
+
+@pytest.mark.asyncio
+async def test_pending_seqno_blocks_new_payment_until_chain_advances():
+    async with FakeRedis(decode_responses=True) as redis:
+        gate = WalletSendGate(redis, "wallet", interval=0)
+        async with gate.attempt():
+            await gate.reserve_seqno(12)
+        async with gate.attempt():
+            with pytest.raises(RuntimeError, match="unresolved"):
+                await gate.reserve_seqno(12)
+            await gate.reserve_seqno(13)
+        assert await redis.get(gate.pending_key) == "13"
+
+
+@pytest.mark.asyncio
+async def test_stale_owner_cannot_reserve_or_broadcast_after_lease_loss():
+    async with FakeRedis(decode_responses=True) as redis:
+        gate = WalletSendGate(redis, "wallet", interval=0)
+        with pytest.raises(RuntimeError, match="lease lost"):
+            async with gate.attempt():
+                await redis.set(gate.lock_key, "replacement-owner")
+                with pytest.raises(RuntimeError, match="lease lost"):
+                    await gate.reserve_seqno(1)
+                with pytest.raises(RuntimeError, match="lease lost"):
+                    await gate.assert_owned()
+        assert await redis.get(gate.lock_key) == "replacement-owner"

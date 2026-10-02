@@ -20,6 +20,7 @@ class FakeWalletManager(WalletManager):
         self.balance = 0
 
         wmock = MagicMock(spec=WalletV5R1)
+        wmock.seqno.return_value = 1
         wmock.client = MagicMock()
         wmock.client.send_message = AsyncMock()
         wmock.build_external_message.return_value.normalized_hash = "fake-outgoing-hash"

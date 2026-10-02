@@ -36,7 +36,9 @@ from src.worker.wallet_send_gate import get_wallet_send_gate
 log: Logger = structlog.get_logger()
 
 
-@worker_task_with_queue_manager(task_name="transaction.process")
+@worker_task_with_queue_manager(
+    task_name="transaction.process", retry_on_error=True, max_retries=3
+)
 async def fragment_transaction_process(
     transaction_id: uuid.UUID,
     tc_transaction: TonConnectTransaction,
@@ -85,6 +87,9 @@ async def fragment_transaction_process(
     body = tc_msg.get_payload_cell()
     valid_until = int(tc_transaction.valid_until.timestamp()) + 10
 
+    # Release the read transaction/connection before waiting for the Redis gate.
+    await session.commit()
+
     async with send_gate.attempt():
         # Reload after waiting: another delivery of this same job may have sent it.
         await session.refresh(
@@ -92,6 +97,7 @@ async def fragment_transaction_process(
             attribute_names=["outgoing_message_hash"],
         )
         if transaction.outgoing_message_hash:
+            await session.commit()
             log.info("transaction.process.skip_already_submitted")
             enqueue_task(
                 ton_transaction_find_real_hash,
@@ -99,14 +105,20 @@ async def fragment_transaction_process(
             )
             return
 
-        broadcast_started = False
+        await session.commit()
+
         try:
             if utc_now().timestamp() >= valid_until:
-                raise BadRequest("Queued transaction has expired")
+                log.warning("transaction.process.expired_manual_handling_required")
+                return
 
             # Refresh/select/build inside the gate; doing this before waiting
             # could sign multiple sends with the same stale wallet seqno.
             wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+            seqno = await wallet.seqno()
+
+            await send_gate.assert_owned()
+
             ext_msg = await wallet.build_external_message(
                 [
                     TONTransferBuilder(
@@ -115,28 +127,28 @@ async def fragment_transaction_process(
                         amount=tc_msg.amount,
                     )
                 ],
-                params=WalletV5Params(valid_until=valid_until),
+                params=WalletV5Params(valid_until=valid_until, seqno=seqno),
             )
+
+            if utc_now().timestamp() >= valid_until:
+                log.warning("transaction.process.expired_manual_handling_required")
+                return
+
+            await send_gate.reserve_seqno(seqno)
             transaction.outgoing_message_hash = ext_msg.normalized_hash
             # Commit the exact outgoing identifier BEFORE any network submission.
             await session.commit()
-            broadcast_started = True
+            await send_gate.assert_owned()
             await wallet.client.send_message(ext_msg.as_hex)
             transaction.ton_transaction.hash = ext_msg.normalized_hash
             transaction.sent_at = utc_now()
             await session.commit()
         except BaseException as exc:
-            await session.commit()
+            await session.rollback()
             log.exception("transaction.process.send_failed")
-            if not isinstance(exc, Exception):
-                raise
-            # Ambiguous sends are reconciled, never blindly broadcast again.
-            if broadcast_started:
-                enqueue_task(
-                    ton_transaction_find_real_hash,
-                    ton_transaction_id=transaction.ton_transaction_id,
-                )
-            return
+            # Taskiq retries reload the committed hash. A possibly submitted
+            # payment is reconciled on retry, never rebuilt or broadcast twice.
+            raise
 
     log.info(
         "transaction.process.transfered",
