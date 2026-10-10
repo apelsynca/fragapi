@@ -27,7 +27,13 @@ async def request_ton_deposit(
     )
 
 
-@router.post("/ton/memo")
+@router.post(
+    "/ton/memo",
+    description=(
+        "Request a new ton deposit, "
+        "but with memo (plain text) instead of base64 payload"
+    ),
+)
 async def request_ton_deposit_via_memo(
     auth_subject: auth.DepositRequest,
     amount: float = Query(..., description="Amount in GRAM"),
@@ -39,7 +45,7 @@ async def request_ton_deposit_via_memo(
 
 
 @router.get("/", description="List deposits")
-async def get_list(
+async def list_deposits(
     auth_subject: AuthorizeWebUser,
     pagination: PaginationParamsQuery,
     sorting: sorting.ListSorting,
