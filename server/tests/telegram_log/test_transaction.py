@@ -2,13 +2,13 @@ import pytest
 from pytest_mock import MockerFixture
 from ton_core import to_amount
 
+from src.bot import custom_emoji
 from src.config import settings
 from src.models import User
 from src.telegram_log.tasks import admin_telegram_notification_send
 from src.telegram_log.transaction import (
     ADMIN_TELEGRAM_TRANSACTION_TEXT,
     ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE,
-    STAR_EMOJI,
     enqueue_transaction_admin_log_task,
 )
 from tests.fixtures.database import SaveFixture
@@ -40,7 +40,7 @@ async def test_enqueue_transaction_admin_log_task_right_data(
     )
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
-        head_emoji=STAR_EMOJI,
+        head_emoji=custom_emoji.TELEGRAM_STAR_ANIMATED.html,
         head_title_url=ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE.format(
             hash=transaction.ton_transaction.hash
         )
