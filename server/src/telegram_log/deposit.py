@@ -1,12 +1,14 @@
+from src.bot import custom_emoji
 from src.models import Deposit
 from src.telegram_log.tasks import admin_telegram_notification_send
 from src.worker import enqueue_task
 
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
-    "💎 <b>New deposit</b>\n\n"
+    f"{custom_emoji.PLUS_ANIMATED.html} <b>New deposit</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.2f} GRAM</b>\n"
-    "Balance change: <b>{prev_balance:.2f} GRAM</b> -> <b>{curr_balance:.2f} GRAM</b>\n\n"
+    "Amount: <b>{{amount:.2f}} USDT</b>\n"
+    f"Balance change: <b>{{prev_balance:.2f}} {custom_emoji.GRAM.html}</b> "
+    f"-> <b>{{curr_balance:.2f}} {custom_emoji.GRAM.html}</b>\n\n"
     "Ref-Hash: <code>{ref_hash}</code>{ton_transaction_field}"
 )
 NEW_DEPOSIT_TON_TRANSACTION_TEXT = (

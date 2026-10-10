@@ -36,7 +36,7 @@ def valid_frag_session() -> FragmentSession:
 def rest_client(
     ton_connect: MagicMock, mocker: MockerFixture, valid_frag_session: FragmentSession
 ) -> FragmentRestClient:
-    client = FragmentRestClient(ton_connect=ton_connect, session_key="any")
+    client = FragmentRestClient(ton_connect=ton_connect)
 
     client._client = MagicMock(spec=BaseClient)
     client._client.do_request.return_value = (200, b"{}")

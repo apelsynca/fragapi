@@ -17,8 +17,7 @@ class FragmentSession(BaseModel):
 
 
 class SessionStorage:
-    def __init__(self, session_key: str) -> None:
-        # self._session_key = session_key
+    def __init__(self) -> None:
         self.session: FragmentSession | None = None
 
     def load(self) -> None:
@@ -26,12 +25,12 @@ class SessionStorage:
             with open(settings.FRAGMENT_SESSION_PATH) as fr:
                 json_str = fr.read()
                 self.session = FragmentSession.model_validate_json(json_str)
-        except FileNotFoundError as exc:
+        except FileNotFoundError:
             log.error(
                 "Fragment Session file is not found!",
                 session_path=settings.FRAGMENT_SESSION_PATH,
             )
-            raise exc
+            raise
         except ValidationError as e:
             log.warning("Session file validation error", error=str(e))
 

@@ -1,3 +1,4 @@
+import html
 import secrets
 from typing import cast
 
@@ -46,7 +47,7 @@ async def command_start(
     await message.answer(
         text=texts.MENU.format(
             emoji=custom_emoji.FRAGMENT_ANIMATED.html,
-            full_name=tg_user.full_name,
+            full_name=html.escape(tg_user.full_name),
             balance=user.balance,
             channel_url=settings.TELEGRAM_CHANNEL_URL,
             chat_url=settings.TELEGRAM_CHAT_URL,

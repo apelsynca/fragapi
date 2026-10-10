@@ -14,7 +14,7 @@ async def main() -> None:
 
     wallet = create_wallet()
     ton_connect = TonConnect.from_wallet(wallet=wallet, tc_domain="fragment.com")
-    client = FragmentRestClient(ton_connect=ton_connect, session_key="first")
+    client = FragmentRestClient(ton_connect=ton_connect)
 
     await client.ensure_authorized()
 

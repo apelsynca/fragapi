@@ -21,13 +21,13 @@ class FragmentRestClient:
     DOMAIN = "fragment.com"
     STALE_TIME = 60 * 30  # 30 minutes
 
-    def __init__(self, ton_connect: TonConnect, session_key: str) -> None:
+    def __init__(self, ton_connect: TonConnect) -> None:
         if ton_connect.tc_domain != self.DOMAIN:
             raise RuntimeError(
                 f"ton_connect.tc_domain is different from required {self.DOMAIN}."
             )
 
-        self.session_storage = SessionStorage(session_key=session_key)
+        self.session_storage = SessionStorage()
         self.session_storage.load()  # fails only if file does not exists
 
         self._client: BaseClient = HttpxClient(

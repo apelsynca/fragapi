@@ -131,3 +131,25 @@ async def test_menu_authorized_answers_right_text_and_keyboard(
             ]
         ),
     )
+
+
+@pytest.mark.asyncio
+async def test_menu_escapes_user_name(
+    session: AsyncSession, mocker: MockerFixture, user: User
+) -> None:
+    message = MagicMock(spec=Message)
+    message.answer = AsyncMock()
+    message.from_user = TGUser(
+        is_bot=False, id=-1, first_name="First </b>", last_name="Last & Name"
+    )
+
+    user_service_mock = mocker.patch(
+        "src.bot.menu.handlers.user_service", spec=UserService
+    )
+    user_service_mock.get_by_id.return_value = user
+    user_service_mock.update_by_tg_user.return_value = user
+
+    await command_start(message, session, CommandObject(command="start"))
+
+    sent_text = message.answer.call_args.kwargs["text"]
+    assert "First &lt;/b&gt; Last &amp; Name" in sent_text

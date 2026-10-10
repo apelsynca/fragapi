@@ -1,6 +1,6 @@
+import html
 from typing import TYPE_CHECKING
 
-from aiogram import html
 from sqlalchemy import BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -40,7 +40,7 @@ class User(TimestampedModel):
     @property
     def html_telegram_link(self) -> str:
         return (
-            f"<a href='tg://resolve?domain={self.username}'>{html.quote(self.first_name)}</a>"
+            f"<a href='tg://resolve?domain={self.username}'>{html.escape(self.first_name)}</a>"
             if self.username
-            else f"<a href='tg://user?id={self.id}'>{html.quote(self.first_name)}</a>"
+            else f"<a href='tg://user?id={self.id}'>{html.escape(self.first_name)}</a>"
         )

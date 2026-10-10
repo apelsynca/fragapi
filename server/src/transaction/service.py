@@ -65,10 +65,10 @@ class TransactionService:
         session: AsyncSession,
         user: User,
         pagination: PaginationParams,
-        sorting: list[Sorting[TransactionSortProperty]] = [
-            (TransactionSortProperty.created_at, True)
-        ],
+        sorting: list[Sorting[TransactionSortProperty]] | None = None,
     ) -> tuple[Sequence[Transaction], int]:
+        if sorting is None:
+            sorting = [(TransactionSortProperty.created_at, True)]
         repository = TransactionRepository.from_session(session)
 
         stmt = repository.apply_sorting(
@@ -129,7 +129,7 @@ class TransactionService:
     ) -> Transaction:
         validate_tc_transaction(tc_transaction)
         tc_msg = tc_transaction.messages[0]
-        transaction = await ton_transaction_service.create_as_tc(
+        ton_transaction = await ton_transaction_service.create_as_tc(
             session=session, tc_transaction=tc_transaction
         )
 
@@ -144,7 +144,7 @@ class TransactionService:
                 amount=f_amount,
                 recipient=metadata.recipient,
                 recipient_username=metadata.recipient_username,
-                ton_transaction=transaction,
+                ton_transaction=ton_transaction,
                 reason=reason,
                 stars_amount=metadata.stars_amount,
                 premium_months=metadata.premium_months,

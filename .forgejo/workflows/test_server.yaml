@@ -1,0 +1,76 @@
+name: Server
+
+on:
+  push:
+    branches:
+      - universe
+      - dev
+    paths:
+      - 'server/**'
+
+env:
+  FRAG_ENV: testing
+  FRAG_POSTGRES_HOST: postgres
+  FRAG_REDIS_HOST: redis
+
+jobs:
+  test:
+    name: "Server: Tests 🐍"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./server
+
+    services:
+      postgres:
+        image: postgres:17-bullseye
+        env:
+          POSTGRES_USER: frag
+          POSTGRES_PASSWORD: frag
+          POSTGRES_DB: frag_test
+          POSTGRES_PORT: 5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:8.10.2-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version-file: "server/pyproject.toml"
+
+      - name: 🔧 Install packages via uv
+        run: uv sync --dev --frozen
+
+      - name: ⚗️ Alembic migrate
+        run: uv run task db_migrate
+
+      - name: ⚗️ Alembic check
+        run: uv run alembic check
+
+      - name: 🐍 Run tests (pytest)
+        run: uv run pytest -n auto --dist=loadgroup --no-cov --durations=0
+

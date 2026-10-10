@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params
+from tonutils.contracts.wallet.messages import TONTransferBuilder
 
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fee import approx_before_fee
@@ -26,21 +27,44 @@ from src.ton_transaction.tasks import ton_transaction_find_real_hash
 from src.transaction.repository import TransactionRepository
 from src.transaction.utils import validate_tc_transaction
 from src.wallet.manager import WalletManager
+from src.wallet.send_gate import WalletSendGate
 from src.worker import enqueue_task, worker_task_with_queue_manager
 from src.worker.sqlalchemy import get_async_session
 from src.worker.wallet_manager import get_wallet_manager
+from src.worker.wallet_send_gate import get_wallet_send_gate
 
 log: Logger = structlog.get_logger()
 
 
-@worker_task_with_queue_manager(task_name="transaction.process")
+@worker_task_with_queue_manager(
+    task_name="transaction.process", retry_on_error=True, max_retries=3
+)
 async def fragment_transaction_process(
     transaction_id: uuid.UUID,
     tc_transaction: TonConnectTransaction,
     session: Annotated[AsyncSession, TaskiqDepends(get_async_session)],
     wallet_manager: Annotated[WalletManager, TaskiqDepends(get_wallet_manager)],
+    send_gate: Annotated[WalletSendGate, TaskiqDepends(get_wallet_send_gate)],
 ) -> None:
     validate_tc_transaction(tc_transaction=tc_transaction)
+    transaction = await _load_purchase(session, transaction_id, tc_transaction)
+
+    # Release the read transaction/connection before waiting for the Redis gate.
+    await session.commit()
+    if not await _send_purchase(
+        session, transaction, tc_transaction, wallet_manager, send_gate
+    ):
+        return
+
+    await _enqueue_purchase_notifications(session, transaction)
+    _enqueue_hash_lookup(transaction)
+
+
+async def _load_purchase(
+    session: AsyncSession,
+    transaction_id: uuid.UUID,
+    tc_transaction: TonConnectTransaction,
+) -> Transaction:
 
     repository = TransactionRepository.from_session(session)
     transaction = await repository.get_by_id(
@@ -78,19 +102,101 @@ async def fragment_transaction_process(
         )
         raise BadRequest("Hash is bad")
 
-    wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+    return transaction
+
+
+def _enqueue_hash_lookup(transaction: Transaction) -> None:
+    enqueue_task(
+        ton_transaction_find_real_hash,
+        ton_transaction_id=transaction.ton_transaction_id,
+    )
+
+
+def _purchase_expired(valid_until: int) -> bool:
+    if utc_now().timestamp() < valid_until:
+        return False
+    log.warning("transaction.process.expired_manual_handling_required")
+    return True
+
+
+async def _send_purchase(
+    session: AsyncSession,
+    transaction: Transaction,
+    tc_transaction: TonConnectTransaction,
+    wallet_manager: WalletManager,
+    send_gate: WalletSendGate,
+) -> bool:
+    tc_msg = tc_transaction.messages[0]
 
     body = tc_msg.get_payload_cell()
     valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+    reserved_seqno: int | None = None
 
-    ext_msg = await wallet.transfer(
-        destination=Address(tc_msg.address),
-        body=body,
-        amount=tc_msg.amount,
-        params=WalletV5Params(valid_until=valid_until),
-    )
+    async with send_gate.attempt():
+        # Reload after waiting: another delivery of this same job may have sent it.
+        await session.refresh(
+            transaction,
+            attribute_names=["outgoing_message_hash"],
+        )
+        # Check BOTH outgoing hash AND blockchain hash for historical safety
+        if transaction.outgoing_message_hash or transaction.ton_transaction.hash:
+            await session.commit()
+            log.info(
+                "transaction.process.skip_already_submitted",
+                outgoing_hash=transaction.outgoing_message_hash,
+                blockchain_hash=transaction.ton_transaction.hash,
+            )
+            _enqueue_hash_lookup(transaction)
+            return False
 
-    transaction.ton_transaction.hash = ext_msg.normalized_hash
+        await session.commit()
+
+        try:
+            if _purchase_expired(valid_until):
+                return False
+
+            # Refresh/select/build inside the gate; doing this before waiting
+            # could sign multiple sends with the same stale wallet seqno.
+            wallet = await wallet_manager.get_wallet_for_amount(amount=tc_msg.amount)
+            seqno = await wallet.seqno()
+
+            await send_gate.assert_owned()
+
+            ton_transfer_builder = TONTransferBuilder(
+                destination=Address(tc_msg.address),
+                body=body,
+                amount=tc_msg.amount,
+            )
+            ext_msg = await wallet.build_external_message(
+                [ton_transfer_builder],
+                params=WalletV5Params(valid_until=valid_until, seqno=seqno),
+            )
+
+            if _purchase_expired(valid_until):
+                return False
+
+            await send_gate.reserve_seqno(seqno)
+            reserved_seqno = seqno  # Track successful reservation
+            transaction.outgoing_message_hash = ext_msg.normalized_hash
+            # Commit the exact outgoing identifier BEFORE any network submission.
+            await session.commit()
+            await send_gate.assert_owned()
+            await wallet.client.send_message(ext_msg.as_hex)
+            transaction.ton_transaction.hash = ext_msg.normalized_hash
+            transaction.sent_at = utc_now()
+            await session.commit()
+        except BaseException:
+            await session.rollback()
+            # Release reservation if we know we reserved but didn't broadcast
+            if reserved_seqno is not None and not transaction.sent_at:
+                try:
+                    await send_gate.release_seqno_if_owned(reserved_seqno)
+                except Exception:
+                    log.exception("transaction.process.cleanup_failed")
+            log.exception("transaction.process.send_failed")
+            # Taskiq retries reload the committed hash. A possibly submitted
+            # payment is reconciled on retry, never rebuilt or broadcast twice.
+            raise
 
     log.info(
         "transaction.process.transfered",
@@ -98,7 +204,12 @@ async def fragment_transaction_process(
         amount=tc_msg.amount,
         normalized_hash=ext_msg.normalized_hash,
     )
+    return True
 
+
+async def _enqueue_purchase_notifications(
+    session: AsyncSession, transaction: Transaction
+) -> None:
     try:
         enqueue_transaction_admin_log_task(transaction=transaction)
     except Exception:
@@ -121,11 +232,6 @@ async def fragment_transaction_process(
             )
     except Exception:
         log.exception("transaction.process.error_enqueuing_user_log")
-
-    enqueue_task(
-        ton_transaction_find_real_hash,
-        ton_transaction_id=transaction.ton_transaction_id,
-    )
 
 
 DAILY_LOG_TEXT = (

@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from tonutils.contracts import WalletV5R1
@@ -20,6 +20,10 @@ class FakeWalletManager(WalletManager):
         self.balance = 0
 
         wmock = MagicMock(spec=WalletV5R1)
+        wmock.seqno.return_value = 1
+        wmock.client = MagicMock()
+        wmock.client.send_message = AsyncMock()
+        wmock.build_external_message.return_value.normalized_hash = "fake-outgoing-hash"
         self.wallet = wmock
 
     async def get_balance(self) -> int:

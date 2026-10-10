@@ -1,18 +1,16 @@
 from ton_core import to_amount
 
+from src.bot import custom_emoji
 from src.config import settings
 from src.enums import TransactionReason
 from src.models import TelegramLogsSource, Transaction
 from src.telegram_log.tasks import admin_telegram_notification_send, telegram_log_send
 from src.worker import enqueue_task
 
-STAR_EMOJI = "⭐️"
-GIFT_EMOJI = "🎁"
-
 USER_TELEGRAM_LOG_TEXT = (
     "{head_emoji} <b>Новая транзакция</b>\n\n"
     "Тип: {reason}\n"
-    "Сумма: <b>{amount:.4f} TON</b>\n\n"
+    f"Сумма: <b>{{amount:.4f}} {custom_emoji.GRAM.html}</b>\n\n"
     "Юзернейм получателя: @{username}\n"
     "Payload: {value}"
 )
@@ -22,10 +20,6 @@ def enqueue_transaction_telegram_log_task(
     source: TelegramLogsSource,
     transaction: Transaction,
 ) -> None:
-    head_emoji = (
-        STAR_EMOJI if transaction.reason == TransactionReason.stars else GIFT_EMOJI
-    )
-
     value_str = "Без payload"
     if transaction.premium_months:
         value_str = f"{transaction.premium_months} месяцев"
@@ -36,7 +30,7 @@ def enqueue_transaction_telegram_log_task(
         telegram_log_send,
         chat_id=source.chat_id,
         text=USER_TELEGRAM_LOG_TEXT.format(
-            head_emoji=head_emoji,
+            head_emoji=_get_head_emoji(transaction.reason),
             amount=transaction.amount,
             reason=transaction.reason,
             username=transaction.recipient_username,
@@ -52,16 +46,14 @@ ADMIN_TELEGRAM_TRANSACTION_TITLE_TEMPLATE = (
 ADMIN_TELEGRAM_TRANSACTION_TEXT = (
     "{head_emoji} <b>New {head_title_url}</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{amount:.4f} GRAM</b> <i>+{fee_amount:.5f} GRAM</i>\n\n"
+    f"Amount: <b>{{amount:.4f}} {custom_emoji.GRAM.html}</b> "
+    f"<i>+{{fee_amount:.5f}} {custom_emoji.GRAM.html}</i>\n\n"
     "To username: <i>{username}</i>\n"
     "Payload: <i>{value_str}</i>"
 )
 
 
 def enqueue_transaction_admin_log_task(transaction: Transaction):
-    head_emoji = (
-        STAR_EMOJI if transaction.reason == TransactionReason.stars else GIFT_EMOJI
-    )
     value_str = "❌ No value"
 
     if transaction.premium_months:
@@ -82,7 +74,7 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
     )
 
     text = ADMIN_TELEGRAM_TRANSACTION_TEXT.format(
-        head_emoji=head_emoji,
+        head_emoji=_get_head_emoji(transaction.reason),
         head_title_url=head_title_url,
         user_field=transaction.user.html_telegram_link,
         amount=transaction.amount,
@@ -95,4 +87,12 @@ def enqueue_transaction_admin_log_task(transaction: Transaction):
 
     enqueue_task(
         admin_telegram_notification_send, text=text, with_notification=with_notification
+    )
+
+
+def _get_head_emoji(transaction_reason: TransactionReason) -> str:
+    return (
+        custom_emoji.TELEGRAM_STAR_ANIMATED.html
+        if transaction_reason == TransactionReason.stars
+        else custom_emoji.GIFT_ANIMATED.html
     )

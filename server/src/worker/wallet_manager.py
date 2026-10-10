@@ -15,9 +15,15 @@ log: Logger = structlog.get_logger()
 
 @broker.on_event(TaskiqEvents.WORKER_STARTUP)
 async def create_wallet_manager(state: TaskiqState):
+    await toncenter_client.connect()
     wallet = create_wallet()  # for now
     state.wallet_manager = WalletManager(wallet=wallet)
     log.info("Created WalletManager")
+
+
+@broker.on_event(TaskiqEvents.WORKER_SHUTDOWN)
+async def close_wallet_client(state: TaskiqState):
+    await toncenter_client.close()
 
 
 async def get_wallet_manager(
@@ -31,5 +37,4 @@ async def get_wallet_manager(
             "Did you (re)moved broker events?"
         ) from e
 
-    async with toncenter_client:
-        yield wallet_manager
+    yield wallet_manager
