@@ -6,7 +6,7 @@ from src.worker import enqueue_task
 NEW_DEPOSIT_NOTIFICATION_TEXT = (
     f"{custom_emoji.PLUS_ANIMATED.html} <b>New deposit</b>\n\n"
     "User: {user_field}\n"
-    "Amount: <b>{{amount:.2f}} USDT</b>\n"
+    f"Amount: <b>{{amount:.2f}}</b> {custom_emoji.GRAM.html}\n"
     f"Balance change: <b>{{prev_balance:.2f}} {custom_emoji.GRAM.html}</b> "
     f"-> <b>{{curr_balance:.2f}} {custom_emoji.GRAM.html}</b>\n\n"
     "Ref-Hash: <code>{ref_hash}</code>{ton_transaction_field}"
