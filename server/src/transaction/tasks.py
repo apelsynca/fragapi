@@ -9,6 +9,7 @@ from taskiq import TaskiqDepends
 from ton_core import Address, ExternalMessage, WalletV5Params
 from tonutils.contracts.wallet.messages import TONTransferBuilder
 
+from src.bot import custom_emoji
 from src.exceptions import BadRequest, ResourceNotFound
 from src.fee import approx_before_fee
 from src.kit.ton_connect import TonConnectTransaction
@@ -199,7 +200,7 @@ async def _send_purchase(
             raise
 
     log.info(
-        "transaction.process.transfered",
+        "transaction.process.transferred",
         destination=tc_msg.address,
         amount=tc_msg.amount,
         normalized_hash=ext_msg.normalized_hash,
@@ -235,14 +236,15 @@ async def _enqueue_purchase_notifications(
 
 
 DAILY_LOG_TEXT = (
-    "🗓 Daily stats - {date} \n\n"
-    "Total balance: <b>{total_balance:.2f} GRAM</b>\n\n"
-    "Volume: <b>{volume:.2f} GRAM</b>\n"
-    "Raw commission amount: <b>{raw_commission_amount:.2f} GRAM</b>\n\n"
+    "🗓 Daily stats - {date}\n\n"
+    f"Total balance: <b>{{total_balance:.2f}} {custom_emoji.GRAM.html}</b>\n\n"
+    f"Volume: <b>{{volume:.2f}} {custom_emoji.GRAM.html}</b>\n"
+    f"Raw volume: <b>{{raw_commission_amount:.2f}} {custom_emoji.GRAM.html}</b>\n\n"
     "Transactions: <b>{transactions_count}</b> 🧾\n"
     "Transactions unique users: <b>{transactions_unique_users}</b> 👤\n\n"
     "Users: <b>{new_users_count}</b> 🐣 [<i>{users_total_count}</i>]\n"
-    "Deposits: [<i>Req{deposit_requests_count}</i>] <b>{deposits_count}</b> - <b>{deposits_amount:.2f} GRAM</b> 📊"
+    "Deposits: [<i>Req{deposit_requests_count}</i>] "
+    f"<b>{{deposits_count}}</b> - <b>{{deposits_amount:.2f}} {custom_emoji.GRAM.html}</b> 📊"
 )
 
 
