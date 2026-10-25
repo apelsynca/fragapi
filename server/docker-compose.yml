@@ -32,6 +32,7 @@ services:
   scheduler:
     build: .
     command: uv run taskiq scheduler src.worker.run:scheduler
+    restart: always
     depends_on:
       - db
       - rabbitmq
