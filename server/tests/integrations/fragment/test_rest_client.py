@@ -4,6 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.integrations.fragment.exceptions import (
+    FragmentAPIAccessDenied,
     FragmentAPIError,
     FragmentAPINotAUser,
     FragmentAPIUsersNotFound,
@@ -121,6 +122,21 @@ async def test_detect_non_user_found(
             method="doSomeThinkOnFrag",
             data={"someThing": "521", "doesNotMatter": "yes"},
         )
+
+
+@pytest.mark.asyncio
+async def test_detect_access_denied(
+    rest_client: FragmentRestClient,
+    valid_frag_session: FragmentSession,
+) -> None:
+    rest_client.session_storage.session = valid_frag_session
+    rest_client._client = MockClient(
+        return_status_code=200,
+        return_json={"error": "ACCESS Denied"},
+    )
+
+    with pytest.raises(FragmentAPIAccessDenied, match="ACCESS Denied"):
+        await rest_client.api_request(method="doSomeThinkOnFrag", data={"a": "b"})
 
 
 @pytest.mark.asyncio

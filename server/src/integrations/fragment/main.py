@@ -9,7 +9,7 @@ type MonthsAmount = Literal[3, 6, 12]
 
 
 class Fragment:
-    CACHE_LT = 60 * 5  # 10 mins
+    CACHE_LT = 60 * 5  # 5 mins
 
     def __init__(self, clients: list[FragmentRestClient]) -> None:
         if len(clients) == 0:

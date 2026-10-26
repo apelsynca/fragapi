@@ -13,7 +13,7 @@ from tonutils.contracts import WalletV5R1
 
 from src.enums import TransactionReason
 from src.exceptions import BadRequest, FragRequestValidationError, ResourceNotFound
-from src.fee import approx_before_fee
+from src.fee import fee_calculator
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
 from src.kit.utils import utc_now
 from src.models import Transaction, User
@@ -427,7 +427,7 @@ async def test_log_daily_stats_right_text(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=0,
             volume=7.75,
-            raw_commission_amount=approx_before_fee(7.75),
+            raw_commission_amount=fee_calculator.approx_before_fees(7.75),
             transactions_count=2,
             transactions_unique_users=2,
             new_users_count=0,
@@ -497,7 +497,7 @@ async def test_log_right_unique_users_and_total_balance(
             date=yesterday_dt.date().strftime("%m-%d"),
             total_balance=5.12,
             volume=8 * users_count,
-            raw_commission_amount=approx_before_fee(8 * users_count),
+            raw_commission_amount=fee_calculator.approx_before_fees(8 * users_count),
             transactions_count=users_count * 2,
             transactions_unique_users=users_count,
             new_users_count=0,

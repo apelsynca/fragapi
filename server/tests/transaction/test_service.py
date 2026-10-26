@@ -1,15 +1,18 @@
 import random
+from datetime import timedelta
 from unittest.mock import MagicMock
 
 import pytest
+from freezegun import freeze_time
 from pytest_mock import MockerFixture
 from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
 
 from src.enums import TransactionReason
 from src.exceptions import FragRequestValidationError
-from src.fee import after_fee, after_ton_network_fee
+from src.fee import fee_calculator
 from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
+from src.kit.utils import utc_now
 from src.models import User
 from src.postgres import AsyncSession
 from src.transaction.models import FTMetadata
@@ -86,8 +89,8 @@ async def test_creates_from_tc_with_valid_data(
     )
 
     assert transaction.user == user
-    assert transaction.amount == after_fee(
-        after_ton_network_fee(float(to_amount(tc_msg.amount)))
+    assert transaction.amount == fee_calculator.total_cost(
+        float(to_amount(tc_msg.amount))
     )
     assert transaction.recipient == "recipientXrecipient"
     assert transaction.recipient_username == "homocitrus"
@@ -186,7 +189,7 @@ async def test_removes_money_from_user_with_fee(
     )
     assert transaction is not None
 
-    expect = amount + 100 - after_fee(after_ton_network_fee(amount))
+    expect = amount + 100 - fee_calculator.total_cost(amount)
     assert user.balance == expect
 
     enqueue_task_mock.assert_called_once_with(
@@ -258,3 +261,44 @@ async def test_gets_stats_right_amount(
     assert stats.total_spend == 6.35
     assert stats.stars_total_spend == 4.25
     assert stats.premium_total_spend == 2.1
+
+
+@freeze_time("2026-12-12 12:00:00")
+@pytest.mark.asyncio
+async def test_chart_data_counts_stars_and_premium_in_window(
+    save_fixture: SaveFixture, session: AsyncSession, user: User
+) -> None:
+    now = utc_now()
+
+    stars = await create_transaction(
+        save_fixture,
+        user=user,
+        ton_transaction=await create_ton_transaction(save_fixture),
+        amount=1.5,
+    )
+    premium = await create_transaction(
+        save_fixture,
+        user=user,
+        ton_transaction=await create_ton_transaction(save_fixture),
+        amount=2.25,
+        premium_months=3,
+    )
+    out_of_window = await create_transaction(
+        save_fixture,
+        user=user,
+        ton_transaction=await create_ton_transaction(save_fixture),
+        amount=7,
+    )
+    stars.created_at = now
+    premium.created_at = now
+    out_of_window.created_at = now - timedelta(days=100)
+    await session.flush()
+
+    points = await transaction_service.get_chart_data(session=session, user=user)
+
+    assert len(points) == 90
+    assert points[-1].date == now.date()
+    assert points[-1].stars_spend == 1.5
+    assert points[-1].premium_spend == 2.25
+    assert sum(p.stars_spend for p in points) == 1.5
+    assert sum(p.premium_spend for p in points) == 2.25

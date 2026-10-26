@@ -27,9 +27,9 @@ from src.kit.ton_connect import TonConnect
 from src.logging import Logger
 from src.logging import configure as configure_logging
 from src.middlewares import (
-    KiqEnqueuedTasksMiddleware,
     LogTraceIdMiddleware,
     SandboxResponseHeaderMiddleware,
+    TaskiqEnqueuedTasksMiddleware,
 )
 from src.openapi import OPENAPI_PARAMETERS, APITag, set_openapi_generator
 from src.postgres import AsyncSessionMiddleware, create_async_engine
@@ -101,7 +101,7 @@ def create_app() -> FastAPI:
         app.add_middleware(rate_limit.get_middleware)
         app.add_middleware(AuthSubjectMiddleware)
         app.add_middleware(AsyncSessionMiddleware)
-        app.add_middleware(KiqEnqueuedTasksMiddleware)
+        app.add_middleware(TaskiqEnqueuedTasksMiddleware)
 
     if settings.is_sandbox():
         app.add_middleware(SandboxResponseHeaderMiddleware)
