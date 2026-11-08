@@ -7,8 +7,8 @@ from sqlalchemy.orm import selectinload
 from ton_core import to_amount
 
 from src.enums import TransactionReason
-from src.exceptions import InsuficcientFunds
-from src.fee import after_fee, after_ton_network_fee
+from src.exceptions import InsufficientFunds
+from src.fee import fee_calculator
 from src.kit.pagination import PaginationParams
 from src.kit.sorting import Sorting
 from src.kit.ton_connect import TonConnectTransaction
@@ -102,7 +102,7 @@ class TransactionService:
 
         # NOTE: in this case, ton transaction is unsaved here, which is good.
         if user.balance <= transaction.amount:
-            raise InsuficcientFunds(required_amount=transaction.amount)
+            raise InsufficientFunds(required_amount=transaction.amount)
 
         user.balance -= transaction.amount
 
@@ -134,7 +134,7 @@ class TransactionService:
         )
 
         without_fee_f_amount = float(to_amount(tc_msg.amount))
-        f_amount = after_fee(after_ton_network_fee(without_fee_f_amount))
+        f_amount = fee_calculator.total_cost(without_fee_f_amount)
 
         repository = TransactionRepository.from_session(session)
 
@@ -165,26 +165,25 @@ class TransactionService:
                 func.sum(
                     case(
                         (
-                            Transaction.reason == "stars",
+                            Transaction.reason == TransactionReason.stars,
                             Transaction.amount,
                         ),
                         else_=0,
-                    ).label("stars_spend")
-                ),
+                    )
+                ).label("stars_spend"),
                 func.sum(
                     case(
                         (
-                            Transaction.reason == "premium",
+                            Transaction.reason == TransactionReason.premium,
                             Transaction.amount,
                         ),
                         else_=0,
-                    ).label("premium_spend")
-                ),
+                    )
+                ).label("premium_spend"),
             )
             .where(
                 Transaction.user == user,
-                Transaction.reason == TransactionReason.stars,
-                # NOTE: might add `Transaction.created_at` to that lol
+                func.date(Transaction.created_at) >= start_date,
             )
             .group_by(func.date(Transaction.created_at))
         )
@@ -206,8 +205,8 @@ class TransactionService:
             result.append(
                 ChartPoint(
                     date=day,
-                    stars_spend=row[1],
-                    premium_spend=row[2],
+                    stars_spend=row.stars_spend,
+                    premium_spend=row.premium_spend,
                 )
             )
 

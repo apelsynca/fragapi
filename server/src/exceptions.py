@@ -39,10 +39,10 @@ class Forbidden(BadRequest):
         super().__init__(message=message, status_code=403)
 
 
-class InsuficcientFunds(BadRequest):
+class InsufficientFunds(BadRequest):
     def __init__(
         self,
-        message: str = "Insuficcient funds",
+        message: str = "Insufficient funds",
         status_code: int = 400,
         required_amount: float | None = None,
     ):

@@ -36,7 +36,7 @@ class LogTraceIdMiddleware:
             TraceID.clear()
 
 
-class KiqEnqueuedTasksMiddleware:
+class TaskiqEnqueuedTasksMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 

@@ -21,6 +21,20 @@ class FragmentRestClient:
     DOMAIN = "fragment.com"
     STALE_TIME = 60 * 30  # 30 minutes
 
+    # Fragment returns only a human-readable `error` text, no error codes.
+    # First matching pattern wins; unmatched errors raise FragmentAPIError.
+    API_ERROR_PATTERNS: tuple[tuple[re.Pattern[str], type[FragmentAPIError]], ...] = (
+        (
+            re.compile(r"no telegram users found", re.IGNORECASE),
+            FragmentAPIUsersNotFound,
+        ),
+        (re.compile(r"access denied", re.IGNORECASE), FragmentAPIAccessDenied),
+        (
+            re.compile(r"enter a username assigned to a user", re.IGNORECASE),
+            FragmentAPINotAUser,
+        ),
+    )
+
     def __init__(self, ton_connect: TonConnect) -> None:
         if ton_connect.tc_domain != self.DOMAIN:
             raise RuntimeError(
@@ -83,14 +97,10 @@ class FragmentRestClient:
             return
 
         error_text = data["error"]
-        error_lowered = error_text.lower()
 
-        if "no telegram users found" in error_lowered:
-            raise FragmentAPIUsersNotFound(error_text)
-        if "access denied" in error_lowered:
-            raise FragmentAPIAccessDenied(error_text)
-        if "enter a username assigned to a user" in error_lowered:
-            raise FragmentAPINotAUser(error_text)
+        for pattern, exception_cls in self.API_ERROR_PATTERNS:
+            if pattern.search(error_text):
+                raise exception_cls(error_text)
 
         raise FragmentAPIError(error_text)
 
@@ -158,7 +168,7 @@ class FragmentRestClient:
             ton_rate=ton_rate_match,
         )
 
-    async def check_ton_proof_auth(self) -> tuple[bool]:
+    async def check_ton_proof_auth(self) -> bool:
         if self.session_storage.session is None:
             raise RuntimeError("No session while checking ton proof auth")
 
