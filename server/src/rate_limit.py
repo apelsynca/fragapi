@@ -26,8 +26,8 @@ async def _authenticate(scope: Scope) -> tuple[str, RateLimitGroup]:
 
 
 _BASE_RULES: dict[str, Sequence[Rule]] = {
-    "^/v1/stars/buy": [Rule(minute=60, block_time=300, zone="buy")],
-    "^/v1/premium/buy": [Rule(minute=60, block_time=300, zone="buy")],
+    "^/v1/stars/buy": [Rule(minute=90, block_time=300, zone="buy")],
+    "^/v1/premium/buy": [Rule(minute=90, block_time=300, zone="buy")],
     "^/v1/ton/rate": [Rule(minute=30)],
 }
 
@@ -35,7 +35,7 @@ _PRODUCTION_RULES: dict[str, Sequence[Rule]] = {
     **_BASE_RULES,
     "^/v1": [
         Rule(group=RateLimitGroup.default, minute=500, zone="api"),
-        Rule(group=RateLimitGroup.web, second=100, zone="api"),
+        Rule(group=RateLimitGroup.web, second=240, zone="api"),
     ],
 }
 
