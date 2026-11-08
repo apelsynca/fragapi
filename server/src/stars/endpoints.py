@@ -7,6 +7,7 @@ from src.openapi import APITag
 from src.postgres import AsyncSession, get_db_session
 from src.redis import Redis, get_redis
 from src.routing import APIRouter
+from src.schemas import TelegramUsername
 from src.stars import auth
 from src.stars.schemas import BuyStars, BuyStarsResponse, StarsRecipient
 from src.stars.service import stars as stars_service
@@ -22,7 +23,7 @@ log: Logger = structlog.get_logger()
 @router.get("/recipient/{username}", description="Get stars recipient info")
 async def get_recipient(
     auth_subject: auth.StarsGlobal,
-    username: str,
+    username: TelegramUsername,
     fragment: Fragment = Depends(get_fragment),
     redis: Redis = Depends(get_redis),
     quantity: int | None = Query(default=None),

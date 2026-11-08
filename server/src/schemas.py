@@ -1,19 +1,23 @@
 import re
 from typing import Annotated
 
-from pydantic import UUID4, Field, computed_field, field_validator
+from pydantic import UUID4, BeforeValidator, Field, computed_field
 
 from src.kit.schemas import Schema
 
 
-class BaseBuyRequest(Schema):
-    username: str
-    show_sender: bool = Field(default=False, description="Show telegram sender")
+def strip_telegram_prefix(v: str) -> str:
+    return (
+        v.removeprefix("https://t.me/").removeprefix("https://telegram.me/").lstrip("@")
+    )
 
-    @field_validator("username", mode="before")
-    @classmethod
-    def strip_telegram_prefix(cls, v: str) -> str:
-        return v.removeprefix("https://t.me/").removeprefix("https://telegram.me/")
+
+TelegramUsername = Annotated[str, BeforeValidator(strip_telegram_prefix)]
+
+
+class BaseBuyRequest(Schema):
+    username: TelegramUsername
+    show_sender: bool = Field(default=False, description="Show telegram sender")
 
 
 class BaseRecipient(Schema):

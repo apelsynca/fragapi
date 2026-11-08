@@ -10,6 +10,7 @@ from src.premium.schemas import BuyPremium, BuyPremiumResponse, PremiumRecipient
 from src.premium.service import premium as premium_service
 from src.redis import Redis, get_redis
 from src.routing import APIRouter
+from src.schemas import TelegramUsername
 
 router = APIRouter(prefix="/premium", tags=["premium", APITag.public])
 
@@ -19,7 +20,7 @@ log: Logger = structlog.get_logger()
 @router.get("/recipient/{username}", description="Get premium recipient")
 async def get_recipient(
     auth_subject: auth.PremiumGlobal,
-    username: str,
+    username: TelegramUsername,
     fragment: Fragment = Depends(get_fragment),
     redis: Redis = Depends(get_redis),
 ) -> PremiumRecipient:
