@@ -26,11 +26,11 @@ class SessionStorage:
                 json_str = fr.read()
                 self.session = FragmentSession.model_validate_json(json_str)
         except FileNotFoundError:
-            log.error(
-                "Fragment Session file is not found!",
+            # No session yet: `ensure_authorized` logs in and `save` creates it.
+            log.warning(
+                "Fragment Session file is not found, a new login is needed",
                 session_path=settings.FRAGMENT_SESSION_PATH,
             )
-            raise
         except ValidationError as e:
             log.warning("Session file validation error", error=str(e))
 

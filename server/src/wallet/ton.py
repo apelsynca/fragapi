@@ -9,10 +9,11 @@ def create_toncenter(network: NetworkGlobalID) -> ToncenterClient:
     return ToncenterClient(network=network, api_key=settings.TONCENTER_API_KEY)
 
 
+# Fragment is mainnet only, so every real environment pays on mainnet.
 NETWORK = (
-    NetworkGlobalID.MAINNET
-    if settings.is_environment({Environment.production, Environment.sandbox})
-    else NetworkGlobalID.TESTNET
+    NetworkGlobalID.TESTNET
+    if settings.is_environment({Environment.testing})
+    else NetworkGlobalID.MAINNET
 )
 
 toncenter = create_toncenter(NETWORK)

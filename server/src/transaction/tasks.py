@@ -6,7 +6,7 @@ import structlog
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from taskiq import TaskiqDepends
-from ton_core import Address, Cell, ExternalMessage, WalletV5Params
+from ton_core import Address, ExternalMessage, WalletV5Params
 from tonutils.contracts import WalletV5R1
 from tonutils.contracts.wallet.messages import TONTransferBuilder
 
@@ -48,18 +48,38 @@ async def fragment_transaction_process(
     wallet_manager: Annotated[WalletManager, TaskiqDepends(get_wallet_manager)],
     send_gate: Annotated[WalletSendGate, TaskiqDepends(get_wallet_send_gate)],
 ) -> None:
-    validate_tc_transaction(tc_transaction=tc_transaction)
-    transaction = await _load_purchase(session, transaction_id, tc_transaction)
+    await process_purchases(
+        session, [transaction_id], [tc_transaction], wallet_manager, send_gate
+    )
+
+
+async def process_purchases(
+    session: AsyncSession,
+    transaction_ids: list[uuid.UUID],
+    tc_transactions: list[TonConnectTransaction],
+    wallet_manager: WalletManager,
+    send_gate: WalletSendGate,
+) -> None:
+    """Sends all the purchases in one wallet message. Safe to rerun, never twice."""
+    for tc_transaction in tc_transactions:
+        validate_tc_transaction(tc_transaction=tc_transaction)
+    transactions = [
+        await _load_purchase(session, transaction_id, tc_transaction)
+        for transaction_id, tc_transaction in zip(
+            transaction_ids, tc_transactions, strict=True
+        )
+    ]
 
     # Release the read transaction/connection before waiting for the Redis gate.
     await session.commit()
     if not await _send_purchase(
-        session, transaction, tc_transaction, wallet_manager, send_gate
+        session, transactions, tc_transactions, wallet_manager, send_gate
     ):
         return
 
-    await _enqueue_purchase_notifications(session, transaction)
-    _enqueue_hash_lookup(transaction)
+    for transaction in transactions:
+        await _enqueue_purchase_notifications(session, transaction)
+    _enqueue_hash_lookup(transactions[0])
 
 
 async def _load_purchase(
@@ -121,26 +141,26 @@ def _purchase_expired(valid_until: int) -> bool:
     return True
 
 
-async def _already_submitted(session: AsyncSession, transaction: Transaction) -> bool:
+async def _already_submitted(
+    session: AsyncSession, transactions: list[Transaction]
+) -> bool:
     # Reload after waiting: another delivery of this same job may have sent it.
-    await session.refresh(
-        transaction,
-        attribute_names=["outgoing_message_hash"],
-    )
+    for transaction in transactions:
+        await session.refresh(transaction, attribute_names=["outgoing_message_hash"])
     # Check BOTH outgoing hash AND blockchain hash for historical safety
-    submitted = bool(
-        transaction.outgoing_message_hash or transaction.ton_transaction.hash
-    )
+    submitted = [
+        t for t in transactions if t.outgoing_message_hash or t.ton_transaction.hash
+    ]
     await session.commit()
 
     if submitted:
         log.info(
             "transaction.process.skip_already_submitted",
-            outgoing_hash=transaction.outgoing_message_hash,
-            blockchain_hash=transaction.ton_transaction.hash,
+            outgoing_hash=submitted[0].outgoing_message_hash,
+            blockchain_hash=submitted[0].ton_transaction.hash,
         )
-        _enqueue_hash_lookup(transaction)
-    return submitted
+        _enqueue_hash_lookup(transactions[0])
+    return bool(submitted)
 
 
 async def _prepare_wallet_and_seqno(
@@ -155,48 +175,54 @@ async def _prepare_wallet_and_seqno(
 
 async def _build_and_sign_transaction(
     wallet: WalletV5R1,
-    tc_msg: TonConnectMessage,
-    body: Cell,
+    tc_msgs: list[TonConnectMessage],
     seqno: int,
     valid_until: int,
 ) -> ExternalMessage:
-    ton_transfer_builder = TONTransferBuilder(
-        destination=Address(tc_msg.address),
-        body=body,
-        amount=tc_msg.amount,
-    )
     return await wallet.build_external_message(
-        [ton_transfer_builder],
+        [
+            TONTransferBuilder(
+                destination=Address(tc_msg.address),
+                body=tc_msg.get_payload_cell(),
+                amount=tc_msg.amount,
+            )
+            for tc_msg in tc_msgs
+        ],
         params=WalletV5Params(valid_until=valid_until, seqno=seqno),
     )
 
 
 async def _broadcast_transaction(
     session: AsyncSession,
-    transaction: Transaction,
+    transactions: list[Transaction],
     wallet: WalletV5R1,
     ext_msg: ExternalMessage,
     send_gate: WalletSendGate,
 ) -> None:
-    transaction.outgoing_message_hash = ext_msg.normalized_hash
+    for transaction in transactions:
+        transaction.outgoing_message_hash = ext_msg.normalized_hash
     # Commit the exact outgoing identifier BEFORE any network submission.
     await session.commit()
     await send_gate.assert_owned()
     await wallet.client.send_message(ext_msg.as_hex)
-    transaction.ton_transaction.hash = ext_msg.normalized_hash
-    transaction.sent_at = utc_now()
+    sent_at = utc_now()
+    for transaction in transactions:
+        transaction.sent_at = sent_at
+    # ton_transactions.hash is unique, so a shared send leaves it to the lookup.
+    if len(transactions) == 1:
+        transactions[0].ton_transaction.hash = ext_msg.normalized_hash
     await session.commit()
 
 
 async def _cleanup_on_failure(
     session: AsyncSession,
-    transaction: Transaction,
+    transactions: list[Transaction],
     send_gate: WalletSendGate,
     reserved_seqno: int | None,
 ) -> None:
     await session.rollback()
     # Release reservation if we know we reserved but didn't broadcast
-    if reserved_seqno is not None and not transaction.sent_at:
+    if reserved_seqno is not None and not transactions[0].sent_at:
         try:
             await send_gate.release_seqno_if_owned(reserved_seqno)
         except Exception:
@@ -206,31 +232,31 @@ async def _cleanup_on_failure(
 
 async def _send_purchase(
     session: AsyncSession,
-    transaction: Transaction,
-    tc_transaction: TonConnectTransaction,
+    transactions: list[Transaction],
+    tc_transactions: list[TonConnectTransaction],
     wallet_manager: WalletManager,
     send_gate: WalletSendGate,
 ) -> bool:
-    tc_msg = tc_transaction.messages[0]
+    tc_msgs = [tc_transaction.messages[0] for tc_transaction in tc_transactions]
+    amount = sum(tc_msg.amount for tc_msg in tc_msgs)
 
-    body = tc_msg.get_payload_cell()
-    valid_until = int(tc_transaction.valid_until.timestamp()) + 10
+    # One message for all, so it may live only as long as the shortest one.
+    earliest = min(tc_transaction.valid_until for tc_transaction in tc_transactions)
+    valid_until = int(earliest.timestamp()) + 10
     reserved_seqno: int | None = None
 
     async with send_gate.attempt():
-        if await _already_submitted(session, transaction):
+        if await _already_submitted(session, transactions):
             return False
 
         try:
             if _purchase_expired(valid_until):
                 return False
 
-            wallet, seqno = await _prepare_wallet_and_seqno(
-                wallet_manager, tc_msg.amount
-            )
+            wallet, seqno = await _prepare_wallet_and_seqno(wallet_manager, amount)
             await send_gate.assert_owned()
             ext_msg = await _build_and_sign_transaction(
-                wallet, tc_msg, body, seqno, valid_until
+                wallet, tc_msgs, seqno, valid_until
             )
 
             if _purchase_expired(valid_until):
@@ -239,18 +265,18 @@ async def _send_purchase(
             await send_gate.reserve_seqno(seqno)
             reserved_seqno = seqno  # Track successful reservation
             await _broadcast_transaction(
-                session, transaction, wallet, ext_msg, send_gate
+                session, transactions, wallet, ext_msg, send_gate
             )
         except BaseException:
-            await _cleanup_on_failure(session, transaction, send_gate, reserved_seqno)
+            await _cleanup_on_failure(session, transactions, send_gate, reserved_seqno)
             # Taskiq retries reload the committed hash. A possibly submitted
             # payment is reconciled on retry, never rebuilt or broadcast twice.
             raise
 
     log.info(
         "transaction.process.transferred",
-        destination=tc_msg.address,
-        amount=tc_msg.amount,
+        destinations=[tc_msg.address for tc_msg in tc_msgs],
+        amount=amount,
         normalized_hash=ext_msg.normalized_hash,
     )
     return True

@@ -5,10 +5,18 @@ from unittest.mock import MagicMock
 import pytest
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
-from ton_core import Address, Cell, ExternalMessage, to_amount, to_nano
+from ton_core import (
+    Address,
+    Cell,
+    ExternalMessage,
+    begin_cell,
+    cell_to_b64,
+    to_amount,
+    to_nano,
+)
 
 from src.enums import TransactionReason
-from src.exceptions import FragRequestValidationError
+from src.exceptions import FragRequestValidationError, InsufficientFunds
 from src.fee import fee_calculator
 from src.kit.pagination import PaginationParams
 from src.kit.ton_connect import TonConnectMessage, TonConnectTransaction
@@ -302,3 +310,66 @@ async def test_chart_data_counts_stars_and_premium_in_window(
     assert points[-1].premium_spend == 2.25
     assert sum(p.stars_spend for p in points) == 1.5
     assert sum(p.premium_spend for p in points) == 2.25
+
+
+@pytest.mark.asyncio
+async def test_bulk_charge_debits_what_balance_covers(
+    session: AsyncSession, user: User, enqueue_task_mock: MagicMock
+) -> None:
+    tc_transactions = [
+        get_tc_transaction(messages=[get_valid_tc_msg(amount=amount)])
+        for amount in (10, 50, 5)
+    ]
+    for i, tc_transaction in enumerate(tc_transactions):
+        # Distinct payloads, message hashes are unique.
+        tc_transaction.messages[0].payload = cell_to_b64(
+            begin_cell().store_uint(i, 32).end_cell()
+        )
+    user.balance = 20
+    await session.flush()
+
+    results = await transaction_service.charge_bulk_from_tc(
+        session=session,
+        user=user,
+        reason=TransactionReason.stars,
+        purchases=[
+            (tc, FTMetadata(recipient="r", recipient_username="u", stars_amount=50))
+            for tc in tc_transactions
+        ],
+    )
+
+    first, second, third = results
+    assert isinstance(second, InsufficientFunds)
+    assert not isinstance(first, InsufficientFunds)
+    assert not isinstance(third, InsufficientFunds)
+    # Flushed: callers store and send them by id.
+    assert first.id is not None
+    assert third.id is not None
+    assert user.balance == pytest.approx(
+        20 - fee_calculator.total_cost(10) - fee_calculator.total_cost(5)
+    )
+    # Sending is the caller's job, in one message for the whole batch.
+    enqueue_task_mock.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_bulk_charge_debits_nothing_if_nothing_is_affordable(
+    session: AsyncSession, user: User, enqueue_task_mock: MagicMock
+) -> None:
+    user.balance = 0
+    await session.flush()
+
+    results = await transaction_service.charge_bulk_from_tc(
+        session=session,
+        user=user,
+        reason=TransactionReason.stars,
+        purchases=[
+            (
+                get_tc_transaction(messages=[get_valid_tc_msg(amount=1)]),
+                FTMetadata(recipient="r", recipient_username="u", stars_amount=50),
+            )
+        ],
+    )
+
+    assert isinstance(results[0], InsufficientFunds)
+    assert user.balance == 0

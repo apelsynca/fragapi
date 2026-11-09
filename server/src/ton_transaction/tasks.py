@@ -3,7 +3,7 @@ from typing import Annotated
 
 import structlog
 from pydantic import UUID4
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from taskiq import TaskiqDepends
 from ton_core import Cell, Transaction, normalize_hash
@@ -81,6 +81,17 @@ async def ton_transaction_find_real_hash(
                 ton_transaction.hash = tx_hash
                 if purchase:
                     purchase.sent_at = purchase.sent_at or utc_now()
+                if purchase and purchase.outgoing_message_hash:
+                    # Purchases sent together in one bulk wallet message.
+                    await session.execute(
+                        update(PurchaseTransaction)
+                        .where(
+                            PurchaseTransaction.outgoing_message_hash
+                            == purchase.outgoing_message_hash,
+                            PurchaseTransaction.sent_at.is_(None),
+                        )
+                        .values(sent_at=purchase.sent_at)
+                    )
                 log.info(
                     "ton_transaction.find_real_hash.found",
                     new_hash=tx_hash,

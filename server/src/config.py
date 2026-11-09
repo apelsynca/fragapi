@@ -42,7 +42,9 @@ class Settings(BaseSettings):
     TON_ADDRESS: str = ""
     TONCENTER_API_KEY: str = ""
     TONAPI_API_KEY: str = ""
+
     WALLET_MNEMONIC: list[str] = []
+    WALLET_SEND_INTERVAL_SECONDS: float = Field(ge=0, default=10)
 
     # User session
     USER_SESSION_TTL: timedelta = timedelta(days=7)

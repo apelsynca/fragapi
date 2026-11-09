@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Transaction(RecordModel):
-    """Dont confuze with TonTransaction model"""
+    """Dont confuse with TonTransaction model"""
 
     __tablename__ = "transactions"
 

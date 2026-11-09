@@ -6,6 +6,7 @@ from typing import Any
 
 from src.integrations.fragment.exceptions import (
     FragmentAPIAccessDenied,
+    FragmentAPIAlreadyHasPremium,
     FragmentAPIError,
     FragmentAPINotAUser,
     FragmentAPIUsersNotFound,
@@ -21,8 +22,6 @@ class FragmentRestClient:
     DOMAIN = "fragment.com"
     STALE_TIME = 60 * 30  # 30 minutes
 
-    # Fragment returns only a human-readable `error` text, no error codes.
-    # First matching pattern wins; unmatched errors raise FragmentAPIError.
     API_ERROR_PATTERNS: tuple[tuple[re.Pattern[str], type[FragmentAPIError]], ...] = (
         (
             re.compile(r"no telegram users found", re.IGNORECASE),
@@ -33,6 +32,13 @@ class FragmentRestClient:
             re.compile(r"enter a username assigned to a user", re.IGNORECASE),
             FragmentAPINotAUser,
         ),
+        (
+            re.compile(
+                r"account is already subscribed to telegram premium",
+                re.IGNORECASE,
+            ),
+            FragmentAPIAlreadyHasPremium,
+        ),
     )
 
     def __init__(self, ton_connect: TonConnect) -> None:
@@ -42,7 +48,7 @@ class FragmentRestClient:
             )
 
         self.session_storage = SessionStorage()
-        self.session_storage.load()  # fails only if file does not exists
+        self.session_storage.load()
 
         self._client: BaseClient = HttpxClient(
             headers={
@@ -121,7 +127,9 @@ class FragmentRestClient:
         self.session_storage.save_tokens(main_page_tokens)
 
         await asyncio.sleep(0.5)
-        await self.check_ton_proof_auth()
+        # Fail here (and so the app/worker startup), not on the first purchase.
+        if not await self.check_ton_proof_auth():
+            raise FragmentError("Fragment rejected the TonConnect login")
 
         self.session_storage.save_cookies(self._client.extract_cookies())
         self.session_storage.save()

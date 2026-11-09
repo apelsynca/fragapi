@@ -1,7 +1,9 @@
 from typing import Annotated
 
-from pydantic import Field
+from pydantic import UUID4, Field
 
+from src.enums import BulkPurchaseStatus
+from src.kit.schemas import Schema
 from src.schemas import (
     BaseBuyRequest,
     BaseBuyResponse,
@@ -26,3 +28,35 @@ class StarsRecipient(BaseRecipient):
 
 class BuyStarsResponse(BaseBuyResponse):
     pass
+
+
+class BulkBuyStars(Schema):
+    items: Annotated[
+        list[BuyStars],
+        Field(
+            min_length=1,
+            max_length=100,
+            description="Purchases to send together in one wallet transaction",
+        ),
+    ]
+
+
+class BulkBuyStarsItemResult(Schema):
+    username: str
+    quantity: int
+    result: BuyStarsResponse | None = None
+    error: Annotated[
+        str | None, Field(description="Why this item was not bought or charged")
+    ] = None
+
+
+class BulkBuyStarsResponse(Schema):
+    id: UUID4
+    status: Annotated[
+        BulkPurchaseStatus,
+        Field(description="pending: buying, charged: sending, done: finished"),
+    ]
+    items: Annotated[
+        list[BulkBuyStarsItemResult],
+        Field(description="Results in the same order as the requested items"),
+    ]

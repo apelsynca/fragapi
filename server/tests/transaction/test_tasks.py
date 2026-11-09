@@ -8,7 +8,15 @@ import pytest
 import pytest_asyncio
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
-from ton_core import Address, Cell, WalletV5Params, to_nano
+from ton_core import (
+    Address,
+    Cell,
+    ExternalMessage,
+    WalletV5Params,
+    begin_cell,
+    cell_to_b64,
+    to_nano,
+)
 from tonutils.contracts import WalletV5R1
 
 from src.enums import TransactionReason
@@ -23,6 +31,7 @@ from src.telegram_log.tasks import admin_telegram_notification_send
 from src.transaction.tasks import (
     DAILY_LOG_TEXT,
     fragment_transaction_process,
+    process_purchases,
     transactions_log_daily_stats,
 )
 from src.wallet.manager import WalletManager
@@ -30,6 +39,7 @@ from tests.fixtures.database import SaveFixture
 from tests.fixtures.random_objects import (
     create_ton_transaction,
     create_transaction,
+    get_tc_transaction,
     rstr,
 )
 from tests.fixtures.worker import FakeWalletManager
@@ -593,3 +603,102 @@ async def test_log_right_new_deposits(
         ),
         with_notification=False,
     )
+
+
+def _bulk_purchase_tc(ref: str, valid_for: timedelta) -> TonConnectTransaction:
+    body = begin_cell().store_uint(0, 32).store_snake_string(ref).end_cell()
+    tc_transaction = get_tc_transaction(
+        messages=[
+            TonConnectMessage(
+                address="UQANtyTiJuWgo5cTdrVlzpTzhYD3Heg3ssPoeAW2dM2v6nR1",
+                amount=to_nano(1),
+                payload=cell_to_b64(body),
+            )
+        ]
+    )
+    tc_transaction.valid_until = utc_now() + valid_for
+    return tc_transaction
+
+
+async def _bulk_purchases(
+    save_fixture: SaveFixture, user: User
+) -> tuple[list[Transaction], list[TonConnectTransaction]]:
+    tc_transactions = [
+        _bulk_purchase_tc(rstr("Ref#"), timedelta(seconds=60)),
+        _bulk_purchase_tc(rstr("Ref#"), timedelta(seconds=20)),
+    ]
+    transactions = []
+    for tc_transaction in tc_transactions:
+        tc_msg = tc_transaction.messages[0]
+        message_hash = ExternalMessage(
+            dest=Address(tc_msg.address), body=tc_msg.get_payload_cell()
+        ).normalized_hash
+        ton_transaction = await create_ton_transaction(
+            save_fixture, message_hash=message_hash
+        )
+        transactions.append(
+            await create_transaction(
+                save_fixture, user=user, ton_transaction=ton_transaction
+            )
+        )
+    return transactions, tc_transactions
+
+
+@pytest.mark.asyncio
+async def test_bulk_sends_all_purchases_in_one_message_once(
+    save_fixture: SaveFixture,
+    user: User,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+) -> None:
+    transactions, tc_transactions = await _bulk_purchases(save_fixture, user)
+    manager = FakeWalletManager()
+
+    for _ in range(2):
+        await process_purchases(
+            session,
+            [t.id for t in transactions],
+            tc_transactions,
+            manager,
+            ImmediateGate(),
+        )
+
+    manager.wallet.client.send_message.assert_awaited_once()
+    build = manager.wallet.build_external_message
+    build.assert_awaited_once()
+    builders = build.call_args.args[0]
+    assert [b.body for b in builders] == [
+        tc.messages[0].get_payload_cell() for tc in tc_transactions
+    ]
+    # Shortest validity of the batch wins.
+    assert build.call_args.kwargs["params"].valid_until == (
+        int(tc_transactions[1].valid_until.timestamp()) + 10
+    )
+    for transaction in transactions:
+        assert transaction.outgoing_message_hash == "fake-outgoing-hash"
+        assert transaction.sent_at is not None
+        # Unique column: the shared chain hash is left to the lookup task.
+        assert transaction.ton_transaction.hash is None
+
+
+@pytest.mark.asyncio
+async def test_bulk_expired_batch_is_not_sent(
+    save_fixture: SaveFixture,
+    user: User,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+) -> None:
+    transactions, tc_transactions = await _bulk_purchases(save_fixture, user)
+    tc_transactions[1].valid_until = utc_now() - timedelta(seconds=30)
+    manager = FakeWalletManager()
+
+    await process_purchases(
+        session,
+        [t.id for t in transactions],
+        tc_transactions,
+        manager,
+        ImmediateGate(),
+    )
+
+    manager.wallet.client.send_message.assert_not_awaited()
+    assert all(t.outgoing_message_hash is None for t in transactions)

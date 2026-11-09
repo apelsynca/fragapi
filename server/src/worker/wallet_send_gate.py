@@ -6,4 +6,8 @@ from src.wallet.send_gate import WalletSendGate, create_wallet_send_redis
 
 async def get_wallet_send_gate() -> AsyncGenerator[WalletSendGate]:
     async with create_wallet_send_redis() as redis:
-        yield WalletSendGate(redis, str(settings.TON_ADDRESS))
+        yield WalletSendGate(
+            redis,
+            str(settings.TON_ADDRESS),
+            interval=settings.WALLET_SEND_INTERVAL_SECONDS,
+        )

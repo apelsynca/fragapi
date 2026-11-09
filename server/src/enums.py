@@ -25,3 +25,9 @@ class TelegramLogSender(StrEnum):
 class TransactionReason(StrEnum):
     premium = "premium"
     stars = "stars"
+
+
+class BulkPurchaseStatus(StrEnum):
+    pending = "pending"  # waiting to resolve recipients, nothing charged
+    charged = "charged"  # items debited, waiting for the wallet send
+    done = "done"

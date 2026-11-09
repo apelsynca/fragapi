@@ -2,23 +2,31 @@ from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
+from sqlalchemy import update
 
 from src.caching import RecipientCache
-from src.enums import TransactionReason
-from src.exceptions import BadRequest, FragError, ResourceNotFound
+from src.enums import BulkPurchaseStatus, TransactionReason
+from src.exceptions import (
+    BadRequest,
+    FragError,
+    InsufficientFunds,
+    ResourceNotFound,
+)
 from src.integrations.fragment.exceptions import (
     FragmentAPIAccessDenied,
     FragmentAPIError,
     FragmentAPINotAUser,
     FragmentAPIUsersNotFound,
+    FragmentError,
 )
 from src.integrations.fragment.types import BuyLink, FoundRecipientData, RecipientData
 from src.kit.ton_connect import TonConnectTransaction
-from src.models import User
+from src.models import StarsBulkPurchase, User
 from src.postgres import AsyncSession
 from src.redis import Redis
 from src.schemas import BaseRecipient
-from src.stars.schemas import BuyStars, StarsRecipient
+from src.stars.schemas import BulkBuyStars, BuyStars, StarsRecipient
+from src.stars.service import FRAGMENT_UNAVAILABLE
 from src.stars.service import stars as stars_service
 from src.transaction.models import FTMetadata
 from src.transaction.service import TransactionService
@@ -280,3 +288,147 @@ async def test_get_recipient_fetches_when_uncached(
     recipient_cache_mock.set.assert_awaited_once_with(
         redis=redis, recipient=expected_recipient_data, username="some_user91"
     )
+
+
+FOUND = RecipientData(
+    ok=True,
+    found=FoundRecipientData(
+        myself=False, recipient="SomeMtDataXx", photo="", name="Name"
+    ),
+)
+
+
+async def _bulk(session: AsyncSession, user: User, *usernames: str):
+    bulk = await stars_service.create_bulk(
+        session=session,
+        user=user,
+        data=BulkBuyStars(items=[BuyStars(username=u, quantity=50) for u in usernames]),
+    )
+    await session.flush()
+    return bulk
+
+
+@pytest.mark.asyncio
+async def test_charge_bulk_skips_failed_items_and_charges_the_rest(
+    save_fixture: SaveFixture,
+    session: AsyncSession,
+    user: User,
+    fragment: MagicMock,
+    valid_tc_transaction: TonConnectTransaction,
+    transaction_service: MagicMock,
+    redis: Redis,
+) -> None:
+    fragment.search_stars_recipient.side_effect = [
+        FOUND,
+        FragmentAPIUsersNotFound(),
+        FOUND,
+    ]
+    fragment.get_buy_stars_link.return_value = BuyLink(
+        transaction=valid_tc_transaction, ok=True
+    )
+    transaction = await create_transaction(
+        save_fixture,
+        user=user,
+        ton_transaction=await create_ton_transaction(save_fixture, message_hash="h"),
+    )
+    transaction_service.charge_bulk_from_tc.return_value = [
+        transaction,
+        InsufficientFunds(),
+    ]
+    bulk = await _bulk(session, user, "@first_user", "missing_user", "third_user")
+
+    await stars_service.charge_bulk(
+        session=session, bulk=bulk, fragment=fragment, redis=redis
+    )
+
+    purchases = transaction_service.charge_bulk_from_tc.call_args.kwargs["purchases"]
+    assert [metadata.recipient_username for _, metadata in purchases] == [
+        "first_user",
+        "third_user",
+    ]
+    assert bulk.status == BulkPurchaseStatus.charged
+    first, missing, third = stars_service.bulk_response(bulk).items
+    assert first.error is None
+    assert first.result is not None
+    assert first.result.transaction_id == transaction.id
+    assert missing.result is None
+    assert missing.error == "User is not found"
+    assert third.result is None
+    assert third.error == "Insufficient funds"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "fragment_failure",
+    [FragmentError("Status - 429"), FragmentAPIAccessDenied("access denied")],
+)
+async def test_charge_bulk_stops_asking_fragment_when_it_fails(
+    session: AsyncSession,
+    user: User,
+    fragment: MagicMock,
+    valid_tc_transaction: TonConnectTransaction,
+    transaction_service: MagicMock,
+    redis: Redis,
+    fragment_failure: Exception,
+) -> None:
+    fragment.search_stars_recipient.side_effect = [FOUND, fragment_failure]
+    fragment.get_buy_stars_link.return_value = BuyLink(
+        transaction=valid_tc_transaction, ok=True
+    )
+    transaction_service.charge_bulk_from_tc.return_value = [InsufficientFunds()]
+    bulk = await _bulk(session, user, "first_user", "second_user", "third_user")
+
+    await stars_service.charge_bulk(
+        session=session, bulk=bulk, fragment=fragment, redis=redis
+    )
+
+    # Third user is never asked for, the first one still goes to charging.
+    assert fragment.search_stars_recipient.call_count == 2
+    purchases = transaction_service.charge_bulk_from_tc.call_args.kwargs["purchases"]
+    assert [metadata.recipient_username for _, metadata in purchases] == ["first_user"]
+    _, second, third = stars_service.bulk_response(bulk).items
+    assert second.error == FRAGMENT_UNAVAILABLE
+    assert third.error == FRAGMENT_UNAVAILABLE
+
+
+@pytest.mark.asyncio
+async def test_charge_bulk_does_not_charge_a_batch_charged_meanwhile(
+    session: AsyncSession,
+    user: User,
+    fragment: MagicMock,
+    valid_tc_transaction: TonConnectTransaction,
+    transaction_service: MagicMock,
+    redis: Redis,
+) -> None:
+    fragment.search_stars_recipient.return_value = FOUND
+    fragment.get_buy_stars_link.return_value = BuyLink(
+        transaction=valid_tc_transaction, ok=True
+    )
+    bulk = await _bulk(session, user, "first_user")
+
+    async def charged_by_another_delivery(**_):
+        await session.execute(
+            update(StarsBulkPurchase)
+            .where(StarsBulkPurchase.id == bulk.id)
+            .values(status=BulkPurchaseStatus.charged)
+        )
+        return FOUND
+
+    fragment.search_stars_recipient.side_effect = charged_by_another_delivery
+
+    await stars_service.charge_bulk(
+        session=session, bulk=bulk, fragment=fragment, redis=redis
+    )
+
+    transaction_service.charge_bulk_from_tc.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_get_bulk_hides_other_users_batches(
+    session: AsyncSession, user: User, user_second: User
+) -> None:
+    bulk = await _bulk(session, user, "first_user")
+
+    assert await stars_service.get_bulk(session=session, user=user, id=bulk.id) == bulk
+    with pytest.raises(ResourceNotFound):
+        await stars_service.get_bulk(session=session, user=user_second, id=bulk.id)

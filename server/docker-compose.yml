@@ -24,6 +24,12 @@ services:
       - db
       - rabbitmq
       - redis
+    # Own Fragment login, separate from the app's session. A directory volume:
+    # the session file is created on the first login.
+    volumes:
+      - worker_fragment_session:/app/worker-fragment
+    environment:
+      FRAG_FRAGMENT_SESSION_PATH: /app/worker-fragment/session.json
     networks:
       - dokploy-network
     env_file:
@@ -90,6 +96,7 @@ volumes:
   db_data:
   rabbitmq_data:
   redis_data:
+  worker_fragment_session:
 
 networks:
   dokploy-network:

@@ -38,7 +38,7 @@ class WalletSendGate:
         redis: Redis,
         wallet_id: str,
         *,
-        interval: float = 3,
+        interval: float = 10,
         attempt_timeout: float = 30,
         lease: float = 60,
     ) -> None:
@@ -94,7 +94,7 @@ class WalletSendGate:
 
         The reservation intentionally has no TTL. A timeout is not evidence that
         the prior payment failed; unresolved seqnos require chain/manual recovery.
-        
+
         Idempotent: if this token already reserved this seqno, returns success.
         """
         result = await self.redis.eval(

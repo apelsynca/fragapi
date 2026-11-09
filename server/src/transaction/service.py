@@ -119,6 +119,49 @@ class TransactionService:
 
         return transaction
 
+    async def charge_bulk_from_tc(
+        self,
+        session: AsyncSession,
+        user: User,
+        reason: TransactionReason,
+        purchases: Sequence[tuple[TonConnectTransaction, FTMetadata]],
+    ) -> list[Transaction | InsufficientFunds]:
+        """
+        Debit and create, in order, every purchase the balance covers. Results are
+        aligned with `purchases`. Sending is up to the caller, all in one message.
+        """
+        for tc_transaction, _ in purchases:
+            validate_tc_transaction(tc_transaction)
+
+        await session.refresh(user, with_for_update=True)
+
+        results: list[Transaction | InsufficientFunds] = []
+        for tc_transaction, metadata in purchases:
+            amount = self._amount_with_fee(tc_transaction)
+            if user.balance <= amount:
+                results.append(InsufficientFunds(required_amount=amount))
+                continue
+
+            transaction = await self._create_from_tc(
+                session=session,
+                tc_transaction=tc_transaction,
+                user=user,
+                reason=reason,
+                metadata=metadata,
+            )
+            user.balance -= transaction.amount
+            results.append(transaction)
+
+        # Assigns the ids, callers store and send by them.
+        await session.flush()
+        log.info(
+            "fragment_transaction.charge_bulk_from_tc",
+            fragment_transaction_ids=[
+                r.id for r in results if isinstance(r, Transaction)
+            ],
+        )
+        return results
+
     async def _create_from_tc(
         self,
         session: AsyncSession,
@@ -128,20 +171,16 @@ class TransactionService:
         metadata: FTMetadata,
     ) -> Transaction:
         validate_tc_transaction(tc_transaction)
-        tc_msg = tc_transaction.messages[0]
         ton_transaction = await ton_transaction_service.create_as_tc(
             session=session, tc_transaction=tc_transaction
         )
-
-        without_fee_f_amount = float(to_amount(tc_msg.amount))
-        f_amount = fee_calculator.total_cost(without_fee_f_amount)
 
         repository = TransactionRepository.from_session(session)
 
         return await repository.create(
             Transaction(
                 user=user,
-                amount=f_amount,
+                amount=self._amount_with_fee(tc_transaction),
                 recipient=metadata.recipient,
                 recipient_username=metadata.recipient_username,
                 ton_transaction=ton_transaction,
@@ -150,6 +189,10 @@ class TransactionService:
                 premium_months=metadata.premium_months,
             )
         )
+
+    def _amount_with_fee(self, tc_transaction: TonConnectTransaction) -> float:
+        amount = float(to_amount(tc_transaction.messages[0].amount))
+        return fee_calculator.total_cost(amount)
 
     async def get_chart_data(
         self, session: AsyncSession, user: User
