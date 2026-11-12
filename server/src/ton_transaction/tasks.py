@@ -12,6 +12,7 @@ from src.config import settings
 from src.exceptions import BadRequest, ResourceNotFound
 from src.kit.utils import utc_now
 from src.logging import Logger
+from src.models import TonTransaction
 from src.models import Transaction as PurchaseTransaction
 from src.ton_transaction.repository import TonTransactionRepository
 from src.wallet.ton import NETWORK, create_toncenter
@@ -83,6 +84,18 @@ async def ton_transaction_find_real_hash(
                     purchase.sent_at = purchase.sent_at or utc_now()
                 if purchase and purchase.outgoing_message_hash:
                     # Purchases sent together in one bulk wallet message.
+                    await session.execute(
+                        update(TonTransaction)
+                        .where(
+                            TonTransaction.id.in_(
+                                select(PurchaseTransaction.ton_transaction_id).where(
+                                    PurchaseTransaction.outgoing_message_hash
+                                    == purchase.outgoing_message_hash
+                                )
+                            )
+                        )
+                        .values(hash=tx_hash)
+                    )
                     await session.execute(
                         update(PurchaseTransaction)
                         .where(

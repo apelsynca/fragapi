@@ -677,8 +677,8 @@ async def test_bulk_sends_all_purchases_in_one_message_once(
     for transaction in transactions:
         assert transaction.outgoing_message_hash == "fake-outgoing-hash"
         assert transaction.sent_at is not None
-        # Unique column: the shared chain hash is left to the lookup task.
-        assert transaction.ton_transaction.hash is None
+        # One wallet message, so every purchase carries the same hash.
+        assert transaction.ton_transaction.hash == "fake-outgoing-hash"
 
 
 @pytest.mark.asyncio

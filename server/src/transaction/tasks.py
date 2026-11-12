@@ -213,9 +213,9 @@ async def _broadcast_transaction(
     sent_at = utc_now()
     for transaction in transactions:
         transaction.sent_at = sent_at
-    # ton_transactions.hash is unique, so a shared send leaves it to the lookup.
-    if len(transactions) == 1:
-        transactions[0].ton_transaction.hash = ext_msg.normalized_hash
+    # Until the lookup finds the chain hash; a shared send shares it too.
+    for transaction in transactions:
+        transaction.ton_transaction.hash = ext_msg.normalized_hash
     await session.commit()
 
 
