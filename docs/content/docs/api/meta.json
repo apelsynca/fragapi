@@ -3,6 +3,8 @@
     "users/get_api_user_me",
     "stars/get_recipient",
     "stars/buy_stars",
+    "stars/bulk_buy_stars",
+    "stars/get_bulk_buy_stars",
     "premium/get_recipient",
     "premium/buy_premium",
     "gifts/get_gift_models_short_names",
