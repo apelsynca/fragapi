@@ -1,4 +1,6 @@
 {
+  "title": "API Endpoints",
+  "icon": "Globe",
   "pages": [
     "users/get_api_user_me",
     "stars/get_recipient",
@@ -12,7 +14,7 @@
     "gifts/get_gift_model_by_collection_and_name",
     "deposit/request_ton_deposit",
     "deposit/request_ton_deposit_via_memo",
-    "deposit/get_list",
+    "deposit/list_deposits",
     "transactions/list_transactions"
   ]
 }

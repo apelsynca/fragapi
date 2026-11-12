@@ -171,5 +171,160 @@ $response = Http::withHeaders([
 $me = $response->json();
 
 // Should print info about balance, etc...
-print_r($me)"e;
+print_r($me);
+```
+
+---
+
+### POST request example
+
+Data is sent in the request body as JSON. Example of buying 50 stars with [`POST /v1/stars/buy`](/en/docs/api/stars/buy_stars):
+
+<Callout type="warn">
+  This is a real purchase: the stars are sent to the user and the price is taken from your balance.
+</Callout>
+
+```python tab="<PythonIcon /> buy.py"
+import requests
+
+BASE_URL = "https://api.fragapi.com/v1"
+token = "<Your API token>"
+
+# Purchase data goes in the request body
+r = requests.post(
+  url=f"{BASE_URL}/stars/buy",
+  headers={"Authorization": f"Bearer {token}"},
+  json={"username": "synca", "quantity": 50}
+)
+
+# On failure the response is {"error": ..., "detail": ...} with a 4xx status
+if not r.ok:
+  print(r.status_code, r.json())
+else:
+  print(r.json())
+```
+
+```javascript tab="<JavascriptIcon /> buy.js"
+const baseUrl = "https://api.fragapi.com/v1";
+const token = "<Your API token>";
+
+// Purchase data goes in the request body
+const response = await fetch(`${baseUrl}/stars/buy`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ username: "synca", quantity: 50 }),
+});
+
+// On failure the response is {"error": ..., "detail": ...} with a 4xx status
+console.log(response.status, await response.json());
+```
+
+```go tab="<GoIcon /> buy.go"
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+func main() {
+	baseURL := "https://api.fragapi.com/v1"
+	token := "<Your API token>"
+
+	// Purchase data goes in the request body
+	body := strings.NewReader(`{"username": "synca", "quantity": 50}`)
+
+	req, _ := http.NewRequest("POST", baseURL+"/stars/buy", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// On failure the response is {"error": ..., "detail": ...} with a 4xx status
+	data, _ := io.ReadAll(resp.Body)
+	fmt.Println(resp.StatusCode, string(data))
+}
+```
+
+```rust tab="<RustIcon /> buy.rs"
+use reqwest;
+use serde_json::json;
+
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let base_url = "https://api.fragapi.com/v1";
+    let token = "<Your API token>";
+
+    // Purchase data goes in the request body
+    let response = reqwest::Client::new()
+        .post(format!("{}/stars/buy", base_url))
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&json!({ "username": "synca", "quantity": 50 }))
+        .send()
+        .await?;
+
+    // On failure the response is {"error": ..., "detail": ...} with a 4xx status
+    let status = response.status();
+    let data = response.json::<serde_json::Value>().await?;
+    println!("{} {:?}", status, data);
+
+    Ok(())
+}
+```
+
+```java tab="<JavaIcon /> Buy.java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class Buy {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fragapi.com/v1";
+        String token = "<Your API token>";
+
+        // Purchase data goes in the request body
+        String body = "{\"username\": \"synca\", \"quantity\": 50}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/stars/buy"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
+
+        // On failure the response is {"error": ..., "detail": ...} with a 4xx status
+        System.out.println(response.statusCode() + " " + response.body());
+    }
+}
+```
+
+```php tab="<PhpIcon /> buy.php"
+<?php
+
+use Illuminate\Support\Facades\Http;
+
+$baseUrl = "https://api.fragapi.com/v1";
+$token = "<Your API token>";
+
+// Purchase data goes in the request body
+$response = Http::withToken($token)->post("{$baseUrl}/stars/buy", [
+    'username' => 'synca',
+    'quantity' => 50,
+]);
+
+// On failure the response is {"error": ..., "detail": ...} with a 4xx status
+print_r([$response->status(), $response->json()]);
 ```

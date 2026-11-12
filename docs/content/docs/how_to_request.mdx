@@ -19,7 +19,7 @@ import {
 <Accordions type="single">
   <Accordion title="Как получить api токен?">
     Получить API токен можно только в
-    [панеле](https://fragapi.com/dashboard/api-tokens)
+    [панели](https://fragapi.com/dashboard/api-tokens)
 
     Введите имя и дату действия токена.
 
@@ -27,7 +27,7 @@ import {
   <Accordion title="Как делать запросы?">
     Запросы делаются на `https://api.fragapi.com/v1/название-метода`
  	
-	Обязятельно передав заголовок авторизации, с API ключом.
+	Обязательно передав заголовок авторизации, с API ключом.
 
     Вот так: `Authorization`: `Bearer ВашАПИ_ТОКЕНсПанели`
 
@@ -175,5 +175,160 @@ $response = Http::withHeaders([
 $me = $response->json();
 
 // Должно вывести данные о балансе и тд..
-print_r($me)"e;
+print_r($me);
+```
+
+---
+
+### Пример POST запроса
+
+Данные передаются в теле запроса в формате JSON. Пример покупки 50 звезд через [`POST /v1/stars/buy`](/ru/docs/api/stars/buy_stars):
+
+<Callout type="warn">
+  Это настоящая покупка: звезды будут отправлены пользователю, а сумма списана с вашего баланса.
+</Callout>
+
+```python tab="<PythonIcon /> buy.py"
+import requests
+
+BASE_URL = "https://api.fragapi.com/v1"
+token = "<Ваш API ключ>"
+
+# Данные покупки передаются в теле запроса
+r = requests.post(
+  url=f"{BASE_URL}/stars/buy",
+  headers={"Authorization": f"Bearer {token}"},
+  json={"username": "synca", "quantity": 50}
+)
+
+# При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+if not r.ok:
+  print(r.status_code, r.json())
+else:
+  print(r.json())
+```
+
+```javascript tab="<JavascriptIcon /> buy.js"
+const baseUrl = "https://api.fragapi.com/v1";
+const token = "<Ваш API ключ>";
+
+// Данные покупки передаются в теле запроса
+const response = await fetch(`${baseUrl}/stars/buy`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ username: "synca", quantity: 50 }),
+});
+
+// При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+console.log(response.status, await response.json());
+```
+
+```go tab="<GoIcon /> buy.go"
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+func main() {
+	baseURL := "https://api.fragapi.com/v1"
+	token := "<Ваш API ключ>"
+
+	// Данные покупки передаются в теле запроса
+	body := strings.NewReader(`{"username": "synca", "quantity": 50}`)
+
+	req, _ := http.NewRequest("POST", baseURL+"/stars/buy", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+	data, _ := io.ReadAll(resp.Body)
+	fmt.Println(resp.StatusCode, string(data))
+}
+```
+
+```rust tab="<RustIcon /> buy.rs"
+use reqwest;
+use serde_json::json;
+
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let base_url = "https://api.fragapi.com/v1";
+    let token = "<Ваш API ключ>";
+
+    // Данные покупки передаются в теле запроса
+    let response = reqwest::Client::new()
+        .post(format!("{}/stars/buy", base_url))
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&json!({ "username": "synca", "quantity": 50 }))
+        .send()
+        .await?;
+
+    // При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+    let status = response.status();
+    let data = response.json::<serde_json::Value>().await?;
+    println!("{} {:?}", status, data);
+
+    Ok(())
+}
+```
+
+```java tab="<JavaIcon /> Buy.java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class Buy {
+    public static void main(String[] args) throws Exception {
+        String baseUrl = "https://api.fragapi.com/v1";
+        String token = "<Ваш API ключ>";
+
+        // Данные покупки передаются в теле запроса
+        String body = "{\"username\": \"synca\", \"quantity\": 50}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/stars/buy"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
+
+        // При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+        System.out.println(response.statusCode() + " " + response.body());
+    }
+}
+```
+
+```php tab="<PhpIcon /> buy.php"
+<?php
+
+use Illuminate\Support\Facades\Http;
+
+$baseUrl = "https://api.fragapi.com/v1";
+$token = "<Ваш API ключ>";
+
+// Данные покупки передаются в теле запроса
+$response = Http::withToken($token)->post("{$baseUrl}/stars/buy", [
+    'username' => 'synca',
+    'quantity' => 50,
+]);
+
+// При ошибке приходит {"error": ..., "detail": ...} и статус 4xx
+print_r([$response->status(), $response->json()]);
 ```
