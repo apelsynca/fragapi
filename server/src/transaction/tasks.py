@@ -22,6 +22,8 @@ from src.postgres import AsyncSession
 from src.telegram_log.service import telegram_log as telegram_log_service
 from src.telegram_log.tasks import admin_telegram_notification_send
 from src.telegram_log.transaction import (
+    enqueue_bulk_transaction_admin_log_tasks,
+    enqueue_bulk_transaction_telegram_log_tasks,
     enqueue_transaction_admin_log_task,
     enqueue_transaction_telegram_log_task,
 )
@@ -77,8 +79,11 @@ async def process_purchases(
     ):
         return
 
-    for transaction in transactions:
-        await _enqueue_purchase_notifications(session, transaction)
+    if len(transactions) == 1:
+        await _enqueue_purchase_notifications(session, transactions[0])
+    else:
+        # One digest per bulk: a message per purchase gets the chat rate limited.
+        await _enqueue_bulk_purchase_notifications(session, transactions)
     _enqueue_hash_lookup(transactions[0])
 
 
@@ -299,6 +304,34 @@ async def _enqueue_purchase_notifications(
         if sources_count == 1:  # PERF: dont forget to change it to > 1 or smth
             enqueue_transaction_telegram_log_task(
                 source=sources[0], transaction=transaction
+            )
+        elif sources_count > 1:
+            log.warning(
+                "transaction.process.skip_enqueue_user_log somehow sources number is bigger than 1",
+                sources_count=sources_count,
+            )
+    except Exception:
+        log.exception("transaction.process.error_enqueuing_user_log")
+
+
+async def _enqueue_bulk_purchase_notifications(
+    session: AsyncSession, transactions: list[Transaction]
+) -> None:
+    try:
+        enqueue_bulk_transaction_admin_log_tasks(transactions=transactions)
+    except Exception:
+        log.exception("transaction.process.error_enqueuing_admin_log")
+
+    try:
+        # A bulk purchase belongs to a single user.
+        sources = await telegram_log_service.get_all_sources(
+            session=session, user=transactions[0].user
+        )
+        sources_count = len(sources)
+
+        if sources_count == 1:
+            enqueue_bulk_transaction_telegram_log_tasks(
+                source=sources[0], transactions=transactions
             )
         elif sources_count > 1:
             log.warning(

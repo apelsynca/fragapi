@@ -702,3 +702,34 @@ async def test_bulk_expired_batch_is_not_sent(
 
     manager.wallet.client.send_message.assert_not_awaited()
     assert all(t.outgoing_message_hash is None for t in transactions)
+
+
+@pytest.mark.asyncio
+async def test_bulk_enqueues_one_digest_instead_of_a_log_per_purchase(
+    save_fixture: SaveFixture,
+    user: User,
+    session: AsyncSession,
+    enqueue_task_mock: MagicMock,
+    mocker: MockerFixture,
+) -> None:
+    single_mock = mocker.patch(
+        "src.transaction.tasks.enqueue_transaction_admin_log_task"
+    )
+    digest_mock = mocker.patch(
+        "src.transaction.tasks.enqueue_bulk_transaction_admin_log_tasks"
+    )
+    transactions, tc_transactions = await _bulk_purchases(save_fixture, user)
+
+    await process_purchases(
+        session,
+        [t.id for t in transactions],
+        tc_transactions,
+        FakeWalletManager(),
+        ImmediateGate(),
+    )
+
+    single_mock.assert_not_called()
+    digest_mock.assert_called_once()
+    assert [t.id for t in digest_mock.call_args.kwargs["transactions"]] == [
+        t.id for t in transactions
+    ]
