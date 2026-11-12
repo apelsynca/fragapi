@@ -4,7 +4,7 @@ from pydantic import UUID4
 
 from src.integrations.fragment import Fragment, get_fragment
 from src.logging import Logger
-from src.openapi import APITag
+from src.openapi import APITag, error_responses
 from src.postgres import AsyncSession, get_db_session
 from src.redis import Redis, get_redis
 from src.routing import APIRouter
@@ -24,18 +24,26 @@ from src.worker import enqueue_task
 router = APIRouter(
     prefix="/stars",
     tags=["stars", APITag.public],
+    responses=error_responses(401, 429),
 )
 
 log: Logger = structlog.get_logger()
 
 
-@router.get("/recipient/{username}", description="Get stars recipient info")
+@router.get(
+    "/recipient/{username}",
+    summary="Get Stars Recipient",
+    description="Get stars recipient info",
+    responses=error_responses(400, 404),
+)
 async def get_recipient(
     auth_subject: auth.StarsGlobal,
     username: TelegramUsername,
     fragment: Fragment = Depends(get_fragment),
     redis: Redis = Depends(get_redis),
-    quantity: int | None = Query(default=None),
+    quantity: int | None = Query(
+        default=None, description="Quantity of stars you are going to buy"
+    ),
 ) -> StarsRecipient:
     log.debug(
         "Get recipient request from",
@@ -49,7 +57,11 @@ async def get_recipient(
     )
 
 
-@router.post("/buy", description="Buys stars for a given user.")
+@router.post(
+    "/buy",
+    description="Buys stars for a given user.",
+    responses=error_responses(400, 404),
+)
 async def buy_stars(
     auth_subject: auth.StarsGlobal,
     data: BuyStars,
@@ -71,7 +83,7 @@ async def buy_stars(
     status_code=202,
     description=(
         "Starts buying stars for many users at once. Returns right away; poll "
-        "`GET /stars/buy/bulk/{id}` for each item's result. Only items that are "
+        "`GET /v1/stars/buy/bulk/{id}` for each item's result. Only items that are "
         "bought get charged, all sent in one wallet transaction."
     ),
 )
@@ -87,7 +99,11 @@ async def bulk_buy_stars(
     return stars_service.bulk_response(bulk)
 
 
-@router.get("/buy/bulk/{id}", description="Get a stars bulk purchase and its results")
+@router.get(
+    "/buy/bulk/{id}",
+    description="Get a stars bulk purchase and its results",
+    responses=error_responses(404),
+)
 async def get_bulk_buy_stars(
     auth_subject: auth.StarsGlobal,
     id: UUID4,

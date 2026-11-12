@@ -9,14 +9,23 @@ from src.deposit.schemas import (
 )
 from src.deposit.service import deposit as deposit_service
 from src.kit.pagination import ListResource, PaginationParamsQuery
-from src.openapi import APITag
+from src.openapi import APITag, error_responses
 from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 
-router = APIRouter(prefix="/deposits", tags=["deposit", APITag.public])
+router = APIRouter(
+    prefix="/deposits",
+    tags=["deposit", APITag.public],
+    responses=error_responses(401, 429),
+)
 
 
-@router.post("/ton", description="Request a new ton deposit")
+@router.post(
+    "/ton",
+    summary="Deposit request ton",
+    description="Request a new ton deposit",
+    responses=error_responses(400),
+)
 async def request_ton_deposit(
     auth_subject: auth.DepositRequest,
     amount: float = Query(..., description="Amount in GRAM"),
@@ -29,6 +38,8 @@ async def request_ton_deposit(
 
 @router.post(
     "/ton/memo",
+    summary="Deposit request ton via memo",
+    responses=error_responses(400),
     description=(
         "Request a new ton deposit, "
         "but with memo (plain text) instead of base64 payload"
@@ -44,7 +55,7 @@ async def request_ton_deposit_via_memo(
     )
 
 
-@router.get("/", description="List deposits")
+@router.get("/", summary="Deposits list", description="List deposits")
 async def list_deposits(
     auth_subject: AuthorizeWebUser,
     pagination: PaginationParamsQuery,

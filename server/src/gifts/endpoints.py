@@ -5,7 +5,7 @@ from src.auth.scope import Scope
 from src.gifts import sorting
 from src.gifts.service import gift as gift_service
 from src.models import User
-from src.openapi import APITag
+from src.openapi import APITag, error_responses
 from src.routing import APIRouter
 from src.thermos.schemas import GiftModel
 from src.thermos.service import thermos as thermos_service
@@ -16,11 +16,13 @@ router = APIRouter(
         Depends(Authenticator(allowed_subjects={User}, required_scopes={Scope.api}))
     ],
     tags=["gifts", APITag.public],
+    responses=error_responses(401, 404, 429),
 )
 
 
 @router.get(
     "/{short_name}/short-models",
+    summary="Gift Models Short Names",
     description="List gift model short names by collection short_name",
 )
 async def get_gift_models_short_names(short_name: str) -> list[str]:
@@ -29,7 +31,11 @@ async def get_gift_models_short_names(short_name: str) -> list[str]:
     )
 
 
-@router.get("/{short_name}/models", description="Get collection giftmodels")
+@router.get(
+    "/{short_name}/models",
+    summary="Gift Models By Collection",
+    description="Get collection giftmodels",
+)
 async def get_gift_models_by_collection(
     short_name: str, sorting: sorting.ListSorting
 ) -> list[GiftModel]:

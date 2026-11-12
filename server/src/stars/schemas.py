@@ -42,16 +42,19 @@ class BulkBuyStars(Schema):
 
 
 class BulkBuyStarsItemResult(Schema):
-    username: str
-    quantity: int
-    result: BuyStarsResponse | None = None
+    username: Annotated[str, Field(description="Username from the request")]
+    quantity: Annotated[int, Field(description="Quantity of stars from the request")]
+    result: Annotated[
+        BuyStarsResponse | None,
+        Field(description="The purchase, once this item is bought"),
+    ] = None
     error: Annotated[
         str | None, Field(description="Why this item was not bought or charged")
     ] = None
 
 
 class BulkBuyStarsResponse(Schema):
-    id: UUID4
+    id: Annotated[UUID4, Field(description="ID to poll the bulk purchase with")]
     status: Annotated[
         BulkPurchaseStatus,
         Field(description="pending: buying, charged: sending, done: finished"),

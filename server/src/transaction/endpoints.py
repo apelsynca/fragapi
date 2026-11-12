@@ -2,16 +2,21 @@ from fastapi import Depends
 
 from src.kit.pagination import ListResource, PaginationParamsQuery
 from src.kit.routing import APITag
+from src.openapi import error_responses
 from src.postgres import AsyncSession, get_db_session
 from src.routing import APIRouter
 from src.transaction import auth, sorting
 from src.transaction.schemas import ChartPoint, Transaction, TransactionStats
 from src.transaction.service import transaction as transaction_service
 
-router = APIRouter(prefix="/transactions", tags=["transactions", APITag.public])
+router = APIRouter(
+    prefix="/transactions",
+    tags=["transactions", APITag.public],
+    responses=error_responses(401, 429),
+)
 
 
-@router.get("", description="Fragment transactions list")
+@router.get("", summary="Transactions list", description="Fragment transactions list")
 async def list_transactions(
     auth_subject: auth.TransactionsRead,
     pagination: PaginationParamsQuery,
