@@ -15,7 +15,8 @@ def strip_telegram_prefix(v: str) -> str:
 TelegramUsername = Annotated[
     str,
     BeforeValidator(strip_telegram_prefix),
-    # the docs prefill requests with the example, so it must be a real account
+    # the username that will be shown as recipient username for docs.
+    # better to be this one than @string guy.
     Field(examples=["synca"]),
 ]
 
