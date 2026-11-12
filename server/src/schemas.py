@@ -12,7 +12,12 @@ def strip_telegram_prefix(v: str) -> str:
     )
 
 
-TelegramUsername = Annotated[str, BeforeValidator(strip_telegram_prefix)]
+TelegramUsername = Annotated[
+    str,
+    BeforeValidator(strip_telegram_prefix),
+    # the docs prefill requests with the example, so it must be a real account
+    Field(examples=["synca"]),
+]
 
 
 class BaseBuyRequest(Schema):
