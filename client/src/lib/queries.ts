@@ -8,6 +8,7 @@ import {
 } from '#/server-api/transactions'
 import { fetchApiTokens } from '#/server-api/api-tokens'
 import { fetchDeposits } from '#/server-api/deposits'
+import { fetchStatsTotals } from '#/server-api/stats'
 
 export const userMeOptions = () =>
   queryOptions({
@@ -50,4 +51,11 @@ export const depositsOptions = (page: number) =>
   queryOptions({
     queryKey: ['deposits', page],
     queryFn: () => fetchDeposits({ data: page }),
+  })
+
+export const statsTotalsOptions = () =>
+  queryOptions({
+    queryKey: ['stats', 'totals'],
+    queryFn: () => fetchStatsTotals(),
+    refetchInterval: 30_000,
   })

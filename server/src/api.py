@@ -5,6 +5,7 @@ from src.gifts.endpoints import router as gifts_router
 from src.premium.endpoints import router as premium_router
 from src.routing import APIRouter
 from src.stars.endpoints import router as stars_router
+from src.stats.endpoints import router as stats_router
 from src.ton.endpoints import router as ton_router
 from src.tonapi.endpoints import router as tonapi_router
 from src.transaction.endpoints import router as transaction_router
@@ -22,3 +23,4 @@ router.include_router(gifts_router)
 router.include_router(tonapi_router)
 router.include_router(deposit_router)
 router.include_router(transaction_router)
+router.include_router(stats_router)

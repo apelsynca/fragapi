@@ -1,33 +1,18 @@
 import { LanguagesIcon } from 'lucide-react'
+import { LoginButton } from './LandingActions'
 import { getLocale, setLocale } from '#/paraglide/runtime'
-import { Button } from '../ui/button'
-// import { useTheme } from '../theme-provider'
-// import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
-
-// const HeaderThemeToggle = () => {
-//   const { setTheme, theme } = useTheme()
-//
-//   return (
-//     <Tabs
-//       value={theme}
-//       onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
-//     >
-//       <TabsList>
-//         <TabsTrigger value="light">Light</TabsTrigger>
-//         <TabsTrigger value="dark">Dark</TabsTrigger>
-//         <TabsTrigger value="system">System</TabsTrigger>
-//       </TabsList>
-//     </Tabs>
-//   )
-// }
+import { Button } from '#/components/ui/button'
+import { siteConfig } from '#/config'
+import { m } from '#/paraglide/messages'
 
 const HeaderLanguageToggle = () => {
   const locale = getLocale()
 
   return (
     <Button
-      variant="default"
+      variant="secondary"
       size="icon"
+      aria-label={locale === 'ru' ? 'English' : 'Русский'}
       onClick={() => {
         setLocale(locale === 'ru' ? 'en' : 'ru')
       }}
@@ -37,12 +22,32 @@ const HeaderLanguageToggle = () => {
   )
 }
 
-export default function Header() {
+export default function Header({ toPanel = false }: { toPanel?: boolean }) {
   return (
-    <div className="pt-6 px-8 max-w-334 w-full">
-      <div className="flex justify-end items-center gap-1.5">
-        <HeaderLanguageToggle />
+    <header className="w-full px-4">
+      <div className="mx-auto flex max-w-280 items-center justify-between pt-6">
+        <span className="text-xl font-semibold tracking-[-0.01em]">
+          FragAPI
+        </span>
+        <nav className="flex items-center gap-2">
+          <div className="text-muted-foreground hidden gap-7 pr-5 text-sm font-medium sm:flex">
+            <a
+              href={siteConfig.docs}
+              className="hover:text-foreground transition-colors"
+            >
+              {m.land_docs()}
+            </a>
+            <a
+              href={siteConfig.github}
+              className="hover:text-foreground transition-colors"
+            >
+              GitHub
+            </a>
+          </div>
+          <HeaderLanguageToggle />
+          <LoginButton toPanel={toPanel} />
+        </nav>
       </div>
-    </div>
+    </header>
   )
 }
