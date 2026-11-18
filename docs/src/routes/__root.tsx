@@ -24,7 +24,15 @@ export const Route = createRootRoute({
         title: "FragAPI Documentation",
       },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "alternate",
+        type: "text/markdown",
+        href: "/llms.txt",
+        title: "Docs for LLMs",
+      },
+    ],
   }),
   component: RootComponent,
 });

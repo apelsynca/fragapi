@@ -1,13 +1,11 @@
-import { source } from '@/lib/source';
+import { buildLLMsIndex, markdownHeaders } from '@/lib/llms';
 import { createFileRoute } from '@tanstack/react-router';
-import { llms } from 'fumadocs-core/source';
 
 export const Route = createFileRoute('/llms.txt')({
   server: {
     handlers: {
-      GET() {
-        return new Response(llms(source).index());
-      },
+      GET: async () =>
+        new Response(await buildLLMsIndex(), { headers: markdownHeaders }),
     },
   },
 });

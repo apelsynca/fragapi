@@ -4,6 +4,9 @@ import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
 import { docsRoute } from "./shared";
 import { openapiPlugin } from "fumadocs-openapi/server";
 import { i18n } from "./i18n";
+import { cleanMarkdown } from "./clean-markdown";
+import { loadOperations, renderOperation } from "./openapi-markdown";
+import { siteUrl } from "./site";
 
 export const source = loader({
   source: docs.toFumadocsSource(),
@@ -35,10 +38,30 @@ export function slugsToMarkdownPath(slugs: string[]) {
   };
 }
 
-export async function getLLMText(page: (typeof source)["$inferPage"]) {
-  const processed = await page.data.getText("processed");
+type DocsPage = (typeof source)["$inferPage"];
 
-  return `# ${page.data.title} (${page.url})
+/** Generated API pages live at `api/<tag>/<name>`, named after `<tag>:<name>`. */
+export function pageOperationId(page: DocsPage) {
+  return page.slugs[0] === "api" ? page.slugs.slice(1).join(":") : undefined;
+}
 
-${processed}`;
+export function pageMarkdownUrl(page: DocsPage) {
+  const path = page.slugs.length > 0 ? page.slugs.join("/") : "index";
+  return `${siteUrl}/${page.locale ?? i18n.defaultLanguage}/docs/${path}.md`;
+}
+
+async function getPageBody(page: DocsPage) {
+  const operationId = pageOperationId(page);
+  if (operationId) {
+    const { doc, operations } = await loadOperations();
+    const operation = operations.get(operationId);
+    if (operation) return renderOperation(doc, operation);
+  }
+  return cleanMarkdown(await page.data.getText("processed"));
+}
+
+export async function getLLMText(page: DocsPage) {
+  return `# ${page.data.title} (${siteUrl}${page.url})
+
+${await getPageBody(page)}`;
 }

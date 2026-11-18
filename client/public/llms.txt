@@ -1,0 +1,45 @@
+# FragAPI
+
+> FragAPI is an open-source HTTP API for automating fragment.com: buy Telegram Stars and Telegram Premium for any username, look up Telegram gift models, and top up a balance in TON. No KYC and no wallet seed phrase are needed; purchases are paid from a prepaid balance.
+
+This site (fragapi.com) is the landing page and the dashboard. The documentation lives at https://docs.fragapi.com, which has its own llms.txt with a link to every page.
+
+- Base URL: `https://api.fragapi.com/v1`. Sandbox environment: `https://sandbox-api.fragapi.com/v1`.
+- Auth: send `Authorization: Bearer <API token>`. Tokens are created at https://fragapi.com/dashboard/api-tokens.
+- Purchases are charged to the account balance, with a commission of about 2% (1.8% plus the network fee).
+- Limits, errors, the typical flow and every endpoint are described in the docs `llms.txt` below. Read it before writing code against the API.
+
+## Docs
+
+- [Docs index for LLMs](https://docs.fragapi.com/llms.txt): basics, limits, errors and a link to every docs page as Markdown
+- [Full docs in one file](https://docs.fragapi.com/llms-full.txt): guides and the full API reference
+- [OpenAPI spec](https://api.fragapi.com/openapi.json): machine-readable schema of every endpoint
+- [Docs website](https://docs.fragapi.com): the same content for people
+
+## Python SDK
+
+- [fragapi on PyPI](https://pypi.org/project/fragapi/): official async client, `pip install fragapi`, Python 3.10+
+- [SDK source](https://github.com/apelsynca/fragapi-python): one `FragAPI` client with a method per endpoint
+- [SDK examples](https://github.com/apelsynca/fragapi-python/tree/main/examples/): runnable scripts for each area
+
+```python
+import asyncio
+
+from fragapi import FragAPI
+
+
+async def main() -> None:
+    fragapi = FragAPI(token="YOUR_API_TOKEN")
+    me = await fragapi.get_me()
+    print(me.balance)
+    await fragapi.buy_stars(username="synca", quantity=50)
+
+
+asyncio.run(main())
+```
+
+## Optional
+
+- [Source code](https://github.com/apelsynca/fragapi): the service itself, open source
+- [Telegram channel](https://t.me/frag_api): news and important notifications
+- [Telegram chat](https://t.me/fragapichat): questions and ideas
