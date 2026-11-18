@@ -65,7 +65,8 @@ export default function Stats() {
   ]
 
   return (
-    <section className="w-full px-4 pt-16 sm:pt-24">
+    // Positioned so it paints over the hero background that bleeds in.
+    <section className="relative w-full px-4 pt-16 sm:pt-24">
       <div className="mx-auto flex max-w-280 flex-col gap-4">
         <div className="border-border from-brand/8 grid overflow-hidden rounded-2xl border bg-white/2 bg-linear-to-b to-transparent to-70% md:grid-cols-2">
           <LiveCounter

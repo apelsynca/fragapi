@@ -7,14 +7,11 @@ import {
 import HeroDemo from './HeroDemo'
 import HeroField from './HeroField'
 import { DocsButton, GithubButton, LoginButton } from './LandingActions'
-import Glow from '#/components/ui/glow'
 import { Mockup, MockupFrame } from '#/components/ui/mockup'
-import { useScrollParallax } from '#/hooks/useScrollParallax'
 import { useScrollTilt } from '#/hooks/useScrollTilt'
 import { m } from '#/paraglide/messages'
 
 export default function Hero({ toPanel = false }: { toPanel?: boolean }) {
-  const glowRef = useScrollParallax<HTMLDivElement>()
   const tiltRef = useScrollTilt<HTMLDivElement>()
 
   const chips = [
@@ -25,8 +22,10 @@ export default function Hero({ toPanel = false }: { toPanel?: boolean }) {
   ]
 
   return (
-    <section className="line-b relative w-full overflow-hidden px-4 pt-12 sm:pt-22">
-      <HeroField className="text-brand-foreground pointer-events-none absolute inset-0 size-full mask-[linear-gradient(to_bottom,transparent,rgb(0_0_0/0.3)_10%,black_30%,black_72%,transparent)] font-mono opacity-0 transition-opacity duration-1000 data-ready:opacity-100" />
+    // Clipped sideways only, with no bottom rule: the field runs on past the
+    // hero and fades out over the next section.
+    <section className="relative w-full overflow-x-clip px-4 pt-12 sm:pt-22">
+      <HeroField className="text-brand-foreground pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+12rem)] w-full mask-[linear-gradient(to_bottom,transparent,rgb(0_0_0/0.3)_8%,black_25%,black_55%,transparent)] font-mono opacity-0 transition-opacity duration-300 [--field-strong:var(--foreground)] data-ready:opacity-100" />
       <div className="max-w-container relative mx-auto flex flex-col items-center text-center">
         <div className="animate-appear border-border text-muted-foreground relative z-10 flex items-center gap-2 rounded-full border bg-white/4 py-1.5 pr-3.5 pl-3 text-[13px] leading-5 font-medium">
           <span className="bg-brand size-2 rounded-full" />
@@ -57,8 +56,7 @@ export default function Hero({ toPanel = false }: { toPanel?: boolean }) {
           ))}
         </ul>
         <div className="relative mt-8 w-full pt-8 sm:mt-12">
-          {/* The fade is a mask on this wrapper only, so it does not clip the
-              glow. Appear and tilt sit on separate elements: both animate
+          {/* Appear and tilt sit on separate elements: both animate
               `transform`. */}
           <div className="animate-appear relative z-10 mask-[linear-gradient(to_top,transparent,black_18%)] opacity-0 delay-700">
             <div
@@ -81,17 +79,6 @@ export default function Hero({ toPanel = false }: { toPanel?: boolean }) {
                 </Mockup>
               </MockupFrame>
             </div>
-          </div>
-          {/* The drift sits on a wrapper: Chrome does not re-resolve
-              --parallax-y on the element running the appear animation. */}
-          <div
-            ref={glowRef}
-            className="pointer-events-none absolute inset-x-0 top-0 translate-y-[var(--parallax-y,0px)]"
-          >
-            <Glow
-              variant="top"
-              className="animate-appear-zoom opacity-0 delay-1000"
-            />
           </div>
         </div>
       </div>
