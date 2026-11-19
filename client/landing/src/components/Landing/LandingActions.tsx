@@ -2,15 +2,17 @@ import { BotIcon, ExternalLinkIcon } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { GithubLogoIcon } from '#/components/icons/GithubLogoIcon'
 import { siteConfig } from '#/config'
+import { useBotLoginLink } from '#/hooks/useBotLoginLink'
 
 interface ActionProps {
   className?: string
 }
 
 export function LoginButton({ className }: ActionProps) {
+  const href = useBotLoginLink()
   return (
     <Button asChild size="lg" className={className}>
-      <a href={`https://t.me/${siteConfig.botUsername}?start=login`}>
+      <a href={href}>
         <BotIcon /> Войти через Бота
       </a>
     </Button>

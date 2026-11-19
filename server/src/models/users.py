@@ -22,6 +22,11 @@ class User(TimestampedModel):
     username: Mapped[str | None] = mapped_column(unique=True)
     is_premium: Mapped[bool] = mapped_column(default=False)
 
+    signup_source: Mapped[str | None] = mapped_column(index=True)
+    signup_medium: Mapped[str | None]
+    signup_campaign: Mapped[str | None]
+    signup_referrer: Mapped[str | None]
+
     balance: Mapped[float] = mapped_column(default=0)
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
 

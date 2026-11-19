@@ -4,6 +4,7 @@ import structlog
 from aiogram.types import User as TGUser
 from sqlalchemy.exc import IntegrityError
 
+from src.attribution.schemas import Attribution
 from src.exceptions import BadRequest, ResourceNotFound
 from src.logging import Logger
 from src.models import User
@@ -30,6 +31,7 @@ class UserService:
         self,
         session: AsyncSession,
         tg_user: TGUser,
+        attribution: Attribution | None = None,
     ) -> User:
         if tg_user.is_bot:
             raise BadRequest("Cannot create from tg_user which is bot")
@@ -56,17 +58,33 @@ class UserService:
                 last_name=tg_user.last_name,
                 username=tg_user.username,
                 is_premium=tg_user.is_premium or False,
+                signup_source=attribution.source if attribution else None,
+                signup_medium=attribution.medium if attribution else None,
+                signup_campaign=attribution.campaign if attribution else None,
+                signup_referrer=attribution.referrer if attribution else None,
             ),
             flush=True,
         )
 
+        text = texts.NEW_USER_LOG.format(
+            id=user.id,
+            full_name=html.escape(user.full_name),
+            username=f"@{user.username}" if user.username else "--",
+        )
+        metadata = attribution.model_dump(exclude_none=True) if attribution else {}
+        if metadata:
+            text += "\n" + "\n".join(
+                f"{key.title()}: {html.escape(value)}"
+                for key, value in metadata.items()
+            )
+        log.info(
+            "New user",
+            user_id=user.id,
+            **{f"signup_{key}": value for key, value in metadata.items()},
+        )
         enqueue_task(
             admin_telegram_log_send,
-            text=texts.NEW_USER_LOG.format(
-                id=user.id,
-                full_name=html.escape(user.full_name),
-                username=f"@{user.username}" if user.username else "--",
-            ),
+            text=text,
             with_notification=False,
         )
 

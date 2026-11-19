@@ -21,3 +21,7 @@ Live totals refresh every 30 seconds from
 CORS, or `VITE_API_URL` must point to a same-origin proxy. The current production
 API does not return CORS headers. Until configured, the counters show `—`;
 failed refreshes retain the last known totals.
+
+Signup buttons preserve UTM parameters and external referrer hostnames through
+Telegram login. See [signup attribution](../../server/SIGNUP_ATTRIBUTION.md) for
+campaign examples, server configuration, and deployment order.

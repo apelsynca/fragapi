@@ -26,6 +26,7 @@ async def _authenticate(scope: Scope) -> tuple[str, RateLimitGroup]:
 
 
 _BASE_RULES: dict[str, Sequence[Rule]] = {
+    "^/v1/attribution/start$": [Rule(minute=30)],
     # First matching pattern wins: polling GET /buy/bulk/{id} must not count as buys.
     "^/v1/stars/buy(/bulk)?$": [Rule(minute=90, block_time=300, zone="buy")],
     "^/v1/premium/buy": [Rule(minute=90, block_time=300, zone="buy")],

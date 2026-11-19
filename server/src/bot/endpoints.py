@@ -9,6 +9,7 @@ from src.exceptions import Forbidden
 from src.logging import Logger
 from src.openapi import APITag
 from src.postgres import AsyncSession, get_db_session
+from src.redis import Redis, get_redis
 from src.routing import APIRouter
 
 router = APIRouter(tags=[APITag.private])
@@ -18,7 +19,9 @@ log: Logger = structlog.get_logger()
 
 @router.post(settings.BOT_WEBHOOK_PATH)
 async def telegram_bot_webhook(
-    request: Request, session: AsyncSession = Depends(get_db_session)
+    request: Request,
+    session: AsyncSession = Depends(get_db_session),
+    redis: Redis = Depends(get_redis),
 ) -> Response:
     try:
         bot: Bot = request.state.bot
@@ -31,6 +34,6 @@ async def telegram_bot_webhook(
         raise Forbidden()
 
     update = Update.model_validate(await request.json(), context={"bot": bot})
-    await dispatcher.feed_update(bot=bot, update=update, session=session)
+    await dispatcher.feed_update(bot=bot, update=update, session=session, redis=redis)
 
     return Response(status_code=200)

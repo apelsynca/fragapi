@@ -62,6 +62,8 @@ class Settings(BaseSettings):
 
     # Telegram Bot
     BOT_TOKEN: str = ""
+    BOT_USERNAME: str = Field(default="frag_api_bot", pattern=r"^[A-Za-z0-9_]+$")
+    SIGNUP_CAMPAIGNS: dict[str, dict[str, str]] = Field(default_factory=dict)
     BOT_WEBHOOK_PATH: str = "/bot/webhook"
     BOT_WEBHOOK_SECRET_TOKEN: str | None = None
     TELEGRAM_LOG_SENDER: TelegramLogSender = (

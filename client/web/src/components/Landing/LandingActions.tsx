@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
 import { GithubLogoIcon } from '#/components/icons/GithubLogoIcon'
 import { siteConfig } from '#/config'
+import { useBotLoginLink } from '#/hooks/useBotLoginLink'
 import { m } from '#/paraglide/messages'
 
 interface ActionProps {
@@ -13,6 +14,7 @@ export function LoginButton({
   toPanel = false,
   className,
 }: ActionProps & { toPanel?: boolean }) {
+  const href = useBotLoginLink()
   return (
     <Button asChild size="lg" className={className}>
       {toPanel ? (
@@ -20,7 +22,7 @@ export function LoginButton({
           <LogInIcon /> {m.land_go_to_panel()}
         </Link>
       ) : (
-        <a href={`https://t.me/${siteConfig.botUsername}?start=login`}>
+        <a href={href}>
           <BotIcon /> {m.land_bot_login()}
         </a>
       )}

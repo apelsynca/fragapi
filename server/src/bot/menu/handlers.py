@@ -9,6 +9,7 @@ from aiogram.types import Message
 from aiogram.types import User as TGUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.attribution.service import LOGIN_PREFIX, resolve_start_argument
 from src.bot import custom_emoji
 from src.bot.menu import keyboards, texts
 from src.config import settings
@@ -18,6 +19,7 @@ from src.kit.utils import utc_now
 from src.logging import Logger
 from src.models import User, UserSession
 from src.models.user_sessions import USER_SESSION_PREFIX
+from src.redis import Redis
 from src.user.service import user as user_service
 
 router = Router(name="menu")
@@ -29,7 +31,10 @@ LOGIN_ARG = "login"
 
 @router.message(CommandStart())
 async def command_start(
-    message: Message, session: AsyncSession, command: CommandObject
+    message: Message,
+    session: AsyncSession,
+    command: CommandObject,
+    redis: Redis | None = None,
 ) -> None:
     tg_user = cast(TGUser, message.from_user)
 
@@ -39,9 +44,14 @@ async def command_start(
             session=session, user=user, tg_user=tg_user
         )
     except ResourceNotFound:
-        user = await user_service.create_from_tg_user(session=session, tg_user=tg_user)
+        attribution = await resolve_start_argument(command.args, redis)
+        user = await user_service.create_from_tg_user(
+            session=session, tg_user=tg_user, attribution=attribution
+        )
 
-    if command.args is not None and command.args == LOGIN_ARG:
+    if command.args is not None and (
+        command.args == LOGIN_ARG or command.args.startswith(LOGIN_PREFIX)
+    ):
         return await login(message=message, session=session, user=user)
 
     await message.answer(
