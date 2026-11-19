@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "steps": {
+    "build": {
+      "commands": ["bun run --cwd landing build"]
+    }
+  }
+}

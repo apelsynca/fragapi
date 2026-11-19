@@ -24,3 +24,13 @@ RAILPACK_START_CMD="node web/.output/server/index.mjs"
 
 Each additional app can have its own Railpack config or command variables while
 keeping `/client` as its Root Directory.
+
+For the landing service, use the Railpack builder and configure:
+
+- Root Directory: `/client`
+- Service variable: `RAILPACK_CONFIG_FILE=railpack.landing.json`
+- Service variable: `RAILPACK_SPA_OUTPUT_DIR=landing/dist`
+
+The config installs dependencies from the workspace root and builds `landing/`.
+Railpack serves the built static files with Caddy. Leave the service's custom
+start command unset so Railpack can configure the static server.
