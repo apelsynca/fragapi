@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "steps": {
+    "build": {
+      "commands": ["bun run --cwd web build"]
+    }
+  },
+  "deploy": {
+    "startCommand": "node web/.output/server/index.mjs"
+  }
+}
