@@ -10,6 +10,21 @@ import { siteConfig } from '#/config'
 export default function FAQ() {
   const items = [
     {
+      question: 'Как автоматизировать покупку Telegram Stars?',
+      answer:
+        'Создайте API-токен в панели FragAPI и пополните баланс в TON. Отправьте запрос POST /v1/stars/buy с username получателя и количеством звёзд. Так можно встроить автоматическую покупку Telegram Stars в своего бота, магазин или сервис без ручной работы в интерфейсе Fragment.',
+    },
+    {
+      question: 'Можно ли автоматически покупать Telegram Premium через API?',
+      answer:
+        'Да. Fragment API позволяет оформить Telegram Premium по username через запрос POST /v1/premium/buy. Перед покупкой проверяется получатель, а историю транзакций можно посмотреть в панели или получить через API.',
+    },
+    {
+      question: 'Что такое Fragment API и для чего он нужен?',
+      answer:
+        'FragAPI — сервис с открытым исходным кодом для автоматизации Fragment. Через HTTP API можно покупать Telegram Stars и Telegram Premium, проверять баланс и получать историю транзакций. Подключите API к своему приложению или разверните FragAPI на своём сервере.',
+    },
+    {
       question: 'Почему FragAPI?',
       answer:
         'Полная автоматизация Fragment через API: не нужен KYC, низкая комиссия 1.8%, открытый исходный код, статистика, оповещения и многое другое.',
@@ -49,7 +64,7 @@ export default function FAQ() {
                 <AccordionTrigger className="items-center py-4.5 text-base">
                   {item.question}
                 </AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent forceMount className="in-data-[state=closed]:hidden">
                   <p className="text-muted-foreground max-w-160 pb-2 text-[15px] leading-6">
                     {item.answer}
                   </p>

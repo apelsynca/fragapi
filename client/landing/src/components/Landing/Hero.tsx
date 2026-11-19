@@ -31,13 +31,14 @@ export default function Hero() {
           Открытый исходный код · MIT
         </div>
         <h1 className="animate-appear from-foreground to-foreground dark:to-muted-foreground relative z-10 mt-6 bg-linear-to-r bg-clip-text text-4xl leading-tight font-semibold tracking-[-0.035em] text-balance text-transparent drop-shadow-2xl sm:text-6xl sm:leading-[1.06] lg:text-[68px]">
-          Автоматизируйте Fragment
+          Fragment API для покупки
           <br />
-          через простой API
+          Telegram Stars и Premium
         </h1>
         <p className="animate-appear text-muted-foreground relative z-10 mt-5 max-w-170 text-base font-medium text-balance opacity-0 delay-100 sm:text-xl sm:leading-7">
-          Покупайте Telegram Stars и Premium одним запросом. Без KYC, без ввода
-          seed фраз, с полностью открытым исходным кодом.
+          Автоматизируйте покупку Telegram Stars и Telegram Premium через Fragment
+          одним API-запросом. Без KYC и seed-фраз, с полностью открытым исходным
+          кодом.
         </p>
         <div className="animate-appear relative z-10 mt-8 flex flex-wrap justify-center gap-2 opacity-0 delay-300">
           <LoginButton />

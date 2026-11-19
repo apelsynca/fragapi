@@ -6,6 +6,11 @@ animations, interactive dashboard demo, pricing, and FAQ.
 From `client/`, run `bun run --cwd landing dev` to develop or
 `bun run --cwd landing build` to build the static site into `landing/dist`.
 
+The production build prerenders the landing into `dist/index.html`, including
+the FAQ answers, so search engines receive the Russian page content without
+running JavaScript. The client hydrates that HTML to enable interactions.
+The temporary server renderer is removed after the build; hosting stays static.
+
 Links use the same optional `VITE_BOT_USERNAME`, `VITE_REPOSITORY_URL`,
 `VITE_DOCS_URL`, `VITE_TELEGRAM_CHAT_URL`, and `VITE_TELEGRAM_CHANNEL_URL`
 variables as the web app.

@@ -12,14 +12,14 @@ export default function Features() {
   const features = [
     {
       icon: StarIcon,
-      title: 'Telegram Stars',
-      text: 'Покупка звёзд любому пользователю по username — поштучно или сразу целым списком получателей.',
+      title: 'API для покупки Telegram Stars',
+      text: 'Автоматическая покупка Telegram Stars по username через API — для одного получателя или целого списка пользователей.',
       chip: 'POST /v1/stars/buy',
     },
     {
       icon: CrownIcon,
-      title: 'Telegram Premium',
-      text: 'Оформление Premium по username с проверкой получателя перед покупкой.',
+      title: 'API для покупки Telegram Premium',
+      text: 'Автоматическая покупка Telegram Premium по username через API с проверкой получателя перед оформлением подписки.',
       chip: 'POST /v1/premium/buy',
     },
     {
@@ -53,7 +53,7 @@ export default function Features() {
       <div className="mx-auto flex max-w-280 flex-col gap-14">
         <SectionHeading
           eyebrow="Возможности"
-          title="Всё, что нужно от Fragment"
+          title="Автоматизация Fragment через API"
           subtitle="Один API для покупок, пополнений и аналитики — без ручной работы в интерфейсе Fragment."
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
