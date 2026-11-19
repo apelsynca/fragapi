@@ -23,5 +23,12 @@ API does not return CORS headers. Until configured, the counters show `—`;
 failed refreshes retain the last known totals.
 
 Signup buttons preserve UTM parameters and external referrer hostnames through
-Telegram login. See [signup attribution](../../server/SIGNUP_ATTRIBUTION.md) for
-campaign examples, server configuration, and deployment order.
+Telegram login. Share a link such as
+`https://fragapi.com/?utm_source=telegram&utm_campaign=november_launch`.
+If `utm_medium` is missing, the landing page hostname supplies the medium,
+including for untagged visits. You can override it with `utm_medium=channel`.
+`utm_campaign` is optional. Without it, the campaign is stored as `NULL` and
+the other available fields are still saved for new users.
+
+See [signup attribution](../../server/SIGNUP_ATTRIBUTION.md) for server
+configuration, deployment order, and signup counts.

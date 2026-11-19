@@ -99,10 +99,13 @@ export function getBotLoginLink(
   botUsername: string,
   apiUrl: string,
   docsUrl: string,
+  defaultMedium?: string,
 ): string {
   const fallback = `https://t.me/${botUsername}?start=login`
   if (typeof window === 'undefined') return fallback
-  const data = capture(apiUrl, docsUrl)
+  const data = { ...capture(apiUrl, docsUrl) }
+  const medium = data.medium || clean(defaultMedium ?? null)
+  if (medium) data.medium = medium
   if (Object.keys(data).length === 0) return fallback
   try {
     const url = new URL(

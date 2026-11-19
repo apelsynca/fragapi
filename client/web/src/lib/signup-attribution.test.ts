@@ -5,9 +5,9 @@ const DOCS = 'https://docs.fragapi.com'
 const KEY = 'fragapi.signup-attribution.v1'
 const TTL = 30 * 24 * 60 * 60 * 1000
 
-async function loginLink() {
+async function loginLink(defaultMedium?: string) {
   const { getBotLoginLink } = await import('../../../shared/signup-attribution')
-  return getBotLoginLink('frag_api_bot', API, DOCS)
+  return getBotLoginLink('frag_api_bot', API, DOCS, defaultMedium)
 }
 
 beforeEach(() => {
@@ -33,6 +33,22 @@ describe('signup attribution', () => {
       medium: 'channel',
       campaign: 'launch',
     })
+  })
+
+  it.each([
+    ['/', { medium: 'landing.example' }],
+    [
+      '/?utm_source=telegram',
+      { source: 'telegram', medium: 'landing.example' },
+    ],
+    [
+      '/?utm_source=telegram&utm_medium=channel',
+      { source: 'telegram', medium: 'channel' },
+    ],
+  ])('applies the landing medium default for %s', async (path, expected) => {
+    window.history.replaceState({}, '', path)
+    const url = new URL(await loginLink('landing.example'))
+    expect(Object.fromEntries(url.searchParams)).toEqual(expected)
   })
 
   it('preserves first touch across subsequent visits and page reloads', async () => {

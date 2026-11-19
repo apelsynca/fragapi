@@ -8,6 +8,10 @@ for 30 days. Storage is per browser and origin; if storage is blocked, it lasts
 only for the current page. Browsers may suppress referrers, so untagged traffic
 cannot always be identified.
 
+The standalone landing page uses its hostname when `utm_medium` is missing,
+including on untagged visits. `utm_campaign` is optional and is stored as
+`NULL` when absent.
+
 Example campaign link:
 
 ```text

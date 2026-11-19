@@ -12,6 +12,7 @@ export function useBotLoginLink() {
         siteConfig.botUsername,
         import.meta.env.VITE_API_URL || 'https://api.fragapi.com/v1',
         siteConfig.docs,
+        window.location.hostname,
       ),
     )
   }, [])
